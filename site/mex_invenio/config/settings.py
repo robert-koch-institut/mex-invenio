@@ -104,7 +104,7 @@ THEME_FRONTPAGE_TITLE = "Metadata Exchange"
 # Intro section
 THEME_SHOW_FRONTPAGE_INTRO_SECTION = False
 # Header logo
-THEME_LOGO = 'images/invenio-rdm.svg'
+THEME_LOGO = 'images/mex-logo.svg'
 
 # Invenio-App-RDM
 # ===============
