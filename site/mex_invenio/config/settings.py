@@ -103,7 +103,7 @@ THEME_SITENAME = "mex-invenio"
 # Frontpage title
 THEME_FRONTPAGE_TITLE = "mex-invenio"
 # Header logo
-THEME_LOGO = 'images/invenio-rdm.svg'
+THEME_LOGO = 'images/mex-logo.svg'
 
 
 # Invenio-App-RDM
