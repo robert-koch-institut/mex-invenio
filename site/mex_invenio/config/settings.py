@@ -9,6 +9,9 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 
 from datetime import datetime
 from invenio_i18n import lazy_gettext as _
+from flask import Flask, render_template
+from flask_babel import Babel
+# from flask_babel import gettext as _
 
 from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
 
@@ -79,7 +82,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 # See https://python-babel.github.io/flask-babel/#configuration
 
 # Default locale (language)
-BABEL_DEFAULT_LOCALE = 'en'
+BABEL_DEFAULT_LOCALE = 'de'
 # Default time zone
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
@@ -89,8 +92,7 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
 # Other supported languages (do not include BABEL_DEFAULT_LOCALE in list).
 I18N_LANGUAGES = [
-    # ('de', _('German')),
-    # ('tr', _('Turkish')),
+    ('en', _('English'))
 ]
 
 # Invenio-Theme
