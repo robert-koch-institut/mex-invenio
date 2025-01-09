@@ -9,9 +9,6 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 
 from datetime import datetime
 from invenio_i18n import lazy_gettext as _
-from flask import Flask, render_template
-from flask_babel import Babel
-# from flask_babel import gettext as _
 
 from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
 
