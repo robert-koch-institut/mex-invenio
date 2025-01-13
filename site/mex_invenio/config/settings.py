@@ -10,8 +10,12 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 from datetime import datetime
 from invenio_i18n import lazy_gettext as _
 
+from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
+
+
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
+
 
 # Flask
 # =====
@@ -26,7 +30,7 @@ SEND_FILE_MAX_AGE_DEFAULT = 300
 # SECURITY WARNING: keep the secret key used in production secret!
 # Do not commit it to a source code repository.
 # TODO: Set
-SECRET_KEY="CHANGE_ME"
+SECRET_KEY = "CHANGE_ME"
 
 # Since HAProxy and Nginx route all requests no matter the host header
 # provided, the allowed hosts variable is set to localhost. In production it
@@ -34,14 +38,12 @@ SECRET_KEY="CHANGE_ME"
 # route correct hosts to the application.
 APP_ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
-
 # Flask-SQLAlchemy
 # ================
 # See https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
 
 # TODO: Set
-SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://mex-invenio:mex-invenio@localhost/mex-invenio"
-
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://mex-invenio:mex-invenio@localhost/mex-invenio"
 
 # Invenio-App
 # ===========
@@ -51,9 +53,9 @@ APP_DEFAULT_SECURE_HEADERS = {
     'content_security_policy': {
         'default-src': [
             "'self'",
-            'data:', # for fonts
+            'data:',  # for fonts
             "'unsafe-inline'",  # for inline scripts and styles
-            "blob:",            # for pdf preview
+            "blob:",  # for pdf preview
             # Add your own policies here (e.g. analytics)
         ],
     },
@@ -72,7 +74,6 @@ APP_DEFAULT_SECURE_HEADERS = {
     'strict_transport_security_preload': False,
 }
 
-
 # Flask-Babel
 # ===========
 # See https://python-babel.github.io/flask-babel/#configuration
@@ -81,7 +82,6 @@ APP_DEFAULT_SECURE_HEADERS = {
 BABEL_DEFAULT_LOCALE = 'en'
 # Default time zone
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
-
 
 # Invenio-I18N
 # ============
@@ -93,7 +93,6 @@ I18N_LANGUAGES = [
     # ('tr', _('Turkish')),
 ]
 
-
 # Invenio-Theme
 # =============
 # See https://invenio-theme.readthedocs.io/en/latest/configuration.html
@@ -104,7 +103,6 @@ THEME_SITENAME = "mex-invenio"
 THEME_FRONTPAGE_TITLE = "mex-invenio"
 # Header logo
 THEME_LOGO = 'images/invenio-rdm.svg'
-
 
 # Invenio-App-RDM
 # ===============
@@ -133,7 +131,7 @@ APP_RDM_DEPOSIT_FORM_DEFAULTS = {
     "publisher": "mex-invenio",
 }
 
-APP_RDM_DEPOSIT_FORM_AUTOCOMPLETE_NAMES = 'search' # "search_only" or "off"
+APP_RDM_DEPOSIT_FORM_AUTOCOMPLETE_NAMES = 'search'  # "search_only" or "off"
 
 # Invenio-Records-Resources
 # =========================
@@ -166,7 +164,7 @@ SECURITY_REGISTERABLE = True  # local login: allow users to register
 SECURITY_RECOVERABLE = True  # local login: allow users to reset the password
 SECURITY_CHANGEABLE = True  # local login: allow users to change psw
 SECURITY_CONFIRMABLE = True  # local login: users can confirm e-mail address
-SECURITY_LOGIN_WITHOUT_CONFIRMATION = False # require users to confirm email before being able to login
+SECURITY_LOGIN_WITHOUT_CONFIRMATION = False  # require users to confirm email before being able to login
 
 # Invenio-OAuthclient
 # -------------------
@@ -175,6 +173,7 @@ SECURITY_LOGIN_WITHOUT_CONFIRMATION = False # require users to confirm email bef
 OAUTHCLIENT_REMOTE_APPS = {}  # configure external login providers
 
 from invenio_oauthclient.views.client import auto_redirect_login
+
 ACCOUNTS_LOGIN_VIEW_FUNCTION = auto_redirect_login  # autoredirect to external login if enabled
 OAUTHCLIENT_AUTO_REDIRECT_TO_EXTERNAL_LOGIN = False  # autoredirect to external login
 
