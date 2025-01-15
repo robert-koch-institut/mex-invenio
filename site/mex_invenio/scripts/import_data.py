@@ -74,15 +74,21 @@ def import_data(email: str, filepath: str):
         num_lines = 0
 
         for line in f:
-            mex_data = json.loads(line)
-            identity = get_authenticated_identity(owner.id)
+            try:
+                mex_data = json.loads(line)
+            except json.JSONDecodeError:
+                click.secho(f"Error decoding JSON from line: {num_lines + 1}")
+                sys.exit(1)
+
             data = mex_to_invenio_schema(mex_data)
+            identity = get_authenticated_identity(owner.id)
             draft = current_rdm_records_service.create(data=data, identity=identity)
             published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
             num_lines += 1
 
         if num_lines == 1:
-            click.secho(f"Published record with id {published.id}.")  # noqa: T001
+            # This printout is to enable unit testing
+            click.secho(f"Published record with id {published.id}.")
         else:
             click.secho(f"Published {num_lines} records.")
 

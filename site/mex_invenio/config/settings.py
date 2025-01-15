@@ -207,5 +207,4 @@ RECORD_METADATA_CREATOR = {
         "name": "The Robert Koch Institute",
         "type": "organizational",
     },
-    "role": {"id": "datamanager"},
 }
