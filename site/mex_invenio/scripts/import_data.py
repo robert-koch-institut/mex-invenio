@@ -14,16 +14,15 @@ Does the following:
 import json
 import os.path
 import sys
+import time
 from datetime import datetime
-
 import click
 from flask import current_app
 from flask.cli import with_appcontext
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-
 from mex_invenio.config import RECORD_METADATA_CREATOR
-
+from multiprocessing import Pool
 
 def mex_to_invenio_schema(mex_data: dict) -> dict:
     """Convert MEx schema metadata to internal Invenio RDM Record schema."""
@@ -53,46 +52,76 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 
     return data
 
+def process_record(mex_data: dict, owner_email: str):
+    """Function to create and publish a single record."""
+    app = current_app._get_current_object()  # Get the actual Flask app object
+    with app.app_context():  # Manually push application context in each process
+        user_datastore = current_app.extensions["security"].datastore
+        owner = user_datastore.find_user(email=owner_email)
+
+        if not owner:
+            raise ValueError(f"User with email {owner_email} not found.")
+
+        identity = get_authenticated_identity(owner.id)
+        data = mex_to_invenio_schema(mex_data)
+        
+        # Create draft record and publish
+        draft = current_rdm_records_service.create(data=data, identity=identity)
+        published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
+        
+    return published.id
 
 @click.command("import_data")
 @click.argument("email")
 @click.argument("filepath")
+@click.option("--batch-size", default=1000, help="Number of records to process in parallel.")
 @with_appcontext
-def import_data(email: str, filepath: str):
+def import_data(email: str, filepath: str, batch_size: int):
     """Main function to import data."""
-    user_datastore = current_app.extensions["security"].datastore
-    owner = user_datastore.find_user(email=email)
-
-    if not owner:
-        click.secho(f"User with email {email} not found.")
-        sys.exit(1)
-    elif not os.path.isfile(filepath):
+    if not os.path.isfile(filepath):
         click.secho(f"File {filepath} not found.")
         sys.exit(1)
 
     with open(filepath) as f:
+        lines = f.readlines()
+        total_lines = len(lines)
+
+    # Start the timer to measure processing time
+    start_time = time.time()
+
+    # Use multiprocessing Pool to parallelize the process
+    with Pool(processes=10) as pool:  # Use 10 processes for parallelism
+        futures = []
         num_lines = 0
+        # Process in batches to avoid creating too many futures at once
+        for i in range(0, total_lines, batch_size):
+            batch = lines[i:i + batch_size]
+            for line in batch:
+                try:
+                    mex_data = json.loads(line)
+                except json.JSONDecodeError:
+                    click.secho(f"Error decoding JSON from line: {i + 1}")
+                    sys.exit(1)
+                
+                futures.append(pool.apply_async(process_record, (mex_data, email)))
+            
+            # Collect the results as they complete
+            for future in futures:
+                try:
+                    published_id = future.get()  # get the result from the process
+                    click.secho(f"Published record with id {published_id}.")
+                    num_lines += 1
+                except Exception as e:
+                    click.secho(f"Error processing record: {str(e)}", fg="red")
+        
+        # End the timer after processing is done
+        end_time = time.time()
 
-        for line in f:
-            try:
-                mex_data = json.loads(line)
-            except json.JSONDecodeError:
-                click.secho(f"Error decoding JSON from line: {num_lines + 1}")
-                sys.exit(1)
-
-            data = mex_to_invenio_schema(mex_data)
-            identity = get_authenticated_identity(owner.id)
-            draft = current_rdm_records_service.create(data=data, identity=identity)
-            published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
-            num_lines += 1
-
-        if num_lines == 1:
-            # This printout is to enable unit testing
-            click.secho(f"Published record with id {published.id}.")
-        else:
-            click.secho(f"Published {num_lines} records.")
+    # Calculate the total time taken and print the results
+    elapsed_time = end_time - start_time
+    click.secho(f"Published {num_lines} records.", fg="green")
+    click.secho(f"Total time taken: {elapsed_time:.2f} seconds.", fg="green")
 
 
 if __name__ == "__main__":
     import_data()
-
