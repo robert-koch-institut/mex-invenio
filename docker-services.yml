@@ -48,7 +48,7 @@ services:
     ports:
       - "5050:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: "info@mex-invenio.com"
+      PGADMIN_DEFAULT_EMAIL: "mex@rki.de"
       PGADMIN_DEFAULT_PASSWORD: "mex-invenio"
     volumes:
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
