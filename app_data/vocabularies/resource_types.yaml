@@ -1,0 +1,116 @@
+# These are 11 MEx entity types
+# https://github.com/robert-koch-institut/mex-model/tree/main/mex/model/entities
+# they replace the Datacite 4.3 resource types
+# https://github.com/inveniosoftware/invenio-rdm-records/blob/master/invenio_rdm_records/fixtures/data/vocabularies/resource_types.yaml
+# For more information:
+# https://inveniordm.docs.cern.ch/customize/vocabularies/resource_types/
+- id: variable
+  icon: code
+  title:
+    en: Variable
+  props:
+    type: variable
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: resource
+  icon: code
+  title:
+    en: Resource
+  props:
+    type: resource
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: activity
+  icon: code
+  title:
+    en: Activity
+  props:
+    type: activity
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: accessplatform
+  icon: code
+  title:
+    en: Access platform
+  props:
+    type: accessplatform
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: distribution
+  icon: code
+  title:
+    en: Distribution
+  props:
+    type: distribution
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: organizationalunit
+  icon: code
+  title:
+    en: Organizational unit
+  props:
+    type: organizationalunit
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: contactpoint
+  icon: code
+  title:
+    en: Contact point
+  props:
+    type: contactpoint
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: person
+  icon: code
+  title:
+    en: Person
+  props:
+    type: person
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: variablegroup
+  icon: code
+  title:
+    en: Variable group
+  props:
+    type: variablegroup
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: bibliographicresource
+  icon: code
+  title:
+    en: Bibliographic resource
+  props:
+    type: bibliographicresource
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: organization
+  icon: code
+  title:
+    en: Organization
+  props:
+    type: organization
+    subtype: ""
+  tags:
+    - depositable
+    - linkable

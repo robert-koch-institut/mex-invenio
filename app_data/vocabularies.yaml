@@ -20,3 +20,6 @@ subjects:
 # affiliations:
 #   pid-type: aff
 #   data-file: vocabularies/affiliations_ror.yaml
+resourcetypes:
+  pid-type: rsrct
+  data-file: vocabularies/resource_types.yaml
