@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 import click
 from flask import current_app
-from flask.cli import with_appcontext
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from mex_invenio.config import RECORD_METADATA_CREATOR
@@ -62,13 +61,23 @@ def process_record(mex_data: dict, owner_email: str):
 @click.argument("email")
 @click.argument("filepath")
 @click.option("--batch-size", default=1000, help="Number of records to process in parallel.")
-@with_appcontext
 def import_data(email: str, filepath: str, batch_size: int):
     """Main function to import data."""
     if not os.path.isfile(filepath):
         click.secho(f"File {filepath} not found.")
         sys.exit(1)
 
+    # Initial user check
+    app = current_app._get_current_object()
+    with app.app_context():
+        user_datastore = current_app.extensions["security"].datastore
+        owner = user_datastore.find_user(email=email)
+
+        if not owner:
+            click.secho(f"User with email {email} not found.", fg="red")
+            sys.exit(1)
+
+    # Reading the file contents
     with open(filepath) as f:
         lines = f.readlines()
         total_lines = len(lines)
@@ -81,29 +90,28 @@ def import_data(email: str, filepath: str, batch_size: int):
         num_lines = 0
         for i in range(0, total_lines, batch_size):
             batch = lines[i:i + batch_size]
-            futures = []
+            futures = []  # Clear the futures list for each batch
 
             for line in batch:
                 try:
                     mex_data = json.loads(line)
                 except json.JSONDecodeError:
-                    click.secho(f"Error decoding JSON from line: {i + 1}")
+                    click.secho(f"Error decoding JSON from line: {i + 1}", fg="red")
                     sys.exit(1)
 
-                try:
-                    futures.append(pool.apply_async(process_record, (mex_data, email)))
-                except Exception as e:
-                    click.secho(f"Error submitting task: {str(e)}", fg="red")
+                # Pass the email to the multiprocessing function
+                futures.append(pool.apply_async(process_record, (mex_data, email)))
 
             # Collect the results as they complete
             for future in futures:
                 try:
                     published_id = future.get(timeout=600)  # Add timeout if necessary
-                    click.secho(f"Published record with id {published_id}.")
+                    if batch_size == 1:  # Print the published id only for single-line batches
+                        click.secho(f"Published record with id {published_id}.")
                     num_lines += 1
                 except Exception as e:
                     click.secho(f"Error processing record: {str(e)}", fg="red")
-            
+
         # End the timer after processing is done
         end_time = time.time()
 
