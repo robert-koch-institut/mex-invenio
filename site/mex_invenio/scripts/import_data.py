@@ -1,16 +1,3 @@
-"""Script to upload realistic test datasets for the MEx Invenio repository.
-
-Make sure you've started the Invenio services have been set up and are running.
-
-Does the following:
-
-- Finds the file provided as CLI argument.
-- Reads in the metadata in MEx json format.
-- Finds a user to own the record.
-- Creates a draft record by converting the MEx metadata to the repository schema.
-- Publishes the record.
-"""
-
 import json
 import os.path
 import sys
@@ -91,29 +78,32 @@ def import_data(email: str, filepath: str, batch_size: int):
 
     # Use multiprocessing Pool to parallelize the process
     with Pool(processes=10) as pool:  # Use 10 processes for parallelism
-        futures = []
         num_lines = 0
-        # Process in batches to avoid creating too many futures at once
         for i in range(0, total_lines, batch_size):
             batch = lines[i:i + batch_size]
+            futures = []
+
             for line in batch:
                 try:
                     mex_data = json.loads(line)
                 except json.JSONDecodeError:
                     click.secho(f"Error decoding JSON from line: {i + 1}")
                     sys.exit(1)
-                
-                futures.append(pool.apply_async(process_record, (mex_data, email)))
-            
+
+                try:
+                    futures.append(pool.apply_async(process_record, (mex_data, email)))
+                except Exception as e:
+                    click.secho(f"Error submitting task: {str(e)}", fg="red")
+
             # Collect the results as they complete
             for future in futures:
                 try:
-                    published_id = future.get()  # get the result from the process
+                    published_id = future.get(timeout=600)  # Add timeout if necessary
                     click.secho(f"Published record with id {published_id}.")
                     num_lines += 1
                 except Exception as e:
                     click.secho(f"Error processing record: {str(e)}", fg="red")
-        
+            
         # End the timer after processing is done
         end_time = time.time()
 
