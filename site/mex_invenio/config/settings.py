@@ -98,9 +98,11 @@ I18N_LANGUAGES = [
 # See https://invenio-theme.readthedocs.io/en/latest/configuration.html
 
 # Name used in header and UI
-THEME_SITENAME = "mex-invenio"
+THEME_SITENAME = "MEx"
 # Frontpage title
-THEME_FRONTPAGE_TITLE = "mex-invenio"
+THEME_FRONTPAGE_TITLE = "Metadata Exchange"
+# Intro section
+THEME_SHOW_FRONTPAGE_INTRO_SECTION = False
 # Header logo
 THEME_LOGO = 'images/invenio-rdm.svg'
 
@@ -112,7 +114,7 @@ THEME_LOGO = 'images/invenio-rdm.svg'
 INSTANCE_THEME_FILE = './less/theme.less'
 
 # Email address for administrator emails (like file checksum alerts)
-APP_RDM_ADMIN_EMAIL_RECIPIENT = "info@mex-invenio.com"
+APP_RDM_ADMIN_EMAIL_RECIPIENT = "mex@rki.de"
 
 # Default values for the deposit form
 APP_RDM_DEPOSIT_FORM_DEFAULTS = {
@@ -185,10 +187,10 @@ USERPROFILES_READ_ONLY = False  # allow users to change profile info (name, emai
 # =======
 # See https://github.com/inveniosoftware/invenio-oaiserver/blob/master/invenio_oaiserver/config.py
 
-OAISERVER_ID_PREFIX = "mex-invenio.com"
+OAISERVER_ID_PREFIX = "mex.rki.de"
 """The prefix that will be applied to the generated OAI-PMH ids."""
 OAISERVER_ADMIN_EMAILS = [
-    "info@mex-invenio.com",
+    "mex@rki.de",
 ]
 
 # Invenio-Search
