@@ -98,9 +98,11 @@ I18N_LANGUAGES = [
 # See https://invenio-theme.readthedocs.io/en/latest/configuration.html
 
 # Name used in header and UI
-THEME_SITENAME = "mex-invenio"
+THEME_SITENAME = "MEx"
 # Frontpage title
-THEME_FRONTPAGE_TITLE = "mex-invenio"
+THEME_FRONTPAGE_TITLE = "Metadata Exchange"
+# Intro section
+THEME_SHOW_FRONTPAGE_INTRO_SECTION = False
 # Header logo
 THEME_LOGO = 'images/invenio-rdm.svg'
 
