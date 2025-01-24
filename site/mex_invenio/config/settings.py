@@ -203,3 +203,10 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
+
+RECORD_METADATA_CREATOR = {
+    "person_or_org": {
+        "name": "The Robert Koch Institute",
+        "type": "organizational",
+    },
+}
