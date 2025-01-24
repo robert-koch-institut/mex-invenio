@@ -32,6 +32,34 @@ data Findable, Accessible, Interoperable and Reusable.
 **Contact** \
 For more information, please feel free to email us at [mex@rki.de](mailto:mex@rki.de).
 
+## Unit testing
+Unit testing is done using a customised version of pytest, [pytest-invenio](https://github.com/inveniosoftware/pytest-invenio).
+Tests are stored in `./tests`.
+
+To install the testing environment, run the following command:
+
+```bash
+pipenv install -d
+```
+
+To run the tests, execute the following command:
+
+```bash
+pipenv run pytest
+```
+
+with the option -W ignore to suppress warnings:
+
+```bash
+pipenv run pytest -W ignore
+```
+
+with the option -s to show stdout from the app:
+
+```bash
+pipenv run pytest -W ignore -s
+```
+
 ### Publisher
 
 **Robert Koch-Institut** \
