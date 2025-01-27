@@ -42,6 +42,7 @@ def resource_type_type(app):
 @pytest.fixture(scope="module")
 def resource_type_v(app, resource_type_type):
     """Resource type vocabulary record."""
+    Vocabulary.index.create(ignore=400)
     vocab = vocabulary_service.create(
         system_identity,
         {
