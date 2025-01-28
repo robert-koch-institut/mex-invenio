@@ -79,7 +79,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 # See https://python-babel.github.io/flask-babel/#configuration
 
 # Default locale (language)
-BABEL_DEFAULT_LOCALE = 'en'
+BABEL_DEFAULT_LOCALE = 'de'
 # Default time zone
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
@@ -89,8 +89,7 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
 # Other supported languages (do not include BABEL_DEFAULT_LOCALE in list).
 I18N_LANGUAGES = [
-    # ('de', _('German')),
-    # ('tr', _('Turkish')),
+    ('en', _('English'))
 ]
 
 # Invenio-Theme
@@ -104,7 +103,7 @@ THEME_FRONTPAGE_TITLE = "Metadata Exchange"
 # Intro section
 THEME_SHOW_FRONTPAGE_INTRO_SECTION = False
 # Header logo
-THEME_LOGO = 'images/invenio-rdm.svg'
+THEME_LOGO = 'images/mex-logo.svg'
 
 # Invenio-App-RDM
 # ===============
