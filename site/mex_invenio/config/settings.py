@@ -203,9 +203,14 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
+# The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
         "name": "The Robert Koch Institute",
         "type": "organizational",
     },
 }
+
+# The default value for the Datacite title property in imported records
+# if it is not present in the MEx source record
+RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"

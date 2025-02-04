@@ -26,8 +26,9 @@ from flask import current_app
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from mex_invenio.config import RECORD_METADATA_CREATOR
+from mex_invenio.config import RECORD_METADATA_CREATOR, RECORD_METADATA_DEFAULT_TITLE
 from multiprocessing import Pool, cpu_count
+
 
 # Configure logging
 log_file_path = 'import_data.log'
@@ -39,11 +40,26 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - (line: %(lineno)d) 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+
+def get_title(mex_data: dict) -> str:
+    """Get the title of the record from the MEx metadata."""
+    #TODO: What about name?
+    if 'title' in mex_data and len(mex_data['title']) > 0:
+        # Have a preference for German titles
+        try:
+            if [t for t in mex_data['title'] if t['language'] == 'de']:
+                return [t for t in mex_data['title'] if t['language'] == 'de'][0]['value']
+
+            return mex_data['title'][0]['value']
+        except TypeError:
+            pass
+
+    return RECORD_METADATA_DEFAULT_TITLE
+
 def mex_to_invenio_schema(mex_data: dict) -> dict:
     """Convert MEx schema metadata to internal Invenio RDM Record schema."""
     # Remove the 'Merged' prefix from the entityType in order to be able to process test data
     resource_type = mex_data.pop("entityType").removeprefix('Merged').lower()
-    identifier = mex_data['identifier']
 
     data = {
         "access": {
@@ -58,7 +74,7 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
             "resource_type": {"id": resource_type},
             "creators": [RECORD_METADATA_CREATOR],
             "publication_date": datetime.today().strftime('%Y-%m-%d'),
-            "title": f'{resource_type}_{identifier}'
+            "title": get_title(mex_data),
         },
         "custom_fields": {}
     }
@@ -70,7 +86,7 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 
 
 def process_record(mex_data: dict, owner_id: int) -> str:
-    """Function to create and publish a single record."""
+    """Create and publish a single record."""
     app = current_app._get_current_object()  # Get the actual Flask app object
     with app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
@@ -125,7 +141,6 @@ def import_data(email: str, filepath: str, batch_size: int):
 
             # Use multiprocessing Pool to parallelize the process
             with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
-                # Process in batches to avoid creating too many futures at once
                 for line in lines:
                     try:
                         mex_data = mex_to_invenio_schema(json.loads(line))
