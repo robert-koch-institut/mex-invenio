@@ -6,8 +6,7 @@ To execute the script, run:
 pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py  
 
 ### Parameters  
-The script requires two parameters:  
-1. **File Path**  This specifies the file containing your S3 credentials.  
+The script takes the following parameters:  
 2. **checkLastDownload** This flag compares the latest downloaded file with the previous one to determine whether an upload is necessary.  
 
 ### Requirements  
@@ -17,11 +16,9 @@ Before running the script, ensure you have the following:
   - `aws_access_key`  
   - `aws_secret_key`  
   - `region`  
+- Make sure you also have added email (used for uploading data on mex) in your file
 
-You can store these credentials in a custom file, a `.env` file, or preferably inside `.aws/config` under the `[DEFAULT]` profile for 
-better security.  
-
-**Note:** We strongly recommend storing your credentials in `.aws/config` with the `[DEFAULT]` header to keep them secure and organized.  
+You can store these credentials in a custom file, a `.env` file,  
 """
 
 
@@ -31,7 +28,6 @@ import logging
 import argparse
 import os
 import filecmp
-import configparser
 from dotenv import load_dotenv
 import import_data
 from datetime import datetime
@@ -47,27 +43,20 @@ formatter = logging.Formatter('%(asctime)s - %(levelname)s - (line: %(lineno)d) 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-def load_config(config_path=None):
+def load_config():
     config = {}
-    
-    if config_path and os.path.exists(config_path):
-        parser = configparser.ConfigParser()
-        parser.read(config_path)
-    
-        config = {
-            "bucket": parser.get("DEFAULT", "bucket", fallback=None),
-            "aws_access_key": parser.get("DEFAULT", "aws_access_key", fallback=None),
-            "aws_secret_key": parser.get("DEFAULT", "aws_secret_key", fallback=None),
-            "region": parser.get("DEFAULT", "region", fallback="eu-central-1")
-        }
-    else:
-        load_dotenv()
+
+    fileFound = load_dotenv()
+
+    if fileFound:
         config = {
             "bucket": os.getenv("bucket"),
             "aws_access_key": os.getenv("aws_access_key"),
             "aws_secret_key": os.getenv("aws_secret_key"),
-            "region": os.getenv("region", "eu-central-1")
+            "region": os.getenv("region", "eu-central-1"),
+            "email": os.getenv("email"),
         }
+
     return config
 
 def get_latest_file(s3_client, bucket_name):
@@ -139,20 +128,22 @@ def manage_s3_files():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument("config", help="Path to config file", nargs="?", default=None)
     parser.add_argument("checkLastDownload", choices=["yes", "no"], nargs="?", default="yes",
                         help="Check if the latest file is different before replacing (default: yes)")
 
     args = parser.parse_args()
     
-    config = load_config(args.config) if args.config else load_config()
+    config = load_config()
+
+    if not config:
+        logger.error("Unable to fetch configration, env file is missing")
+        return
     
     if not all([config["bucket"], config["aws_access_key"], config["aws_secret_key"]]):
         logger.error("Missing required configurations (bucket, aws_access_key, aws_secret_key).")
         return
     
-    email = os.getenv("email")
-    if not email:
+    if not config["email"]:
         logger.error("email environment variable is not set.")
         return
     
@@ -179,7 +170,7 @@ def manage_s3_files():
             logger.info(f"importing data using file ${final_file_path}")
             
             runner = CliRunner()
-            result = runner.invoke(import_data.import_data, [email, final_file_path])
+            result = runner.invoke(import_data.import_data, [config["email"], final_file_path])
 
             if result.exit_code != 0:
                 logger.error(f"Error in import_data: {result.output}")
