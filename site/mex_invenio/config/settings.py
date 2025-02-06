@@ -8,6 +8,8 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 """
 
 from datetime import datetime
+
+from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
 from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
@@ -191,6 +193,19 @@ OAISERVER_ID_PREFIX = "mex.rki.de"
 OAISERVER_ADMIN_EMAILS = [
     "mex@rki.de",
 ]
+
+OAISERVER_METADATA_FORMATS['oai_mex'] = {
+    'serializer': 'mex_invenio.oai.mex:mex_dublincore_etree',
+    'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+    'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
+
+OAI_SERVER_SOURCES = [
+    'mex:containedBy', 'mex:wasGeneratedBy', 'mex:memberOf', 'mex:belongsTo',
+    'mex:isPartOf', 'mex:creator']
+
+OAI_SERVER_RELATIONS = [
+    'mex:parentUnit', 'mex:isPartOfActivity', 'mex:involvedUnit', 'mex:contributingUnit',
+    'mex:unitOf', 'mex:involvedPerson', 'mex:responsibleUnit', 'mex:usedIn', 'mex:unitInCharge']
 
 # Invenio-Search
 # --------------
