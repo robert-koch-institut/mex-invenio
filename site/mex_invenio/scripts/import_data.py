@@ -26,24 +26,23 @@ from flask import current_app
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from mex_invenio.config import RECORD_METADATA_CREATOR, RECORD_METADATA_DEFAULT_TITLE
+from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT, RECORD_METADATA_CREATOR, \
+    RECORD_METADATA_DEFAULT_TITLE
 from multiprocessing import Pool, cpu_count
 
-
 # Configure logging
-log_file_path = 'import_data.log'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler(log_file_path)
+file_handler = logging.FileHandler(IMPORT_LOG_FILE)
 file_handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s')
+formatter = logging.Formatter(IMPORT_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
 def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
-    #TODO: What about name?
+    # TODO: What about name?
     if 'title' in mex_data and len(mex_data['title']) > 0:
         # Have a preference for German titles
         try:
@@ -55,6 +54,7 @@ def get_title(mex_data: dict) -> str:
             pass
 
     return RECORD_METADATA_DEFAULT_TITLE
+
 
 def mex_to_invenio_schema(mex_data: dict) -> dict:
     """Convert MEx schema metadata to internal Invenio RDM Record schema."""
@@ -91,7 +91,7 @@ def process_record(mex_data: dict, owner_id: int) -> str:
     with app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
 
-        try: # Create draft record and publish
+        try:  # Create draft record and publish
             draft = current_rdm_records_service.create(data=mex_data, identity=identity)
             published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
 
