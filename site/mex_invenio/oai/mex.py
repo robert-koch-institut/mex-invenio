@@ -13,8 +13,9 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
 
     # TODO: DublinCoreXMLSerializer should be able to dump an etree directly
     # instead. See https://github.com/inveniosoftware/flask-resources/issues/117
-    obj = DublinCoreXMLSerializer(**serializer_kwargs).dump_obj(item.to_dict())
+    obj = DublinCoreXMLSerializer(**serializer_kwargs).dump_obj(oai_record)
 
+    # TODO: Rights could be omitted
     # defaults to closedAccess, see
     # https://guidelines.openaire.eu/en/latest/literature/field_accesslevel.html
     obj['rights'] = ['info:eu-repo/semantics/openAccess']
