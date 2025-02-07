@@ -1,9 +1,7 @@
 from dcxml import simpledc
-from flask import g
+from flask import g, current_app
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.resources.serializers import DublinCoreXMLSerializer
-
-from mex_invenio.config import OAI_SERVER_RELATIONS, OAI_SERVER_SOURCES
 
 
 def mex_dublincore_etree(pid, record, **serializer_kwargs):
@@ -36,7 +34,7 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     # https://guidelines.openaire.eu/en/latest/literature/field_source.html
     sources = []
 
-    for source in OAI_SERVER_SOURCES:
+    for source in current_app.config.get('OAI_SERVER_SOURCES', []):
         if source in oai_record['custom_fields']:
             if isinstance(oai_record['custom_fields'][source], list):
                 sources.extend(['mex:' + c for c in oai_record['custom_fields'][source]])
@@ -47,7 +45,7 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     # https://guidelines.openaire.eu/en/latest/literature/field_relation.html
     relations = []
 
-    for relation in OAI_SERVER_RELATIONS:
+    for relation in current_app.config.get('OAI_SERVER_RELATIONS', []):
         if relation in oai_record['custom_fields']:
             if isinstance(oai_record['custom_fields'][relation], list):
                 relations.extend(['mex:' + c for c in oai_record['custom_fields'][relation]])

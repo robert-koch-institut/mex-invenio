@@ -15,7 +15,8 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.scripts.import_data import import_data
-from mex_invenio.config import OAISERVER_ID_PREFIX
+from mex_invenio.config import (OAISERVER_ID_PREFIX, RECORD_METADATA_CREATOR, RECORD_METADATA_DEFAULT_TITLE,
+                                RECORD_METADATA_TITLE_PROPERTIES)
 from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI, RDM_NAMESPACES
 
 
@@ -41,6 +42,11 @@ def app_config(app_config):
     app_config['RDM_NAMESPACES'] = RDM_NAMESPACES
     app_config['RDM_CUSTOM_FIELDS'] = RDM_CUSTOM_FIELDS
     app_config['RDM_CUSTOM_FIELDS_UI'] = RDM_CUSTOM_FIELDS_UI
+
+    # add import settings
+    app_config['RECORD_METADATA_DEFAULT_TITLE'] = RECORD_METADATA_DEFAULT_TITLE
+    app_config['RECORD_METADATA_TITLE_PROPERTIES'] = RECORD_METADATA_TITLE_PROPERTIES
+    app_config['RECORD_METADATA_CREATOR'] = RECORD_METADATA_CREATOR
 
     # add oai
     app_config['OAISERVER_ID_PREFIX'] = OAISERVER_ID_PREFIX

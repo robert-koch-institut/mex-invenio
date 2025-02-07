@@ -26,9 +26,9 @@ from flask import current_app
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT, RECORD_METADATA_CREATOR, \
-    RECORD_METADATA_DEFAULT_TITLE
 from multiprocessing import Pool, cpu_count
+
+from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -38,6 +38,7 @@ file_handler.setLevel(logging.INFO)
 formatter = logging.Formatter(IMPORT_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
 
 def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
     if isinstance(mex_data[key], str):
@@ -51,13 +52,14 @@ def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
 
     return mex_data[key][0]['value']
 
+
 def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
-    for key in ['title', 'name', 'fullName', 'label', 'officialName', 'email', 'familyName']:
+    for key in current_app.config.get('RECORD_METADATA_TITLE_PROPERTIES', ''):
         if key in mex_data and len(mex_data[key]) > 0:
             return _get_value_by_lang(mex_data, key, 'de')
 
-    return RECORD_METADATA_DEFAULT_TITLE
+    return current_app.config.get('RECORD_METADATA_DEFAULT_TITLE', '')
 
 
 def mex_to_invenio_schema(mex_data: dict) -> dict:
@@ -76,7 +78,7 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
         "pids": {},
         "metadata": {
             "resource_type": {"id": resource_type},
-            "creators": [RECORD_METADATA_CREATOR],
+            "creators": [current_app.config.get('RECORD_METADATA_CREATOR', '')],
             "publication_date": datetime.today().strftime('%Y-%m-%d'),
             "title": get_title(mex_data),
         },

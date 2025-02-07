@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from mex_invenio.config import OAI_SERVER_RELATIONS
+from flask import current_app
+
 from tests.conftest import search_messages
 from tests.data import resource_data
 
@@ -55,6 +56,6 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
         description = metadata.find('.//dc:description', dc_namespace)
         assert description.text == resource_data['description'][0]['value']
 
-        if 'mex:unitInCharge' in OAI_SERVER_RELATIONS:
+        if 'mex:unitInCharge' in current_app.config.get('OAI_SERVER_RELATIONS', []):
             unit_in_charge = metadata.find('.//dc:relation', dc_namespace)
             assert unit_in_charge.text.removeprefix('mex:') in resource_data['unitInCharge']
