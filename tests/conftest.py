@@ -32,6 +32,7 @@ def app_config(app_config):
         "pool_pre_ping": False,
         "pool_recycle": 3600,
     }
+
     # need this to make sure separate indexes are created for testing
     app_config["SEARCH_INDEX_PREFIX"] = "test"
     app_config["SERVER_NAME"] = "127.0.0.1"

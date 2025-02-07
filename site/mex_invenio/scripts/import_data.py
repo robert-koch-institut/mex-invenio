@@ -39,19 +39,23 @@ formatter = logging.Formatter(IMPORT_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
+    if isinstance(mex_data[key], str):
+        return mex_data[key]
+
+    if isinstance(mex_data[key][0], str):
+        return mex_data[key][0]
+
+    if [t for t in mex_data[key] if t['language'] == lang]:
+        return [t for t in mex_data[key] if t['language'] == lang][0]['value']
+
+    return mex_data[key][0]['value']
 
 def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
-    # TODO: What about name?
-    if 'title' in mex_data and len(mex_data['title']) > 0:
-        # Have a preference for German titles
-        try:
-            if [t for t in mex_data['title'] if t['language'] == 'de']:
-                return [t for t in mex_data['title'] if t['language'] == 'de'][0]['value']
-
-            return mex_data['title'][0]['value']
-        except TypeError:
-            pass
+    for key in ['title', 'name', 'fullName', 'label', 'officialName', 'email', 'familyName']:
+        if key in mex_data and len(mex_data[key]) > 0:
+            return _get_value_by_lang(mex_data, key, 'de')
 
     return RECORD_METADATA_DEFAULT_TITLE
 

@@ -7,7 +7,9 @@ from mex_invenio.config import OAI_SERVER_RELATIONS, OAI_SERVER_SOURCES
 
 
 def mex_dublincore_etree(pid, record, **serializer_kwargs):
-    """Get DublinCore XML etree for OAI-PMH."""
+    """Get DublinCore XML etree for OAI-PMH.
+    Based off invenio_rdm_records.oai.dublincore_etree
+    """
     item = current_rdm_records_service.oai_result_item(g.identity, record["_source"])
     oai_record = item.to_dict()
 
