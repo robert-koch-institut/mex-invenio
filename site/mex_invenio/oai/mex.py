@@ -18,7 +18,9 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     # TODO: Rights could be omitted
     # defaults to closedAccess, see
     # https://guidelines.openaire.eu/en/latest/literature/field_accesslevel.html
-    obj['rights'] = ['info:eu-repo/semantics/openAccess']
+    # only set license to open if there is a license
+    if 'mex:license' in oai_record['custom_fields']:
+        obj['rights'] = ['info:eu-repo/semantics/openAccess']
 
     # not set by default, see
     # https://guidelines.openaire.eu/en/latest/literature/field_publicationtype.html

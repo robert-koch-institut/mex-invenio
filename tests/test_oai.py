@@ -53,6 +53,8 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
 
         description = metadata.find('.//dc:description', dc_namespace)
         assert description.text == resource_data['description'][0]['value']
+        rec_license = metadata.find('.//dc:rights', dc_namespace)
+        assert rec_license.text == 'info:eu-repo/semantics/openAccess'
 
         if 'mex:unitInCharge' in app_config['OAISERVER_RELATIONS']:
             unit_in_charge = metadata.find('.//dc:relation', dc_namespace)

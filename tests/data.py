@@ -24,7 +24,7 @@ resource_data = {"accessRestriction": "https://mex.rki.de/item/access-restrictio
                  "created": "2008-11-08",
                  "doi": None,
                  "hasPersonalData": "https://mex.rki.de/item/personal-data-1",
-                 "license": None,
+                 "license": "https://mex.rki.de/item/license-1",
                  "maxTypicalAge": 5001,
                  "minTypicalAge": 529,
                  "modified": "2021-03",
