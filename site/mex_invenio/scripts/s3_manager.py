@@ -22,14 +22,14 @@ You can store these credentials in a custom file, a `.env` file,
 """
 
 
-
+import click
 import boto3
 import logging
 import argparse
 import os
 import filecmp
 from dotenv import load_dotenv
-import import_data
+from mex_invenio.scripts.import_data import import_data
 from datetime import datetime
 from click.testing import CliRunner
 
@@ -121,17 +121,19 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
 
     return final_new_file_path
 
-def manage_s3_files():
+@click.command("manage_s3_files")
+@click.option("--checkLastDownload", "checkLastDownload", type=click.Choice(["yes", "no"]), default="no")
+def manage_s3_files(checkLastDownload:str):
     """Main function to download the latest file from S3, compare, and manage local storage."""
-    parser = argparse.ArgumentParser(
-        description="Download the latest file from an S3 bucket and process it.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    # parser = argparse.ArgumentParser(
+    #     description="Download the latest file from an S3 bucket and process it.",
+    #     formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    # )
 
-    parser.add_argument("checkLastDownload", choices=["yes", "no"], nargs="?", default="yes",
-                        help="Check if the latest file is different before replacing (default: yes)")
+    # parser.add_argument("checkLastDownload", choices=["yes", "no"], nargs="?", default="yes",
+    #                     help="Check if the latest file is different before replacing (default: yes)")
 
-    args = parser.parse_args()
+    # args = parser.parse_args()
     
     config = load_config()
 
@@ -165,12 +167,12 @@ def manage_s3_files():
     new_file_path = download_file(s3_client, config["bucket"], latest_file_key, payload_folder)
 
     if new_file_path:
-        final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, payload_folder, args.checkLastDownload)
+        final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, payload_folder, checkLastDownload)
         if final_file_path:
             logger.info(f"importing data using file ${final_file_path}")
             
             runner = CliRunner()
-            result = runner.invoke(import_data.import_data, [config["email"], final_file_path])
+            result = runner.invoke(import_data, [config["email"], final_file_path])
 
             if result.exit_code != 0:
                 logger.error(f"Error in import_data: {result.output}")
