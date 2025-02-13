@@ -125,16 +125,7 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
 @click.option("--checkLastDownload", "checkLastDownload", type=click.Choice(["yes", "no"]), default="no")
 def manage_s3_files(checkLastDownload:str):
     """Main function to download the latest file from S3, compare, and manage local storage."""
-    # parser = argparse.ArgumentParser(
-    #     description="Download the latest file from an S3 bucket and process it.",
-    #     formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    # )
-
-    # parser.add_argument("checkLastDownload", choices=["yes", "no"], nargs="?", default="yes",
-    #                     help="Check if the latest file is different before replacing (default: yes)")
-
-    # args = parser.parse_args()
-    
+        
     config = load_config()
 
     if not config:
