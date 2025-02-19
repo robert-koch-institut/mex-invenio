@@ -82,11 +82,7 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
         return None
 
 def get_latest_existing_file(payload_folder):
-    """Fetches the most recent file in the payload folder."""
-    if not os.path.exists(payload_folder):
-        os.makedirs(payload_folder)
-        return None
-    
+    """Fetches the most recent file in the payload folder."""    
     files = sorted(
         [os.path.join(payload_folder, f) for f in os.listdir(payload_folder) if os.path.isfile(os.path.join(payload_folder, f))],
         key=os.path.getmtime,  # Sort by last modified time
@@ -130,15 +126,15 @@ def manage_s3_files(checkLastDownload:str):
 
     if not config:
         logger.error("Unable to fetch configration, env file is missing")
-        return
+        exit(1)
     
     if not all([config["bucket"], config["aws_access_key"], config["aws_secret_key"]]):
         logger.error("Missing required configurations (bucket, aws_access_key, aws_secret_key).")
-        return
+        exit(1)
     
     if not config["email"]:
         logger.error("email environment variable is not set.")
-        return
+        exit(1)
     
     s3_client = boto3.client(
         "s3",
