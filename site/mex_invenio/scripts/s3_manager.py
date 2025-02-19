@@ -25,12 +25,11 @@ You can store these credentials in a custom file, a `.env` file,
 import click
 import boto3
 import logging
-import argparse
 import os
 import filecmp
 from dotenv import load_dotenv
 from mex_invenio.scripts.import_data import import_data
-from datetime import datetime
+from datetime import datetime, timezone
 import subprocess
 
 # Configure logging
@@ -104,7 +103,7 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
         return None  # New file is identical, so discard it
     
     # Generate a timestamped filename to avoid overwriting
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     new_filename = f"{timestamp}_{os.path.basename(new_file)}"
     final_new_file_path = os.path.join(payload_folder, new_filename)
     
