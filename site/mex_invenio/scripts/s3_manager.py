@@ -31,7 +31,7 @@ import filecmp
 from dotenv import load_dotenv
 from mex_invenio.scripts.import_data import import_data
 from datetime import datetime
-from click.testing import CliRunner
+import subprocess
 
 # Configure logging
 log_file_path = 's3_manager.log'
@@ -162,11 +162,19 @@ def manage_s3_files(checkLastDownload:str):
         if final_file_path:
             logger.info(f"importing data using file ${final_file_path}")
             
-            runner = CliRunner()
-            result = runner.invoke(import_data, [config["email"], final_file_path])
 
-            if result.exit_code != 0:
-                logger.error(f"Error in import_data: {result.output}")
+            # Absolute path to import_data.py
+            script_path = os.path.join(os.path.dirname(__file__), "import_data.py")
+            
+            # Command to execute
+            command = ["pipenv", "run", "invenio", "shell", script_path, config["email"], final_file_path]
+            result = subprocess.run(command, capture_output=True, text=True)
+           
+
+            if result.returncode != 0:  # Use returncode instead of exit_code
+                logger.error(f"Error in import_data: {result.stderr}")  # Use stderr for errors
+            else:
+                logger.info(f"Import successful: {result.stdout}")  # stdout for success messages
 
 if __name__ == "__main__":
     manage_s3_files()
