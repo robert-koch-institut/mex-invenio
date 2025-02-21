@@ -5,8 +5,12 @@ from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
 from mex_invenio.scripts.import_data import import_data
 
+from tests.conftest import search_messages
+from tests.data import contact_point_data
+
 
 def test_nonexistent_file_error_cli(cli_runner, db):
+    """Test that the CLI command exits with an error when the file does not exist."""
     email = 'alice@address.com'
     filepath = 'path/to/file'
     db.session.add(User(username='alice', email=email))
@@ -19,38 +23,47 @@ def test_nonexistent_file_error_cli(cli_runner, db):
     assert User.query.count() == 1
 
 
-def test_nonexistent_user_error_cli(cli_runner, db, empty_json_file):
+def test_nonexistent_user_error_cli(cli_runner, db, create_file):
+    """Test that the CLI command exits with an error when the user does not exist."""
     email = 'non-existent-user@address.com'
-    result = cli_runner(import_data, email, empty_json_file)
+    result = cli_runner(import_data, email, create_file('empty.json', '{}'))
 
     assert result.exit_code == 1
     assert f'User with email {email} not found.' in result.output
 
 
-def test_import_corrupt_data_cli(cli_runner, db, corrupt_json_file, caplog):
+def test_import_corrupt_data_cli(cli_runner, db, create_file, caplog):
+    """Test that the CLI command logs an error when the data is corrupt."""
     email = 'importer@address.com'
     db.session.add(User(username='importer', email=email))
     db.session.commit()
 
-    result = cli_runner(import_data, email, corrupt_json_file)
+    result = cli_runner(import_data, email, create_file('corrupt.json', '{'))
+
+    match = re.search(r'Error decoding JSON: \{', caplog.text)
 
     assert result.exit_code == 0
-    assert 'ERROR    mex_invenio.scripts.import_data:import_data.py:134 Error decoding JSON: {' in caplog.text
+    assert match is not None
 
 
-def test_import_contact_point(db, location, resource_type_v, contributors_role_v, import_file):
+def test_import_contact_point(db, location, resource_type_v, contributors_role_v,
+                              import_file):
+    """Test that the CLI command imports the contact point data correctly."""
     service = current_rdm_records.records_service
 
-    # Log output is captured in the import_file fixture defined in conftest and returned
-    # as a list of messages. The second last log statement will be about the published record.
-    match = re.search(r'Published (\d) records. Ids: {\'(\w{5}-\w{5})\'}', import_file[-2])
+    messages = import_file('contact-point', contact_point_data)
+
+    # Log output is captured in the import_file fixture defined in
+    # conftest and returned by the fixture as a list of messages.
+    match = search_messages(messages, 'Published (\d) records. Ids: {\'(\w{5}-\w{5})\'}')
+    number_of_records_published = int(match.group(1))
+    published_record_id = match.group(2)
 
     assert match is not None
     assert len(match.groups()) == 2
 
-    service.indexer.refresh()
     search_obj = service.search(system_identity)
+    record = list(search_obj.hits)[0]
 
-    assert search_obj.total == int(match.group(1))
-    assert list(search_obj.hits)[0]['id'] == match.group(2)
-
+    assert search_obj.total == number_of_records_published
+    assert record['id'] == published_record_id
