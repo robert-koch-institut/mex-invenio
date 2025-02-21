@@ -201,14 +201,10 @@ OAISERVER_METADATA_FORMATS['oai_mex'] = {
     'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
 
 # a list of custom fields that will be included in the OAI-PMH output as dc:source
-OAISERVER_SOURCES = [
-    'mex:containedBy', 'mex:wasGeneratedBy', 'mex:memberOf', 'mex:belongsTo',
-    'mex:isPartOf', 'mex:creator']
+OAISERVER_SOURCES = ['mex:containedBy', 'mex:wasGeneratedBy', 'mex:usedIn']
 
 # a list of custom fields that will be included in the OAI-PMH output as dc:relation
-OAISERVER_RELATIONS = [
-    'mex:parentUnit', 'mex:isPartOfActivity', 'mex:involvedUnit', 'mex:contributingUnit',
-    'mex:unitOf', 'mex:involvedPerson', 'mex:responsibleUnit', 'mex:usedIn', 'mex:unitInCharge']
+OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:publication']
 
 # Invenio-Search
 # --------------
