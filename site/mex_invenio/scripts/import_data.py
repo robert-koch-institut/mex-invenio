@@ -52,7 +52,6 @@ def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
 
     return mex_data[key][0]['value']
 
-
 def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
     for key in current_app.config.get('RECORD_METADATA_TITLE_PROPERTIES', ''):

@@ -36,6 +36,13 @@
                             src="{{ url_for('static', filename=config.THEME_LOGO) }}"
                             alt="{{ _(config.THEME_SITENAME) }} {{ _('home') }}"/>
                     </a>
+                    {%- if config.ORGANISATION_LOGO %}
+                      <a class="org-logo-link" href="/">
+                        <img class="ui image rdm-logo"
+                              src="{{ url_for('static', filename=config.ORGANISATION_LOGO) }}"
+                              alt="{{ _(config.RECORD_METADATA_CREATOR.person_or_org.name) }} {{ _('home') }}"/>
+                      </a>
+                    {% endif %}
                   {%- else %}
                     <a class="logo" href="/">{{ _(config.THEME_SITENAME) }}</a>
                   {%- endif %}
