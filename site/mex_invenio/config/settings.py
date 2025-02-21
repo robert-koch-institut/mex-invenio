@@ -88,7 +88,7 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
 # Other supported languages (do not include BABEL_DEFAULT_LOCALE in list).
 BABEL_DEFAULT_LOCALE = 'de'
-I18N_LANGUAGES = [('en', _('English')), ('de', _('German'))]
+I18N_LANGUAGES = [('en', _('English'))]
 
 # Invenio-Theme
 # =============
