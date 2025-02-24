@@ -38,7 +38,7 @@ SECRET_KEY = "CHANGE_ME"
 # provided, the allowed hosts variable is set to localhost. In production it
 # should be set to the correct host and it is strongly recommended to only
 # route correct hosts to the application.
-APP_ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+APP_ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'mex-invenio.azure.cottagelabs.com']
 
 # Flask-SQLAlchemy
 # ================
@@ -141,9 +141,9 @@ APP_RDM_DEPOSIT_FORM_AUTOCOMPLETE_NAMES = 'search'  # "search_only" or "off"
 # See https://github.com/inveniosoftware/invenio-records-resources/blob/master/invenio_records_resources/config.py
 
 # TODO: Set with your own hostname when deploying to production
-SITE_UI_URL = "https://127.0.0.1"
+SITE_UI_URL = "https://mex-invenio.azure.cottagelabs.com"
 
-SITE_API_URL = "https://127.0.0.1/api"
+SITE_API_URL = "https://mex-invenio.azure.cottagelabs.com/api"
 
 # Invenio-RDM-Records
 # ===================
@@ -229,6 +229,19 @@ RECORD_METADATA_CREATOR = {
         "name": "The Robert Koch Institute",
         "type": "organizational",
     },
+}
+
+SECURITY_EMAIL_SENDER = "invenio@mex-invenio.azure.cottagelabs.com"
+"""Email address used as sender of account registration emails."""
+"""Domain name should match the domain used in web server."""
+
+MAIL_SUPPRESS_SEND = False
+"""Enable email sending by default.
+Set this to False when sending actual emails.
+"""
+
+NOTIFICATION_BACKENDS = {
+    'EmailNotificationBackend.id': 'EmailNotificationBackend',
 }
 
 # MEx properties to use as record title
