@@ -5,8 +5,8 @@ Make sure the Invenio services have been set up and are running.
 Does the following:
 
 - Finds the file provided as CLI argument.
-- Reads in the metadata in MEx json format.
 - Finds a user to own the record.
+- Reads in the metadata in MEx json format.
 - Creates a draft record by converting the MEx metadata to the repository schema.
 - Publishes the record.
 
@@ -109,7 +109,7 @@ def process_record(mex_data: dict, owner_id: int) -> str:
 @click.command("import_data")
 @click.argument("email")
 @click.argument("filepath")
-@click.option("--batch-size", default=10 * 1024 * 1024, help="Number of records to process in parallel.")
+@click.option("--batch-size", default=10 * 1024 * 1024, help="Chunk size to read.")
 def import_data(email: str, filepath: str, batch_size: int):
     """Main function to import data.
        Batch size is set to 10mb by default.
