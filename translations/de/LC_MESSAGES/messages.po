@@ -94,12 +94,7 @@ msgstr ""
 
 #: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:137
 #, python-format
-msgid ""
-"\n"
-"                    There is a %(link_start)snewer version%(link_end)s of"
-" the record\n"
-"                    available.\n"
-"                  "
+msgid "There is a %(link_start)snewer version%(link_end)s of the record available."
 msgstr ""
 
 #: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:161
@@ -173,8 +168,7 @@ msgstr ""
 
 #: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:341
 msgid ""
-"You need to satisfy these conditions in order for this request to be "
-"accepted:"
+"You need to satisfy these conditions in order for this request to be accepted:"
 msgstr ""
 
 #: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:366
