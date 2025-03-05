@@ -204,7 +204,7 @@ OAISERVER_METADATA_FORMATS['oai_mex'] = {
 OAISERVER_SOURCES = ['mex:containedBy', 'mex:wasGeneratedBy', 'mex:usedIn']
 
 # a list of custom fields that will be included in the OAI-PMH output as dc:relation
-OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:publication']
+OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:belongsTo']
 
 # Invenio-Search
 # --------------

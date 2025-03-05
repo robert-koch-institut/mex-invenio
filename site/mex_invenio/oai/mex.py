@@ -15,11 +15,13 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     # instead. See https://github.com/inveniosoftware/flask-resources/issues/117
     obj = DublinCoreXMLSerializer(**serializer_kwargs).dump_obj(oai_record)
 
+    cf = oai_record['custom_fields']
+
     # TODO: Rights could be omitted
     # defaults to closedAccess, see
     # https://guidelines.openaire.eu/en/latest/literature/field_accesslevel.html
     # only set license to open if there is a license
-    if 'mex:license' in oai_record['custom_fields']:
+    if 'mex:license' in cf:
         obj['rights'] = ['info:eu-repo/semantics/openAccess']
 
     # not set by default, see
@@ -27,32 +29,73 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     obj['types'] = ['info:eu-repo/semantics/other']
 
     # mex:identifier is a required field
-    obj['identifiers'].append('mex:' + oai_record['custom_fields']['mex:identifier'])
+    obj['identifiers'].append(cf['mex:identifier'])
 
-    if 'mex:description' in oai_record['custom_fields']:
-        obj['descriptions'] = [d['value'] for d in oai_record['custom_fields']['mex:description']]
+    # description and abstract get mapped to descriptions
+    for p in ['mex:description', 'mex:abstract']:
+        if p in cf:
+            if 'descriptions' not in obj:
+                obj['descriptions'] = []
+
+            obj['descriptions'].extend([d['value'] for d in cf[p]])
+
+    if 'mex:creator' in cf:
+        # all records will have a creator because it's a mandatory field
+        # that will be the config value of RECORD_METADATA_CREATOR
+        obj['creators'].extend(cf['mex:creator'])
+
+    if 'mex:keyword' in cf:
+        obj['subjects'] = [k['value'] for k in cf['mex:keyword']]
+
+    if 'mex:publisher' in cf:
+        obj['publishers'] = cf['mex:publisher']
+
+    if 'mex:contact' in cf:
+        obj['contributors'] = cf['mex:contact']
+
+    if 'mex:mediaType' in cf:
+        obj['formats'] = [cf['mex:mediaType']]
+
+    if 'mex:language' in cf:
+        obj['languages'] = cf['mex:language']
+
+    #print(type(oai_record['custom_fields']['mex:mediaType']))
+
+    dates = []
+
+    # there seems to be a bug in how EDTFDateStringCF fields are serialized
+    # they are serialized as lists, but should be strings
+    for date in ['mex:issued', 'mex:publicationYear', 'mex:created', 'mex:start', 'mex:end']:
+        if date in cf:
+            if isinstance(cf[date], list):
+                dates.append(''.join(cf[date]))
+            else:
+                dates.append(cf[date])
+
+    if dates:
+        obj['dates'].extend(dates)
 
     # sources, see
     # https://guidelines.openaire.eu/en/latest/literature/field_source.html
     sources = []
 
     for source in current_app.config.get('OAISERVER_SOURCES', []):
-        if source in oai_record['custom_fields']:
-            if isinstance(oai_record['custom_fields'][source], list):
-                sources.extend(['mex:' + c for c in oai_record['custom_fields'][source]])
+        if source in cf:
+            if isinstance(cf[source], list):
+                sources.extend(cf[source])
             else:
-                sources.append('mex:' + oai_record['custom_fields'][source])
+                sources.append(cf[source])
 
     # relations, see
     # https://guidelines.openaire.eu/en/latest/literature/field_relation.html
     relations = []
 
     for relation in current_app.config.get('OAISERVER_RELATIONS', []):
-        if relation in oai_record['custom_fields']:
-            if isinstance(oai_record['custom_fields'][relation], list):
-                relations.extend(['mex:' + c for c in oai_record['custom_fields'][relation]])
+        if relation in cf:
+            if isinstance(cf[relation], list):
+                relations.extend(cf[relation])
             else:
-                relations.append('mex:' + oai_record['custom_fields'][relation])
+                relations.append(cf[relation])
 
     if sources:
         obj['sources'] = sources
