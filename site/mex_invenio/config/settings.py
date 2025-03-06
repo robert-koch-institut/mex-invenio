@@ -81,7 +81,6 @@ APP_DEFAULT_SECURE_HEADERS = {
 # See https://python-babel.github.io/flask-babel/#configuration
 
 # Default locale (language)
-BABEL_DEFAULT_LOCALE = 'de'
 # Default time zone
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
@@ -90,9 +89,8 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 # See https://invenio-i18n.readthedocs.io/en/latest/configuration.html
 
 # Other supported languages (do not include BABEL_DEFAULT_LOCALE in list).
-I18N_LANGUAGES = [
-    ('en', _('English'))
-]
+BABEL_DEFAULT_LOCALE = 'de'
+I18N_LANGUAGES = [('en', _('English'))]
 
 # Invenio-Theme
 # =============
