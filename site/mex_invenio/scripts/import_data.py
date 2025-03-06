@@ -5,8 +5,8 @@ Make sure the Invenio services have been set up and are running.
 Does the following:
 
 - Finds the file provided as CLI argument.
-- Reads in the metadata in MEx json format.
 - Finds a user to own the record.
+- Reads in the metadata in MEx json format.
 - Creates a draft record by converting the MEx metadata to the repository schema.
 - Publishes the record.
 
@@ -26,24 +26,46 @@ from flask import current_app
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from mex_invenio.config import RECORD_METADATA_CREATOR
 from multiprocessing import Pool, cpu_count
 
+from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT
+
 # Configure logging
-log_file_path = 'import_data.log'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler(log_file_path)
+file_handler = logging.FileHandler(IMPORT_LOG_FILE)
 file_handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s')
+formatter = logging.Formatter(IMPORT_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
+
+def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
+    if isinstance(mex_data[key], str):
+        return mex_data[key]
+
+    if isinstance(mex_data[key][0], str):
+        return mex_data[key][0]
+
+    if [t for t in mex_data[key] if t['language'] == lang]:
+        return [t for t in mex_data[key] if t['language'] == lang][0]['value']
+
+    return mex_data[key][0]['value']
+
+
+def get_title(mex_data: dict) -> str:
+    """Get the title of the record from the MEx metadata."""
+    for key in current_app.config.get('RECORD_METADATA_TITLE_PROPERTIES', ''):
+        if key in mex_data and len(mex_data[key]) > 0:
+            return _get_value_by_lang(mex_data, key, 'de')
+
+    return current_app.config.get('RECORD_METADATA_DEFAULT_TITLE', '')
+
 
 def mex_to_invenio_schema(mex_data: dict) -> dict:
     """Convert MEx schema metadata to internal Invenio RDM Record schema."""
     # Remove the 'Merged' prefix from the entityType in order to be able to process test data
     resource_type = mex_data.pop("entityType").removeprefix('Merged').lower()
-    identifier = mex_data['identifier']
 
     data = {
         "access": {
@@ -56,9 +78,9 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
         "pids": {},
         "metadata": {
             "resource_type": {"id": resource_type},
-            "creators": [RECORD_METADATA_CREATOR],
+            "creators": [current_app.config.get('RECORD_METADATA_CREATOR', '')],
             "publication_date": datetime.today().strftime('%Y-%m-%d'),
-            "title": f'{resource_type}_{identifier}'
+            "title": get_title(mex_data),
         },
         "custom_fields": {}
     }
@@ -70,12 +92,12 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 
 
 def process_record(mex_data: dict, owner_id: int) -> str:
-    """Function to create and publish a single record."""
+    """Create and publish a single record."""
     app = current_app._get_current_object()  # Get the actual Flask app object
     with app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
 
-        try: # Create draft record and publish
+        try:  # Create draft record and publish
             draft = current_rdm_records_service.create(data=mex_data, identity=identity)
             published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
 
@@ -87,7 +109,7 @@ def process_record(mex_data: dict, owner_id: int) -> str:
 @click.command("import_data")
 @click.argument("email")
 @click.argument("filepath")
-@click.option("--batch-size", default=10 * 1024 * 1024, help="Number of records to process in parallel.")
+@click.option("--batch-size", default=10 * 1024 * 1024, help="Chunk size to read.")
 def import_data(email: str, filepath: str, batch_size: int):
     """Main function to import data.
        Batch size is set to 10mb by default.
@@ -125,7 +147,6 @@ def import_data(email: str, filepath: str, batch_size: int):
 
             # Use multiprocessing Pool to parallelize the process
             with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
-                # Process in batches to avoid creating too many futures at once
                 for line in lines:
                     try:
                         mex_data = mex_to_invenio_schema(json.loads(line))

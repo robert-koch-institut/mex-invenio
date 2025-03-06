@@ -8,6 +8,8 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 """
 
 from datetime import datetime
+
+from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
 from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
@@ -192,6 +194,18 @@ OAISERVER_ADMIN_EMAILS = [
     "mex@rki.de",
 ]
 
+# configure a custom OAI metadata format for MEx
+OAISERVER_METADATA_FORMATS['oai_mex'] = {
+    'serializer': 'mex_invenio.oai.mex:mex_dublincore_etree',
+    'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+    'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
+
+# a list of custom fields that will be included in the OAI-PMH output as dc:source
+OAISERVER_SOURCES = ['mex:containedBy', 'mex:wasGeneratedBy', 'mex:usedIn']
+
+# a list of custom fields that will be included in the OAI-PMH output as dc:relation
+OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:belongsTo']
+
 # Invenio-Search
 # --------------
 
@@ -203,9 +217,23 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
+# Import data from MEx
+# --------------
+
+IMPORT_LOG_FILE = 'logs/import_data.log'
+IMPORT_LOG_FORMAT = '%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s'
+
+# The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
         "name": "Robert Koch Institute",
         "type": "organizational",
     },
 }
+
+# MEx properties to use as record title
+RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'officialName', 'email', 'familyName']
+
+# The default value for the Datacite title property in imported records
+# if it is not present in the MEx source record
+RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
