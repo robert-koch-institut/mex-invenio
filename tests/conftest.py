@@ -1,17 +1,29 @@
 # conftest.py
-# borrowed from https://github.com/nyudlts/ultraviolet/blob/main/tests/conftest.py
+# see https://github.com/nyudlts/ultraviolet/blob/main/tests/conftest.py
+
 import json
 import logging
+import re
 
 import pytest
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_app.factory import create_ui
-from invenio_rdm_records.records.api import RDMDraft, RDMRecord
+from invenio_rdm_records.cli import create_records_custom_field, custom_field_exists_in_records
+from invenio_rdm_records.proxies import current_rdm_records
 from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.scripts.import_data import import_data
+from mex_invenio.config import (OAISERVER_ID_PREFIX, OAISERVER_RELATIONS, RECORD_METADATA_CREATOR,
+                                RECORD_METADATA_DEFAULT_TITLE, RECORD_METADATA_TITLE_PROPERTIES)
+from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI, RDM_NAMESPACES
+
+
+def search_messages(messages, pattern):
+    for message in messages:
+        if re.search(pattern, message):
+            return re.search(pattern, message)
 
 
 @pytest.fixture(scope='module')
@@ -21,10 +33,24 @@ def app_config(app_config):
         "pool_pre_ping": False,
         "pool_recycle": 3600,
     }
+
     # need this to make sure separate indexes are created for testing
     app_config["SEARCH_INDEX_PREFIX"] = "test"
     app_config["SERVER_NAME"] = "127.0.0.1"
-    # app_config['MAX_FILE_SIZE'] = 50
+
+    # add custom fields
+    app_config['RDM_NAMESPACES'] = RDM_NAMESPACES
+    app_config['RDM_CUSTOM_FIELDS'] = RDM_CUSTOM_FIELDS
+    app_config['RDM_CUSTOM_FIELDS_UI'] = RDM_CUSTOM_FIELDS_UI
+
+    # add import settings
+    app_config['RECORD_METADATA_DEFAULT_TITLE'] = RECORD_METADATA_DEFAULT_TITLE
+    app_config['RECORD_METADATA_TITLE_PROPERTIES'] = RECORD_METADATA_TITLE_PROPERTIES
+    app_config['RECORD_METADATA_CREATOR'] = RECORD_METADATA_CREATOR
+
+    # add oai
+    app_config['OAISERVER_ID_PREFIX'] = OAISERVER_ID_PREFIX
+    app_config['OAISERVER_RELATIONS'] = OAISERVER_RELATIONS
     return app_config
 
 
@@ -57,25 +83,15 @@ def resource_type_v(app, resource_type_type):
         },
     )
 
-    '''vocabulary_service.create(
+    vocabulary_service.create(
         system_identity,
-        {  # create base resource type
-            "id": "image",
+        {
+            "id": "organizationalunit",
+            "icon": "code",
             "props": {
-                "csl": "figure",
-                "datacite_general": "Image",
-                "datacite_type": "",
-                "openaire_resourceType": "25",
-                "openaire_type": "dataset",
-                "eurepo": "info:eu-repo/semantics/other",
-                "schema.org": "https://schema.org/ImageObject",
-                "subtype": "",
-                "type": "image",
-                "marc21_type": "image",
-                "marc21_subtype": "",
+                "type": "organizationalunit"
             },
-            "icon": "chart bar outline",
-            "title": {"en": "Image"},
+            "title": {"en": "Organizational unit"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
@@ -83,29 +99,19 @@ def resource_type_v(app, resource_type_type):
 
     vocabulary_service.create(
         system_identity,
-        {  # create base resource type
-            "id": "software",
-            "props": {
-                "csl": "figure",
-                "datacite_general": "Software",
-                "datacite_type": "",
-                "openaire_resourceType": "0029",
-                "openaire_type": "software",
-                "eurepo": "info:eu-repo/semantics/other",
-                "schema.org": "https://schema.org/SoftwareSourceCode",
-                "subtype": "",
-                "type": "image",
-                "marc21_type": "software",
-                "marc21_subtype": "",
-            },
+        {
+            "id": "resource",
             "icon": "code",
-            "title": {"en": "Software"},
+            "props": {
+                "type": "resource"
+            },
+            "title": {"en": "Resource"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
     )
 
-    vocab = vocabulary_service.create(
+    '''vocab = vocabulary_service.create(
         system_identity,
         {
             "id": "image-photo",
@@ -188,34 +194,60 @@ def cli_runner(base_app):
     return cli_invoke
 
 
-@pytest.fixture
-def contact_point_file(tmp_path):
-    file_path = tmp_path / "contact-point.json"
-    file_path.write_text(json.dumps({"email": ["reginagarrett@example.com"], "entityType": "MergedContactPoint",
-                                     "identifier": "zJBx8K7g9mQ8X03VZHnxW"}))
-    return str(file_path)
+@pytest.fixture(scope="module")
+def custom_field_exists(cli_runner):
+    """Factory fixture, tests whether a given custom field exists."""
+
+    def _custom_field_exists(cf_name):
+        return cli_runner(custom_field_exists_in_records, "-f", cf_name)
+
+    return _custom_field_exists
+
+
+@pytest.fixture(scope="function")
+def initialise_custom_fields(app, location, db, search_clear, cli_runner):
+    """Fixture initialises custom fields."""
+    return cli_runner(create_records_custom_field)
 
 
 @pytest.fixture
-def empty_json_file(tmp_path):
-    file_path = tmp_path / "empty.json"
-    file_path.write_text("{}")
-    return str(file_path)
+def create_file(tmp_path):
+    def _create_file(filename, data):
+        if isinstance(data, dict):
+            data = json.dumps(data)
+
+        file_path = tmp_path / filename
+        file_path.write_text(data)
+
+        return str(file_path)
+
+    return _create_file
 
 
 @pytest.fixture
-def corrupt_json_file(tmp_path):
-    file_path = tmp_path / "corrupt.json"
-    file_path.write_text("{")
-    return str(file_path)
+def create_user(db):
+    def _create_user(username, email):
+        user = User(username=username, email=email)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    return _create_user
+
 
 @pytest.fixture
-def import_file(db, caplog, cli_runner, contact_point_file):
+def import_file(initialise_custom_fields, custom_field_exists, db, caplog, cli_runner, create_user, create_file):
     email = 'importer@address.com'
-    db.session.add(User(username='importer', email=email))
-    db.session.commit()
+    create_user('importer', email)
 
-    with caplog.at_level(logging.INFO):
-        cli_runner(import_data, email, contact_point_file)
+    def _import_file(filename, data):
+        contact_point_file = create_file(f'{filename}.json', data)
 
-    return caplog.messages
+        with caplog.at_level(logging.INFO):
+            cli_runner(import_data, email, contact_point_file)
+
+        current_rdm_records.records_service.indexer.refresh()
+
+        return caplog.messages
+
+    return _import_file
