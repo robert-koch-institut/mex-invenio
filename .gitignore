@@ -75,3 +75,8 @@ data/.minio.sys
 celerybeat-schedule.*
 
 .idea/
+
+# Internal files
+.env
+.aws/
+payload
