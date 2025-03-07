@@ -6,6 +6,7 @@ import logging
 import re
 
 import pytest
+from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_app.factory import create_ui
@@ -20,11 +21,18 @@ from mex_invenio.config import (OAISERVER_ID_PREFIX, OAISERVER_RELATIONS, RECORD
 from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI, RDM_NAMESPACES
 
 
+created_regex = r'Created (\d) records. Ids: \[\'(\w{5}-\w{5})\'\]'
+
 def search_messages(messages, pattern):
     for message in messages:
         if re.search(pattern, message):
             return re.search(pattern, message)
 
+
+@pytest.fixture(scope='session', autouse=True)
+def load_env():
+    env_file = find_dotenv('.env.tests')
+    load_dotenv(env_file)
 
 @pytest.fixture(scope='module')
 def app_config(app_config):
