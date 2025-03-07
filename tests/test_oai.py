@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from tests.conftest import search_messages
+from tests.conftest import search_messages, created_regex
 from tests.data import resource_data
 
 
@@ -24,7 +24,7 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
     oai_prefix = app_config['OAISERVER_ID_PREFIX']
     messages = import_file('resource', resource_data)
 
-    match = search_messages(messages, 'Published (\d) records. Ids: {\'(\w{5}-\w{5})\'}')
+    match = search_messages(messages, created_regex)
 
     assert match is not None
     rec_id = match.group(2)
