@@ -224,7 +224,7 @@ IMPORT_LOG_FORMAT = '%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(messag
 # The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
-        "name": "The Robert Koch Institute",
+        "name": "Robert Koch Institute",
         "type": "organizational",
     },
 }
