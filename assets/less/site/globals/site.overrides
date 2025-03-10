@@ -35,7 +35,7 @@
     color: inherit; /* Reset the color to inherit from parent */
   }
 }
-
+ 
 #rdm-burger-menu-icon,
 #rdm-close-burger-menu-icon {
   .navicon {
