@@ -21,3 +21,10 @@ def test_import_org_unit(db, location, resource_type_v, contributors_role_v, imp
     assert rec_cf['mex:shortName'][0]['value'] == org_unit_data['shortName'][0]['value']
     assert org_unit_data['unitOf'] == rec_cf['mex:unitOf']
 
+    # test for the custom field link
+    assert len(rec_cf['mex:website']) == 1
+    assert rec_cf['mex:website'][0]['url'] == org_unit_data['website'][0]['url']
+
+    # test for the custom field multi-language text
+    assert len(rec_cf['mex:alternativeName']) == 1
+    assert rec_cf['mex:alternativeName'][0]['value'] == org_unit_data['alternativeName'][0]['value']

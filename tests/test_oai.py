@@ -49,7 +49,7 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
         ids = [_id.text for _id in metadata.findall('.//dc:identifier', dc_namespace)]
         assert len(ids) == 2
         assert f'oai:{oai_prefix}:{rec_id}' in ids
-        assert 'mex:' + resource_data['identifier'] in ids
+        assert resource_data['identifier'] in ids
 
         description = metadata.find('.//dc:description', dc_namespace)
         assert description.text == resource_data['description'][0]['value']
@@ -58,4 +58,8 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
 
         if 'mex:unitInCharge' in app_config['OAISERVER_RELATIONS']:
             unit_in_charge = metadata.find('.//dc:relation', dc_namespace)
-            assert unit_in_charge.text.removeprefix('mex:') in resource_data['unitInCharge']
+            assert unit_in_charge.text in resource_data['unitInCharge']
+
+        # there will be 2 dates, created by invenio and mex:created
+        dates = metadata.findall('.//dc:date', dc_namespace)
+        assert resource_data['created'] in [date.text for date in dates]

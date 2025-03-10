@@ -205,7 +205,7 @@ OAISERVER_METADATA_FORMATS['oai_mex'] = {
 OAISERVER_SOURCES = ['mex:containedBy', 'mex:wasGeneratedBy', 'mex:usedIn']
 
 # a list of custom fields that will be included in the OAI-PMH output as dc:relation
-OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:publication']
+OAISERVER_RELATIONS = ['mex:distribution', 'mex:isPartOf', 'mex:belongsTo']
 
 # Invenio-Search
 # --------------
@@ -218,9 +218,23 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
+# Import data from MEx
+# --------------
+
+IMPORT_LOG_FILE = 'logs/import_data.log'
+IMPORT_LOG_FORMAT = '%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s'
+
+# The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
         "name": "The Robert Koch Institute",
         "type": "organizational",
     },
 }
+
+# MEx properties to use as record title
+RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'officialName', 'email', 'familyName']
+
+# The default value for the Datacite title property in imported records
+# if it is not present in the MEx source record
+RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
