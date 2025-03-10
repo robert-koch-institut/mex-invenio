@@ -1,7 +1,8 @@
 .outer-navbar {
   background-image: None;
-  background-color: @navbarBackgroundColor;
-  border-color: transparent;
+  border-top: 3px solid #32008c;
+  margin-top: 1rem;
+  border-bottom: 3px solid #32008c;
 
   #invenio-nav {
     background: @navbarBackgroundColor;
@@ -9,6 +10,7 @@
 
   #frontpage-search-bar {
     background-color: @frontendHeaderBackgroundColor;
+    border-top: 3px solid #32008c;
 
     .fancy-underline {
       position: relative;
@@ -21,9 +23,12 @@
         left: 10px; // Start 10px from the left
         right: 10px; // Finish 10px before the end
         height: 5px; // Underline thickness
-        background: linear-gradient(to right, lighten(@core-color-blue-default, 20%), transparent); // Gradient background
+        background: linear-gradient(to right, lighten(@primaryColor, 20%), transparent); // Gradient background
         border-radius: 5px; // Rounded corners
       }
+    }
+    h1.header {
+        color: @primaryColor;
     }
   }
 
@@ -63,3 +68,6 @@
   max-height: 2rem;
 }
 
+#skip-to-main {
+    z-index: 1000;
+}
