@@ -1,0 +1,4 @@
+@borderColor: @core-color-blue-default;
+@focusBorderColor: @core-color-accent-2-default;
+@borderWidth: 1px;
+@border: @borderWidth solid @borderColor;

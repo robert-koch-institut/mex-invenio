@@ -1,16 +1,19 @@
-@import "definitions.less";
-
-@white: #ffffff;
-@black: @core-color-black-default;
-@blue: #2478C5;
-@green: #40d9b7;
-@red: #ff4545;
-@yellow: #f5e601;
-
 @primaryColor: @core-color-brand-default;
 @navbarBackgroundColor: @primaryColor;
 @navbarBackgroundImage: None;
-@frontendHeaderBackgroundColor: @core-color-accent-2-default;
-@searchButtonColor: lighten(@core-color-blue-default, 5%);
-@searchButtonColorHover: @core-color-blue-default;
-@searchButtonColorTextColor: @core-color-black-default;
+
+@frontendHeaderBackgroundColor: transparent;
+
+@navbarBackgroundColor: @core-color-white-default;
+
+@footerLightColor: @core-color-accent-2-default;
+@footerDarkColor: @primaryColor;
+
+@accessRightOpen: @core-color-green-default;
+@accessRightRestricted: @core-color-red-default;
+@accessRightEmbargoed: @core-color-yellow-default;
+@accessRightMetadataOnly: @core-color-blue-default;
+
+@neutralLabelColor: @core-color-neutral-default;
+@signupColor: @core-color-green-default;
+@linkColor: @primaryColor;
