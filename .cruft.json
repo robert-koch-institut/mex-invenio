@@ -1,0 +1,15 @@
+{
+  "template": "https://github.com/robert-koch-institut/mex-template",
+  "commit": "8bdad06a5eca52607f046b75cb0cdd9d7ab4912e",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "invenio",
+      "short_summary": "Invenio-based institutional repository and metadata platform.",
+      "long_summary": "Invenio is an open source project that was initially developed by CERN. The `mex-invenio` repository is an implementation of an Invenio instance for the Robert Koch Institute. It will serve as the point of entry for the entire MEx project.",
+      "_template": "https://github.com/robert-koch-institut/mex-template",
+      "_commit": "8bdad06a5eca52607f046b75cb0cdd9d7ab4912e"
+    }
+  },
+  "directory": null
+}
