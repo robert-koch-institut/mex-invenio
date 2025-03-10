@@ -81,7 +81,6 @@ APP_DEFAULT_SECURE_HEADERS = {
 # See https://python-babel.github.io/flask-babel/#configuration
 
 # Default locale (language)
-BABEL_DEFAULT_LOCALE = 'de'
 # Default time zone
 BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 
@@ -90,9 +89,8 @@ BABEL_DEFAULT_TIMEZONE = 'Europe/Zurich'
 # See https://invenio-i18n.readthedocs.io/en/latest/configuration.html
 
 # Other supported languages (do not include BABEL_DEFAULT_LOCALE in list).
-I18N_LANGUAGES = [
-    ('en', _('English'))
-]
+BABEL_DEFAULT_LOCALE = 'de'
+I18N_LANGUAGES = [('en', _('English'))]
 
 # Invenio-Theme
 # =============
@@ -218,16 +216,19 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
-# Import data from MEx
+# Script log config
 # --------------
 
 IMPORT_LOG_FILE = 'logs/import_data.log'
 IMPORT_LOG_FORMAT = '%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s'
 
+S3_LOG_FILE = 'logs/s3_manager.log'
+S3_LOG_FORMAT = IMPORT_LOG_FORMAT
+
 # The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
-        "name": "The Robert Koch Institute",
+        "name": "Robert Koch Institute",
         "type": "organizational",
     },
 }

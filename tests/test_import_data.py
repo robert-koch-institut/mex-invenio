@@ -1,11 +1,11 @@
-import re
+from json import JSONDecodeError
 
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
 from mex_invenio.scripts.import_data import import_data
 
-from tests.conftest import search_messages
+from tests.conftest import search_messages, created_regex
 from tests.data import contact_point_data
 
 
@@ -32,7 +32,7 @@ def test_nonexistent_user_error_cli(cli_runner, db, create_file):
     assert f'User with email {email} not found.' in result.output
 
 
-def test_import_corrupt_data_cli(cli_runner, db, create_file, caplog):
+def test_import_corrupt_data_cli(cli_runner, db, create_file):
     """Test that the CLI command logs an error when the data is corrupt."""
     email = 'importer@address.com'
     db.session.add(User(username='importer', email=email))
@@ -40,10 +40,8 @@ def test_import_corrupt_data_cli(cli_runner, db, create_file, caplog):
 
     result = cli_runner(import_data, email, create_file('corrupt.json', '{'))
 
-    match = re.search(r'Error decoding JSON: \{', caplog.text)
-
-    assert result.exit_code == 0
-    assert match is not None
+    assert result.exit_code == 1
+    assert isinstance(result.exception, JSONDecodeError)
 
 
 def test_import_contact_point(db, location, resource_type_v, contributors_role_v,
@@ -55,7 +53,8 @@ def test_import_contact_point(db, location, resource_type_v, contributors_role_v
 
     # Log output is captured in the import_file fixture defined in
     # conftest and returned by the fixture as a list of messages.
-    match = search_messages(messages, 'Published (\d) records. Ids: {\'(\w{5}-\w{5})\'}')
+    match = search_messages(messages, created_regex)
+
     number_of_records_published = int(match.group(1))
     published_record_id = match.group(2)
 
