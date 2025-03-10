@@ -1,25 +1,25 @@
 """
 This script fetches the latest file from an S3 store and uploads it to the server.
 
-### How to Run  
-To execute the script, run:  
-pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py  
+### How to Run
+To execute the script, run:
+pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
 
-### Parameters  
-The script takes the following parameters:  
+### Parameters
+The script takes the following parameters:
 2. **checkLastDownload** This flag compares the latest downloaded file with the
    previous one to determine whether an upload is necessary.
 
-### Requirements  
-Before running the script, ensure you have the following:  
-- **S3 Credentials**, which should include:  
-  - `bucket`  
-  - `aws_access_key`  
-  - `aws_secret_key`  
-  - `region`  
+### Requirements
+Before running the script, ensure you have the following:
+- **S3 Credentials**, which should include:
+  - `bucket`
+  - `aws_access_key`
+  - `aws_secret_key`
+  - `region`
 - Make sure you also have added email (used for uploading data on mex) in your file
 
-You can store these credentials in a custom file, a `.env` file,  
+You can store these credentials in a custom file, a `.env` file,
 """
 
 import click
