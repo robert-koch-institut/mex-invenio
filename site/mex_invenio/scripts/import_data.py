@@ -1,14 +1,14 @@
-"""Script to upload realistic test datasets for the MEx Invenio repository.
+"""Script to import data for the MEx Invenio repository.
 
 Make sure the Invenio services have been set up and are running.
 
 Does the following:
-
 - Finds the file provided as CLI argument.
 - Finds a user to own the record.
 - Reads in the metadata in MEx json format.
-- Creates a draft record by converting the MEx metadata to the repository schema.
-- Publishes the record.
+- Looks up the record in the repository by the MEx identifier.
+- If the record does not exist, creates a new record.
+- Else compares the custom fields of the existing record with the new data and creates a new version of the record.
 
 To run the script, go to the repository root directory and use the following command:
 
@@ -20,7 +20,8 @@ import logging
 import os.path
 import sys
 import time
-from datetime import datetime
+from typing import Union, Any
+
 import click
 from flask import current_app
 from invenio_app.factory import create_app
@@ -29,6 +30,7 @@ from invenio_rdm_records.proxies import current_rdm_records_service
 from multiprocessing import Pool, cpu_count
 
 from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT
+from mex_invenio.scripts.utils import compare_dicts, clean_dict, mex_to_invenio_schema
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -40,68 +42,41 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
-    if isinstance(mex_data[key], str):
-        return mex_data[key]
-
-    if isinstance(mex_data[key][0], str):
-        return mex_data[key][0]
-
-    if [t for t in mex_data[key] if t['language'] == lang]:
-        return [t for t in mex_data[key] if t['language'] == lang][0]['value']
-
-    return mex_data[key][0]['value']
-
-
-def get_title(mex_data: dict) -> str:
-    """Get the title of the record from the MEx metadata."""
-    for key in current_app.config.get('RECORD_METADATA_TITLE_PROPERTIES', ''):
-        if key in mex_data and len(mex_data[key]) > 0:
-            return _get_value_by_lang(mex_data, key, 'de')
-
-    return current_app.config.get('RECORD_METADATA_DEFAULT_TITLE', '')
-
-
-def mex_to_invenio_schema(mex_data: dict) -> dict:
-    """Convert MEx schema metadata to internal Invenio RDM Record schema."""
-    # Remove the 'Merged' prefix from the entityType in order to be able to process test data
-    resource_type = mex_data.pop("entityType").removeprefix('Merged').lower()
-
-    data = {
-        "access": {
-            "record": "public",
-            "files": "public",
-        },
-        "files": {
-            "enabled": False,
-        },
-        "pids": {},
-        "metadata": {
-            "resource_type": {"id": resource_type},
-            "creators": [current_app.config.get('RECORD_METADATA_CREATOR', '')],
-            "publication_date": datetime.today().strftime('%Y-%m-%d'),
-            "title": get_title(mex_data),
-        },
-        "custom_fields": {}
-    }
-
-    for k in mex_data:
-        data['custom_fields'][f'mex:{k}'] = mex_data[k]
-
-    return data
-
-
-def process_record(mex_data: dict, owner_id: int) -> str:
+def process_record(mex_id: str, mex_data: dict, owner_id: int) -> Union[None, dict[str, Any]]:
     """Create and publish a single record."""
     app = current_app._get_current_object()  # Get the actual Flask app object
     with app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
 
         try:  # Create draft record and publish
-            draft = current_rdm_records_service.create(data=mex_data, identity=identity)
-            published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
+            search_query = f'custom_fields.mex\:identifier:{mex_id}'
+            results = list(current_rdm_records_service.search(identity, q=search_query))
 
-            return published.id
+            if len(results) == 0:
+                # Create a new record
+                draft = current_rdm_records_service.create(data=mex_data, identity=identity)
+                published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
+
+                return {'action': 'create', 'id': published.id}
+            elif len(results) == 1:
+                # Update an existing record
+                record_pid = results[0]['id']
+
+                # Check if the record needs to be updated, it's sufficient to compare
+                # the custom_fields as the Datacite metadata is not expected to change
+                metadata_diff = compare_dicts(results[0]['custom_fields'], mex_data['custom_fields'])
+
+                if metadata_diff != {}:
+                    new_version = current_rdm_records_service.new_version(id_=record_pid, identity=identity)
+                    current_rdm_records_service.update_draft(identity, new_version.id, mex_data)
+                    new_record = current_rdm_records_service.publish(identity=identity, id_=new_version.id)
+
+                    return {'action': 'update', 'id': new_record.id}
+                else:
+                    return {'action': 'skip', 'id': record_pid}
+            elif len(results) > 1:
+                # Log and skip the record if multiple records are found
+                logger.error(f"Multiple records found for MEx id: {mex_id}")
         except Exception as e:
             logger.error(f"Error processing record: {str(e)}")
 
@@ -133,7 +108,7 @@ def import_data(email: str, filepath: str, batch_size: int):
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
-    record_ids = set()
+    report = {'created': [], 'updated': [], 'skipped': []}
 
     # Batch read the file to avoid memory issues
     with open(filepath) as f:
@@ -148,8 +123,12 @@ def import_data(email: str, filepath: str, batch_size: int):
             # Use multiprocessing Pool to parallelize the process
             with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
                 for line in lines:
+                    json_data = json.loads(line)
+                    clean_data = clean_dict(json_data)
+                    mex_id = json_data['identifier']
+
                     try:
-                        mex_data = mex_to_invenio_schema(json.loads(line))
+                        mex_data = mex_to_invenio_schema(clean_data)
                     except json.JSONDecodeError:
                         # Log and skip the line if it is not valid JSON
                         logger.error(f"Error decoding JSON: {line}")
@@ -159,15 +138,20 @@ def import_data(email: str, filepath: str, batch_size: int):
                         logger.error(f"Error processing record: {line}")
                         continue
 
-                    futures.append(pool.apply_async(process_record, (mex_data, owner.id)))
+                    futures.append(pool.apply_async(process_record, (mex_id, mex_data, owner.id)))
 
                 # Collect the results as they complete
                 for future in futures:
                     try:
-                        published_id = future.get()  # get the result from the process
+                        result = future.get()  # get the result from the process
 
-                        if published_id is not None:
-                            record_ids.add(published_id)
+                        if result is not None:
+                            if result['action'] == 'create':
+                                report['created'].append(result['id'])
+                            elif result['action'] == 'update':
+                                report['updated'].append(result['id'])
+                            elif result['action'] == 'skip':
+                                report['skipped'].append(result['id'])
                     except Exception as e:
                         logger.error(f"Error processing record: {str(e)}")
 
@@ -177,9 +161,12 @@ def import_data(email: str, filepath: str, batch_size: int):
     # Calculate the total time taken and print the results
     elapsed_time = end_time - start_time
     minutes, seconds = divmod(elapsed_time, 60)
-    num_records = len(record_ids)
 
-    logger.info(f"Published {num_records} records. Ids: {record_ids}")
+    for action in report:
+        record_count = len(report[action])
+
+        if record_count > 0:
+            logger.info(f"{action.capitalize()} {record_count} records. Ids: {report[action]}")
 
     if minutes:
         time_taken = f"Total time taken: {int(minutes)} minutes and {seconds:.2f} seconds."

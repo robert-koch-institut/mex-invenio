@@ -215,11 +215,14 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
-# Import data from MEx
+# Script log config
 # --------------
 
 IMPORT_LOG_FILE = 'logs/import_data.log'
 IMPORT_LOG_FORMAT = '%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s'
+
+S3_LOG_FILE = 'logs/s3_manager.log'
+S3_LOG_FORMAT = IMPORT_LOG_FORMAT
 
 # The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
