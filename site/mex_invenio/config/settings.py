@@ -207,6 +207,5 @@ RECORD_METADATA_CREATOR = {
     "person_or_org": {
         "name": "Robert Koch Institute",
         "type": "organizational",
-        
     },
 }
