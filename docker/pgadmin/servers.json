@@ -1,13 +1,13 @@
 {
-  "Servers": {
-    "1": {
-      "Name": "mex-invenio-db",
-      "Group": "Servers",
-      "Host": "mex-invenio-db-1",
-      "Port": 5432,
-      "MaintenanceDB": "postgres",
-      "Username": "mex-invenio",
-      "SSLMode": "prefer"
+    "Servers": {
+        "1": {
+            "Group": "Servers",
+            "Host": "mex-invenio-db-1",
+            "MaintenanceDB": "postgres",
+            "Name": "mex-invenio-db",
+            "Port": 5432,
+            "SSLMode": "prefer",
+            "Username": "mex-invenio"
+        }
     }
-  }
 }

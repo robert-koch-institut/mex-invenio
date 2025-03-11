@@ -1,4 +1,4 @@
-## Testing in Invenio v12 
+## Testing in Invenio v12
 
 ### Pytest
 
@@ -80,7 +80,7 @@ code, and pass the returned value to the test function.
 #### Invenio fixtures
 
 Invenio RDM Records provides a set of fixtures that can be used to test the application.
-They can be found in [invenio_rdm_recods.tests.conftest](https://github.com/inveniosoftware/invenio-rdm-records/blob/master/tests/conftest.py) 
+They can be found in [invenio_rdm_recods.tests.conftest](https://github.com/inveniosoftware/invenio-rdm-records/blob/master/tests/conftest.py)
 
 To see tests we've done for Mex, please refer to the [tests](https://github.com/robert-koch-institut/mex-invenio/tree/main/tests) directory.
 

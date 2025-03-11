@@ -237,4 +237,3 @@ msgstr ""
 #: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html:305
 msgid "Conference website"
 msgstr ""
-
