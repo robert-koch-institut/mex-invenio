@@ -13,10 +13,10 @@ def test_oai_mex_format_exists(app, client):
     root = tree.getroot()
 
     oai_url = '{http://www.openarchives.org/OAI/2.0/}'
-    oai_mex = root.find(f'.//{oai_url}metadataFormat[{oai_url}metadataPrefix="oai_mex"]')
+    oai_dc = root.find(f'.//{oai_url}metadataFormat[{oai_url}metadataPrefix="oai_dc"]')
 
     assert res.status_code == 200
-    assert oai_mex is not None
+    assert oai_dc is not None
 
 
 def test_get_oai_record(client, db, location, resource_type_v, contributors_role_v, import_file, app_config):
@@ -30,7 +30,7 @@ def test_get_oai_record(client, db, location, resource_type_v, contributors_role
     rec_id = match.group(2)
     # oai_url = f"/oai2d?verb=GetRecord&identifier=oai:{oai_prefix}:{rec_id}&metadataPrefix=oai_mex"
 
-    res = client.get('/oai2d?verb=ListRecords&metadataPrefix=oai_mex')
+    res = client.get('/oai2d?verb=ListRecords&metadataPrefix=oai_dc')
     assert res.status_code == 200
 
     tree = ET.ElementTree(ET.fromstring(res.data))
