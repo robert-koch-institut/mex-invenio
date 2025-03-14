@@ -194,7 +194,7 @@ OAISERVER_ADMIN_EMAILS = [
 ]
 
 # configure a custom OAI metadata format for MEx
-OAISERVER_METADATA_FORMATS['oai_mex'] = {
+OAISERVER_METADATA_FORMATS['oai_dc'] = {
     'serializer': 'mex_invenio.oai.mex:mex_dublincore_etree',
     'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
     'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
