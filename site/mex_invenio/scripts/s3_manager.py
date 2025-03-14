@@ -21,6 +21,7 @@ Before running the script, ensure you have the following:
 
 You can store these credentials in a custom file, a `.env` file,
 """
+import sys
 
 import click
 import boto3
@@ -164,19 +165,15 @@ def manage_s3_files(checkLastDownload: str):
         final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, payload_folder,
                                                       checkLastDownload)
         if final_file_path:
-            logger.info(f"importing data using file ${final_file_path}")
+            logger.info(f"importing data using file {final_file_path}")
 
-            # Absolute path to import_data.py
-            script_path = os.path.join(os.path.dirname(__file__), "import_data.py")
+            result = import_data(user_email, final_file_path)
 
-            # Command to execute
-            command = ["pipenv", "run", "invenio", "shell", script_path, config["email"], final_file_path]
-            result = subprocess.run(command, capture_output=True, text=True)
-
-            if result.returncode != 0:  # Use returncode instead of exit_code
-                logger.error(f"Error in import_data: {result.stderr}")  # Use stderr for errors
+            if not result:
+                logger.error(f"Error in import_data, check the import log files for more details.")
+                sys.exit(1)
             else:
-                logger.info(f"Import successful: {result.stdout}")  # stdout for success messages
+                logger.info(f"Import successful. Data imported from {final_file_path}.")
 
 
 if __name__ == "__main__":

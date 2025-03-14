@@ -85,14 +85,24 @@ def process_record(mex_id: str, mex_data: dict, owner_id: int) -> Union[None, di
 @click.argument("email")
 @click.argument("filepath")
 @click.option("--batch-size", default=10 * 1024 * 1024, help="Chunk size to read.")
-def import_data(email: str, filepath: str, batch_size: int):
+def _import_data(email: str, filepath: str, batch_size: int):
+    return import_data(email, filepath, batch_size, cli=True)
+
+
+def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, cli: bool = False) -> bool:
     """Main function to import data.
        Batch size is set to 10mb by default.
        Expected data source is a JSON file with one MEx record per line.
        About 50k records, or ~100mb."""
     if not os.path.isfile(filepath):
-        click.secho(f"File {filepath} not found.", fg="red")
-        sys.exit(1)
+        message = f"File {filepath} not found."
+
+        if cli:
+            click.secho(message, fg="red")
+            sys.exit(1)
+        else:
+            logger.error(message)
+            return False
 
     # Here we need to manually create an application context, it is not
     # possible to use the current_app proxy directly in a separate process.
@@ -102,8 +112,14 @@ def import_data(email: str, filepath: str, batch_size: int):
         owner = user_datastore.find_user(email=email)
 
         if not owner:
-            click.secho(f"User with email {email} not found.", fg="red")
-            sys.exit(1)
+            message = f"User with email {email} not found."
+
+            if cli:
+                click.secho(message, fg="red")
+                sys.exit(1)
+            else:
+                logger.error(message)
+                return False
 
     # Start the timer to measure processing time
     start_time = time.time()
@@ -175,6 +191,8 @@ def import_data(email: str, filepath: str, batch_size: int):
 
     logger.info(time_taken)
 
+    return True
+
 
 if __name__ == "__main__":
-    import_data()
+    _import_data()
