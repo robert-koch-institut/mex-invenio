@@ -216,6 +216,12 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
 
+# S3 config
+
+S3_DOWNLOAD_FOLDER = 's3_downloads'
+# S3_ENDPOINT_URL = 'http://localhost:9000'
+S3_OBJECT_KEY = 'pub_small.ndjson'
+
 # Script log config
 # --------------
 
