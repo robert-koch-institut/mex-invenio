@@ -1,44 +1,74 @@
-import pytest
-from unittest.mock import patch
-from click.testing import CliRunner
-from mex_invenio.scripts.s3_manager import manage_s3_files
+import datetime
+import os
 
+from mex_invenio.scripts.s3_manager import manage_s3_files, get_latest_file
 
-@pytest.fixture
-def mock_s3_client():
-    with patch("boto3.client") as mock:
-        yield mock
+from freezegun import freeze_time
 
+def test_identical_files(app_config, db, create_file, load_env, mock_s3_client, cli_runner):
+    # download_path is a module scope temp path, so we need to be careful about
+    # file names
+    download_path = app_config['S3_DOWNLOAD_FOLDER']
 
-class MockResult:
-    """A simple class to simulate Click's Result object"""
+    # Create the existing file in the S3_DOWNLOAD_FOLDER
+    existing_file = 'test_identical_files_1.json'
+    existing_file_path = create_file(f'{download_path}/{existing_file}', '{}', absolute=True)
 
-    def __init__(self, exit_code=0, output=""):
-        self.exit_code = exit_code
-        self.output = output
+    # Establish the file path of the file to be downloaded from S3
+    downloaded_file = 'test_identical_files_2.json'
+    downloaded_file_path = f'{download_path}/{downloaded_file}'
 
+    # Mock the download_file function to create the file locally
+    def download_file(Bucket, Key, Filename):
+        create_file(downloaded_file_path, '{}', absolute=True)
 
-def run_manage_s3_files(args):
-    runner = CliRunner()
-    result = runner.invoke(manage_s3_files, args)
-    return result
+    mock_s3_client.download_file = download_file
 
+    # Pretend S3 is returning them, the returned dict has more information than
+    # the single key 'Contents' and each file has more information than just the
+    # 'Key' and 'LastModified' keys but this is all we need for unit testing.
+    mock_s3_client.list_objects_v2.return_value = {
+        'Contents': [{'Key': downloaded_file_path, 'LastModified': datetime.datetime.now()}]}
+    # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
 
-def test_manage_s3_files_with_yes(load_env, mock_s3_client):
-    result = run_manage_s3_files(["--checkLastDownload", "yes"])
-    assert result.exit_code == 0, f"Failed with error: {result.output}"
+    # Import should not import anything and the younger file should be removed
+    result = cli_runner(manage_s3_files, "--check")
 
+    assert result.exit_code == 0 # No files imported
+    assert os.path.exists(existing_file_path)
+    assert not os.path.exists(downloaded_file_path)
 
-def test_manage_s3_files_with_no(load_env, mock_s3_client):
-    result = run_manage_s3_files(["--checkLastDownload", "no"])
-    assert result.exit_code == 0, f"Failed with error: {result.output}"
+@freeze_time("2023-01-01")
+def test_get_latest_file2(app_config, db, create_file, load_env, mock_s3_client, cli_runner):
+    # download_path is a module scope temp path, so we need to be careful about
+    # file names
+    download_path = app_config['S3_DOWNLOAD_FOLDER']
 
+    # Create the existing file in the S3_DOWNLOAD_FOLDER
+    existing_file = 'test_get_latest_file1.json'
+    existing_file_path = create_file(f'{download_path}/{existing_file}', '{"s":"a"}', absolute=True)
 
-def test_manage_s3_files_without_param(load_env, mock_s3_client):
-    result = run_manage_s3_files([])
-    assert result.exit_code == 0, f"Failed with error: {result.output}"
+    # Establish the file path of the file to be downloaded from S3
+    downloaded_file = 'test_get_latest_file_2.json'
+    downloaded_file_path = f'{download_path}/{downloaded_file}'
 
+    # Mock the download_file function to create the file locally
+    def download_file(Bucket, Key, Filename):
+        create_file(downloaded_file_path, '{"s":"b"}', absolute=True)
+    mock_s3_client.download_file = download_file
 
-def test_manage_s3_files_invalid_param(load_env, mock_s3_client):
-    result = run_manage_s3_files(["--checkLastDownload", "invalid"])
-    assert result.exit_code == 2, "Invalid parameter should return a non-zero exit code"
+    # Pretend S3 is returning them, the returned dict has more information than
+    # the single key 'Contents' and each file has more information than just the
+    # 'Key' and 'LastModified' keys but this is all we need for unit testing.
+    mock_s3_client.list_objects_v2.return_value = {
+        'Contents': [{'Key': downloaded_file_path, 'LastModified': datetime.datetime.now()}]}
+    #{'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
+
+    # Import should not import anything and the younger file should be removed
+    result = cli_runner(manage_s3_files, "--check")
+
+    renamed_downloaded_file = f'{download_path}/20230101000000_{downloaded_file}'
+
+    assert not os.path.exists(existing_file_path)
+    assert result.exit_code == 1
+    assert os.path.exists(renamed_downloaded_file)

@@ -3,7 +3,9 @@
 
 import json
 import logging
+import os
 import re
+from unittest.mock import patch, MagicMock
 
 import pytest
 from dotenv import find_dotenv, load_dotenv
@@ -15,7 +17,7 @@ from invenio_rdm_records.proxies import current_rdm_records
 from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
-from mex_invenio.scripts.import_data import import_data
+from mex_invenio.scripts.import_data import _import_data
 from mex_invenio.config import (OAISERVER_ID_PREFIX, OAISERVER_RELATIONS, RECORD_METADATA_CREATOR,
                                 RECORD_METADATA_DEFAULT_TITLE, RECORD_METADATA_TITLE_PROPERTIES)
 from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI, RDM_NAMESPACES
@@ -34,8 +36,14 @@ def load_env():
     env_file = find_dotenv('.env.tests')
     load_dotenv(env_file)
 
+
 @pytest.fixture(scope='module')
-def app_config(app_config):
+def module_tmp_path(tmp_path_factory):
+    return tmp_path_factory.mktemp('module_temp')
+
+
+@pytest.fixture(scope='module')
+def app_config(app_config, module_tmp_path):
     # sqllite refused to create mock db without those parameters and they are missing
     app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_pre_ping": False,
@@ -59,6 +67,9 @@ def app_config(app_config):
     # add oai
     app_config['OAISERVER_ID_PREFIX'] = OAISERVER_ID_PREFIX
     app_config['OAISERVER_RELATIONS'] = OAISERVER_RELATIONS
+
+    # add S3
+    app_config['S3_DOWNLOAD_FOLDER'] = module_tmp_path
     return app_config
 
 
@@ -220,12 +231,19 @@ def initialise_custom_fields(app, location, db, search_clear, cli_runner):
 
 @pytest.fixture
 def create_file(tmp_path):
-    def _create_file(filename, data):
+    """Create a file, either absolute or relative to the tmp_path."""
+    def _create_file(filename, data, absolute=False):
         if isinstance(data, dict):
             data = json.dumps(data)
 
-        file_path = tmp_path / filename
-        file_path.write_text(data)
+        if absolute:
+            os.makedirs("/".join(filename.split('/')[-1]), exist_ok=True)
+            with open(filename, 'w') as f:
+                f.write(data)
+            file_path = filename
+        else:
+            file_path = tmp_path / filename
+            file_path.write_text(data)
 
         return str(file_path)
 
@@ -252,10 +270,18 @@ def import_file(initialise_custom_fields, custom_field_exists, db, caplog, cli_r
         contact_point_file = create_file(f'{filename}.json', data)
 
         with caplog.at_level(logging.INFO):
-            cli_runner(import_data, email, contact_point_file)
+            cli_runner(_import_data, email, contact_point_file)
 
         current_rdm_records.records_service.indexer.refresh()
 
         return caplog.messages
 
     return _import_file
+
+
+@pytest.fixture
+def mock_s3_client():
+    with patch("boto3.client") as mock:
+        s3_client = MagicMock()
+        mock.return_value = s3_client
+        yield s3_client
