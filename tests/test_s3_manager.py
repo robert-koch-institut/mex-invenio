@@ -39,17 +39,17 @@ def test_identical_files(app_config, db, create_file, load_env, mock_s3_client, 
     assert not os.path.exists(downloaded_file_path)
 
 @freeze_time("2023-01-01")
-def test_get_latest_file2(app_config, db, create_file, load_env, mock_s3_client, cli_runner):
+def test_replace_file_but_fail_import(app_config, db, create_file, load_env, mock_s3_client, cli_runner):
     # download_path is a module scope temp path, so we need to be careful about
     # file names
     download_path = app_config['S3_DOWNLOAD_FOLDER']
 
     # Create the existing file in the S3_DOWNLOAD_FOLDER
-    existing_file = 'test_get_latest_file1.json'
+    existing_file = 'test_replace_file_but_fail_import1.json'
     existing_file_path = create_file(f'{download_path}/{existing_file}', '{"s":"a"}', absolute=True)
 
     # Establish the file path of the file to be downloaded from S3
-    downloaded_file = 'test_get_latest_file_2.json'
+    downloaded_file = 'test_replace_file_but_fail_import2.json'
     downloaded_file_path = f'{download_path}/{downloaded_file}'
 
     # Mock the download_file function to create the file locally
@@ -70,5 +70,5 @@ def test_get_latest_file2(app_config, db, create_file, load_env, mock_s3_client,
     renamed_downloaded_file = f'{download_path}/20230101000000_{downloaded_file}'
 
     assert not os.path.exists(existing_file_path)
-    assert result.exit_code == 1
+    assert result.exit_code == 1 # The import job will error because the user is not found
     assert os.path.exists(renamed_downloaded_file)
