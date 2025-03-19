@@ -1,23 +1,60 @@
-from dcxml import simpledc
+from dcxml.simpledc import container_element, rules, ns, container_attribs
+
 from flask import g, current_app
 from invenio_rdm_records.proxies import current_rdm_records_service
-from invenio_rdm_records.resources.serializers import DublinCoreXMLSerializer
+from lxml import etree
 
+
+def dump_etree_helper(container_name, data, rules, nsmap, attrib):
+    """Convert DataCite JSON format to DataCite XML.
+
+    JSON should be validated before it is given to to_xml.
+    This function is a modified version of dcxml.xmlutils.dump_etree in order
+    to support the xml:lang attrib.
+    """
+    nsmap['xml'] = 'http://www.w3.org/XML/1998/namespace'
+    output = etree.Element(container_name, nsmap=nsmap, attrib=attrib)
+
+    for rule in rules:
+        if rule not in data:
+            continue
+
+        element_data = []
+
+        for d in data[rule]:
+            if isinstance(d, dict):
+                element_data.append(d['value'])
+            else:
+                element_data.append(d)
+
+        element = rules[rule](rule, element_data)
+
+        for e in element:
+            lang = [a['language'] for a in data[rule] if isinstance(a, dict) and a['value'] == e.text]
+
+            if lang:
+                e.set('{http://www.w3.org/XML/1998/namespace}lang', lang[0])
+            output.append(e)
+
+    return output
 
 def mex_dublincore_etree(pid, record, **serializer_kwargs):
     """Get DublinCore XML etree for OAI-PMH.
-    Based off invenio_rdm_records.oai.dublincore_etree
+    This function is a modified version of invenio_rdm_records.oai.dublincore_etree
+    in order to crosswalk the MEx custom fields.
     """
     item = current_rdm_records_service.oai_result_item(g.identity, record["_source"])
     oai_record = item.to_dict()
 
-    # TODO: DublinCoreXMLSerializer should be able to dump an etree directly
-    # instead. See https://github.com/inveniosoftware/flask-resources/issues/117
-    obj = DublinCoreXMLSerializer(**serializer_kwargs).dump_obj(oai_record)
+    obj = {'titles': [], 'identifiers': [oai_record['pids']['oai']['identifier']], 'creators': [], 'dates': [],
+           'descriptions': []}
 
     cf = oai_record['custom_fields']
 
-    # TODO: Rights could be omitted
+    for t in current_app.config.get('RECORD_METADATA_TITLE_PROPERTIES', ''):
+        if f'mex:{t}' in cf:
+            obj['titles'].extend(cf[f'mex:{t}'])
+
     # defaults to closedAccess, see
     # https://guidelines.openaire.eu/en/latest/literature/field_accesslevel.html
     # only set license to open if there is a license
@@ -34,10 +71,7 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     # description and abstract get mapped to descriptions
     for p in ['mex:description', 'mex:abstract']:
         if p in cf:
-            if 'descriptions' not in obj:
-                obj['descriptions'] = []
-
-            obj['descriptions'].extend([d['value'] for d in cf[p]])
+            obj['descriptions'].extend(cf[p])
 
     if 'mex:creator' in cf:
         # all records will have a creator because it's a mandatory field
@@ -45,7 +79,7 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
         obj['creators'].extend(cf['mex:creator'])
 
     if 'mex:keyword' in cf:
-        obj['subjects'] = [k['value'] for k in cf['mex:keyword']]
+        obj['subjects'] = cf['mex:keyword']
 
     if 'mex:publisher' in cf:
         obj['publishers'] = cf['mex:publisher']
@@ -58,8 +92,6 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
 
     if 'mex:language' in cf:
         obj['languages'] = cf['mex:language']
-
-    #print(type(oai_record['custom_fields']['mex:mediaType']))
 
     dates = []
 
@@ -103,4 +135,4 @@ def mex_dublincore_etree(pid, record, **serializer_kwargs):
     if relations:
         obj['relations'] = relations
 
-    return simpledc.dump_etree(obj)
+    return dump_etree_helper(container_element, obj, rules, ns, container_attribs)

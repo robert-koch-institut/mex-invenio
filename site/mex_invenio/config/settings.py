@@ -194,7 +194,7 @@ OAISERVER_ADMIN_EMAILS = [
 ]
 
 # configure a custom OAI metadata format for MEx
-OAISERVER_METADATA_FORMATS['oai_mex'] = {
+OAISERVER_METADATA_FORMATS['oai_dc'] = {
     'serializer': 'mex_invenio.oai.mex:mex_dublincore_etree',
     'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
     'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/'}
@@ -215,6 +215,18 @@ SEARCH_INDEX_PREFIX = "mex-invenio-"
 
 USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 """Enable the user administration"""
+
+# S3 config
+
+S3_DOWNLOAD_FOLDER = 's3_downloads'
+
+# If S3_ENDPOINT_URL is not set the script will use the default AWS S3 endpoint
+# S3_ENDPOINT_URL = 'http://localhost:9000'
+
+# If S3_OBJECT_KEY is set, the script will download that specific file from S3
+# if it is not set the script will download the latest file in the bucket
+# NOTE that this requires permissions to list objects in the bucket
+S3_OBJECT_KEY = 'pub_small.ndjson'
 
 # Script log config
 # --------------
