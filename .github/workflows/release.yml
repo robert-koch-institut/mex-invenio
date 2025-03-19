@@ -37,9 +37,6 @@ jobs:
       - name: Install requirements
         run: make setup
 
-      - name: Install project
-        run: pipenv install --deploy
-
       - name: Login to container registry
         uses: docker/login-action@v3
         with:
