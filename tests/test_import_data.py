@@ -3,7 +3,7 @@ from json import JSONDecodeError
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
-from mex_invenio.scripts.import_data import import_data
+from mex_invenio.scripts.import_data import _import_data
 
 from tests.conftest import search_messages, created_regex
 from tests.data import contact_point_data
@@ -16,7 +16,7 @@ def test_nonexistent_file_error_cli(cli_runner, db):
     db.session.add(User(username='alice', email=email))
     db.session.commit()
 
-    result = cli_runner(import_data, email, filepath)
+    result = cli_runner(_import_data, email, filepath)
 
     assert result.exit_code == 1
     assert f'File {filepath} not found.' in result.output
@@ -26,7 +26,7 @@ def test_nonexistent_file_error_cli(cli_runner, db):
 def test_nonexistent_user_error_cli(cli_runner, db, create_file):
     """Test that the CLI command exits with an error when the user does not exist."""
     email = 'non-existent-user@address.com'
-    result = cli_runner(import_data, email, create_file('empty.json', '{}'))
+    result = cli_runner(_import_data, email, create_file('empty.json', '{}'))
 
     assert result.exit_code == 1
     assert f'User with email {email} not found.' in result.output
@@ -38,7 +38,7 @@ def test_import_corrupt_data_cli(cli_runner, db, create_file):
     db.session.add(User(username='importer', email=email))
     db.session.commit()
 
-    result = cli_runner(import_data, email, create_file('corrupt.json', '{'))
+    result = cli_runner(_import_data, email, create_file('corrupt.json', '{'))
 
     assert result.exit_code == 1
     assert isinstance(result.exception, JSONDecodeError)

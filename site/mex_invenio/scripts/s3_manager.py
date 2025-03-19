@@ -21,6 +21,7 @@ Before running the script, ensure you have the following:
 
 You can store these credentials in a custom file, a `.env` file,
 """
+import sys
 
 import click
 import boto3
@@ -28,9 +29,9 @@ import logging
 import os
 import filecmp
 from dotenv import load_dotenv
+from flask import current_app
 from mex_invenio.scripts.import_data import import_data
 from datetime import datetime, timezone
-import subprocess
 
 from mex_invenio.config import S3_LOG_FILE, S3_LOG_FORMAT
 
@@ -45,19 +46,41 @@ logger.addHandler(file_handler)
 
 
 def load_config():
-    config = {}
+    s3_config = {}
     file_found = load_dotenv()
 
     if file_found:
-        config = {
+        s3_config = {
             "bucket": os.getenv("bucket"),
-            "aws_access_key": os.getenv("aws_access_key"),
-            "aws_secret_key": os.getenv("aws_secret_key"),
-            "region": os.getenv("region", "eu-central-1"),
+            "aws_access_key_id": os.getenv("aws_access_key"),
+            "aws_secret_access_key": os.getenv("aws_secret_key"),
+            "region_name": os.getenv("region", "eu-central-1"),
             "email": os.getenv("email"),
         }
 
-    return config
+    if not s3_config:
+        logger.error("Unable to fetch configration, env file is missing")
+        sys.exit(1)
+
+    if not all([s3_config["bucket"], s3_config["aws_access_key_id"], s3_config["aws_secret_access_key"]]):
+        logger.error("Missing required configurations (bucket, aws_access_key, aws_secret_key).")
+        sys.exit(1)
+
+    if not s3_config["email"]:
+        logger.error("email environment variable is not set.")
+        sys.exit(1)
+
+    s3_endpoint_url = current_app.config.get('S3_ENDPOINT_URL', None)
+
+    if s3_endpoint_url:
+        s3_config['endpoint_url'] = s3_endpoint_url
+
+    s3_object_key = current_app.config.get('S3_OBJECT_KEY', None)
+
+    if s3_object_key:
+        s3_config['object_key'] = s3_object_key
+
+    return s3_config
 
 
 def get_latest_file(s3_client, bucket_name):
@@ -65,23 +88,21 @@ def get_latest_file(s3_client, bucket_name):
         response = s3_client.list_objects_v2(Bucket=bucket_name)
         if "Contents" not in response:
             logger.info("No files found in the bucket.")
-            return None
+            return
         latest_file = max(response["Contents"], key=lambda obj: obj["LastModified"])
         return latest_file["Key"]
     except Exception as e:
         logger.error(f"Error fetching latest file: {e}")
-        return None
 
 
 def download_file(s3_client, bucket_name, file_key, payload_folder):
     try:
-        os.makedirs(payload_folder, exist_ok=True)
         local_filename = os.path.join(payload_folder, os.path.basename(file_key))
         s3_client.download_file(bucket_name, file_key, local_filename)
+
         return local_filename
     except Exception as e:
         logger.error(f"Error downloading file: {e}")
-        return None
 
 
 def get_latest_existing_file(payload_folder):
@@ -97,17 +118,17 @@ def get_latest_existing_file(payload_folder):
 
 def check_last_download(existing_file, new_file):
     """Compares files and deletes the new file if it's the same."""
-    if existing_file and os.path.exists(existing_file) and filecmp.cmp(existing_file, new_file, shallow=False):
+    if os.path.exists(existing_file) and filecmp.cmp(existing_file, new_file, shallow=False):
         logger.info("No new content found. File is exactly the same as before.")
         os.remove(new_file)  # Remove duplicate file
         return True
     return False
 
 
-def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_comparison):
-    """Handles file retention based on checkLastDownload flag."""
-    if check_comparison == "yes" and check_last_download(existing_file, new_file):
-        return None  # New file is identical, so discard it
+def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_comparison: bool):
+    """Handles file retention based on check flag."""
+    if check_comparison and check_last_download(existing_file, new_file):
+        return  # New file is identical, so discard it
 
     # Generate a timestamped filename to avoid overwriting
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
@@ -116,67 +137,50 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
 
     os.rename(new_file, final_new_file_path)  # Rename new file
 
-    # Always replace old file if checkLastDownload == "no"
-    if existing_file:
-        os.remove(existing_file)
-        logger.info(f"Replaced old file: {existing_file} with new file: {final_new_file_path}")
+    # Always replace old file if check == False
+    os.remove(existing_file)
+    logger.info(f"Replaced old file: {existing_file} with new file: {final_new_file_path}")
 
     return final_new_file_path
 
 
 @click.command("manage_s3_files")
-@click.option("--checkLastDownload", "checkLastDownload", type=click.Choice(["yes", "no"]), default="no")
-def manage_s3_files(checkLastDownload: str):
+@click.option("--check", is_flag=True, default=False)
+def manage_s3_files(check: bool):
     """Main function to download the latest file from S3, compare, and manage local storage."""
 
-    config = load_config()
+    s3_config = load_config()
+    user_email = s3_config.pop("email")
+    s3_bucket = s3_config.pop("bucket")
+    s3_object_key = s3_config.pop("object_key", None)
+    s3_client = boto3.client("s3", **s3_config)
 
-    if not config:
-        logger.error("Unable to fetch configration, env file is missing")
-        exit(1)
-
-    if not all([config["bucket"], config["aws_access_key"], config["aws_secret_key"]]):
-        logger.error("Missing required configurations (bucket, aws_access_key, aws_secret_key).")
-        exit(1)
-
-    if not config["email"]:
-        logger.error("email environment variable is not set.")
-        exit(1)
-
-    s3_client = boto3.client(
-        "s3",
-        region_name=config["region"],
-        aws_access_key_id=config["aws_access_key"],
-        aws_secret_access_key=config["aws_secret_key"],
-    )
-
-    latest_file_key = get_latest_file(s3_client, config["bucket"])
+    latest_file_key = s3_object_key or get_latest_file(s3_client, s3_bucket)
     if not latest_file_key:
         return
 
-    payload_folder = "payload"
-    os.makedirs(payload_folder, exist_ok=True)
+    s3_download_folder = current_app.config.get('S3_DOWNLOAD_FOLDER')
+    os.makedirs(s3_download_folder, exist_ok=True)
 
-    existing_file_path = get_latest_existing_file(payload_folder)
-    new_file_path = download_file(s3_client, config["bucket"], latest_file_key, payload_folder)
+    # This will be the most recently modified file in the download folder
+    existing_file_path = get_latest_existing_file(s3_download_folder)
+
+    # This is the most recently modified file in the S3 bucket
+    new_file_path = download_file(s3_client, s3_bucket, latest_file_key, s3_download_folder)
 
     if new_file_path:
-        final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, payload_folder,
-                                                      checkLastDownload)
+        final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, s3_download_folder,
+                                                      check)
         if final_file_path:
-            logger.info(f"importing data using file ${final_file_path}")
+            logger.info(f"importing data using file {final_file_path}")
 
-            # Absolute path to import_data.py
-            script_path = os.path.join(os.path.dirname(__file__), "import_data.py")
+            result = import_data(user_email, final_file_path)
 
-            # Command to execute
-            command = ["pipenv", "run", "invenio", "shell", script_path, config["email"], final_file_path]
-            result = subprocess.run(command, capture_output=True, text=True)
-
-            if result.returncode != 0:  # Use returncode instead of exit_code
-                logger.error(f"Error in import_data: {result.stderr}")  # Use stderr for errors
+            if not result:
+                logger.error(f"Error in import_data, check the import log files for more details.")
+                sys.exit(1)
             else:
-                logger.info(f"Import successful: {result.stdout}")  # stdout for success messages
+                logger.info(f"Import successful. Data imported from {final_file_path}.")
 
 
 if __name__ == "__main__":
