@@ -1,0 +1,52 @@
+name: Release
+
+run-name: release new version by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: on
+  PIP_NO_CLEAN: on
+  PIP_NO_INPUT: on
+  PIP_PREFER_BINARY: on
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  containerize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Install requirements
+        run: make setup
+
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build, tag and push docker image
+        run: |
+          docker build . \
+          --tag ghcr.io/robert-koch-institut/mex-invenio:latest \
+          --tag ghcr.io/robert-koch-institut/mex-invenio:${{ github.sha }}
+          docker push --all-tags ghcr.io/robert-koch-institut/mex-invenio
