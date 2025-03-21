@@ -33,18 +33,34 @@
   </dd>
 {%- endmacro %}
 
-<i class="flag outline icon"></i>
-
-{% macro list_multilanguage_values(field, values) %}
-  {% for value in values %}
-    {% set search_url = field | custom_fields_search(value) %}
-    {% if search_url %}
-      <a href="{{ search_url }}">{{ value.value }}</a> (<i class="flag outline icon"></i> {{value.language | upper}}) {{ ", " if not loop.last }}
+{% macro render_object(obj) %}
+  {# If the object has a URL property, then it is LinkCF type #}
+  {% if obj.url %}
+    {% if obj.title %}
+      <a href="{{ obj.url }}">{{ obj.title }}</a>
     {% else %}
-      {{ value }}{{ ", " if not loop.last }}
+      <a href="{{ obj.url }}">{{ obj.url }}</a>
     {% endif %}
 
-  {% endfor %}
+  {% else %}
+    {{ obj.value }}
+  {% endif %}
+
+  {% if obj.language %}
+    (<i class="flag outline icon"></i> {{obj.language | upper}})
+  {% endif %}
+{% endmacro %}
+
+{% macro list_objects(field, values) %}
+  {% if values|length == 1 %}
+    {{ render_object(values[0]) }}
+  {% else %}
+    <ul>
+      {% for obj in values %}
+        <li> {{ render_object(obj) }} </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 {% endmacro %}
 
 
@@ -270,7 +286,7 @@
         {% elif field_cfg.is_vocabulary %}
           <dd>{{ list_vocabulary_values(field_value) }}</dd>
         {% elif field_value is iterable and field_value|length > 0 and field_value[0] is mapping %}
-          <dd>{{ list_multilanguage_values(field_cfg.field, field_value) }}</dd>
+          <dd>{{ list_objects(field_cfg.field, field_value) }}</dd>
         {% elif field_value is iterable and field_value|length > 0 and field_value[0] is string %}
           <dd>{{ list_string_values(field_cfg.field, field_value) }}</dd>
         {% elif field_value is iterable and field_value|length > 0 and field_value[0] is number %}
