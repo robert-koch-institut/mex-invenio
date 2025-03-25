@@ -291,6 +291,8 @@
           <dd>{{ list_string_values(field_cfg.field, field_value) }}</dd>
         {% elif field_value is iterable and field_value|length > 0 and field_value[0] is number %}
           <dd>{{ list_float_values(field_cfg.field, field_value) }}</dd>
+        {% elif field_value is mapping %}
+          <dd>{{ render_object(field_value) }}</dd>
         {% else %}
           <dd>{{ field_value }}</dd>
         {% endif %}
