@@ -64,7 +64,7 @@
 {% endmacro %}
 
 
-{% macro list_string_values(field, values) %}
+<!-- {% macro list_string_values(field, values) %}
   {% for value in values %}
     {% set search_url = field | custom_fields_search(value) %}
     {% if search_url %}
@@ -73,7 +73,22 @@
       {{ value }}{{ ", " if not loop.last }}
     {% endif %}
   {% endfor %}
+{% endmacro %} -->
+
+<!-- Identifying strings as identifier using Regex. -->
+{% macro list_string_values(field, values) %}
+  {% for value in values %}
+    {% set is_identifier = value is string and value | length == 22 and (value | replace("a", "") | replace("b", "") | replace("c", "") | replace("d", "") | replace("e", "") | replace("f", "") | replace("g", "") | replace("h", "") | replace("i", "") | replace("j", "") | replace("k", "") | replace("l", "") | replace("m", "") | replace("n", "") | replace("o", "") | replace("p", "") | replace("q", "") | replace("r", "") | replace("s", "") | replace("t", "") | replace("u", "") | replace("v", "") | replace("w", "") | replace("x", "") | replace("y", "") | replace("z", "") | replace("A", "") | replace("B", "") | replace("C", "") | replace("D", "") | replace("E", "") | replace("F", "") | replace("G", "") | replace("H", "") | replace("I", "") | replace("J", "") | replace("K", "") | replace("L", "") | replace("M", "") | replace("N", "") | replace("O", "") | replace("P", "") | replace("Q", "") | replace("R", "") | replace("S", "") | replace("T", "") | replace("U", "") | replace("V", "") | replace("W", "") | replace("X", "") | replace("Y", "") | replace("Z", "") | replace("0", "") | replace("1", "") | replace("2", "") | replace("3", "") | replace("4", "") | replace("5", "") | replace("6", "") | replace("7", "") | replace("8", "") | replace("9", "") == "" ) %}
+    
+    {% if value and is_identifier %}
+      <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ value }}</a>{{ ", " if not loop.last }}
+    {% else %}
+      {{ value }}{{ ", " if not loop.last }}
+    {% endif %}
+  {% endfor %}
 {% endmacro %}
+
+
 
 
 {% macro show_add_titles(add_titles) %}
