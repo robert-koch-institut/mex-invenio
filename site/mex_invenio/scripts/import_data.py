@@ -30,7 +30,7 @@ from invenio_rdm_records.proxies import current_rdm_records_service
 from multiprocessing import Pool, cpu_count
 
 from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT
-from mex_invenio.scripts.utils import compare_dicts, clean_dict, mex_to_invenio_schema, get_pref_labels
+from mex_invenio.scripts.utils import compare_dicts, clean_dict, mex_to_invenio_schema
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -93,10 +93,8 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
     """Main function to import data.
        Batch size is set to 10mb by default.
        Expected data source is a JSON file with one MEx record per line.
-       About 50k records, or ~100mb.
+       About 50k records, or ~100mb."""
 
-       This function also reads the pref labels from the vocabularies directory and
-       writes them to a template accessible file."""
     if not os.path.isfile(filepath):
         message = f"File {filepath} not found."
 
@@ -123,12 +121,6 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
             else:
                 logger.error(message)
                 return False
-
-    try:
-        get_pref_labels()
-    except Exception as e:
-        #TODO This could break the template rendering if the file is not found
-        logger.error(f"Error fetching pref labels: {e}")
 
     # Start the timer to measure processing time
     start_time = time.time()
