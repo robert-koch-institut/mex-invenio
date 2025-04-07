@@ -7,7 +7,7 @@ verify_ssl = true
 check-manifest = ">=0.25"
 # Pytest-invenio 3 breaks the test with:
 # ModuleNotFoundError: No module named 'flask_sqlalchemy.session'
-pytest-invenio = "==2.1.1"
+pytest-invenio = "<3"
 flask-pytest = "*"
 # Avoid pytest>=8 as dependency resolution is not giving a compatible version of pluggy
 # Manifests as: https://github.com/pytest-dev/pytest/issues/12144
