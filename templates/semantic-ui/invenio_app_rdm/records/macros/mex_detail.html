@@ -81,14 +81,6 @@
   {% endfor %}
 {% endmacro %}
 
-<!-- Identifying strings as identifier using Regex. -->
-{% macro list_identifier_values(values) %}
-  {% for value in values %}
-    <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ value }}</a>{{ ", " if not loop.last }}
-
-  {% endfor %}
-{% endmacro %}
-
 
 {% macro show_dates(dates) %}
   {% for date in dates %}
@@ -144,17 +136,21 @@
           {% if field_value in pref_labels %}
             {% if current_i18n.language in pref_labels[field_value] %}
               <dd>{{ pref_labels[field_value][current_i18n.language] }}</dd>
+            {% elif 'en' in pref_labels[field_value] %}
+              <dd>{{ pref_labels[field_value]['en'] }}</dd>
             {% else %}
               {# Fallback to the first language in the list #}
               {% set lang = pref_labels[field_value].keys()|first %}
               <dd>{{ pref_labels[field_value][lang] }}</dd>
             {% endif %}
-            {% else %}
-              <dd>{{ field_value }}</dd>
-            {% endif %}
+          {% else %}
+            <dd>{{ field_value }}</dd>
+          {% endif %}
         {% elif field_cfg.props.type.endswith('identifier') %}
           {# We have an identifier but identifiers for concepts are vocabulary values. #}
-          <dd>{{ list_identifier_values(field_value) }}</dd>
+          <dd>{% for value in values %}
+            <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ value }}</a>{{ ", " if not loop.last }}
+            {% endfor %}</dd>
         {% elif field_value is string %}
           <dd>
             {% set search_url = (field_value | pid_url) if 'props' in field_cfg and field_cfg.props.is_identifier else (field_cfg.field | custom_fields_search(field_value | safe)) %}
