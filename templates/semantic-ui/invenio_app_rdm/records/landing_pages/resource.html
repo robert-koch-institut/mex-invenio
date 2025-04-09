@@ -1,0 +1,162 @@
+<div class="ui container">
+    <div class="ui relaxed grid mt-5">
+        <div class="two column row top-padded">
+            <article class="sixteen wide tablet eleven wide computer column main-record-content">
+                <section id="record-access-status"
+                         class="ui {{ record.ui.access_status.message_class }} message rel-mt-1"
+                         aria-label="{{ _('Record access information') }}"
+                >
+                    <strong>{{ record.ui.resource_type.title_l10n }}</strong>
+                    <i class="{{ record.ui.access_status.icon }} icon" aria-hidden="true"></i>
+                    <strong>{{ record.ui.access_status.title_l10n }}</strong>
+                    {{ record.ui.access_status.description_l10n }}
+
+                    {% if record.access.embargo.reason %}
+                    <p>{{ _("Reason") }}: {{ record.access.embargo.reason }}</p>
+                </section>
+                {% endif %}
+                <p>Koniec -- Access</p>
+                <p>Block record_body</p>
+                {%- block record_body -%}
+                <p>Block record_header</p>
+                {%- block record_header -%}
+                {%- block record_header_button -%}
+
+                {% if is_preview and not is_preview_submission_request and can_manage_record and is_draft %}
+                <nav class="back-navigation rel-pb-2 pl-0"
+                     aria-label="{{ _('Back-navigation') }}">
+                    {%- set back_page = url_for('invenio_app_rdm_records.deposit_edit', pid_value=record.id) -%}
+                    {%- set back_btn_label = _('Back to edit') -%}
+                    <a class="ui button labeled icon small compact" href="{{ back_page }}">
+                        <i class="ui icon angle left"></i> {{ back_btn_label }}
+                    </a>
+                </nav>
+                {% endif %}
+
+                {% endblock record_header_button %}
+                {%- endblock record_header -%}
+                <p>koniec record_header</p>
+                <p>block record_title</p>
+                {%- block record_title -%}
+                <section id="record-title-section" aria-label="{{ _('Record title and creators') }}">
+                    <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
+                    {% if record.ui.creators or record.ui.contributors %}
+                    <section id="creatibutors" aria-label="{{ _('Creators and contributors') }}">
+                        {%- include "invenio_app_rdm/records/details/creatibutors.html" %}
+                    </section>
+                    {% endif %}
+                </section>
+                {%- endblock record_title -%}
+                <p>koniec record_title</p>
+
+                <p>block record_content</p>
+                {%- block record_content -%}
+                {%- include "invenio_app_rdm/records/details/description.html" %}
+                {%- endblock record_content -%}
+                <p>koniec record_content</p>
+
+                {% set hasContent = namespace(value=false) %}
+                {% set hasContent.value = record.ui.additional_titles or
+                metadata.identifiers or
+                record.ui.related_identifiers or
+                metadata.funding or
+                record.ui.dates or
+                metadata.references
+                %}
+
+                {# Check if custom field has values if no other content #}
+                {% if record.ui.custom_fields and not hasContent.value %}
+                {% for section_cfg in custom_fields_ui %}
+                {% for field_cfg in section_cfg.fields %}
+                {% if record.custom_fields.get(field_cfg.field) %}
+                {% set hasContent.value = true %}
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+                {% endif %}
+
+                {% if record.custom_fields %}
+                {% set section_cfg = custom_fields_ui[0] %}
+                {% set section_has_fields = namespace(value=false) %}
+                {% set section_format = section_cfg.section | replace(" ", "-") %}
+                {# Show the section if at least one of its fields is in record #}
+                {% for field_cfg in section_cfg.fields %}
+                {% if record.custom_fields.get(field_cfg.field) %}
+                {% set section_has_fields.value = true %}
+                {% endif %}
+                {% endfor %}
+                <p>For with section_cfg</p>
+                {% for field_cfg in section_cfg.fields %}
+                {% if record.custom_fields.get(field_cfg.field) %}
+                <div class="ui fluid padded grid rel-mb-1">
+                    <div class="active title sixteen wide mobile four wide tablet three wide computer column">
+                        <h3 class="ui header">
+                            {{ field_cfg.field }}
+                        </h3>
+                    </div>
+                    <div
+                            id="custom-fields-panel"
+                            role="region"
+                            aria-labelledby="custom-fields-accordion-trigger"
+                            class="active content sixteen wide mobile twelve wide tablet thirteen wide computer column"
+                    >
+                        {% set section_format = section_cfg.section | replace(" ", "-") %}
+                        <dl class="details-list">
+                            {{ show_section_custom_fields(record.ui.custom_fields, [field_cfg]) }}
+                        </dl>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                <p>Koniec --- For with section_cfg</p>
+                <div class="ui divider"></div>
+                {% endif %}
+                <p>Block record_details</p>
+                {%- block record_details -%}
+                <section id="additional-details" class="rel-mt-2" aria-label="{{ _('Additional record details') }}">
+                    {%- include "invenio_app_rdm/records/details/mex_details.html" %}
+                </section>
+                {%- endblock record_details -%}
+                <p>Koniec record_details</p>
+                <p>Block record_footer</p>
+                {%- block record_footer -%}
+                {%- endblock record_footer -%}
+                <p>Koniec record_footer</p>
+
+                {%- endblock record_body %}
+                <p>Koniec record_body</p>
+            </article>
+            <p>Koniec -- Article</p>
+            <p>Sidebar</p>
+            {# Sidebar #}
+            <aside class="sixteen wide tablet five wide computer column sidebar" aria-label="{{ _('Record details') }}">
+                {% block record_sidebar %}
+                {%- include "invenio_app_rdm/records/details/side_bar.html" %}
+                {% endblock record_sidebar %}
+            </aside>
+            <p>Koniec Sidebar </p>
+        </div>
+    </div>
+
+    <div class="ui container">
+        <div class="ui relaxed grid">
+            <div class="two column row">
+                <div class="sixteen wide tablet eleven wide computer column">
+                    {%- block jump -%}
+                    <div class="ui grid">
+                        <div class="centered row rel-mt-1">
+                            <button id="jump-btn" class="jump-to-top ui button labeled icon"
+                                    aria-label="{{ _('Jump to top of page') }}">
+                                <i class="arrow alternate circle up outline icon"></i>
+                                {{ _("Jump up") }}
+                            </button>
+                        </div>
+                    </div>
+                    {%- endblock jump -%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<p>KONIEC UI CONTAINER</p>
+<p>Koniec page_body</p>

@@ -228,6 +228,8 @@ S3_DOWNLOAD_FOLDER = 's3_downloads'
 # NOTE that this requires permissions to list objects in the bucket
 S3_OBJECT_KEY = 'pub_small.ndjson'
 
+COMMUNITIES_GROUPS_ENABLED = False
+
 # Script log config
 # --------------
 
@@ -251,3 +253,20 @@ RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'offic
 # The default value for the Datacite title property in imported records
 # if it is not present in the MEx source record
 RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
+
+RECORD_CARDS = {
+    "resource": [
+        {
+            "title": "Contributors & Creators",
+            "icon": "contributors.svg",
+            "properties": [
+                 "creator",
+                 "unitInCharge",
+                 "contributor",
+                 "contributingUnit",
+                 "externalPartner"
+            ]
+        }
+    ]
+}
+
