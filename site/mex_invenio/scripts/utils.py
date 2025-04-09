@@ -1,5 +1,6 @@
 """ Utility functions for the MEx-Invenio data import and handling. """
-
+import filecmp
+import os
 from datetime import datetime
 from typing import Union, Any
 
@@ -13,8 +14,8 @@ def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
     if isinstance(mex_data[key][0], str):
         return mex_data[key][0]
 
-    if [t for t in mex_data[key] if t['language'] == lang]:
-        return [t for t in mex_data[key] if t['language'] == lang][0]['value']
+    if [t for t in mex_data[key] if 'language' in t and t['language'] == lang]:
+        return [t for t in mex_data[key] if 'language' in t and t['language'] == lang][0]['value']
 
     return mex_data[key][0]['value']
 
@@ -82,3 +83,10 @@ def clean_dict(d: dict) -> Union[dict[Any, dict], list[dict], dict]:
         return [clean_dict(item) for item in d if item is not None and item != []]
     else:
         return d
+
+def compare_files(existing_file: str, new_file: str) -> bool:
+    """Compares files and deletes the new file if it's the same."""
+    if os.path.exists(existing_file) and filecmp.cmp(existing_file, new_file, shallow=False):
+        os.remove(new_file)  # Remove duplicate file
+        return True
+    return False

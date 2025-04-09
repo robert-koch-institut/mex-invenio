@@ -27,10 +27,10 @@ import click
 import boto3
 import logging
 import os
-import filecmp
 from dotenv import load_dotenv
 from flask import current_app
 from mex_invenio.scripts.import_data import import_data
+from mex_invenio.scripts.utils import compare_files
 from datetime import datetime, timezone
 
 from mex_invenio.config import S3_LOG_FILE, S3_LOG_FORMAT
@@ -116,18 +116,10 @@ def get_latest_existing_file(payload_folder):
     return files[-1] if files else None
 
 
-def check_last_download(existing_file, new_file):
-    """Compares files and deletes the new file if it's the same."""
-    if os.path.exists(existing_file) and filecmp.cmp(existing_file, new_file, shallow=False):
-        logger.info("No new content found. File is exactly the same as before.")
-        os.remove(new_file)  # Remove duplicate file
-        return True
-    return False
-
-
 def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_comparison: bool):
     """Handles file retention based on check flag."""
-    if check_comparison and check_last_download(existing_file, new_file):
+    if check_comparison and compare_files(existing_file, new_file):
+        logger.info("No new content found. File is exactly the same as before.")
         return  # New file is identical, so discard it
 
     # Generate a timestamped filename to avoid overwriting
