@@ -1,10 +1,10 @@
 @primaryColor: @core-color-brand-default;
-@navbarBackgroundColor: @primaryColor;
-@navbarBackgroundImage: None;
+@navbarBackgroundImage: none;
 
-@frontendHeaderBackgroundColor: transparent;
+@frontendHeaderBackgroundColor: @core-color-white-default;
 
 @navbarBackgroundColor: @core-color-white-default;
+@navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
 
 @footerLightColor: @core-color-accent-2-default;
 @footerDarkColor: @primaryColor;
@@ -16,4 +16,5 @@
 
 @neutralLabelColor: @core-color-neutral-default;
 @signupColor: @core-color-green-default;
-@linkColor: @primaryColor;
+@darkLinkColor: @primaryColor;
+@lightLinkColor: @core-color-white-default;

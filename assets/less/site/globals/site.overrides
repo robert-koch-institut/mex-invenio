@@ -1,73 +1,77 @@
 .outer-navbar {
-  background-image: None;
-  border-top: 3px solid #32008c;
-  margin-top: 1rem;
-  border-bottom: 3px solid #32008c;
-
-  #invenio-nav {
-    background: @navbarBackgroundColor;
-  }
-
-  #frontpage-search-bar {
-    background-color: @frontendHeaderBackgroundColor;
-    border-top: 3px solid #32008c;
-
-    .fancy-underline {
-      position: relative;
-      display: inline-block;
-
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: -2px; // Adjust based on the thickness of the underline
-        left: 10px; // Start 10px from the left
-        right: 10px; // Finish 10px before the end
-        height: 5px; // Underline thickness
-        background: linear-gradient(to right, lighten(@primaryColor, 20%), transparent); // Gradient background
-        border-radius: 5px; // Rounded corners
-      }
+    background-color: @navbarBackgroundColor;
+    .navbar-top {
+        background: @navbarGradient;
+        display: flex;
+        height: 4.5rem;
+        padding: 2.5rem;
+        justify-content: space-between;
+        align-items: center;
+        align-self: stretch;
+        .rdm-logo {
+            height: 1.5rem;
+        }
+        .org-logo {
+            height: 2.5rem;
+        }
     }
-    h1.header {
-        color: @primaryColor;
+    .navbar-links {
+        item a {
+            color: @darkLinkColor;
+            text-decorations: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
-  }
 
-  a {
-    color: @white;
-  }
-
-  .flashed a {
-    color: inherit; /* Reset the color to inherit from parent */
-  }
-}
-
-#rdm-burger-menu-icon,
-#rdm-close-burger-menu-icon {
-  .navicon {
-    background: @white;
-    display: block;
-    height: 2px;
-    position: relative;
-    transition: background 0.2s ease-out;
-    width: 18px;
-
-    &:before,
-    &:after {
-      display: block;
-      background: @white;
-      content: "";
-      height: 100%;
-      position: absolute;
-      transition: all 0.2s ease-out;
-      width: 100%;
+    #frontpage-search-bar {
+        background-color: @frontendHeaderBackgroundColor;
     }
-  }
-}
-
-.rdm-logo {
-  max-height: 2rem;
 }
 
 #skip-to-main {
-    z-index: 1000;
+    &:focus, &:focus-visible, &:active {
+        z-index: 1000;
+    }
+}
+
+#invenio-nav.navbar-links.ui.menu {
+    box-shadow: none;
+}
+
+a, a.dark {
+    color: @darkLinkColor;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+a.light {
+    color: @lightLinkColor;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+#frontpage-search-bar h1.ui.header {
+    color: @primaryColor;
+}
+
+#header-search-bar {
+    border: none;
+    .ui.icon button {
+        color: @primaryColor;
+    }
+    .ui.icon input {
+        width: 0;
+        overflow: hidden;
+    }
+    &:hover {
+        border: 1px solid @primaryColor;
+        width: 100%;
+    }
+    transition: border 0.3s ease, width 0.3 ease;
 }
