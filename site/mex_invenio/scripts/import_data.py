@@ -94,6 +94,7 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
        Batch size is set to 10mb by default.
        Expected data source is a JSON file with one MEx record per line.
        About 50k records, or ~100mb."""
+
     if not os.path.isfile(filepath):
         message = f"File {filepath} not found."
 
@@ -149,9 +150,9 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
                         # Log and skip the line if it is not valid JSON
                         logger.error(f"Error decoding JSON: {line}")
                         continue
-                    except KeyError:
+                    except KeyError as ke:
                         # Log and skip the line if it is missing a key
-                        logger.error(f"Error processing record: {line}")
+                        logger.error(f"KeyError: {ke}\nError processing record: {line}")
                         continue
 
                     futures.append(pool.apply_async(process_record, (mex_id, mex_data, owner.id)))
