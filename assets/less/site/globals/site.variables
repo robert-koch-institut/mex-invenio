@@ -3,6 +3,9 @@
 
 @frontendHeaderBackgroundColor: @core-color-white-default;
 
+@searchButtonColor: @core-color-white-default;
+@searchButtonColorTextColor: @primaryColor
+
 @navbarBackgroundColor: @core-color-white-default;
 @navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
 

@@ -253,20 +253,130 @@ RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'offic
 # The default value for the Datacite title property in imported records
 # if it is not present in the MEx source record
 RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
-
+RECORD_RIGHT_COLUMN_CARDS = {
+    "resource": [
+        {
+            "title": "Contact",
+            "icon": "contact.svg",
+            "properties": [
+                "person",
+                "person.email",
+                "ContactPoint.email",
+                "OrganizationalUnit.email"
+            ],
+            "order": 1
+        },
+        {
+            "title": "Access & Usage Rights",
+            "icon": "access.svg",
+            "properties": [
+                "accessRestriction",
+                "doi",
+                "license",
+                "rights"
+            ],
+            "order": 2
+        },
+        {
+            "title": "Files",
+            "icon": "distribution.svg",
+            "properties": [
+                "distribution"
+            ],
+            "order": 3
+        },
+        {
+            "title": "Variables",
+            "icon": "variables.svg",
+            "properties": [
+                "variables"
+            ],
+            "order": 4
+        }
+    ]
+}
 RECORD_CARDS = {
     "resource": [
         {
             "title": "Contributors & Creators",
             "icon": "contributors.svg",
             "properties": [
-                 "creator",
-                 "unitInCharge",
-                 "contributor",
-                 "contributingUnit",
-                 "externalPartner"
-            ]
-        }
+                "creator",
+                "unitInCharge",
+                "contributor",
+                "contributingUnit",
+                "externalPartner"
+            ],
+            "order": 1
+        },
+        {
+            "title": "Theme & Keywords",
+            "icon": "theme.svg",
+            "properties": [
+                "theme",
+                "keywords",
+            ],
+            "order": 2
+        },
+        {
+            "title": "Data Representation & Coverage",
+            "icon": "datarepresentationandcoverage.svg",
+            "properties": [
+                "temporal",
+                "spatial",
+                "minTypicalAge",
+                "maxTypicalAge",
+                "populationCoverage",
+                "sizeOfDataBasis"
+            ],
+            "order": 3
+        },
+        {
+            "title": "Legal Basis & Data Provenance",
+            "icon": "legal.svg",
+            "properties": [
+                "hasLegalBasis",
+                "hasPersonalData",
+                "wasGeneratedBy"
+            ],
+            "order": 4
+        },
+        {
+            "title": "Data Collection & Processing",
+            "icon": "colection.svg",
+            "properties": [
+                "resourceCreationMethod",
+                "accrualPeriodicity",
+                "anonymization/pseudonymization",
+                "instrumentToolOrApparatus"
+            ],
+            "order": 5
+        },
+        {
+            "title": "Methodology",
+            "icon": "method.svg",
+            "properties": [
+                "method",
+                "methodDescription"
+            ],
+            "order": 6,
+        },
+        {
+            "title": "Related Publication & Further Documentation",
+            "icon": "legal.svg",
+            "properties": [
+                "publication",
+                "documentation"
+            ],
+            "order": 7,
+        },
+
     ]
 }
 
+
+CUSTOM_FIELDS_UI_TYPES = field_type_map = {
+    item['field']: item['props']['type']
+    for section in RDM_CUSTOM_FIELDS_UI
+    for item in section['fields']
+}

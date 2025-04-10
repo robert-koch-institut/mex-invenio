@@ -1,15 +1,19 @@
 <div class="ui container">
     <div class="ui relaxed grid mt-5">
-        <div class="two column row top-padded">
+        <a class="two column row top-padded">
             <article class="sixteen wide tablet eleven wide computer column main-record-content">
                 <section id="record-access-status"
                          class="ui {{ record.ui.access_status.message_class }} message rel-mt-1"
                          aria-label="{{ _('Record access information') }}"
                 >
-                    <strong>{{ record.ui.resource_type.title_l10n }}</strong>
-                    <i class="{{ record.ui.access_status.icon }} icon" aria-hidden="true"></i>
-                    <strong>{{ record.ui.access_status.title_l10n }}</strong>
-                    {{ record.ui.access_status.description_l10n }}
+                    {# config.CUSTOM_FIELDS_UI_TYPES -> definitions #}
+                    {# record.ui.custom_fields -> values #}
+                    <a id="edit-record" class="button edit" href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}" target="_blank">Edit this record</a>
+                    <div class="top-tags">
+                        <span class="tag">{{ record.ui.resource_type.title_l10n }}</span>
+                        <span class="tag">{{ val("resourceTypeGeneral") }}/{{ val("resourceTypeSpecific") }}</span>
+                        <span class="tag">{{ val("accessRestriction") }}</span>
+                    </div>
 
                     {% if record.access.embargo.reason %}
                     <p>{{ _("Reason") }}: {{ record.access.embargo.reason }}</p>
@@ -57,26 +61,26 @@
 
                 {% set hasContent = namespace(value=false) %}
                 {% set hasContent.value = record.ui.additional_titles or
-                metadata.identifiers or
-                record.ui.related_identifiers or
-                metadata.funding or
-                record.ui.dates or
-                metadata.references
+                                            metadata.identifiers or
+                                            record.ui.related_identifiers or
+                                            metadata.funding or
+                                            record.ui.dates or
+                                            metadata.references
                 %}
 
                 {# Check if custom field has values if no other content #}
                 {% if record.ui.custom_fields and not hasContent.value %}
-                {% for section_cfg in custom_fields_ui %}
-                {% for field_cfg in section_cfg.fields %}
-                {% if record.custom_fields.get(field_cfg.field) %}
-                {% set hasContent.value = true %}
-                {% endif %}
-                {% endfor %}
-                {% endfor %}
+                    {% for section_cfg in custom_fields_ui %}
+                        {% for field_cfg in section_cfg.fields %}
+                            {% if record.custom_fields.get(field_cfg.field) %}
+                                {% set hasContent.value = true %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
                 {% endif %}
 
                 {% if record.custom_fields %}
-                {% set section_cfg = custom_fields_ui[0] %}
+                    {% set section_cfg = custom_fields_ui %}
                 {% set section_has_fields = namespace(value=false) %}
                 {% set section_format = section_cfg.section | replace(" ", "-") %}
                 {# Show the section if at least one of its fields is in record #}

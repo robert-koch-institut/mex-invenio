@@ -16,10 +16,11 @@
         }
     }
     .navbar-links {
-        item a {
+        .item a {
             color: @darkLinkColor;
             text-decorations: none;
             &:hover {
+                color: @darkLinkColor;
                 text-decoration: underline;
             }
         }
@@ -62,9 +63,7 @@ a.light {
 
 #header-search-bar {
     border: none;
-    .ui.icon button {
-        color: @primaryColor;
-    }
+
     .ui.icon input {
         width: 0;
         overflow: hidden;

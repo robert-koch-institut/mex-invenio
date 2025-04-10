@@ -16,8 +16,8 @@
     {%- endblock css %}
 {% endif %}
 
-
-{%- from "invenio_app_rdm/records/macros/mex_detail.html" import show_section_custom_fields %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import val with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import show_section_custom_fields with context %}
 
 {%- set title = record.metadata.title %}
 {%- set metadata = record.metadata %}
@@ -137,67 +137,63 @@
                                 {% endfor %}
                             {% endif %}
 
-          {% if record.custom_fields %}
+                            {% if record.custom_fields %}
+                                {% set section_cfg = custom_fields_ui[0] %}
+                                {% set section_has_fields = namespace(value=false) %}
+                                {% set section_format = section_cfg.section | replace(" ", "-") %}
+                                {# Show the section if at least one of its fields is in record #}
+                                {% for field_cfg in section_cfg.fields %}
+                                    {% if record.custom_fields.get(field_cfg.field) %}
+                                        {% set section_has_fields.value = true %}
+                                    {% endif %}
+                                {% endfor %}
 
-              {% set section_cfg = custom_fields_ui[0] %}
-              {% set section_has_fields = namespace(value=false) %}
-              {% set section_format = section_cfg.section | replace(" ", "-") %}
-              {# Show the section if at least one of its fields is in record #}
-              {% for field_cfg in section_cfg.fields %}
-                {% if record.custom_fields.get(field_cfg.field) %}
-                  {% set section_has_fields.value = true %}
-                {% endif %}
-              {% endfor %}
+                                {% for field_cfg in section_cfg.fields %}
+                                    {% if record.custom_fields.get(field_cfg.field) %}
+                                        <div class="ui fluid padded grid rel-mb-1">
+                                            <div class="active title sixteen wide mobile four wide tablet four wide computer column">
+                                                <h5 class="ui header">
+                                                    {{ field_cfg.field[4:] }}
+                                                    {% if field_cfg.props.description %}
+                                                        <span role="note"
+                                                            class="ui small"
+                                                            data-tooltip="{{ field_cfg.props.description }}"
+                                                            data-position="right center"
+                                                            aria-label="{{ _('Property description') }}"
+                                                        >
+                                                        <i class="info circle icon"></i>
+                                                        </span>
+                                                    {% endif %}
+                                                </h5>
+                                            </div>
+                                            <div
+                                                id="custom-fields-panel"
+                                                role="region"
+                                                aria-labelledby="custom-fields-accordion-trigger"
+                                                class="active content sixteen wide mobile twelve wide tablet twelve wide computer column"
+                                            >
+                                                {% set section_format = section_cfg.section | replace(" ", "-") %}
+                                                <dl class="details-list">
+                                                    {{ show_section_custom_fields(record.ui.custom_fields, [field_cfg]) }}
+                                                </dl>
+                                            </div>
+                                        </div>
+                                        <div class="ui divider"></div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
 
+                            {# Additional details #}
+                            {%- block record_details -%}
+                                <section id="additional-details" class="rel-mt-2"
+                                    aria-label="{{ _('Additional record details') }}">
+                                    {%- include "invenio_app_rdm/records/details/mex_details.html" %}
+                                </section>
+                            {%- endblock record_details -%}
 
-              {% for field_cfg in section_cfg.fields %}
-                {% if record.custom_fields.get(field_cfg.field) %}
-                <div class="ui fluid padded grid rel-mb-1">
-                  <div class="active title sixteen wide mobile four wide tablet four wide computer column">
-                    <h5 class="ui header">
-                      {{ field_cfg.field[4:] }}
-
-                    {% if field_cfg.props.description %}
-                    <span role="note"
-                            class="ui small"
-                            data-tooltip="{{ field_cfg.props.description }}"
-                            data-position="right center"
-                            aria-label="{{ _('Property description') }}"
-                      >
-                      <i class="info circle icon"></i>
-                    </span>
-                    {% endif %}
-                    </h5>
-
-                  </div>
-                  <div
-                    id="custom-fields-panel"
-                    role="region"
-                    aria-labelledby="custom-fields-accordion-trigger"
-                    class="active content sixteen wide mobile twelve wide tablet twelve wide computer column"
-                  >
-                      {% set section_format = section_cfg.section | replace(" ", "-") %}
-                      <dl class="details-list">
-                        {{ show_section_custom_fields(record.ui.custom_fields, [field_cfg]) }}
-                      </dl>
-                  </div>
-                </div>
-                <div class="ui divider"></div>
-                {% endif %}
-              {% endfor %}
-            {% endif %}
-
-            {# Additional details #}
-            {%- block record_details -%}
-              <section id="additional-details" class="rel-mt-2"
-                       aria-label="{{ _('Additional record details') }}">
-                {%- include "invenio_app_rdm/records/details/mex_details.html" %}
-              </section>
-            {%- endblock record_details -%}
-
-            {# Record footer #}
-            {%- block record_footer -%}
-            {%- endblock record_footer -%}
+                            {# Record footer #}
+                                {%- block record_footer -%}
+                            {%- endblock record_footer -%}
 
                         {%- endblock record_body %}
                     </article>
