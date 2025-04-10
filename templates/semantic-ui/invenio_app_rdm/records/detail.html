@@ -42,6 +42,18 @@
 
 
 {%- block page_body %}
+{% macro dummy(value) -%}
+    {% if value > 1 %}
+         <p>  {{ value + 20 }} </p>
+    {% endif %}
+{%- endmacro %}
+
+{% set new_val = dummy(1) %}
+   {% if new_val %}
+        <p> This is new value: {{ new_val }} </p>
+    {% else %}
+        <p>No new value</p>
+   {% endif %}
     <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
         {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
             <div class="ui warning flashed bottom attached manage message">
