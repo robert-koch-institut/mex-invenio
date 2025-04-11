@@ -383,6 +383,7 @@ RECORD_CARDS = {
         "right": [
             {
                 "title": "Contact",
+                "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": [
                     "person",
@@ -393,6 +394,7 @@ RECORD_CARDS = {
             },
             {
                 "title": "Access & Usage Rights",
+                "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
                     "accessRestriction",
@@ -403,6 +405,7 @@ RECORD_CARDS = {
             },
             {
                 "title": "Files",
+                "template": "files.html",
                 "icon": "distribution.svg",
                 "properties": [
                     "distribution"
@@ -410,6 +413,7 @@ RECORD_CARDS = {
             },
             {
                 "title": "Variables",
+                "template": "variables.html",
                 "icon": "variables.svg",
                 "properties": [
                     "variables"
@@ -440,3 +444,9 @@ RESTRICTION_STATUS = {
 "https://mex.rki.de/item/access-restriction-1": "open",
 "https://mex.rki.de/item/access-restriction-2": "restricted"
 }
+
+APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
+    "invenio_app_rdm/records/details/side_bar/metrics.html",
+    "invenio_app_rdm/records/details/side_bar/versions.html",
+    "invenio_app_rdm/records/details/side_bar/export.html",
+]

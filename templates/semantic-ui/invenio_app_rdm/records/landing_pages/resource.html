@@ -74,8 +74,8 @@
                         </div>
                     </section>
                 {% endif %}
-                
-                <section id="record-cardnew" class="record-cards" aria-label="{{ _('Record Details') }}">
+
+                <section id="record-card" class="record-cards" aria-label="{{ _('Record Details') }}">
                     {% for card in config.RECORD_CARDS["resource"]["left"] %}
                         {% set ns = namespace(prop_exist=false) %}
                         {% for prop in card.properties %}
@@ -89,14 +89,19 @@
                         {% endfor %}
 
                         {% if ns.prop_exist %}
-                            <div class="card" style="background-color: white">
-                                <h3>{{ card.title }}</h3>
+                            <div class="card">
+                                <h3>
+                                    <img class="ui image icon"
+                                        src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                                        alt=""/>
+                                    {{ _(card.title) }}
+                                </h3>
                                 <div class="card-props">
                                     {% for prop in card.properties %}
                                         {% set value = val(prop) %}
                                         {% if val(prop) %}
                                             <p class="card-props-p">
-                                                <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>
+                                                <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
                                                 <span class="card-prop-value">{{ val(prop) }}</span>
                                             </p>
                                         {% endif %}
@@ -113,14 +118,14 @@
                 <p>Koniec record_footer</p>
 
             </article>
-            <p>Sidebar</p>
-            {# Sidebar #}
-            <aside class="sixteen wide tablet five wide computer column sidebar" aria-label="{{ _('Record details') }}">
+            <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals" aria-label="{{ _('Record details') }}">
                 {% block record_sidebar %}
-                {%- include "invenio_app_rdm/records/details/side_bar.html" %}
+                    {%- for card in config.RECORD_CARDS.resource.right %}
+                        {%- include "invenio_app_rdm/records/details/side_bar/" ~ card.template with context %}
+                    {% endfor %}
+                    {%- include "invenio_app_rdm/records/details/side_bar.html" %}
                 {% endblock record_sidebar %}
             </aside>
-            <p>Koniec Sidebar </p>
         </div>
     </div>
 

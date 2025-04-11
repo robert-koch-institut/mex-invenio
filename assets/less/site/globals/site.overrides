@@ -1,3 +1,48 @@
+.record-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    &.vertical {
+        flex-direction: column;
+        .card {
+            width: 100%;
+        }
+    }
+    .card {
+        flex: 1 1 calc(50% - 0.25rem);
+        box-sizing: border-box;
+        padding: 1rem 0.5rem 0.5rem 0.5rem;
+        background-color: @whiteBackground;
+        border: 1px solid @highlightColor;
+        box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+        h3 {
+            display: flex;
+            color: @secondaryColor;
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.5rem;
+            .icon {
+                width: 1.2rem;
+                height: 1.2rem;
+                margin-right: 0.5rem;
+            }
+        }
+        .card-props {
+            display: grid;
+            gap: 1rem;
+            .card-props-p {
+                display: grid;
+                grid-template-columns: 30% auto;
+                gap: 1rem;
+                align-items: start;
+                margin-bottom: 0;
+                .card-prop-label {
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+}
 .outer-navbar {
     background-color: rgba(224, 244, 252, 0.20);
     .navbar-top {
@@ -151,66 +196,33 @@ a.light {
             }
         }
     }
-    .id-tags {
-        margin: 2rem 0.5rem;
-        .id-tag {
+}
+
+.id-tags {
+    margin: 2rem 0.5rem;
+    .id-tag {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 2.5rem;
+        .label {
             display: inline-flex;
             align-items: center;
-            margin-right: 2.5rem;
-            .label {
-                display: inline-flex;
-                align-items: center;
-                margin-right: .5rem;
-                .circle {
-                        width: 2rem;
-                        height: 2rem;
-                        border-radius: 50%;
-                        background-color: @highlightColor;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                }
-                .text {
-                    font-size: 1rem;
-                    font-weight: 600;
-                    line-height: 1.25rem;
-                    margin-left: -2.5rem;
-                }
+            margin-right: .5rem;
+            .circle {
+                    width: 2rem;
+                    height: 2rem;
+                    border-radius: 50%;
+                    background-color: @highlightColor;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
             }
-        }
-    }
-    .record-cards {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        .card {
-            flex: 1 1 calc(50% - 0.25rem);
-            box-sizing: border-box;
-            padding: 1rem 0.5rem 0.5rem 0.5rem;
-            background-color: @whiteBackground;
-            border: 1px solid @highlightColor;
-            box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
-            h3 {
-                color: @secondaryColor;
-                font-size: 1.125rem;
+            .text {
+                font-size: 1rem;
                 font-weight: 600;
-                line-height: 1.5rem;
-            }
-            .card-props {
-                display: grid;
-                gap: 1rem;
-                .card-props-p {
-                    display: grid;
-                    grid-template-columns: 30% auto;
-                    gap: 1rem;
-                    align-items: start;
-                    margin-bottom: 0;
-                    .card-prop-label {
-                        font-weight: 600;
-                    }
-                }
+                line-height: 1.25rem;
+                margin-left: -2.5rem;
             }
         }
     }
-
 }

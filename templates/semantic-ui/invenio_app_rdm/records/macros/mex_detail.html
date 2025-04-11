@@ -218,3 +218,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         show_custom_field_value(field_cfg)
     {% endfor %}
 {% endmacro %}
+
+{% macro get_icon(card) %}
+    {{- card.icon -}}
+{% endmacro %}
