@@ -15,13 +15,12 @@ it under the terms of the MIT License; see LICENSE file for more details.
         <img class="ui image icon"
              src="{{ url_for('static', filename='icons/export.svg') }}"
              alt=""/>
-        {{ _(card.title) }}
         {{ _('Export') }}</h3>
     <div id="export-record">
 
         {%- set name = config.get("APP_RDM_RECORD_EXPORTERS", {}).json.get("name", fmt) -%}
         {%- set export_url = url_for('invenio_app_rdm_records.record_export', pid_value=record.id, export_format=fmt) -%}
-        {% set formats = formats.append({ 'name': name, 'export_url': export_url }) %}
+        {% set formats = [{ 'name': name, 'export_url': export_url }] %}
 
         <div id="recordExportDownload" data-formats='{{ formats | tojson }}'>EXPORT JSON</div>
     </div>

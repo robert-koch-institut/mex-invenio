@@ -386,10 +386,7 @@ RECORD_CARDS = {
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": [
-                    "person",
-                    "person.email",
-                    "ContactPoint.email",
-                    "OrganizationalUnit.email"
+                    "contact"
                 ]
             },
             "access": {

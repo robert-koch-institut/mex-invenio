@@ -200,6 +200,9 @@ a.light {
                 font-weight: 400;
                 line-height: 2.1rem;
             }
+            .alttitle {
+
+            }
         }
     }
 }
