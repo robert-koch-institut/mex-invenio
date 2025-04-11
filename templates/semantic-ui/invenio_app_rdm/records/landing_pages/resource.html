@@ -75,8 +75,9 @@
                     </section>
                 {% endif %}
 
-                <section id="record-card" class="record-cards" aria-label="{{ _('Record Details') }}">
-                    {% for card in config.RECORD_CARDS["resource"]["left"] %}
+                <section id="record-card" class="record-cards">
+                    {% for card_name in config.RECORD_CARDS.resource.left %}
+                        {% set card = config.RECORD_CARDS.resource.left[card_name] %}
                         {% set ns = namespace(prop_exist=false) %}
                         {% for prop in card.properties %}
                             {% set key = "mex:" ~ prop %}
@@ -120,7 +121,8 @@
             </article>
             <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals" aria-label="{{ _('Record details') }}">
                 {% block record_sidebar %}
-                    {%- for card in config.RECORD_CARDS.resource.right %}
+                    {%- for card_name in config.RECORD_CARDS.resource.right %}
+                        {% set card = config.RECORD_CARDS.resource.right[card_name] %}
                         {%- include "invenio_app_rdm/records/details/side_bar/" ~ card.template with context %}
                     {% endfor %}
                     {%- include "invenio_app_rdm/records/details/side_bar.html" %}

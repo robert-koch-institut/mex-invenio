@@ -312,8 +312,8 @@ FIELD_LABELS_UI = {
 
 RECORD_CARDS = {
     "resource": {
-        "left": [
-            {
+        "left": {
+            "creators": {
                 "title": "Contributors & Creators",
                 "icon": "creators.svg",
                 "properties": [
@@ -324,7 +324,7 @@ RECORD_CARDS = {
                     "externalPartner"
                 ]
             },
-            {
+            "theme": {
                 "title": "Theme & Keywords",
                 "icon": "theme.svg",
                 "properties": [
@@ -332,7 +332,7 @@ RECORD_CARDS = {
                     "keyword",
                 ]
             },
-            {
+            "coverage": {
                 "title": "Data Representation & Coverage",
                 "icon": "coverage.svg",
                 "properties": [
@@ -344,7 +344,7 @@ RECORD_CARDS = {
                     "sizeOfDataBasis"
                 ]
             },
-            {
+            "legal": {
                 "title": "Legal Basis & Data Provenance",
                 "icon": "legal.svg",
                 "properties": [
@@ -353,7 +353,7 @@ RECORD_CARDS = {
                     "wasGeneratedBy"
                 ]
             },
-            {
+            "processing": {
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
@@ -363,7 +363,7 @@ RECORD_CARDS = {
                     "instrumentToolOrApparatus"
                 ]
             },
-            {
+            "methodology": {
                 "title": "Methodology",
                 "icon": "methodology.svg",
                 "properties": [
@@ -371,7 +371,7 @@ RECORD_CARDS = {
                     "methodDescription"
                 ]
             },
-            {
+            "publication": {
                 "title": "Related Publication & Further Documentation",
                 "icon": "publication.svg",
                 "properties": [
@@ -379,9 +379,9 @@ RECORD_CARDS = {
                     "documentation"
                 ]
             }
-        ],
-        "right": [
-            {
+        },
+        "right": {
+            "contact": {
                 "title": "Contact",
                 "template": "contact.html",
                 "icon": "contact.svg",
@@ -392,7 +392,7 @@ RECORD_CARDS = {
                     "OrganizationalUnit.email"
                 ]
             },
-            {
+            "access": {
                 "title": "Access & Usage Rights",
                 "template": "access.html",
                 "icon": "access.svg",
@@ -403,7 +403,7 @@ RECORD_CARDS = {
                     "rights"
                 ]
             },
-            {
+            "files": {
                 "title": "Files",
                 "template": "files.html",
                 "icon": "distribution.svg",
@@ -411,7 +411,7 @@ RECORD_CARDS = {
                     "distribution"
                 ]
             },
-            {
+            "variables": {
                 "title": "Variables",
                 "template": "variables.html",
                 "icon": "variables.svg",
@@ -419,7 +419,7 @@ RECORD_CARDS = {
                     "variables"
                 ]
             }
-        ]
+        }
     }
 }
 

@@ -15,6 +15,12 @@
         background-color: @whiteBackground;
         border: 1px solid @highlightColor;
         box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+        &.views {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
         h3 {
             display: flex;
             color: @secondaryColor;
