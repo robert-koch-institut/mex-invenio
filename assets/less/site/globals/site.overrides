@@ -1,5 +1,5 @@
 .outer-navbar {
-    background-color: @navbarBackgroundColor;
+    background-color: rgba(224, 244, 252, 0.20);
     .navbar-top {
         background: @navbarGradient;
         display: flex;
@@ -73,4 +73,144 @@ a.light {
         width: 100%;
     }
     transition: border 0.3s ease, width 0.3 ease;
+}
+
+.ui.divider {
+    margin: 1.5rem 0;
+}
+
+.landing_page.resource {
+    margin-top: -0.5rem;
+    background-color: rgba(224, 244, 252, 0.20);
+    .edit-btn {
+        background-color: @mutedBackground;
+        color: @mutedTextColor;
+        position: absolute;
+        top: 17rem;
+        left: -3rem;
+        display: flex;
+        transform: rotate(-90deg);
+        padding: 0.3125rem 0.625rem;
+        align-items: center;
+        gap: 0.625rem;
+        transition: padding-top 0.3s ease;
+        &:hover {
+            a {
+                color: @mutedTextColor;
+                text-decoration: none;
+            }
+            padding-top: 0.625rem;
+        }
+    }
+    .record-ids {
+        margin-bottom: 2rem;
+    }
+    .tags {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.625rem;
+
+        .tag {
+            display: flex;
+            background-color: @highlightBackground;
+            padding: 0.3rem 0.5rem;
+            justify-content: center;
+            &.success {
+                background-color:
+            }
+            &.error {
+                background-color:
+            }
+        }
+    }
+    .top-tags {
+        margin-bottom: 3rem;
+    }
+    #record-title-section {
+        .first-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            align-self: stretch;
+            gap: 5rem;
+            h1 {
+                flex: 1 1 auto;
+                word-break: break-word;
+                color: @primaryColor;
+                font-size: 1.3rem;
+                font-weight: 600;
+                line-height: 2rem;
+            }
+            .muted {
+                white-space: nowrap;
+                flex-shrink: 0;
+                color: @mutedTextColor;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 2.1rem;
+            }
+        }
+    }
+    .id-tags {
+    margin: 1.25rem 0.5rem;
+        .id-tag {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 2.5rem;
+            .label {
+                display: inline-flex;
+                align-items: center;
+                margin-right: .5rem;
+                .circle {
+                        width: 2rem;
+                        height: 2rem;
+                        border-radius: 50%;
+                        background-color: @highlightColor;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                }
+                .text {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    line-height: 1.25rem;
+                    margin-left: -2.5rem;
+                }
+            }
+        }
+    }
+    .record-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        .card {
+            flex: 1 1 calc(50% - 0.25rem);
+            box-sizing: border-box;
+            padding: 1rem 0.5rem 0.5rem 0.5rem;
+            background-color: @whiteBackground;
+            border: 1px solid @highlightColor;
+            box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+            h3 {
+                color: @secondaryColor;
+                font-size: 1.125rem;
+                font-weight: 600;
+                line-height: 1.5rem;
+            }
+            .card-props {
+                display: grid;
+                gap: 1rem;
+                .card-props-p {
+                    display: grid;
+                    grid-template-columns: 30% auto;
+                    gap: 1rem;
+                    align-items: start;
+                    margin-bottom: 0;
+                    .card-prop-label {
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -1,57 +1,125 @@
 {# config.CUSTOM_FIELDS_UI_TYPES -> definitions #}
 {# record.ui.custom_fields -> values #}
-<div class="edit"><a id="edit-record" class="button edit" href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}" target="_blank">Edit this record</a></div>
+<div class="edit-btn"><a id="edit-record" class="button edit" href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}" target="_blank">Edit this record</a></div>
 <div class="ui container">
     <div class="ui relaxed grid mt-5">
         <div class="two column row top-padded">
             <article class="sixteen wide tablet eleven wide computer column main-record-content">
                 <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
-                    <div class="top-tags">
+                    <div class="tags top-tags">
                         <span class="tag">{{ record.ui.resource_type.title_l10n }}</span>
                         {% set resourceTypeSpecific = val("resourceTypeSpecific") %}
-                        <span class="tag">{{ val("resourceTypeGeneral") }} {% if resourceTypeSpecific %} /{{ val("resourceTypeSpecific") }} {% endif %}</span>
-                        <span class="tag">{{ val("accessRestriction") }}</span>
+                        {% set resourceTypeGeneral = val("resourceTypeGeneral") %}
+                        {% if resourceTypeGeneral %}
+                            <span class="tag">{{ resourceTypeGeneral }} {% if resourceTypeSpecific %} /{{ val("resourceTypeSpecific") }} {% endif %}</span>
+                        {% endif %}
+                        {% set status = record.ui.custom_fields["mex:accessRestriction"] %}
+                        <span class="tag {%- if status == 'open' %} success {%- else %} error {%- endif -%}">{{ val("accessRestriction") }}</span>
                     </div>
                 </section>
 
-                <section id="record-title-section" aria-label="{{ _('Record title') }}">
-                    <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
-                    <h2 id="record-alttitle" class="wrap-overflowing-text">{{ val("alternativeTitle") }}</h2>
+                <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
+                    <div class="first-line">
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
+                        <span id="record-created_date" class="muted">{{ val("created") }}</span>
+                    </div>
+                    {% set alttitle = val("alternativeTitle") %}
+                    {% if alttitle %}
+                        <h2 id="record-alttitle" class="wrap-overflowing-text">{{ alttitle }}</h2>
+                    {% endif %}
                 </section>
 
-                <section id="record-description" aria-label="{{ _('Record Description') }}">
-                    <p>{{ val("description") }}</p>
-                </section>
+                {% set description = val("description") %}
+                {% if description %}
+                    <section id="record-description" aria-label="{{ _('Record Description') }}">
+                        <p>{{ description }}</p>
+                    </section>
+                {% endif %}
 
                 <div class="ui divider"></div>
 
-                <section id="record-ids" aria-label="{{ _('Record IDs') }}">
-                    <div class="id-tags">
-                        <span class="id-tag">{{ val("icd10code") }}</span>
-                        <span class="id-tag">{{ val("meshId") }}</span>
-                        <span class="id-tag">{{ val("loincId") }}</span>
-                    </div>
-                </section>
+                {% set icd10val = val("icd10code") %}
+                {% set loincval = val("loincId") %}
+                {% set meshval = val("meshId") %}
+                {% if icd10val or loincval or meshval %}
+                    <section id="record-ids" aria-label="{{ _('Record IDs') }}">
+                        <div class="id-tags">
+                            {% if icd10val %}
+                                <div class="id-tag icd10">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text">ICD-10</p>
+                                    </div>
+                                    {{ icd10val }}
+                                </div>
+                            {% endif %}
+                            {% if meshval %}
+                                <div class="id-tag mesh">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text" style="margin-left: -3rem">MESH ID</p>
+                                    </div>
+                                    {{ meshval }}
+                                </div>
+                            {% endif %}
+                            {% if loincval %}
+                                <div class="id-tag loinc">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text">LOINC</p>
+                                    </div>
+                                    {{ loincval }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                {% endif %}
 
-                <section id="record-cards" aria-label="{{ _('Record Details') }}">
+<!--                <section id="record-cards" class="record-cards" aria-label="{{ _('Record Details') }}">-->
+<!--                    {% for card in config.RECORD_CARDS["resource"] %}-->
+<!--                        <div class="card" style="background-color: white">-->
+<!--                            <h3>{{ card.title }}</h3>-->
+<!--                            <div class="card-props">-->
+<!--                                {% for prop in card.properties %}-->
+<!--                                    {% set value = val(prop) %}-->
+<!--                                    {% if val(prop) %}-->
+<!--                                        <p class="card-props-p">-->
+<!--                                            <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>-->
+<!--                                            <span class="card-prop-value"> {{ value }}</span>-->
+<!--                                        </p>-->
+<!--                                    {% endif %}-->
+<!--                                {% endfor %}-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    {% endfor %}-->
+<!--                </section>-->
+
+                <section id="record-cards" class="record-cards" aria-label="{{ _('Record Details') }}">
                     {% for card in config.RECORD_CARDS["resource"] %}
-                        <div class="card">
-                            <h3>{{ card.title }}</h3>
-                            <p class="card-props-p">
-                                {% for prop in card.properties %}
-                                    {% set value = val(prop) %}
-                                    {% if val(prop) %}
+                        {% set valid_props = namespace(values={}) %}
+                        {% for prop in card.properties %}
+                            {% set value = val(prop) %}
+                            {% if value %}
+                                {% set _ = valid_props.values.update({prop: value}) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if valid_props.values %}
+                            <div class="card" style="background-color: white">
+                                <h3>{{ card.title }}</h3>
+                                <div class="card-props">
+                                    {% for prop, value in valid_props.values.items() %}
                                         <p class="card-props-p">
                                             <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>
-                                            <span class="card-prop-value"> {{ value }}</span>
+                                            <span class="card-prop-value">{{ value }}</span>
                                         </p>
-                                    {% endif %}
-                                {% endfor %}
-                            </p>
-                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                     {% endfor %}
-
                 </section>
+
 
                 <p>Block record_footer</p>
                 {%- block record_footer -%}

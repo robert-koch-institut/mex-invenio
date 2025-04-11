@@ -253,6 +253,9 @@ RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'offic
 # The default value for the Datacite title property in imported records
 # if it is not present in the MEx source record
 RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
+
+# ---------- UI --------------
+
 RECORD_RIGHT_COLUMN_CARDS = {
     "resource": [
         {
@@ -418,8 +421,21 @@ RECORD_CARDS = {
 }
 
 
-CUSTOM_FIELDS_UI_TYPES = field_type_map = {
+CUSTOM_FIELDS_UI_TYPES = {
     item['field']: item['props']['type']
     for section in RDM_CUSTOM_FIELDS_UI
     for item in section['fields']
+}
+
+# custom updates
+CUSTOM_FIELDS_UI_TYPES["mex:created"] = "date"
+CUSTOM_FIELDS_UI_TYPES["mex:modified"] = "date"
+
+
+LOINC_URL = "https://loinc.org/"
+MESH_URL = "http://id.nlm.nih.gov/mesh/"
+
+RESTRICTION_STATUS = {
+"https://mex.rki.de/item/access-restriction-1": "open",
+"https://mex.rki.de/item/access-restriction-2": "restricted"
 }

@@ -1,12 +1,26 @@
 @primaryColor: @core-color-brand-default;
+@secondaryColor: @core-color-accent-2-default;
+@highlightColor: #E0F4FC;
 @navbarBackgroundImage: none;
+
+@successBackgroundColor: #D2EBD3;
+@errorBackgroundColor: #FCD0CD;
+
+@lightBackground: rgba(224, 244, 252, 0.20);
+@highlightBackground: @highlightColor;
+@whiteBackground: @core-color-white-default;
+@mutedBackground: #F7F7F9;
+
+@pageFont: "Fira Sans", sans-serif;
+
+@mutedTextColor: #404565;
 
 @frontendHeaderBackgroundColor: @core-color-white-default;
 
 @searchButtonColor: @core-color-white-default;
 @searchButtonColorTextColor: @primaryColor
 
-@navbarBackgroundColor: @core-color-white-default;
+@navbarBackgroundColor: transparent;
 @navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
 
 @footerLightColor: @core-color-accent-2-default;

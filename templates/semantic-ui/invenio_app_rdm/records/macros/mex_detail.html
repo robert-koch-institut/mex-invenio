@@ -112,8 +112,38 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endfor %}
 {% endmacro %}
 
+{# Display date in user-friendly format #}
+{% macro format_date(date_str) %}
+    {%- set months = {
+        '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+    } %}
+
+    {%- if date_str is string and date_str|length >= 10 %}
+        {# Format: YYYY-MM-DD or full timestamp #}
+        {%- set year = date_str[0:4] %}
+        {%- set month = date_str[5:7] %}
+        {%- set day = date_str[8:10] %}
+        {{ months[month] }} {{ day|int }}, {{ year }}
+
+    {%- elif date_str is string and date_str|length == 7 %}
+        {# Format: YYYY-MM #}
+        {%- set year = date_str[0:4] %}
+        {%- set month = date_str[5:7] %}
+        {{ months[month] }} {{ year }}
+
+    {%- elif date_str is string and date_str|length == 4 %}
+        {# Format: YYYY #}
+        {{ date_str }}
+
+    {%- else %}
+        {{ date_str }} {# fallback if it doesn't match any expected format #}
+    {%- endif %}
+{% endmacro %}
+
 {# Display custom field's value by field's name #}
-{% macro val(field) -%}
+{% macro val(field, format=None) -%}
     {%- set f = "mex:"+field -%}
     {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
     {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
@@ -124,18 +154,18 @@ it under the terms of the MIT License; see LICENSE file for more details.
             {% set field_value = field_raw_value %}
         {% endif %}
         {% for val in field_value %}
-            {% if field_type == 'mex:identifier' %}
+            {% if f == 'mex:identifier' %}
                 <span>{{ val }}</span>
             {% elif field_type == '/schema/entities/concept#/identifier' %}
                 {% if val in pref_labels %}
                     {% if current_i18n.language in pref_labels[val] %}
-                        <span>{{ pref_labels[val][current_i18n.language] }}</span>
+                        <span>{{ pref_labels[val][current_i18n.language] | title }}</span>
                     {% elif 'en' in pref_labels[val] %}
-                        <span>{{ pref_labels[val]['en'] }}</span>
+                        <span>{{ pref_labels[val]['en'] | title }}</span>
                     {% else %}
                         {# Fallback to the first language in the list #}
                         {% set lang = pref_labels[val].keys()|first %}
-                        <span>{{ pref_labels[val][lang] }}</span>
+                        <span>{{ pref_labels[val][lang] | title }}</span>
                     {% endif %}
                 {% else %}
                     <span>{{ val }}</span>
@@ -143,19 +173,29 @@ it under the terms of the MIT License; see LICENSE file for more details.
             {% elif field_type.endswith('identifier') %}
                 {# We have an identifier but identifiers for concepts are vocabulary values. #}
                 <span>
-                    <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ val }}</a>{{ ", " if not loop.last }}
+                    <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ val | title }}</a>{{ ", " if not loop.last }}
                 </span>
+            {% elif field_type == "date" %}
+                <span>{{ format_date(val) }}</span>
             {% elif val is string %}
-                <span>
-                    {% set search_url = (val | pid_url) if 'props' in field_definition and field_definition.props.is_identifier else (f | custom_fields_search(val | safe)) %}
-                    {% if val.startswith('http') %}
-                        <a href="{{ field_value | safe }}">{{ val | safe }}</a>
-                    {% elif search_url %}
-                        <a href="{{ search_url }}">{{ val | safe }}</a>
-                    {% else %}
-                        {{ val | safe }}
-                    {% endif %}
-                </span>
+                {% if f == 'mex:meshId' %}
+                    <a href='{{ val }}' target="_blank" rel="noopener noreferrer">{{ val | replace(config.MASH_URL, "") }}</a>
+                {% elif f == 'mex:loincId' %}
+                    <a href="{{ val }}" target="_blank" rel="noopener noreferrer">{{ val | replace(config.LOINC_URL, "") }}</a>
+                {% elif f == 'mex:icd10code' %}
+                    <span>{{ val }}</span>
+                {% else %}
+                    <span>
+                        {% set search_url = (val | pid_url) if 'props' in field_definition and field_definition.props.is_identifier else (f | custom_fields_search(val | safe)) %}
+                        {% if val.startswith('http') %}
+                            <a href="{{ field_value | safe }}">{{ val | safe }}</a>
+                        {% elif search_url %}
+                            <a href="{{ search_url }}">{{ val | safe }}</a>
+                        {% else %}
+                            {{ val | safe }}
+                        {% endif %}
+                    </span>
+                {% endif %}
             {% elif val.is_vocabulary %}
                 <span>{{ list_vocabulary_values(val) }}</span>
             {% elif val is iterable and val|length > 0 and val[0] is mapping %}
