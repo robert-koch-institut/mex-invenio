@@ -14,7 +14,7 @@
                             <span class="tag">{{ resourceTypeGeneral }} {% if resourceTypeSpecific %} /{{ val("resourceTypeSpecific") }} {% endif %}</span>
                         {% endif %}
                         {% set status = record.ui.custom_fields["mex:accessRestriction"] %}
-                        <span class="tag {%- if status == 'open' %} success {%- else %} error {%- endif -%}">{{ val("accessRestriction") }}</span>
+                        <span class="tag {%- if config.RESTRICTION_STATUS[status] == 'Open' %} success {%- else %} error {%- endif -%}">{{ val("accessRestriction") }}</span>
                     </div>
                 </section>
 
@@ -76,6 +76,7 @@
                 {% endif %}
 
                 <section id="record-card" class="record-cards">
+                    {% set column = "left" %}
                     {% for card_name in config.RECORD_CARDS.resource.left %}
                         {% set card = config.RECORD_CARDS.resource.left[card_name] %}
                         {% set ns = namespace(prop_exist=false) %}
@@ -113,17 +114,15 @@
                     {% endfor %}
                 </section>
 
-                <p>Block record_footer</p>
-                {%- block record_footer -%}
-                {%- endblock record_footer -%}
-                <p>Koniec record_footer</p>
-
             </article>
             <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals" aria-label="{{ _('Record details') }}">
+                {% set column = "right" %}
                 {% block record_sidebar %}
                     {%- for card_name in config.RECORD_CARDS.resource.right %}
                         {% set card = config.RECORD_CARDS.resource.right[card_name] %}
-                        {%- include "invenio_app_rdm/records/details/side_bar/" ~ card.template with context %}
+                        {% with card=card_name %}
+                            {%- include "invenio_app_rdm/records/details/side_bar/card.html" with context %}
+                        {% endwith %}
                     {% endfor %}
                     {%- include "invenio_app_rdm/records/details/side_bar.html" %}
                 {% endblock record_sidebar %}

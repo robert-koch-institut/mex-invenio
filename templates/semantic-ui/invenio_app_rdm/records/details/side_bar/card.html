@@ -1,0 +1,36 @@
+{% set cards = config.RECORD_CARDS.resource[column] %}
+{% set card = config.RECORD_CARDS.resource[column][card_name] %}
+
+{% set ns = namespace(prop_exist=false) %}
+
+{% for prop in card.properties %}
+    {% set key = "mex:" ~ prop %}
+    {% if key in record.ui.custom_fields %}
+        {% set value = record.ui.custom_fields["mex:" ~ prop] %}
+        {% if value %}
+            {% set ns.prop_exist = true %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+            {% for prop in card.properties %}
+                {% set value = val(prop) %}
+                {% if val(prop) %}
+                    <p class="card-props-p">
+                        <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
+                        <span class="card-prop-value">{{ val(prop) }}</span>
+                    </p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

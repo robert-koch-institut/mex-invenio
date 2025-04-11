@@ -439,10 +439,11 @@ CUSTOM_FIELDS_UI_TYPES["mex:keyword"] = "tag"
 
 LOINC_URL = "https://loinc.org/"
 MESH_URL = "http://id.nlm.nih.gov/mesh/"
+DOI_URL = "https://dx.doi.org/"
 
 RESTRICTION_STATUS = {
-"https://mex.rki.de/item/access-restriction-1": "open",
-"https://mex.rki.de/item/access-restriction-2": "restricted"
+"https://mex.rki.de/item/access-restriction-1": "Open",
+"https://mex.rki.de/item/access-restriction-2": "Restricted"
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -450,3 +451,13 @@ APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
     "invenio_app_rdm/records/details/side_bar/versions.html",
     "invenio_app_rdm/records/details/side_bar/export.html",
 ]
+
+APP_RDM_RECORD_EXPORTERS = {
+    "json": {
+        "name": _("JSON"),
+        "serializer": ("flask_resources.serializers:JSONSerializer"),
+        "params": {"options": {"indent": 2, "sort_keys": True}},
+        "content-type": "application/json",
+        "filename": "{id}.json",
+    }
+}
