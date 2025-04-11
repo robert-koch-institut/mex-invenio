@@ -116,10 +116,10 @@ a.light {
             padding: 0.3rem 0.5rem;
             justify-content: center;
             &.success {
-                background-color:
+                background-color: @successBackgroundColor;
             }
             &.error {
-                background-color:
+                background-color: @errorBackgroundColor;
             }
         }
     }
@@ -152,7 +152,7 @@ a.light {
         }
     }
     .id-tags {
-    margin: 1.25rem 0.5rem;
+        margin: 2rem 0.5rem;
         .id-tag {
             display: inline-flex;
             align-items: center;

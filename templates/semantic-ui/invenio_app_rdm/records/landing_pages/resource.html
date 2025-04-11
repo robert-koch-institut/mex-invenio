@@ -74,52 +74,38 @@
                         </div>
                     </section>
                 {% endif %}
-
-<!--                <section id="record-cards" class="record-cards" aria-label="{{ _('Record Details') }}">-->
-<!--                    {% for card in config.RECORD_CARDS["resource"] %}-->
-<!--                        <div class="card" style="background-color: white">-->
-<!--                            <h3>{{ card.title }}</h3>-->
-<!--                            <div class="card-props">-->
-<!--                                {% for prop in card.properties %}-->
-<!--                                    {% set value = val(prop) %}-->
-<!--                                    {% if val(prop) %}-->
-<!--                                        <p class="card-props-p">-->
-<!--                                            <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>-->
-<!--                                            <span class="card-prop-value"> {{ value }}</span>-->
-<!--                                        </p>-->
-<!--                                    {% endif %}-->
-<!--                                {% endfor %}-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    {% endfor %}-->
-<!--                </section>-->
-
-                <section id="record-cards" class="record-cards" aria-label="{{ _('Record Details') }}">
-                    {% for card in config.RECORD_CARDS["resource"] %}
-                        {% set valid_props = namespace(values={}) %}
+                
+                <section id="record-cardnew" class="record-cards" aria-label="{{ _('Record Details') }}">
+                    {% for card in config.RECORD_CARDS["resource"]["left"] %}
+                        {% set ns = namespace(prop_exist=false) %}
                         {% for prop in card.properties %}
-                            {% set value = val(prop) %}
-                            {% if value %}
-                                {% set _ = valid_props.values.update({prop: value}) %}
+                            {% set key = "mex:" ~ prop %}
+                            {% if key in record.ui.custom_fields %}
+                                {% set value = record.ui.custom_fields["mex:" ~ prop] %}
+                                {% if value %}
+                                    {% set ns.prop_exist = true %}
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
 
-                        {% if valid_props.values %}
+                        {% if ns.prop_exist %}
                             <div class="card" style="background-color: white">
                                 <h3>{{ card.title }}</h3>
                                 <div class="card-props">
-                                    {% for prop, value in valid_props.values.items() %}
-                                        <p class="card-props-p">
-                                            <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>
-                                            <span class="card-prop-value">{{ value }}</span>
-                                        </p>
+                                    {% for prop in card.properties %}
+                                        {% set value = val(prop) %}
+                                        {% if val(prop) %}
+                                            <p class="card-props-p">
+                                                <span class="card-prop-label">{{ config.FIELD_LABELS_UI[prop] }}:</span>
+                                                <span class="card-prop-value">{{ val(prop) }}</span>
+                                            </p>
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
                         {% endif %}
                     {% endfor %}
                 </section>
-
 
                 <p>Block record_footer</p>
                 {%- block record_footer -%}

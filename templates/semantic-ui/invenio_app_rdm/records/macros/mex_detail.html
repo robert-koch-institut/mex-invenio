@@ -179,9 +179,9 @@ it under the terms of the MIT License; see LICENSE file for more details.
                 <span>{{ format_date(val) }}</span>
             {% elif val is string %}
                 {% if f == 'mex:meshId' %}
-                    <a href='{{ val }}' target="_blank" rel="noopener noreferrer">{{ val | replace(config.MASH_URL, "") }}</a>
+                    <a href='{{ val }}' target="_blank" rel="noopener noreferrer" class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
                 {% elif f == 'mex:loincId' %}
-                    <a href="{{ val }}" target="_blank" rel="noopener noreferrer">{{ val | replace(config.LOINC_URL, "") }}</a>
+                    <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
                 {% elif f == 'mex:icd10code' %}
                     <span>{{ val }}</span>
                 {% else %}

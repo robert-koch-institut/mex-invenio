@@ -256,44 +256,6 @@ RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
 
 # ---------- UI --------------
 
-RECORD_RIGHT_COLUMN_CARDS = {
-    "resource": [
-        {
-            "title": "Contact",
-            "icon": "contact.svg",
-            "properties": [
-                "person",
-                "person.email",
-                "ContactPoint.email",
-                "OrganizationalUnit.email"
-            ]
-        },
-        {
-            "title": "Access & Usage Rights",
-            "icon": "access.svg",
-            "properties": [
-                "accessRestriction",
-                "doi",
-                "license",
-                "rights"
-            ]
-        },
-        {
-            "title": "Files",
-            "icon": "distribution.svg",
-            "properties": [
-                "distribution"
-            ]
-        },
-        {
-            "title": "Variables",
-            "icon": "variables.svg",
-            "properties": [
-                "variables"
-            ]
-        }
-    ]
-}
 FIELD_LABELS_UI = {
     "accessPlatform": "Access Platform",
     "accessRestriction": "Access Restriction",
@@ -349,75 +311,112 @@ FIELD_LABELS_UI = {
 }
 
 RECORD_CARDS = {
-    "resource": [
-        {
-            "title": "Contributors & Creators",
-            "icon": "contributors.svg",
-            "properties": [
-                "creator",
-                "unitInCharge",
-                "contributor",
-                "contributingUnit",
-                "externalPartner"
-            ]
-        },
-        {
-            "title": "Theme & Keywords",
-            "icon": "theme.svg",
-            "properties": [
-                "theme",
-                "keywords",
-            ]
-        },
-        {
-            "title": "Data Representation & Coverage",
-            "icon": "datarepresentationandcoverage.svg",
-            "properties": [
-                "temporal",
-                "spatial",
-                "minTypicalAge",
-                "maxTypicalAge",
-                "populationCoverage",
-                "sizeOfDataBasis"
-            ]
-        },
-        {
-            "title": "Legal Basis & Data Provenance",
-            "icon": "legal.svg",
-            "properties": [
-                "hasLegalBasis",
-                "hasPersonalData",
-                "wasGeneratedBy"
-            ]
-        },
-        {
-            "title": "Data Collection & Processing",
-            "icon": "colection.svg",
-            "properties": [
-                "resourceCreationMethod",
-                "accrualPeriodicity",
-                "anonymization/pseudonymization",
-                "instrumentToolOrApparatus"
-            ]
-        },
-        {
-            "title": "Methodology",
-            "icon": "method.svg",
-            "properties": [
-                "method",
-                "methodDescription"
-            ]
-        },
-        {
-            "title": "Related Publication & Further Documentation",
-            "icon": "legal.svg",
-            "properties": [
-                "publication",
-                "documentation"
-            ]
-        },
-
-    ]
+    "resource": {
+        "left": [
+            {
+                "title": "Contributors & Creators",
+                "icon": "creators.svg",
+                "properties": [
+                    "creator",
+                    "unitInCharge",
+                    "contributor",
+                    "contributingUnit",
+                    "externalPartner"
+                ]
+            },
+            {
+                "title": "Theme & Keywords",
+                "icon": "theme.svg",
+                "properties": [
+                    "theme",
+                    "keyword",
+                ]
+            },
+            {
+                "title": "Data Representation & Coverage",
+                "icon": "coverage.svg",
+                "properties": [
+                    "temporal",
+                    "spatial",
+                    "minTypicalAge",
+                    "maxTypicalAge",
+                    "populationCoverage",
+                    "sizeOfDataBasis"
+                ]
+            },
+            {
+                "title": "Legal Basis & Data Provenance",
+                "icon": "legal.svg",
+                "properties": [
+                    "hasLegalBasis",
+                    "hasPersonalData",
+                    "wasGeneratedBy"
+                ]
+            },
+            {
+                "title": "Data Collection & Processing",
+                "icon": "processing.svg",
+                "properties": [
+                    "resourceCreationMethod",
+                    "accrualPeriodicity",
+                    "anonymization/pseudonymization",
+                    "instrumentToolOrApparatus"
+                ]
+            },
+            {
+                "title": "Methodology",
+                "icon": "methodology.svg",
+                "properties": [
+                    "method",
+                    "methodDescription"
+                ]
+            },
+            {
+                "title": "Related Publication & Further Documentation",
+                "icon": "publication.svg",
+                "properties": [
+                    "publication",
+                    "documentation"
+                ]
+            }
+        ],
+        "right": [
+            {
+                "title": "Contact",
+                "icon": "contact.svg",
+                "properties": [
+                    "person",
+                    "person.email",
+                    "ContactPoint.email",
+                    "OrganizationalUnit.email"
+                ]
+            },
+            {
+                "title": "Access & Usage Rights",
+                "icon": "access.svg",
+                "properties": [
+                    "accessRestriction",
+                    "doi",
+                    "license",
+                    "rights"
+                ]
+            },
+            {
+                "title": "Files",
+                "icon": "distribution.svg",
+                "properties": [
+                    "distribution"
+                ]
+            },
+            {
+                "title": "Variables",
+                "icon": "variables.svg",
+                "properties": [
+                    "variables"
+                ]
+            }
+        ]
+    }
 }
 
 
@@ -430,6 +429,8 @@ CUSTOM_FIELDS_UI_TYPES = {
 # custom updates
 CUSTOM_FIELDS_UI_TYPES["mex:created"] = "date"
 CUSTOM_FIELDS_UI_TYPES["mex:modified"] = "date"
+CUSTOM_FIELDS_UI_TYPES["mex:keyword"] = "tag"
+
 
 
 LOINC_URL = "https://loinc.org/"
