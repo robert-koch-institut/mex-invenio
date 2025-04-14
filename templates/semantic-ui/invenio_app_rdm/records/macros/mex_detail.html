@@ -158,22 +158,24 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
         {% if f in linked_records_data %}
             {% set ns = namespace(value='', display=false) %}
-            {% set ns.value=linked_records_data[f][0].display_value[0].value %}
+            {% set ns.value="[No name]" %}
             {% for link_value in linked_records_data[f] %}
                 {% set ns.display = false %}
-                {% for display_value in link_value.display_value %}
-                    {% if not ns.display %}
-                        {% if "language" in display_value %}
-                            {% if display_value.language == current_i18n.language and not display_value.display %}
-                                {% set ns.value = display_value.value %}
-                                {% set ns.display = true %}
+                {% if "display_value" in link_value %}
+                    {% for display_value in link_value.display_value %}
+                        {% if not ns.display %}
+                            {% if "language" in display_value %}
+                                {% if display_value.language == current_i18n.language and not display_value.display %}
+                                    {% set ns.value = display_value.value %}
+                                    {% set ns.display = true %}
+                                {% endif %}
                             {% endif %}
                         {% endif %}
-                    {% endif %}
-                {% endfor %}
-                <p>
-                    <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{{ ", " if not loop.last }}
-                </p>
+                    {% endfor %}
+                {% else %}
+                    {% set ns.value = link_value %}
+                {% endif %}
+                    <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
             {% endfor %}
         {% else %}
             {% for val in field_value %}

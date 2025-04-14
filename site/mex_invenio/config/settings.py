@@ -459,16 +459,47 @@ APP_RDM_RECORD_EXPORTERS = {
     }
 }
 
-LINKED_RECORD__FIELDS = {
+LINKED_RECORDS_FIELDS = {
     "resource": {
-        "contact": {
-            "fields": {
-                "organizational-unit.name",
-                "person.fullName",
-                "person.familyName",
-                "person.email"
-            },
-            "defaultString": "[Contact details]"
+        "mex:contact": {
+            "fields": ["mex:name","mex:fullName", "mex:familyName", "mex:email"],
+            "default_value": "<i>[no name]</i>"
+        },
+        "mex:isPartOf": {
+            "fields": ["mex:title"],
+            "default_value": "mex:default:[no title]"
+        },
+        "mex:creator": {
+            "fields": ["mex:fullName", "mex:familyName", "mex:email"],
+            "default_value": "mex:default:[no name]"
+        },
+        "mex:contributor": {
+            "fields": ["mex:fullName", "mex:familyName", "mex:email"],
+            "default_value": "mex:default:[no name]"
+        },
+        "mex:unitInCharge": {
+            "fields": ["mex:name"],
+            "default_value": "mex:default:[no name]"
+        },
+        "mex:contributingUnit": {
+            "fields": ["mex:name"],
+            "default_value": "mex:default:[no name]"
+        },
+        "mex:externalPartner": {
+            "fields": ["mex:officialName"],
+            "default_value": "mex:default:[no name]"
+        },
+        "mex:wasGeneratedBy": {
+            "fields": ["mex:title"],
+            "default_value": "mex:default:[no title]"
+        },
+        "mex:publication": {
+            "fields": ["mex:title"],
+            "default_value": "mex:default:[no title]"
+        },
+        "mex:distribution": {
+            "fields": ["mex:title"],
+            "default_value": "mex:default:[no title]"
         }
     }
 }

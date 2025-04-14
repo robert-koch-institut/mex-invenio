@@ -79,7 +79,7 @@ class MexRecord(MethodView):
 
                     if linked_record:
                         for f in props["fields"]:
-                            display_value = linked_record["custom_fields"].get(f, None)
+                            display_value = linked_record["custom_fields"].get(f, props["default_value"])
                             if display_value:
                                 break
                     else:
