@@ -1,73 +1,246 @@
+.record-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    &.vertical {
+        flex-direction: column;
+        .card {
+            width: 100%;
+        }
+    }
+    .card {
+        flex: 1 1 calc(50% - 0.25rem);
+        box-sizing: border-box;
+        padding: 1rem 0.5rem 0.5rem 0.5rem;
+        background-color: @whiteBackground;
+        border: 1px solid @highlightColor;
+        box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+        &.views {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        h3 {
+            display: flex;
+            color: @secondaryColor;
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.5rem;
+            .icon {
+                width: 1.2rem;
+                height: 1.2rem;
+                margin-right: 0.5rem;
+            }
+        }
+        .card-props {
+            display: grid;
+            gap: 1rem;
+            .card-props-p {
+                display: grid;
+                grid-template-columns: 30% auto;
+                gap: 1rem;
+                align-items: start;
+                margin-bottom: 0;
+                .card-prop-label {
+                    font-weight: 600;
+                }
+                .card-prop-value {
+                    display: flex;
+                    flex-direction: column;
+                }
+            }
+        }
+    }
+}
 .outer-navbar {
-  background-image: None;
-  border-top: 3px solid #32008c;
-  margin-top: 1rem;
-  border-bottom: 3px solid #32008c;
-
-  #invenio-nav {
-    background: @navbarBackgroundColor;
-  }
-
-  #frontpage-search-bar {
-    background-color: @frontendHeaderBackgroundColor;
-    border-top: 3px solid #32008c;
-
-    .fancy-underline {
-      position: relative;
-      display: inline-block;
-
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: -2px; // Adjust based on the thickness of the underline
-        left: 10px; // Start 10px from the left
-        right: 10px; // Finish 10px before the end
-        height: 5px; // Underline thickness
-        background: linear-gradient(to right, lighten(@primaryColor, 20%), transparent); // Gradient background
-        border-radius: 5px; // Rounded corners
-      }
+    background-color: rgba(224, 244, 252, 0.20);
+    .navbar-top {
+        background: @navbarGradient;
+        display: flex;
+        height: 4.5rem;
+        padding: 2.5rem;
+        justify-content: space-between;
+        align-items: center;
+        align-self: stretch;
+        .rdm-logo {
+            height: 1.5rem;
+        }
+        .org-logo {
+            height: 2.5rem;
+        }
     }
-    h1.header {
-        color: @primaryColor;
+    .navbar-links {
+        .item a {
+            color: @darkLinkColor;
+            text-decorations: none;
+            &:hover {
+                color: @darkLinkColor !important;
+                text-decoration: underline !important;
+            }
+        }
     }
-  }
 
-  a {
-    color: @white;
-  }
-
-  .flashed a {
-    color: inherit; /* Reset the color to inherit from parent */
-  }
-}
-
-#rdm-burger-menu-icon,
-#rdm-close-burger-menu-icon {
-  .navicon {
-    background: @white;
-    display: block;
-    height: 2px;
-    position: relative;
-    transition: background 0.2s ease-out;
-    width: 18px;
-
-    &:before,
-    &:after {
-      display: block;
-      background: @white;
-      content: "";
-      height: 100%;
-      position: absolute;
-      transition: all 0.2s ease-out;
-      width: 100%;
+    #frontpage-search-bar {
+        background-color: @frontendHeaderBackgroundColor;
     }
-  }
-}
-
-.rdm-logo {
-  max-height: 2rem;
 }
 
 #skip-to-main {
-    z-index: 1000;
+    &:focus, &:focus-visible, &:active {
+        z-index: 1000;
+    }
+}
+
+#invenio-nav.navbar-links.ui.menu {
+    box-shadow: none;
+}
+
+a, a.dark {
+    color: @darkLinkColor;
+    text-decoration: none;
+    &:hover {
+        color: @darkLinkColor;
+        text-decoration: underline;
+    }
+}
+
+a.light {
+    color: @lightLinkColor;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+#frontpage-search-bar h1.ui.header {
+    color: @primaryColor;
+}
+
+#header-search-bar {
+    border: none;
+
+    .ui.icon input {
+        width: 0;
+        overflow: hidden;
+    }
+    &:hover {
+        border: 1px solid @primaryColor;
+        width: 100%;
+    }
+    transition: border 0.3s ease, width 0.3 ease;
+}
+
+.ui.divider {
+    margin: 1.5rem 0;
+}
+
+.landing_page.resource {
+    margin-top: -0.5rem;
+    background-color: rgba(224, 244, 252, 0.20);
+    .edit-btn {
+        background-color: @mutedBackground;
+        color: @mutedTextColor;
+        position: absolute;
+        top: 17rem;
+        left: -3rem;
+        display: flex;
+        transform: rotate(-90deg);
+        padding: 0.3125rem 0.625rem;
+        align-items: center;
+        gap: 0.625rem;
+        transition: padding-top 0.3s ease;
+        &:hover {
+            a {
+                color: @mutedTextColor;
+                text-decoration: none;
+            }
+            padding-top: 0.625rem;
+        }
+    }
+    .record-ids {
+        margin-bottom: 2rem;
+    }
+    .tags {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.625rem;
+
+        .tag {
+            display: flex;
+            background-color: @highlightBackground;
+            padding: 0.3rem 0.5rem;
+            justify-content: center;
+            &.success {
+                background-color: @successBackgroundColor;
+            }
+            &.error {
+                background-color: @errorBackgroundColor;
+            }
+        }
+    }
+    .top-tags {
+        margin-bottom: 3rem;
+    }
+    #record-title-section {
+        .first-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            align-self: stretch;
+            gap: 5rem;
+            h1 {
+                flex: 1 1 auto;
+                word-break: break-word;
+                color: @primaryColor;
+                font-size: 1.3rem;
+                font-weight: 600;
+                line-height: 2rem;
+            }
+            .muted {
+                white-space: nowrap;
+                flex-shrink: 0;
+                color: @mutedTextColor;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: 2.1rem;
+            }
+        }
+        h2.alttitle {
+            color: #5170C1;
+            font-size: 1.125rem;
+            margin-top: 0 !important;
+            font-weight: 600;
+            line-height: 1.5rem;
+        }
+    }
+}
+
+.id-tags {
+    margin: 2rem 0.5rem;
+    .id-tag {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 2.5rem;
+        .label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: .5rem;
+            .circle {
+                    width: 2rem;
+                    height: 2rem;
+                    border-radius: 50%;
+                    background-color: @highlightColor;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+            }
+            .text {
+                font-size: 1rem;
+                font-weight: 600;
+                line-height: 1.25rem;
+                margin-left: -2.5rem;
+            }
+        }
+    }
 }
