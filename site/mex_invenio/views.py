@@ -1,7 +1,15 @@
-"""Additional views."""
-
-from flask import Blueprint, redirect, url_for, request
+from flask import Blueprint, redirect, url_for, request, current_app
 from .record.record import MexRecord
+
+from invenio_pidstore.resolver import Resolver
+from invenio_pidstore.errors import (
+    PIDDeletedError,
+    PIDDoesNotExistError,
+    PIDMissingObjectError,
+    PIDRedirectedError,
+    PIDUnregistered,
+)
+
 
 #
 # Registration
@@ -20,18 +28,30 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/records/mex/<record_id>",
+        "/records/mex/<mex_id>",
         view_func=MexRecord.as_view("mex_view"),
     )
+
+    # print("url_map: ", app.url_map)
 
     # Add URL rules
     return blueprint
 
 def redirect_to_mex(record_id):
-    # Lookup logic here — replace with your actual way of finding the mex_id
-    mex_id = "mex:" + record_id  # This needs to be a real function
+    record = {}
+    # resolver = Resolver(pid_type="recid", object_type="rec", record_class="Record")
+    # try:
+    #     record = resolver.resolve(pid_value=record_id)
+    # except (PIDDoesNotExistError, PIDUnregistered):
+    #     abort(404)
+    # except PIDMissingObjectError as e:
+    #     current_app.logger.exception(
+    #         "No object assigned to {0}.".format(e.pid), extra={"pid": e.pid}
+    #     )
+    #     abort(500)
+    #
+    # mex_id = record["custom_fields"]["mex:identifier"]
+    
+    mex_id = "mex:"+ record_id
 
-    if not mex_id:
-        abort(404)
-
-    return redirect(url_for(".mex_view", record_id=mex_id))
+    return redirect(url_for(".mex_view", mex_id=mex_id, record={}))
