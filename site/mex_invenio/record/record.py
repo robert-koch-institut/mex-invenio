@@ -18,19 +18,27 @@ from invenio_pidstore.errors import (
 
 import json
 
-def _get_record(mex_id):
-
-    search_query = f'custom_fields.mex\:identifier:{mex_id}'
+def _get_record_by_field(field_id, value):
+    escaped_field = field_id.replace(':', '\:')
+    search_query = f'custom_fields.{escaped_field}:{value}'
+    print(search_query)
     results = list(current_rdm_records_service.search(g.identity, q=search_query))
 
-    if len(results) == 0:
+    return results or None
+
+def _get_record_by_id(mex_id):
+
+    print(mex_id)
+    results = _get_record_by_field("mex:identifier", mex_id)
+
+    if not results:
         raise PIDDoesNotExistError()
 
-    elif len(results) == 1:
+    if len(results) == 1:
         return results[0]
-
     else:
-        raise PIDValueError("Too many results")
+        raise PIDValueError("Too many records")
+
 
 class MexRecord(MethodView):
 
@@ -40,7 +48,7 @@ class MexRecord(MethodView):
     def get(self, mex_id):
 
         try:
-            record = _get_record(mex_id)
+            record = _get_record_by_id(mex_id)
         except PIDDoesNotExistError:
             abort(404)
         except Exception:
@@ -73,13 +81,13 @@ class MexRecord(MethodView):
                     display_value = linked_record_id
 
                     try:
-                        linked_record = _get_record(linked_record_id)
+                        linked_record = _get_record_by_id(linked_record_id)
                     except Exception:
                         linked_record = None
 
                     if linked_record:
                         for f in props["fields"]:
-                            display_value = linked_record["custom_fields"].get(f, props["default_value"])
+                            display_value = linked_record["custom_fields"].get(f, None)
                             if display_value:
                                 break
                     else:

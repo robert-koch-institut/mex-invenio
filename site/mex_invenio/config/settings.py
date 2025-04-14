@@ -462,44 +462,43 @@ APP_RDM_RECORD_EXPORTERS = {
 LINKED_RECORDS_FIELDS = {
     "resource": {
         "mex:contact": {
-            "fields": ["mex:name","mex:fullName", "mex:familyName", "mex:email"],
-            "default_value": "<i>[no name]</i>"
+            "fields": ["mex:name","mex:fullName", "mex:familyName", "mex:email"]
         },
         "mex:isPartOf": {
-            "fields": ["mex:title"],
-            "default_value": "mex:default:[no title]"
+            "fields": ["mex:title"]
         },
         "mex:creator": {
-            "fields": ["mex:fullName", "mex:familyName", "mex:email"],
-            "default_value": "mex:default:[no name]"
+            "fields": ["mex:fullName", "mex:familyName", "mex:email"]
         },
         "mex:contributor": {
-            "fields": ["mex:fullName", "mex:familyName", "mex:email"],
-            "default_value": "mex:default:[no name]"
+            "fields": ["mex:fullName", "mex:familyName", "mex:email"]
         },
         "mex:unitInCharge": {
-            "fields": ["mex:name"],
-            "default_value": "mex:default:[no name]"
+            "fields": ["mex:name"]
         },
         "mex:contributingUnit": {
-            "fields": ["mex:name"],
-            "default_value": "mex:default:[no name]"
+            "fields": ["mex:name"]
         },
         "mex:externalPartner": {
-            "fields": ["mex:officialName"],
-            "default_value": "mex:default:[no name]"
+            "fields": ["mex:officialName"]
         },
         "mex:wasGeneratedBy": {
-            "fields": ["mex:title"],
-            "default_value": "mex:default:[no title]"
+            "fields": ["mex:title"]
         },
         "mex:publication": {
-            "fields": ["mex:title"],
-            "default_value": "mex:default:[no title]"
+            "fields": ["mex:title"]
         },
         "mex:distribution": {
-            "fields": ["mex:title"],
-            "default_value": "mex:default:[no title]"
+            "fields": ["mex:title"]
+        }
+    }
+}
+
+RECORDS_LINKED_BACKWARDS = {
+    "resource": {
+        "field": {
+            "mex:isPartOf": ["mex:title"],
+            "mex:usedIn": ["mex:label"]
         }
     }
 }

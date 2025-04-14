@@ -45,6 +45,11 @@
                 .card-prop-label {
                     font-weight: 600;
                 }
+                .card-prop-value {
+                    :not(:last_child) {
+                        margin-bottom: .5rem;
+                    }
+                }
             }
         }
     }
