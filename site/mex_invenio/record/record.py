@@ -103,13 +103,14 @@ class MexRecord(MethodView):
 
                 for field, title_field in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
                     records = _get_record_by_field(field, mex_id)
-                    for r in records:
-                        field_values.append({
-                            "link_id": r["custom_fields"]["mex:identifier"],
-                            "display_value": r["custom_fields"].get(title_field, None)
-                        })
+                    if records:
+                        for r in records:
+                            field_values.append({
+                                "link_id": r["custom_fields"]["mex:identifier"],
+                                "display_value": r["custom_fields"].get(title_field, None)
+                            })
 
-                    backwards_linked_records[field] = field_values
+                        backwards_linked_records[field] = field_values
 
 
         return render_template(self.template,

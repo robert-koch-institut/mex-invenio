@@ -67,7 +67,6 @@
             </div>
         {% endif %}
     </section>
-    <p id="linked_records_data">{{ backwards_linked_records }}</p>
     {% if record.ui.resource_type.id == "resource" %}
         {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
     {% else %}
@@ -179,7 +178,7 @@
                                             >
                                                 {% set section_format = section_cfg.section | replace(" ", "-") %}
                                                 <dl class="details-list">
-                                                    {{ val(field_cfg.field[4:]) }}
+                                                    {{ val(field_cfg.field) }}
                                                 </dl>
                                             </div>
                                         </div>

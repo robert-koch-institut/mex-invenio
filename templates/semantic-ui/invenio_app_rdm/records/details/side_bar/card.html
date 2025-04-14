@@ -6,7 +6,6 @@
 {% if card.is_backwards_linked %}
     {% for prop in card.properties %}
         {% if prop in backwards_linked_records %}
-            {% set value = backwards_linked_records[prop] %}
             {% set ns.prop_exist = true %}
         {% endif %}
     {% endfor %}
@@ -31,11 +30,11 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% set value = val(prop) %}
-                {% if val(prop) %}
+                {% set value = val(prop, is_backwards_linked=card.get("is_backwards_linked", false)) %}
+                {% if value %}
                     <p class="card-props-p">
                         <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
-                        <span class="card-prop-value">{{ val(prop, is_backwards_linked=card.get("is_backwards_linked", false)) }}</span>
+                        <span class="card-prop-value">{{ value }}</span>
                     </p>
                 {% endif %}
             {% endfor %}

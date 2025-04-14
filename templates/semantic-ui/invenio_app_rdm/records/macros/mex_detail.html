@@ -143,7 +143,6 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% endmacro %}
 
 {% macro get_val_from_custom_structs(field, is_backwards_linked = false) %}
-
     {% set ns = namespace(value='', display=false) %}
     {% set ns.value="[No name found]" %}
     {% if is_backwards_linked %}
@@ -153,26 +152,30 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endif %}
     {% for link_value in values_struct[field] %}
         {% set ns.display = false %}
-            {% if "display_value" in link_value %}
-                {% if link_value["display_value"] is not none %}
+        {% if "display_value" in link_value %}
+            {% if link_value["display_value"] is not none %}
+                {% if "value" in link_value["display_value"][0] %}
                     {% set ns.value=link_value["display_value"][0]["value"] %}
-                    {% for display_value in link_value.display_value %}
-                        {% if not ns.display %}
-                            {% if "language" in display_value %}
-                                {% if display_value.language == current_i18n.language and not display_value.display %}
-                                    {% set ns.value = display_value.value %}
-                                    {% set ns.display = true %}
-                                {% endif %}
+                {% else %}
+                    {% set ns.value=link_value["display_value"][0] %}
+                {% endif %}
+                {% for display_value in link_value.display_value %}
+                    {% if not ns.display %}
+                        {% if "language" in display_value %}
+                            {% if display_value.language == current_i18n.language and not display_value.display %}
+                                {% set ns.value = display_value.value %}
+                                {% set ns.display = true %}
                             {% endif %}
                         {% endif %}
-                    {% endfor %}
-                {% else %}
-                    {% set ns.value = link_value.link_id %}
-                {% endif %}
+                    {% endif %}
+                {% endfor %}
             {% else %}
                 {% set ns.value = link_value.link_id %}
             {% endif %}
-            <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
+        {% else %}
+            {% set ns.value = link_value.link_id %}
+        {% endif %}
+        <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
     {% endfor %}
 
 {% endmacro %}
@@ -181,18 +184,18 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- set f = field -%}
     {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
 
-    {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
-    {%- if field_raw_value -%}
-
-        {% if field_raw_value is not iterable or field_raw_value is string %}
-            {% set field_value = [field_raw_value] %}
-        {% else %}
-            {% set field_value = field_raw_value %}
-        {% endif %}
-
-        {% if f in linked_records_data or is_backwards_linked %}
+    {% if f in linked_records_data or is_backwards_linked %}
             {{ get_val_from_custom_structs(field, is_backwards_linked) }}
-        {% else %}
+    {% else %}
+        {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
+        {%- if field_raw_value -%}
+
+            {% if field_raw_value is not iterable or field_raw_value is string %}
+                {% set field_value = [field_raw_value] %}
+            {% else %}
+                {% set field_value = field_raw_value %}
+            {% endif %}
+
             {% for val in field_value %}
                 {% if f == 'mex:identifier' %}
                     <span>{{ val }}</span>
