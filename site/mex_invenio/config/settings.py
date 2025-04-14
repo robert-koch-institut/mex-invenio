@@ -458,3 +458,17 @@ APP_RDM_RECORD_EXPORTERS = {
         "filename": "{id}.json",
     }
 }
+
+LINKED_RECORD__FIELDS = {
+    "resource": {
+        "contact": {
+            "fields": {
+                "organizational-unit.name",
+                "person.fullName",
+                "person.familyName",
+                "person.email"
+            },
+            "defaultString": "[Contact details]"
+        }
+    }
+}

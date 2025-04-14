@@ -34,6 +34,8 @@
     {%- set allow_guest_requests = current_user.is_anonymous and record.parent.access.settings.allow_guest_requests %}
 {%- endif %}
 
+{% set custom_fields_ui = config.RDM_CUSTOM_FIELDS_UI %}
+
 {%- block head_meta %}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -50,7 +50,12 @@ def redirect_to_mex(record_id):
             "No object assigned to {0}.".format(e.pid), extra={"pid": e.pid}
         )
         abort(500)
+    try:
+        mex_id = record["custom_fields"]["mex:identifier"]
+    except Exception as e:
+        current_app.logger.exception(
+            "No mex id for the record {0}.".format(e.pid), extra={"pid": e.pid}
+        )
+        abort(500)
 
-    mex_id = record["custom_fields"]["mex:identifier"]
-
-    return redirect(url_for(".mex_view", mex_id=pid))
+    return redirect(url_for(".mex_view", mex_id=mex_id))
