@@ -21,14 +21,12 @@ import json
 def _get_record_by_field(field_id, value):
     escaped_field = field_id.replace(':', '\:')
     search_query = f'custom_fields.{escaped_field}:{value}'
-    print(search_query)
     results = list(current_rdm_records_service.search(g.identity, q=search_query))
 
     return results or None
 
 def _get_record_by_id(mex_id):
 
-    print(mex_id)
     results = _get_record_by_field("mex:identifier", mex_id)
 
     if not results:
@@ -63,6 +61,7 @@ class MexRecord(MethodView):
         record_type = record["metadata"]["resource_type"]["id"]
 
         linked_records_data = {}
+        backwards_linked_records = {}
 
         if record_type in settings.LINKED_RECORDS_FIELDS:
 
@@ -100,9 +99,23 @@ class MexRecord(MethodView):
 
                 linked_records_data[field] = field_values
 
+                field_values = []
+
+                for field, title_field in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
+                    records = _get_record_by_field(field, mex_id)
+                    for r in records:
+                        field_values.append({
+                            "link_id": r["custom_fields"]["mex:identifier"],
+                            "display_value": r["custom_fields"].get(title_field, None)
+                        })
+
+                    backwards_linked_records[field] = field_values
+
+
         return render_template(self.template,
                                record=json.loads(record_ui),
                                linked_records_data = linked_records_data,
+                               backwards_linked_records = backwards_linked_records,
                                is_preview=False)
 
     # invenio id: wbdv5-sac84

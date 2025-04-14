@@ -142,9 +142,43 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endif %}
 {% endmacro %}
 
-{# Display custom field's value by field's name #}
-{% macro val(field, format=None) -%}
-    {%- set f = "mex:"+field -%}
+{% macro get_val_from_custom_structs(field, is_backwards_linked = false) %}
+
+    {% set ns = namespace(value='', display=false) %}
+    {% set ns.value="[No name found]" %}
+    {% if is_backwards_linked %}
+        {% set values_struct = backwards_linked_records %}
+    {% else %}
+        {% set values_struct = linked_records_data %}
+    {% endif %}
+    {% for link_value in values_struct[field] %}
+        {% set ns.display = false %}
+            {% if "display_value" in link_value %}
+                {% if link_value["display_value"] is not none %}
+                    {% set ns.value=link_value["display_value"][0]["value"] %}
+                    {% for display_value in link_value.display_value %}
+                        {% if not ns.display %}
+                            {% if "language" in display_value %}
+                                {% if display_value.language == current_i18n.language and not display_value.display %}
+                                    {% set ns.value = display_value.value %}
+                                    {% set ns.display = true %}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% set ns.value = link_value.link_id %}
+                {% endif %}
+            {% else %}
+                {% set ns.value = link_value.link_id %}
+            {% endif %}
+            <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
+    {% endfor %}
+
+{% endmacro %}
+
+{% macro val(field, format=None, is_backwards_linked=false) -%}
+    {%- set f = field -%}
     {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
 
     {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
@@ -156,32 +190,8 @@ it under the terms of the MIT License; see LICENSE file for more details.
             {% set field_value = field_raw_value %}
         {% endif %}
 
-        {% if f in linked_records_data %}
-            {% set ns = namespace(value='', display=false) %}
-            {% set ns.value=field_value[0] %}
-            {% for link_value in linked_records_data[f] %}
-                {% set ns.display = false %}
-                    {% if "display_value" in link_value %}
-                        {% if link_value["display_value"] is not none %}
-                            {% set ns.value=link_value["display_value"][0]["value"] %}
-                            {% for display_value in link_value.display_value %}
-                                {% if not ns.display %}
-                                    {% if "language" in display_value %}
-                                        {% if display_value.language == current_i18n.language and not display_value.display %}
-                                            {% set ns.value = display_value.value %}
-                                            {% set ns.display = true %}
-                                        {% endif %}
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {% set ns.value = link_value.link_id %}
-                        {% endif %}
-                    {% else %}
-                        {% set ns.value = link_value.link_id %}
-                    {% endif %}
-                    <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
-            {% endfor %}
+        {% if f in linked_records_data or is_backwards_linked %}
+            {{ get_val_from_custom_structs(field, is_backwards_linked) }}
         {% else %}
             {% for val in field_value %}
                 {% if f == 'mex:identifier' %}

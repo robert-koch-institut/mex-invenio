@@ -381,8 +381,8 @@ RECORD_CARDS = {
             },
             "childOf": {
                 "title": "Contained by",
-                "icon": "containedby.svg",
-                "backwards_linked": True,
+                "icon": "contained.svg",
+                "is_backwards_linked": True,
                 "properties": [
                     "mex:isPartOf"
                 ]
@@ -420,7 +420,7 @@ RECORD_CARDS = {
                 "title": "Variables",
                 "template": "variables.html",
                 "icon": "variables.svg",
-                "backwards_linked": True,
+                "is_backwards_linked": True,
                 "properties": [
                     "mex:variables"
                 ]
@@ -505,9 +505,7 @@ LINKED_RECORDS_FIELDS = {
 
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
-        "field": {
-            "mex:isPartOf": ["mex:title"],
-            "mex:usedIn": ["mex:label"]
-        }
+            "mex:isPartOf": "mex:title",
+            "mex:usedIn": "mex:label"
     }
 }

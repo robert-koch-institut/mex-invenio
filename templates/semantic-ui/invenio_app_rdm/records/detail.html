@@ -67,7 +67,7 @@
             </div>
         {% endif %}
     </section>
-    <p id="linked_records_data">{{ record }}</p>
+    <p id="linked_records_data">{{ backwards_linked_records }}</p>
     {% if record.ui.resource_type.id == "resource" %}
         {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
     {% else %}
