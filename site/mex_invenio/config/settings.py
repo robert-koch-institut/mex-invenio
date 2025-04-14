@@ -448,9 +448,9 @@ LOINC_URL = "https://loinc.org/"
 MESH_URL = "http://id.nlm.nih.gov/mesh/"
 DOI_URL = "https://dx.doi.org/"
 
-RESTRICTION_STATUS = {
-"https://mex.rki.de/item/access-restriction-1": "Open",
-"https://mex.rki.de/item/access-restriction-2": "Restricted"
+IS_ACCESS_STATUS_OPEN = {
+"https://mex.rki.de/item/access-restriction-1": True,
+"https://mex.rki.de/item/access-restriction-2": False
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -509,4 +509,10 @@ RECORDS_LINKED_BACKWARDS = {
             "mex:isPartOf": "mex:title",
             "mex:usedIn": "mex:label"
     }
+}
+
+RECORD_SPECIAL_FIELDS = {
+    "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
+    "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
+    "ACCESS_RESTRICTION": "mex:accessRestriction"
 }
