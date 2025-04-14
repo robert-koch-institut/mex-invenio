@@ -67,7 +67,7 @@
             </div>
         {% endif %}
     </section>
-
+    <p id="linked_records_data">{{ linked_records_data }}</p>
     {% if record.ui.resource_type.id == "resource" %}
         {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
     {% else %}
@@ -179,7 +179,7 @@
                                             >
                                                 {% set section_format = section_cfg.section | replace(" ", "-") %}
                                                 <dl class="details-list">
-                                                    {{ show_section_custom_fields(record.ui.custom_fields, [field_cfg]) }}
+                                                    {{ val(field_cfg.field[4:]) }}
                                                 </dl>
                                             </div>
                                         </div>
@@ -203,7 +203,7 @@
                         {%- endblock record_body %}
                     </article>
                     {# Sidebar #}
-                    <aside class="sixteen wide tablet five wide computer column sidebar" aria-label="{{ _('Record details') }}">
+                    <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals" aria-label="{{ _('Record details') }}">
                         {% block record_sidebar %}
                             {%- include "invenio_app_rdm/records/details/side_bar.html" %}
                         {% endblock record_sidebar %}
