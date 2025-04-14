@@ -12,6 +12,7 @@ from invenio_pidstore.errors import (
     PIDMissingObjectError,
     PIDRedirectedError,
     PIDUnregistered,
+    PIDValueError
 )
 
 
@@ -19,24 +20,17 @@ import json
 
 def _get_record(mex_id):
 
-    try:
-        search_query = f'custom_fields.mex\:identifier:{mex_id}'
-        results = list(current_rdm_records_service.search(g.identity, q=search_query))
+    search_query = f'custom_fields.mex\:identifier:{mex_id}'
+    results = list(current_rdm_records_service.search(g.identity, q=search_query))
 
-        if len(results) == 0:
-            abort(404)
+    if len(results) == 0:
+        raise PIDDoesNotExistError()
 
-        elif len(results) == 1:
-            return results[0]
+    elif len(results) == 1:
+        return results[0]
 
-        elif len(results) > 1:
-            print("too many results")
-            abort(500)
-
-    except Exception as e:
-        print(e)
-        abort(500)
-
+    else:
+        raise PIDValueError("Too many results")
 
 class MexRecord(MethodView):
 
@@ -45,14 +39,63 @@ class MexRecord(MethodView):
 
     def get(self, mex_id):
 
-        record = _get_record(mex_id)
+        try:
+            record = _get_record(mex_id)
+        except PIDDoesNotExistError:
+            abort(404)
+        except Exception:
+            abort(500)
+
         pid = record["id"]
         service = current_rdm_records_service
         record_item = service.read(system_identity, pid)
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
 
-        return render_template(self.template, record=json.loads(record_ui), custom_fields_ui = settings.RDM_CUSTOM_FIELDS_UI, is_preview=False)
+        record_type = record["metadata"]["resource_type"]["id"]
+
+        linked_records_data = {}
+
+        if record_type in settings.LINKED_RECORDS_FIELDS:
+
+            for field, props in settings.LINKED_RECORDS_FIELDS[record_type].items():
+                raw_value = record["custom_fields"].get(field)
+
+                if not raw_value:
+                    continue
+
+                linked_record_ids = raw_value if isinstance(raw_value, list) else [raw_value]
+
+                field_values = []
+
+                for linked_record_id in linked_record_ids:
+
+                    display_value = linked_record_id
+
+                    try:
+                        linked_record = _get_record(linked_record_id)
+                    except Exception:
+                        linked_record = None
+
+                    if linked_record:
+                        for f in props["fields"]:
+                            display_value = linked_record["custom_fields"].get(f, None)
+                            if display_value:
+                                break
+                    else:
+                        display_value = f'Record with id { linked_record_id } not found'
+
+                    field_values.append({
+                        "display_value": display_value,
+                        "link_id": linked_record_id
+                    })
+
+                linked_records_data[field] = field_values
+
+        return render_template(self.template,
+                               record=json.loads(record_ui),
+                               linked_records_data = linked_records_data,
+                               is_preview=False)
 
     # invenio id: wbdv5-sac84
     # mex id: cP1OvUS7rELcPULquIu1dZ

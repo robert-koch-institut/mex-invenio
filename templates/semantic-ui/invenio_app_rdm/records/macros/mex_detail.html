@@ -145,73 +145,96 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {# Display custom field's value by field's name #}
 {% macro val(field, format=None) -%}
     {%- set f = "mex:"+field -%}
-    {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
     {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
+
+    {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
     {%- if field_raw_value -%}
+
         {% if field_raw_value is not iterable or field_raw_value is string %}
             {% set field_value = [field_raw_value] %}
         {% else %}
             {% set field_value = field_raw_value %}
         {% endif %}
-        {% for val in field_value %}
-            {% if f == 'mex:identifier' %}
-                <span>{{ val }}</span>
-            {% elif field_type == '/schema/entities/concept#/identifier' %}
-                {% if val in pref_labels %}
-                    {% if current_i18n.language in pref_labels[val] %}
-                        <span>{{ pref_labels[val][current_i18n.language] | title }}</span>
-                    {% elif 'en' in pref_labels[val] %}
-                        <span>{{ pref_labels[val]['en'] | title }}</span>
-                    {% else %}
-                        {# Fallback to the first language in the list #}
-                        {% set lang = pref_labels[val].keys()|first %}
-                        <span>{{ pref_labels[val][lang] | title }}</span>
-                    {% endif %}
-                {% else %}
-                    <span>{{ val }}</span>
-                {% endif %}
-            {% elif field_type.endswith('identifier') %}
-                {# We have an identifier but identifiers for concepts are vocabulary values. #}
-                <span>
-                    <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ val | title }}</a>{{ ", " if not loop.last }}
-                </span>
-            {% elif field_type == "date" %}
-                <span>{{ format_date(val) }}</span>
-            {% elif val is string %}
-                {% if f == 'mex:meshId' %}
-                    <a href='{{ val }}' target="_blank" rel="noopener noreferrer" class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
-                {% elif f == 'mex:loincId' %}
-                    <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
-                 {% elif f == 'mex:doi' %}
-                    <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.DOI_URL, "") }} </a>
-                {% elif f == 'mex:icd10code' %}
-                    <span>{{ val }}</span>
-                {% else %}
-                    <span>
-                        {% set search_url = (val | pid_url) if 'props' in field_definition and field_definition.props.is_identifier else (f | custom_fields_search(val | safe)) %}
-                        {% if val.startswith('http') %}
-                            <a href="{{ field_value | safe }}">{{ val | safe }}</a>
-                        {% elif search_url %}
-                            <a href="{{ search_url }}">{{ val | safe }}</a>
-                        {% else %}
-                            {{ val | safe }}
+
+        {% if f in linked_records_data %}
+            {% set ns = namespace(value='', display=false) %}
+            {% set ns.value=linked_records_data[f][0].display_value[0].value %}
+            {% for link_value in linked_records_data[f] %}
+                {% set ns.display = false %}
+                {% for display_value in link_value.display_value %}
+                    {% if not ns.display %}
+                        {% if "language" in display_value %}
+                            {% if display_value.language == current_i18n.language and not display_value.display %}
+                                {% set ns.value = display_value.value %}
+                                {% set ns.display = true %}
+                            {% endif %}
                         {% endif %}
-                    </span>
+                    {% endif %}
+                {% endfor %}
+                <p>
+                    <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{{ ", " if not loop.last }}
+                </p>
+            {% endfor %}
+        {% else %}
+            {% for val in field_value %}
+                {% if f == 'mex:identifier' %}
+                    <span>{{ val }}</span>
+                {% elif field_type == '/schema/entities/concept#/identifier' %}
+                    {% if val in pref_labels %}
+                        {% if current_i18n.language in pref_labels[val] %}
+                            <span>{{ pref_labels[val][current_i18n.language] | title }}</span>
+                        {% elif 'en' in pref_labels[val] %}
+                            <span>{{ pref_labels[val]['en'] | title }}</span>
+                        {% else %}
+                            {# Fallback to the first language in the list #}
+                            {% set lang = pref_labels[val].keys()|first %}
+                            <span>{{ pref_labels[val][lang] | title }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span>{{ val }}</span>
+                    {% endif %}
+                {% elif field_type.endswith('identifier') %}
+                        <span>
+                            <a href="/records/mex/{{val}}">{{ val }}</a>{{ ", " if not loop.last }}
+                        </span>
+                {% elif field_type == "date" %}
+                    <span>{{ format_date(val) }}</span>
+                {% elif val is string %}
+                    {% if f == 'mex:meshId' %}
+                        <a href='{{ val }}' target="_blank" rel="noopener noreferrer" class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
+                    {% elif f == 'mex:loincId' %}
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
+                     {% elif f == 'mex:doi' %}
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.DOI_URL, "") }} </a>
+                    {% elif f == 'mex:icd10code' %}
+                        <span>{{ val }}</span>
+                    {% else %}
+                        <span>
+                            {% set search_url = (val | pid_url) if 'props' in field_definition and field_definition.props.is_identifier else (f | custom_fields_search(val | safe)) %}
+                            {% if val.startswith('http') %}
+                                <a href="{{ field_value | safe }}">{{ val | safe }}</a>
+                            {% elif search_url %}
+                                <a href="{{ search_url }}">{{ val | safe }}</a>
+                            {% else %}
+                                {{ val | safe }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                {% elif val.is_vocabulary %}
+                    <span>{{ list_vocabulary_values(val) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is mapping %}
+                    <span>{{ list_objects(field_cfg.field, field_value) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is string %}
+                    <span>{{ list_string_values(field_cfg, field_value) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is number %}
+                    <span>{{ list_float_values(field_cfg.field, val) }}</span>
+                {% elif val is mapping %}
+                    <span>{{ render_object(val) }}</span>
+                {% else %}
+                    <span>{{ val }}</span>
                 {% endif %}
-            {% elif val.is_vocabulary %}
-                <span>{{ list_vocabulary_values(val) }}</span>
-            {% elif val is iterable and val|length > 0 and val[0] is mapping %}
-                <span>{{ list_objects(field_cfg.field, field_value) }}</span>
-            {% elif val is iterable and val|length > 0 and val[0] is string %}
-                <span>{{ list_string_values(field_cfg, field_value) }}</span>
-            {% elif val is iterable and val|length > 0 and val[0] is number %}
-                <span>{{ list_float_values(field_cfg.field, val) }}</span>
-            {% elif val is mapping %}
-                <span>{{ render_object(val) }}</span>
-            {% else %}
-                <span>{{ val }}</span>
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
+        {%- endif -%}
     {%- endif -%}
 {%- endmacro %}
 
