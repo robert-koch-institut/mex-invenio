@@ -71,8 +71,8 @@
             color: @darkLinkColor;
             text-decorations: none;
             &:hover {
-                color: @darkLinkColor;
-                text-decoration: underline;
+                color: @darkLinkColor !important;
+                text-decoration: underline !important;
             }
         }
     }
