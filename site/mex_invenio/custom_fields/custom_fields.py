@@ -85,7 +85,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:officialName", multiple=True),
     TextCF(name="mex:orcidId", multiple=True),
     TextCF(name="mex:pages"),
-    TextCF(name="mex:*-"),
+    TextCF(name="mex:parentUnit"),
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
