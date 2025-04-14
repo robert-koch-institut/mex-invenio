@@ -96,6 +96,7 @@ a, a.dark {
     color: @darkLinkColor;
     text-decoration: none;
     &:hover {
+        color: @darkLinkColor;
         text-decoration: underline;
     }
 }
@@ -200,9 +201,13 @@ a.light {
                 font-weight: 400;
                 line-height: 2.1rem;
             }
-            .alttitle {
-
-            }
+        }
+        h2.alttitle {
+            color: #5170C1;
+            font-size: 1.125rem;
+            margin-top: 0 !important;
+            font-weight: 600;
+            line-height: 1.5rem;
         }
     }
 }
