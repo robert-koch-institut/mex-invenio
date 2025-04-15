@@ -251,3 +251,4 @@ RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'offic
 # The default value for the Datacite title property in imported records
 # if it is not present in the MEx source record
 RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
+
