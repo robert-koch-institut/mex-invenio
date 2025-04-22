@@ -430,7 +430,6 @@ RECORD_CARDS = {
     }
 }
 
-
 CUSTOM_FIELDS_UI_TYPES = {
     item['field']: item['props']['type']
     for section in RDM_CUSTOM_FIELDS_UI
@@ -442,15 +441,13 @@ CUSTOM_FIELDS_UI_TYPES["mex:created"] = "date"
 CUSTOM_FIELDS_UI_TYPES["mex:modified"] = "date"
 CUSTOM_FIELDS_UI_TYPES["mex:keyword"] = "tag"
 
-
-
 LOINC_URL = "https://loinc.org/"
 MESH_URL = "http://id.nlm.nih.gov/mesh/"
 DOI_URL = "https://dx.doi.org/"
 
 IS_ACCESS_STATUS_OPEN = {
-"https://mex.rki.de/item/access-restriction-1": True,
-"https://mex.rki.de/item/access-restriction-2": False
+    "https://mex.rki.de/item/access-restriction-1": True,
+    "https://mex.rki.de/item/access-restriction-2": False
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -472,7 +469,7 @@ APP_RDM_RECORD_EXPORTERS = {
 LINKED_RECORDS_FIELDS = {
     "resource": {
         "mex:contact": {
-            "fields": ["mex:name","mex:fullName", "mex:familyName", "mex:email"]
+            "fields": ["mex:name", "mex:fullName", "mex:familyName", "mex:email"]
         },
         "mex:isPartOf": {
             "fields": ["mex:title"]
@@ -506,8 +503,8 @@ LINKED_RECORDS_FIELDS = {
 
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
-            "mex:isPartOf": "mex:title",
-            "mex:usedIn": "mex:label"
+        "mex:isPartOf": "mex:title",
+        "mex:usedIn": "mex:label"
     }
 }
 

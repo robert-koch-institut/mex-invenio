@@ -38,6 +38,7 @@ def dump_etree_helper(container_name, data, rules, nsmap, attrib):
 
     return output
 
+
 def mex_dublincore_etree(pid, record, **serializer_kwargs):
     """Get DublinCore XML etree for OAI-PMH.
     This function is a modified version of invenio_rdm_records.oai.dublincore_etree

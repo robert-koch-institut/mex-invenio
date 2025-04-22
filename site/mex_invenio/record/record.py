@@ -15,8 +15,8 @@ from invenio_pidstore.errors import (
     PIDValueError
 )
 
-
 import json
+
 
 def _get_record_by_field(field_id, value):
     escaped_field = field_id.replace(':', '\:')
@@ -25,8 +25,8 @@ def _get_record_by_field(field_id, value):
 
     return results or None
 
-def _get_record_by_id(mex_id):
 
+def _get_record_by_id(mex_id):
     results = _get_record_by_field("mex:identifier", mex_id)
 
     if not results:
@@ -90,7 +90,7 @@ class MexRecord(MethodView):
                             if display_value:
                                 break
                     else:
-                        display_value = f'Record with id { linked_record_id } not found'
+                        display_value = f'Record with id {linked_record_id} not found'
 
                     field_values.append({
                         "display_value": display_value,
@@ -112,11 +112,10 @@ class MexRecord(MethodView):
 
                         backwards_linked_records[field] = field_values
 
-
         return render_template(self.template,
                                record=json.loads(record_ui),
-                               linked_records_data = linked_records_data,
-                               backwards_linked_records = backwards_linked_records,
+                               linked_records_data=linked_records_data,
+                               backwards_linked_records=backwards_linked_records,
                                is_preview=False)
 
     # invenio id: wbdv5-sac84

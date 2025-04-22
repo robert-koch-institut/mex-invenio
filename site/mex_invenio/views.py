@@ -11,6 +11,7 @@ from invenio_pidstore.errors import (
 )
 from invenio_rdm_records.records.api import RDMRecord
 
+
 #
 # Registration
 #
@@ -34,8 +35,8 @@ def create_blueprint(app):
 
     return blueprint
 
-def redirect_to_mex(record_id):
 
+def redirect_to_mex(record_id):
     pid = None
     record = None
 
