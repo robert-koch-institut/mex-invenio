@@ -175,7 +175,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {% else %}
             {% set ns.value = link_value.link_id %}
         {% endif %}
-        <a href="/records/mex/{{link_value.link_id}}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
+        <a href="/records/mex/{{ link_value.link_id }}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
     {% endfor %}
 
 {% endmacro %}
@@ -185,7 +185,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
 
     {% if f in linked_records_data or is_backwards_linked %}
-            {{ get_val_from_custom_structs(field, is_backwards_linked) }}
+        {{ get_val_from_custom_structs(field, is_backwards_linked) }}
     {% else %}
         {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
         {%- if field_raw_value -%}
@@ -218,18 +218,21 @@ it under the terms of the MIT License; see LICENSE file for more details.
                         {% endif %}
                     {% endif %}
                 {% elif field_type.endswith('identifier') %}
-                        <span>
-                            <a href="/records/mex/{{val}}">{{ val }}</a>{{ ", " if not loop.last }}
+                    <span>
+                            <a href="/records/mex/{{ val }}">{{ val }}</a>{{ ", " if not loop.last }}
                         </span>
                 {% elif field_type == "date" %}
                     <span>{{ format_date(val) }}</span>
                 {% elif val is string %}
                     {% if f == 'mex:meshId' %}
-                        <a href='{{ val }}' target="_blank" rel="noopener noreferrer" class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
+                        <a href='{{ val }}' target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
                     {% elif f == 'mex:loincId' %}
-                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
-                     {% elif f == 'mex:doi' %}
-                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"  class="id-tag-value">{{ val | replace(config.DOI_URL, "") }} </a>
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
+                    {% elif f == 'mex:doi' %}
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.DOI_URL, "") }} </a>
                     {% elif f == 'mex:icd10code' %}
                         <span>{{ val }}</span>
                     {% else %}

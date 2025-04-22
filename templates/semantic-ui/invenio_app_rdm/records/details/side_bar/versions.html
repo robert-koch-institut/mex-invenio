@@ -9,22 +9,22 @@
 -#}
 
 <div class="card">
-  <h3 class="ui medium header mt-0">
-      <img class="ui image icon"
-           src="{{ url_for('static', filename='icons/history.svg') }}"
-           alt=""/>
-      {{ _('Versions')}}</h3>
-  <div class="rdm-sidebar bottom attached pl-0 pr-0 pt-0">
-    <div class="versions">
-      <div id="recordVersions" data-record='{{ record | tojson }}' data-preview='{{ is_preview | tojson }}'>
-        <div class="rel-p-1"></div>
-        <div class="ui fluid placeholder rel-mr-1 rel-ml-1"></div>
-        <div class="header">
-          <div class="line"></div>
-          <div class="line"></div>
-          <div class="line"></div>
+    <h3 class="ui medium header mt-0">
+        <img class="ui image icon"
+             src="{{ url_for('static', filename='icons/history.svg') }}"
+             alt=""/>
+        {{ _('Versions') }}</h3>
+    <div class="rdm-sidebar bottom attached pl-0 pr-0 pt-0">
+        <div class="versions">
+            <div id="recordVersions" data-record='{{ record | tojson }}' data-preview='{{ is_preview | tojson }}'>
+                <div class="rel-p-1"></div>
+                <div class="ui fluid placeholder rel-mr-1 rel-ml-1"></div>
+                <div class="header">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>

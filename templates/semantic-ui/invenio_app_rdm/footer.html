@@ -10,29 +10,31 @@
 #}
 {%- block footer_top %}
 
-  <div class="footer-top">
-    <div class="ui container app-rdm-footer">
-      {%- block footer_top_left %}
-        <div class="ui grid app-rdm-footer">
-        <div class="rdm-footer five wide tablet two wide computer column">
-          <p><a href="/">{{ _("About MEx") }}</a></p>
-          <p><a href="/">{{ _("Contact") }}</a></p>
-          <p><a href="/">{{ _("Data privacy") }}</a></p>
+    <div class="footer-top">
+        <div class="ui container app-rdm-footer">
+            {%- block footer_top_left %}
+                <div class="ui grid app-rdm-footer">
+                <div class="rdm-footer five wide tablet two wide computer column">
+                    <p><a href="/">{{ _("About MEx") }}</a></p>
+                    <p><a href="/">{{ _("Contact") }}</a></p>
+                    <p><a href="/">{{ _("Data privacy") }}</a></p>
 
-        </div>
-        <div class="rdm-footer five wide tablet two wide computer column">
-          <p><a href="/">{{ _("Accessibility") }}</a></p>
-          <p><a href="/">{{ _("Imprint") }}</a></p>
+                </div>
+                <div class="rdm-footer five wide tablet two wide computer column">
+                    <p><a href="/">{{ _("Accessibility") }}</a></p>
+                    <p><a href="/">{{ _("Imprint") }}</a></p>
+                </div>
+
+            {%- endblock footer_top_left %}
+            <div class="six wide column right aligned">
+                {%- block footer_top_right %}
+                {%- endblock footer_top_right %}
+            </div>
+            <p class="disclaimer muted" style="font-size: 0.8rem">
+                <i>{{ _("All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information.") }}</i>
+            </p>
+            </div>
         </div>
 
-      {%- endblock footer_top_left %}
-      <div class="six wide column right aligned">
-        {%- block footer_top_right %}
-        {%- endblock footer_top_right %}
-      </div>
-      <p class="disclaimer muted" style="font-size: 0.8rem"><i>{{ _("All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information.") }}</i></p>
-      </div>
     </div>
-
-  </div>
 {%- endblock footer_top %}
