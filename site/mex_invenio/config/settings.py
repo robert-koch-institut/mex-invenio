@@ -262,7 +262,6 @@ from invenio_rdm_records.config import RDM_SEARCH
 from mex_invenio.custom_facets import RestrictedTermsFacet
 from invenio_vocabularies.services.facets import VocabularyLabels
 
-# Define a new facet that only shows "Documentation" and "Variable"
 RDM_FACETS = {
     "restricted_resource_type": {
         "facet": RestrictedTermsFacet(
@@ -280,7 +279,6 @@ RDM_FACETS = {
     },
 }
 
-# Add the new facet to the search configuration
 RDM_SEARCH = {
     **RDM_SEARCH,
     "facets": ["restricted_resource_type"]
