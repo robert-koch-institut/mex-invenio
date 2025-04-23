@@ -6,6 +6,7 @@ from typing import Union, Any
 
 from flask import current_app
 
+
 def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
     """Get the value of a key in the MEx metadata by language."""
     if isinstance(mex_data[key], str):
@@ -57,6 +58,7 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 
     return data
 
+
 def compare_dicts(dict1: dict, dict2: dict) -> dict:
     """Compare two dictionaries and return a dictionary with the differences."""
     diff = {}
@@ -75,6 +77,7 @@ def compare_dicts(dict1: dict, dict2: dict) -> dict:
 
     return diff
 
+
 def clean_dict(d: dict) -> Union[dict[Any, dict], list[dict], dict]:
     """Recursively remove keys with None or empty list values from a dictionary or list."""
     if isinstance(d, dict):
@@ -83,6 +86,7 @@ def clean_dict(d: dict) -> Union[dict[Any, dict], list[dict], dict]:
         return [clean_dict(item) for item in d if item is not None and item != []]
     else:
         return d
+
 
 def compare_files(existing_file: str, new_file: str) -> bool:
     """Compares files and deletes the new file if it's the same."""

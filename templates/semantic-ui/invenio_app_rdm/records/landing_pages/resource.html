@@ -1,0 +1,164 @@
+{# config.CUSTOM_FIELDS_UI_TYPES -> definitions #}
+{# record.ui.custom_fields -> values #}
+<div class="edit-btn"><a id="edit-record" class="button edit"
+                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
+                         target="_blank">Edit this record</a></div>
+<div class="ui container">
+    <div class="ui relaxed grid mt-5">
+        <div class="two column row top-padded">
+            <article class="sixteen wide tablet eleven wide computer column main-record-content">
+                <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
+                    <div class="tags top-tags">
+                        <span class="tag">{{ record.metadata.resource_type.title.get(current_i18n.language, 'en') }}</span>
+                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC) %}
+                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL) %}
+                        {% if resource_type_general %}
+                            <span class="tag" title="Resource type">{{ resource_type_general }}
+                                {% if resource_type_specific %} /{{ resource_type_general }} {% endif %}</span>
+                        {% endif %}
+                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION) -%}
+                        <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
+                    </div>
+                </section>
+
+                <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
+                    <div class="first-line">
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
+                        <span id="record-created_date" class="muted">{{ val("created") }}</span>
+                    </div>
+                    {% set alttitle = val("alternativeTitle") %}
+                    {% if alttitle %}
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
+                    {% endif %}
+                </section>
+
+                {% set description = val("description") %}
+                {% if description %}
+                    <section id="record-description" aria-label="{{ _('Record Description') }}">
+                        <p>{{ description }}</p>
+                    </section>
+                {% endif %}
+
+                <div class="ui divider"></div>
+
+                {% set icd10val = val("icd10code") %}
+                {% set loincval = val("loincId") %}
+                {% set meshval = val("meshId") %}
+                {% if icd10val or loincval or meshval %}
+                    <section id="record-ids" aria-label="{{ _('Record IDs') }}">
+                        <div class="id-tags">
+                            {% if icd10val %}
+                                <div class="id-tag icd10">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text">ICD-10</p>
+                                    </div>
+                                    {{ icd10val }}
+                                </div>
+                            {% endif %}
+                            {% if meshval %}
+                                <div class="id-tag mesh">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text" style="margin-left: -3rem">MESH ID</p>
+                                    </div>
+                                    {{ meshval }}
+                                </div>
+                            {% endif %}
+                            {% if loincval %}
+                                <div class="id-tag loinc">
+                                    <div class="label">
+                                        <div class="circle"></div>
+                                        <p class="text">LOINC</p>
+                                    </div>
+                                    {{ loincval }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                {% endif %}
+
+                <section id="record-card" class="record-cards">
+                    {% set column = "left" %}
+                    {% for card_name in config.RECORD_CARDS.resource.left %}
+                        {% set card = config.RECORD_CARDS.resource.left[card_name] %}
+                        {% set ns = namespace(prop_exist=false) %}
+                        {% if card.is_backwards_linked %}
+                            {% for prop in card.properties %}
+                                {% if prop in backwards_linked_records %}
+                                    {% set value = backwards_linked_records[prop] %}
+                                    {% set ns.prop_exist = true %}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% for prop in card.properties %}
+                                {% if prop in record.ui.custom_fields %}
+                                    {% set value = record.ui.custom_fields[prop] %}
+                                    {% if value %}
+                                        {% set ns.prop_exist = true %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if ns.prop_exist %}
+                            <div class="card">
+                                <h3>
+                                    <img class="ui image icon"
+                                         src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                                         alt=""/>
+                                    {{ _(card.title) }}
+                                </h3>
+                                <div class="card-props">
+                                    {% for prop in card.properties %}
+                                        {% set value = val(prop) %}
+                                        {% if val(prop) %}
+                                            <p class="card-props-p">
+                                                <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
+                                                <span class="card-prop-value">{{ val(prop, is_backwards_linked=card.get("is_backwards_linked", false)) }}</span>
+                                            </p>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </section>
+
+            </article>
+            <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals"
+                   aria-label="{{ _('Record details') }}">
+                {% set column = "right" %}
+                {% block record_sidebar %}
+                    {%- for card_name in config.RECORD_CARDS.resource.right %}
+                        {% set card = config.RECORD_CARDS.resource.right[card_name] %}
+                        {% with card=card_name %}
+                            {%- include "invenio_app_rdm/records/details/side_bar/card.html" with context %}
+                        {% endwith %}
+                    {% endfor %}
+                    {%- include "invenio_app_rdm/records/details/side_bar.html" %}
+                {% endblock record_sidebar %}
+            </aside>
+        </div>
+    </div>
+
+    <div class="ui container">
+        <div class="ui relaxed grid">
+            <div class="two column row">
+                <div class="sixteen wide tablet eleven wide computer column">
+                    {%- block jump -%}
+                        <div class="ui grid">
+                            <div class="centered row rel-mt-1">
+                                <button id="jump-btn" class="jump-to-top ui button labeled icon"
+                                        aria-label="{{ _('Jump to top of page') }}">
+                                    <i class="arrow alternate circle up outline icon"></i>
+                                    {{ _("Jump up") }}
+                                </button>
+                            </div>
+                        </div>
+                    {%- endblock jump -%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
