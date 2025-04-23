@@ -251,3 +251,35 @@ RECORD_METADATA_TITLE_PROPERTIES = ['title', 'name', 'fullName', 'label', 'offic
 # The default value for the Datacite title property in imported records
 # if it is not present in the MEx source record
 RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
+
+# ---
+# Custom facets
+# ---
+
+from invenio_rdm_records.config import RDM_SEARCH
+from mex_invenio.custom_facets import RestrictedTermsFacet
+from invenio_vocabularies.services.facets import VocabularyLabels
+
+# Define a new facet that only shows "Documentation" and "Variable"
+RDM_FACETS = {
+    "restricted_resource_type": {
+        "facet": RestrictedTermsFacet(
+            field="metadata.resource_type.props.type",
+            subfield="metadata.resource_type.props.subtype",
+            splitchar="::",
+            # Field to filter on
+            label=_("Resource types"),
+            value_labels=VocabularyLabels("resourcetypes"),
+            allowed_values=["resource", "bibliographicresource", "variable", "activity"]
+        ),
+        "ui": {
+            "field": "resource_type.id"
+        },
+    },
+}
+
+# Add the new facet to the search configuration
+RDM_SEARCH = {
+    **RDM_SEARCH,
+    "facets": ["restricted_resource_type"]
+}
