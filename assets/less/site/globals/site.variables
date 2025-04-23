@@ -1,10 +1,27 @@
 @primaryColor: @core-color-brand-default;
-@navbarBackgroundColor: @primaryColor;
-@navbarBackgroundImage: None;
+@secondaryColor: @core-color-accent-2-default;
+@highlightColor: #E0F4FC;
+@navbarBackgroundImage: none;
 
-@frontendHeaderBackgroundColor: transparent;
+@successBackgroundColor: #D2EBD3;
+@errorBackgroundColor: #FCD0CD;
 
-@navbarBackgroundColor: @core-color-white-default;
+@lightBackground: rgba(224, 244, 252, 0.20);
+@highlightBackground: @highlightColor;
+@whiteBackground: @core-color-white-default;
+@mutedBackground: #F7F7F9;
+
+@pageFont: "Fira Sans", sans-serif;
+
+@mutedTextColor: #404565;
+
+@frontendHeaderBackgroundColor: @core-color-white-default;
+
+@searchButtonColor: @core-color-white-default;
+@searchButtonColorTextColor: @primaryColor
+
+@navbarBackgroundColor: transparent;
+@navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
 
 @footerLightColor: @core-color-accent-2-default;
 @footerDarkColor: @primaryColor;
@@ -16,4 +33,5 @@
 
 @neutralLabelColor: @core-color-neutral-default;
 @signupColor: @core-color-green-default;
-@linkColor: @primaryColor;
+@darkLinkColor: @primaryColor;
+@lightLinkColor: @core-color-white-default;

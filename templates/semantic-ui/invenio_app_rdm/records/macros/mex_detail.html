@@ -1,181 +1,276 @@
 {#
-  Copyright (C) 2020-2024 CERN.
-  Copyright (C) 2024 Northwestern University.
+Copyright (C) 2020-2024 CERN.
+Copyright (C) 2024 Northwestern University.
 
-  Invenio RDM Records is free software; you can redistribute it and/or modify
-  it under the terms of the MIT License; see LICENSE file for more details.
+Invenio RDM Records is free software; you can redistribute it and/or modify
+it under the terms of the MIT License; see LICENSE file for more details.
 #}
 
 
 {%- from "invenio_app_rdm/records/macros/pref_labels.jinja" import pref_labels %}
 
-
 {% macro show_detail(title, value) %}
-  <dt class="ui tiny header">{{ title }}</dt>
-  <dd>{{ value }}</dd>
+    <dt class="ui tiny header">{{ title }}</dt>
+    <dd>{{ value }}</dd>
 {%- endmacro %}
 
-
 {% macro show_title_detail(title, language, value) %}
-  <dt class="ui tiny header">
-    {{ title }}
-    <span class="language text-muted">
-      {{ '(' + language + ')' if language }}
-    </span>
-  </dt>
-  <dd>
-    {{ value }}
-  </dd>
+    <dt class="ui tiny header">
+        {{ title }}
+        <span class="language text-muted">
+          {{ '(' + language + ')' if language }}
+        </span>
+    </dt>
+    <dd>
+        {{ value }}
+    </dd>
 {%- endmacro %}
 
 
 {% macro show_sanitized_detail(title, value) %}
-  <dt class="ui tiny header">{{ title }}</dt>
-  <dd>
-    {{ value | sanitize_html()| safe }}
-  </dd>
+    <dt class="ui tiny header">{{ title }}</dt>
+    <dd>
+        {{ value | sanitize_html()| safe }}
+    </dd>
 {%- endmacro %}
 
 {% macro render_object(obj) %}
-  {# If the object has a URL property, then it is LinkCF type #}
-  {% if obj.url %}
-    {% if obj.title %}
-      <a href="{{ obj.url }}">{{ obj.title }}</a>
+    {# When the object has a URL property, then it is LinkCF type #}
+    {% if obj.url %}
+        {% if obj.title %}
+            <a href="{{ obj.url }}">{{ obj.title }}</a>
+        {% else %}
+            <a href="{{ obj.url }}">{{ obj.url }}</a>
+        {% endif %}
     {% else %}
-      <a href="{{ obj.url }}">{{ obj.url }}</a>
+        {{ obj.value }}
     {% endif %}
 
-  {% else %}
-    {{ obj.value }}
-  {% endif %}
-
-  {% if obj.language %}
-    (<i class="flag outline icon"></i> {{obj.language | upper}})
-  {% endif %}
 {% endmacro %}
 
 {% macro list_objects(field, values) %}
-  {% if values|length == 1 %}
-    {{ render_object(values[0]) }}
-  {% else %}
-    <ul>
-      {% for obj in values %}
-        <li> {{ render_object(obj) }} </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+    {% if values|length == 1 %}
+        {{ render_object(values[0]) }}
+    {% else %}
+        <ul>
+            {% for obj in values %}
+                <li> {{ render_object(obj) }} </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endmacro %}
 
 
 {% macro list_string_values(field_cfg, values) %}
-  {% for value in values %}
-    {% set search_url = field_cfg.field | custom_fields_search(value) %}
+    {% for value in values %}
+        {% set search_url = field_cfg.field | custom_fields_search(value) %}
 
-    {% if value.startswith('http') %}
-      {{ value | safe }}
-    {% elif search_url %}
-      <a href="{{ search_url }}">{{ value }}</a> {{ ", " if not loop.last }}
-    {% else %}
-      {{ value }}{{ ", " if not loop.last }}
-    {% endif %}
-  {% endfor %}
+        {% if value.startswith('http') %}
+            {{ value | safe }}
+        {% elif search_url %}
+            <a href="{{ search_url }}">{{ value }}</a> {{ ", " if not loop.last }}
+        {% else %}
+            {{ value }}{{ ", " if not loop.last }}
+        {% endif %}
+    {% endfor %}
 {% endmacro %}
-
 
 {% macro show_dates(dates) %}
-  {% for date in dates %}
-    <dt class="ui tiny header">{{ date.type.title_l10n }}</dt>
-    <dd>
-      <div>{{ date.date }}</div>
-      <div class="text-muted">{{ date.description }}</div>
-    </dd>
-  {% endfor %}
+    {% for date in dates %}
+        <dt class="ui tiny header">{{ date.type.title_l10n }}</dt>
+        <dd>
+            <div>{{ date.date }}</div>
+            <div class="text-muted">{{ date.description }}</div>
+        </dd>
+    {% endfor %}
 {% endmacro %}
 
-
 {% macro list_languages(languages) %}
-  {% for lang in languages %}
-    {{ lang.title_l10n }}{{ ", " if not loop.last }}
-  {% endfor %}
+    {% for lang in languages %}
+        {{ lang.title_l10n }}{{ ", " if not loop.last }}
+    {% endfor %}
 {% endmacro %}
 
 {% macro list_vocabulary_values(values) %}
-  {% if values.title_l10n is defined %}
-    {{ values.title_l10n }}
-  {% else %}
-    {% for value in values %}
-      {{ value.title_l10n }}{{ ", " if not loop.last }}
-    {% endfor %}
-  {% endif %}
+    {% if values.title_l10n is defined %}
+        {{ values.title_l10n }}
+    {% else %}
+        {% for value in values %}
+            {{ value.title_l10n }}{{ ", " if not loop.last }}
+        {% endfor %}
+    {% endif %}
 {% endmacro %}
-
 
 {% macro list_float_values(field, values) %}
-  {% for value in values %}
-    {% set search_url = field | custom_fields_search(value) %}
-    {% if search_url %}
-      <a href="{{ search_url }}">{{ "%0.2f" | format(value) }}</a>{{ " , " if not loop.last }}
-    {% else %}
-      {{ "%0.2f" | format(value) }}{{ ", " if not loop.last }}
-    {% endif %}
-  {% endfor %}
+    {% for value in values %}
+        {% set search_url = field | custom_fields_search(value) %}
+        {% if search_url %}
+            <a href="{{ search_url }}">{{ "%0.2f" | format(value) }}</a>{{ " , " if not loop.last }}
+        {% else %}
+            {{ "%0.2f" | format(value) }}{{ ", " if not loop.last }}
+        {% endif %}
+    {% endfor %}
 {% endmacro %}
 
+{# Display date in user-friendly format #}
+{% macro format_date(date_str) %}
+    {%- set months = {
+        '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+    } %}
+
+    {%- if date_str is string and date_str|length >= 10 %}
+        {# Format: YYYY-MM-DD or full timestamp #}
+        {%- set year = date_str[0:4] %}
+        {%- set month = date_str[5:7] %}
+        {%- set day = date_str[8:10] %}
+        {{ months[month] }} {{ day|int }}, {{ year }}
+
+    {%- elif date_str is string and date_str|length == 7 %}
+        {# Format: YYYY-MM #}
+        {%- set year = date_str[0:4] %}
+        {%- set month = date_str[5:7] %}
+        {{ months[month] }} {{ year }}
+
+    {%- elif date_str is string and date_str|length == 4 %}
+        {# Format: YYYY #}
+        {{ date_str }}
+
+    {%- else %}
+        {{ date_str }} {# fallback if it doesn't match any expected format #}
+    {%- endif %}
+{% endmacro %}
+
+{% macro get_val_from_custom_structs(field, is_backwards_linked = false) %}
+    {% set ns = namespace(value='', display=false) %}
+    {% set ns.value="[No name found]" %}
+    {% if is_backwards_linked %}
+        {% set values_struct = backwards_linked_records %}
+    {% else %}
+        {% set values_struct = linked_records_data %}
+    {% endif %}
+    {% for link_value in values_struct[field] %}
+        {% set ns.display = false %}
+        {% if "display_value" in link_value %}
+            {% if link_value["display_value"] is not none %}
+                {% if "value" in link_value["display_value"][0] %}
+                    {% set ns.value=link_value["display_value"][0]["value"] %}
+                {% else %}
+                    {% set ns.value=link_value["display_value"][0] %}
+                {% endif %}
+                {% for display_value in link_value.display_value %}
+                    {% if not ns.display %}
+                        {% if "language" in display_value %}
+                            {% if display_value.language == current_i18n.language and not display_value.display %}
+                                {% set ns.value = display_value.value %}
+                                {% set ns.display = true %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% set ns.value = link_value.link_id %}
+            {% endif %}
+        {% else %}
+            {% set ns.value = link_value.link_id %}
+        {% endif %}
+        <a href="/records/mex/{{ link_value.link_id }}">{{ ns.value }}</a>{% if not loop.last %}<br>{% endif %}
+    {% endfor %}
+
+{% endmacro %}
+
+{% macro val(field, format=None, is_backwards_linked=false) -%}
+    {%- set f = field -%}
+    {%- set field_type = config.CUSTOM_FIELDS_UI_TYPES.get(f) -%}
+
+    {% if f in linked_records_data or is_backwards_linked %}
+        {{ get_val_from_custom_structs(field, is_backwards_linked) }}
+    {% else %}
+        {%- set field_raw_value = record.ui.custom_fields.get(f) -%}
+        {%- if field_raw_value -%}
+
+            {% if field_raw_value is not iterable or field_raw_value is string %}
+                {% set field_value = [field_raw_value] %}
+            {% else %}
+                {% set field_value = field_raw_value %}
+            {% endif %}
+
+            {% for val in field_value %}
+                {% if f == 'mex:identifier' %}
+                    <span>{{ val }}</span>
+                {% elif field_type == '/schema/entities/concept#/identifier' %}
+                    {% if val in pref_labels %}
+                        {% if current_i18n.language in pref_labels[val] %}
+                            <span>{{ pref_labels[val][current_i18n.language] | title }}</span>
+                        {% elif 'en' in pref_labels[val] %}
+                            <span>{{ pref_labels[val]['en'] | title }}</span>
+                        {% else %}
+                            {# Fallback to the first language in the list #}
+                            {% set lang = pref_labels[val].keys()|first %}
+                            <span>{{ pref_labels[val][lang] | title }}</span>
+                        {% endif %}
+                    {% else %}
+                        {% if val != "None" %}
+                            <span>{{ val }}</span>
+                        {% else %}
+                            <span> {{ field_value }} </span>
+                        {% endif %}
+                    {% endif %}
+                {% elif field_type.endswith('identifier') %}
+                    <span>
+                            <a href="/records/mex/{{ val }}">{{ val }}</a>{{ ", " if not loop.last }}
+                        </span>
+                {% elif field_type == "date" %}
+                    <span>{{ format_date(val) }}</span>
+                {% elif val is string %}
+                    {% if f == 'mex:meshId' %}
+                        <a href='{{ val }}' target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.MESH_URL, "") }} </a>
+                    {% elif f == 'mex:loincId' %}
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.LOINC_URL, "") }} </a>
+                    {% elif f == 'mex:doi' %}
+                        <a href="{{ val }}" target="_blank" rel="noopener noreferrer"
+                           class="id-tag-value">{{ val | replace(config.DOI_URL, "") }} </a>
+                    {% elif f == 'mex:icd10code' %}
+                        <span>{{ val }}</span>
+                    {% else %}
+                        <span>
+                            {% set search_url = (val | pid_url) if 'props' in field_definition and field_definition.props.is_identifier else (f | custom_fields_search(val | safe)) %}
+                            {% if val.startswith('http') %}
+                                <a href="{{ field_value | safe }}">{{ val | safe }}</a>
+                            {% elif search_url %}
+                                <a href="{{ search_url }}">{{ val | safe }}</a>
+                            {% else %}
+                                {{ val | safe }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                {% elif val.is_vocabulary %}
+                    <span>{{ list_vocabulary_values(val) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is mapping %}
+                    <span>{{ list_objects(field_cfg.field, field_value) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is string %}
+                    <span>{{ list_string_values(field_cfg, field_value) }}</span>
+                {% elif val is iterable and val|length > 0 and val[0] is number %}
+                    <span>{{ list_float_values(field_cfg.field, val) }}</span>
+                {% elif val is mapping %}
+                    <span>{{ render_object(val) }}</span>
+                {% else %}
+                    <span>{{ val }}</span>
+                {% endif %}
+            {% endfor %}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro %}
 
 {% macro show_section_custom_fields(custom_fields, section_fields) %}
-  {% for field_cfg in section_fields %}
-    {% set field_value = custom_fields.get(field_cfg.field) %}
-    {% if field_value %}
-      {% if field_cfg.template %}
-        {% include field_cfg.template %}
-      {% else %}
+    {% for field_cfg in section_fields %}
+        show_custom_field_value(field_cfg)
+    {% endfor %}
+{% endmacro %}
 
-        {% if field_cfg.field == 'mex:identifier' %}
-          <dd>{{ field_value }}</dd>
-        {% elif field_cfg.props.type == '/schema/entities/concept#/identifier' %}
-          {% if field_value in pref_labels %}
-            {% if current_i18n.language in pref_labels[field_value] %}
-              <dd>{{ pref_labels[field_value][current_i18n.language] }}</dd>
-            {% elif 'en' in pref_labels[field_value] %}
-              <dd>{{ pref_labels[field_value]['en'] }}</dd>
-            {% else %}
-              {# Fallback to the first language in the list #}
-              {% set lang = pref_labels[field_value].keys()|first %}
-              <dd>{{ pref_labels[field_value][lang] }}</dd>
-            {% endif %}
-          {% else %}
-            <dd>{{ field_value }}</dd>
-          {% endif %}
-        {% elif field_cfg.props.type.endswith('identifier') %}
-          {# We have an identifier but identifiers for concepts are vocabulary values. #}
-          <dd>{% for value in values %}
-            <a href="/search?q=custom_fields.mex\:identifier:{{value}}">{{ value }}</a>{{ ", " if not loop.last }}
-            {% endfor %}</dd>
-        {% elif field_value is string %}
-          <dd>
-            {% set search_url = (field_value | pid_url) if 'props' in field_cfg and field_cfg.props.is_identifier else (field_cfg.field | custom_fields_search(field_value | safe)) %}
-            {% if field_value.startswith('http') %}
-              <a href="{{ field_value | safe }}">{{ field_value | safe }}</a>
-            {% elif search_url %}
-              <a href="{{ search_url }}">{{ field_value | safe }}</a>
-            {% else %}
-              {{ field_value | safe }}
-            {% endif %}
-          </dd>
-        {% elif field_cfg.is_vocabulary %}
-          <dd>{{ list_vocabulary_values(field_value) }}</dd>
-        {% elif field_value is iterable and field_value|length > 0 and field_value[0] is mapping %}
-          <dd>{{ list_objects(field_cfg.field, field_value) }}</dd>
-        {% elif field_value is iterable and field_value|length > 0 and field_value[0] is string %}
-          <dd>{{ list_string_values(field_cfg, field_value) }}</dd>
-        {% elif field_value is iterable and field_value|length > 0 and field_value[0] is number %}
-          <dd>{{ list_float_values(field_cfg.field, field_value) }}</dd>
-        {% elif field_value is mapping %}
-          <dd>{{ render_object(field_value) }}</dd>
-        {% else %}
-          <dd>{{ field_value }}</dd>
-        {% endif %}
-      {% endif %}
-    {% endif %}
-  {% endfor %}
+{% macro get_icon(card) %}
+    {{- card.icon -}}
 {% endmacro %}
