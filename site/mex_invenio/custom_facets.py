@@ -15,10 +15,11 @@ class RestrictedTermsFacet(NestedTermsFacet):
         label_map = self.get_label_mapping(data.buckets)
         for bucket in data.buckets:
             key = full_key = self.get_value(bucket)
-            if key_prefix:
-                full_key = key_prefix + self._splitchar + full_key
 
             if self.allowed_values is None or key in self.allowed_values:
+                if key_prefix:
+                    full_key = key_prefix + self._splitchar + full_key
+
                 bucket_out = {
                     "key": key,
                     "doc_count": self.get_metric(bucket),
