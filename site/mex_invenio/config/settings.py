@@ -258,11 +258,12 @@ RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
 # Custom facets
 # ---
 
-from invenio_rdm_records.config import RDM_SEARCH
+from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
 from mex_invenio.custom_facets import RestrictedTermsFacet
 from invenio_vocabularies.services.facets import VocabularyLabels
 
 RDM_FACETS = {
+    **RDM_FACETS,
     "restricted_resource_type": {
         "facet": RestrictedTermsFacet(
             field="metadata.resource_type.props.type",
