@@ -1,4 +1,3 @@
-# custom_facets.py
 from invenio_records_resources.services.records.facets import NestedTermsFacet
 
 class RestrictedTermsFacet(NestedTermsFacet):
