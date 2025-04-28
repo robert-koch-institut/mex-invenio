@@ -154,6 +154,25 @@
                                         {% endif %}
                                     {% endfor %}
 
+                                    <div class="ui fluid padded grid rel-mb-1">
+                                                <div class="active title sixteen wide mobile four wide tablet four wide computer column">
+                                                    <h5 class="ui header">
+                                                        Invenio identifier
+                                                    </h5>
+                                                </div>
+                                                <div
+                                                        id="custom-fields-panel"
+                                                        role="region"
+                                                        aria-labelledby="custom-fields-accordion-trigger"
+                                                        class="active content sixteen wide mobile twelve wide tablet twelve wide computer column"
+                                                >
+                                                    {% set section_format = section_cfg.section | replace(" ", "-") %}
+                                                    <dl class="details-list">
+                                                        {{ record.id }}
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                            <div class="ui divider"></div>
                                     {% for field_cfg in section_cfg.fields %}
                                         {% if record.custom_fields.get(field_cfg.field) %}
                                             <div class="ui fluid padded grid rel-mb-1">

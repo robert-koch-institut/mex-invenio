@@ -23,7 +23,7 @@
 
                 <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
                     <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
                         <span id="record-created_date" class="muted">{{ val("created") }}</span>
                     </div>
                     {% set alttitle = val("alternativeTitle") %}
