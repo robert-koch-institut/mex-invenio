@@ -414,7 +414,6 @@ RECORD_CARDS = {
             "childOf": {
                 "title": "Contained by",
                 "icon": "contained.svg",
-                "is_backwards_linked": True,
                 "properties": [
                     "mex:isPartOf"
                 ]
