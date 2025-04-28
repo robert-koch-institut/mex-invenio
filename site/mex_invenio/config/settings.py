@@ -412,7 +412,7 @@ RECORD_CARDS = {
                 ]
             },
             "childOf": {
-                "title": "Contained by",
+                "title": "Related Resources",
                 "icon": "contained.svg",
                 "properties": [
                     "mex:isPartOf"
