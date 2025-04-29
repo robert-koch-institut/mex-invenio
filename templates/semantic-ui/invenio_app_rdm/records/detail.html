@@ -16,12 +16,16 @@
     {%- endblock css %}
 {% endif %}
 
+{{ linked_records_data }}
+
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import val with context %}
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import get_icon with context %}
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import show_section_custom_fields with context %}
 
 {%- set title = record.metadata.title %}
 {%- set metadata = record.metadata %}
+{% set resource_type = record.ui.resource_type.id %}
+{{ resource_type }}
 
 {%- set can_manage_record = permissions is defined and (permissions.can_edit or permissions.can_review) %}
 
@@ -47,7 +51,7 @@
 
 
 {%- block page_body %}
-    <div class="record landing_page {%- if record.ui.resource_type.id == 'resource' %} resource {%- endif -%}">
+    <div class="record landing_page {%- if resource_type == 'resource' %} resource {%- endif -%}">
         <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
             {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
                 <div class="ui warning flashed bottom attached manage message">
@@ -68,7 +72,7 @@
                 </div>
             {% endif %}
         </section>
-        {% if record.ui.resource_type.id == "resource" %}
+        {% if resource_type == "resource" %}
             {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
         {% else %}
             <div class="ui container">
@@ -199,7 +203,7 @@
                                                 >
                                                     {% set section_format = section_cfg.section | replace(" ", "-") %}
                                                     <dl class="details-list">
-                                                        {{ val(field_cfg.field) }}
+                                                        {{ val(field_cfg.field, resource_type) }}
                                                     </dl>
                                                 </div>
                                             </div>

@@ -37,15 +37,27 @@ def get_field_type(property):
                 break
 
     # Check if items.$ref exists for array types
-    if not field_type and "items" in property and "$ref" in property["items"]:
-        ref = property["items"]["$ref"]
+    if not field_type and "items" in property:
+        if "$ref" in property["items"]:
+            ref = property["items"]["$ref"]
+        elif "anyOf" in property["items"]:
+            if "$ref" in property["items"]["anyOf"][0]:
+                ref = property["items"]["anyOf"][0]["$ref"]
+            elif "type" in property["items"]:
+                ref = property["items"]["anyOf"]["type"]
+        elif "type" in property["items"]:
+            field_type = property["items"]["type"]
+
         for key, value in CUSTOM_FIELDS_UI_TYPES_AUTO.items():
-            if ref.startswith(key):
-                field_type = value
-                break
+            try:
+                if ref.startswith(key):
+                    field_type = value
+                    break
+            except NameError:
+                pass
 
     # If no $ref found, check the "type" key
-    if not field_type and "type" in property:
+    if not field_type and "type" in property and property["type"] != "array":
         field_type = property["type"]
 
     # Handle special date types based on "anyOf"
@@ -60,22 +72,15 @@ def get_field_type(property):
                         field_type = value
                         break
 
-                # Handle integer types inside anyOf
-            if "type" in sub_property and sub_property["type"] == "integer":
-                field_type = "integer"
-                break
-
-            if "type" in sub_property and sub_property["type"] == "string":
-                field_type = "integer"
-                break
-
             if "pattern" in sub_property:
                 if "T" in sub_property["pattern"]:  # Looking for full date-time
                     field_type = CUSTOM_TYPES.DATE
                     break
-                if "-" in sub_property["pattern"]:  # Looking for date or year
-                    field_type = CUSTOM_TYPES.DATE
-                    break
+
+                # Handle integer types inside anyOf
+            if not field_type and "type" in sub_property:
+                field_type = sub_property["type"]
+                break
 
     return field_type
 

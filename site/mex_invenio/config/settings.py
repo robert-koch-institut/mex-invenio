@@ -460,21 +460,6 @@ RECORD_CARDS = {
     }
 }
 
-CUSTOM_FIELDS_UI_TYPES = {
-    item['field']: item['props']['type']
-    for section in RDM_CUSTOM_FIELDS_UI
-    for item in section['fields']
-}
-
-# custom updates
-CUSTOM_FIELDS_UI_TYPES["mex:created"] = "date"
-CUSTOM_FIELDS_UI_TYPES["mex:modified"] = "date"
-CUSTOM_FIELDS_UI_TYPES["mex:keyword"] = "tag"
-
-LOINC_URL = "https://loinc.org/"
-MESH_URL = "http://id.nlm.nih.gov/mesh/"
-DOI_URL = "https://dx.doi.org/"
-
 IS_ACCESS_STATUS_OPEN = {
     "https://mex.rki.de/item/access-restriction-1": True,
     "https://mex.rki.de/item/access-restriction-2": False
@@ -496,44 +481,231 @@ APP_RDM_RECORD_EXPORTERS = {
     }
 }
 
+# List of entities available in mex model
+ENTITIES = [
+    "access-platform",
+    "activity",
+    "bibliographic-resource",
+    "concept-scheme",
+    "concept",
+    "consent",
+    "contact-point",
+    "distribution",
+    "organization",
+    "organizational-unit",
+    "person",
+    "primary-source",
+    "resource",
+    "variable-group",
+    "variable"
+]
+
 LINKED_RECORDS_FIELDS = {
-    "resource": {
+    "accessplatform": {
         "mex:contact": {
-            "fields": ["mex:name", "mex:fullName", "mex:familyName", "mex:email"]
+            "organizationalunit": {"name", "alternativeName"},
+            "person": {"fullName", "familyName", "givenName"},
+            "contactpoint": {"email"}
         },
-        "mex:isPartOf": {
-            "fields": ["mex:title"]
-        },
-        "mex:creator": {
-            "fields": ["mex:fullName", "mex:familyName", "mex:email"]
-        },
-        "mex:contributor": {
-            "fields": ["mex:fullName", "mex:familyName", "mex:email"]
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
         },
         "mex:unitInCharge": {
-            "fields": ["mex:name"]
+            "organizationalunit": {"name", "alternativeName"}
+        }
+    },
+    "activity": {
+        "mex:contact": {
+            "organizationalunit": {"name", "alternativeName"},
+            "person": {"fullName", "familyName", "givenName"},
+            "contactpoint": {"email"}
         },
-        "mex:contributingUnit": {
-            "fields": ["mex:name"]
+        "mex:externalAssociate": {
+            "organization": {"officialName"},
+            "person": {"fullName", "familyName", "givenName"}
         },
-        "mex:externalPartner": {
-            "fields": ["mex:officialName"]
+        "mex:funderOrCommissioner": {
+            "organization": {"officialName"}
         },
-        "mex:wasGeneratedBy": {
-            "fields": ["mex:title"]
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:involvedPerson": {
+            "person": {"fullName", "familyName", "givenName"}
+        },
+        "mex:involvedUnit": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:isPartOfActivity": {
+            "activity": {"title"}
         },
         "mex:publication": {
-            "fields": ["mex:title"]
+            "bibliographicresource": {"title"}
+        },
+        "mex:responsibleUnit": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:succeeds": {
+            "activity": {"title"}
+        }
+    },
+    "bibliographicresource": {
+        "mex:contributingUnit": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:creator": {
+            "person": {"fullName", "familyName", "givenName"}
         },
         "mex:distribution": {
-            "fields": ["mex:title"]
+            "distribution": {"title"}
+        },
+        "mex:editor": {
+            "person": {"fullName", "familyName", "givenName"}
+        },
+        "mex:editorOfSeries": {
+            "person": {"fullName", "familyName", "givenName"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:publisher": {
+            "organization": {"officialName"}
+        }
+    },
+    "concept": {
+        "mex:inScheme": {
+            "conceptscheme": {"prefLabel"}
+        }
+    },
+    "consent": {
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:hasDataSubject": {
+            "person": {"fullName", "familyName", "givenName"}
+        }
+    },
+    "contactpoint": {
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        }
+    },
+    "distribution": {
+        "mex:accessService": {
+            "accessplatform": {"title","alternativeTitle"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        }
+    },
+    "organization": {
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        }
+    },
+    "organizationalunit": {
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:parentUnit": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:unitOf": {
+            "organization": {"officialName"}
+        }
+    },
+    "person": {
+        "mex:affiliation": {
+            "organization": {"officialName"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:memberOf": {
+            "organizationalunit": {"name", "alternativeName"}
+        }
+    },
+    "primarysource": {
+        "mex:contact": {
+            "organizationalunit": {"name", "alternativeName"},
+            "person": {"fullName", "familyName", "givenName"},
+            "contactpoint": {"email"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:unitInCharge": {
+            "organizationalunit": {"name", "alternativeName"}
+        }
+    },
+    "resource": {
+        "mex:accessPlatform": {
+            "accessplatform": {"title","alternativeTitle"}
+        },
+        "mex:contact": {
+            "organizationalunit": {"name", "alternativeName"},
+            "person": {"fullName", "familyName", "givenName"},
+            "contactpoint": {"email"}
+        },
+        "mex:contributingUnit": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:contributor": {
+            "person": {"fullName", "familyName", "givenName"}
+        },
+        "mex:creator": {
+            "person": {"fullName", "familyName", "givenName"}
+        },
+        "mex:distribution": {
+            "distribution": {"title"}
+        },
+        "mex:externalPartner": {
+            "organization": {"officialName"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:isPartOf": {
+            "resource": {"title"}
+        },
+        "mex:publication": {
+            "bibliographicresource": {"title"}
+        },
+        "mex:publisher": {
+            "organization": {"officialName"}
+        },
+        "mex:unitInCharge": {
+            "organizationalunit": {"name", "alternativeName"}
+        },
+        "mex:wasGeneratedBy": {
+            "activity": {"title"}
+        }
+    },
+    "variablegroup": {
+        "mex:containedBy": {
+            "resource": {"title"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        }
+    },
+    "variable": {
+        "mex:belongsTo": {
+            "variablegroup": {"label"}
+        },
+        "mex:hadPrimarySource": {
+            "primarysource": {"title","alternativeTitle"}
+        },
+        "mex:usedIn": {
+            "resource": {"title"}
         }
     }
 }
 
+
+
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
-        "mex:isPartOf": "mex:title",
         "mex:usedIn": "mex:label"
     }
 }
@@ -543,3 +715,4 @@ RECORD_SPECIAL_FIELDS = {
     "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
     "ACCESS_RESTRICTION": "mex:accessRestriction"
 }
+

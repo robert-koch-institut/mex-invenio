@@ -61,7 +61,6 @@ class MexRecord(MethodView):
         record_type = record["metadata"]["resource_type"]["id"]
 
         linked_records_data = {}
-        backwards_linked_records = {}
 
         if record_type in settings.LINKED_RECORDS_FIELDS:
 
@@ -99,23 +98,24 @@ class MexRecord(MethodView):
 
                 linked_records_data[field] = field_values
 
-                field_values = []
+        if record_type in settings.RECORDS_LINKED_BACKWARDS:
 
-                for field, title_field in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
-                    records = _get_record_by_field(field, mex_id)
-                    if records:
-                        for r in records:
-                            field_values.append({
-                                "link_id": r["custom_fields"]["mex:identifier"],
-                                "display_value": r["custom_fields"].get(title_field, None)
-                            })
+            field_values = []
 
-                        backwards_linked_records[field] = field_values
+            for field, title_field in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
+                records = _get_record_by_field(field, mex_id)
+                if records:
+                    for r in records:
+                        field_values.append({
+                            "link_id": r["custom_fields"]["mex:identifier"],
+                            "display_value": r["custom_fields"].get(title_field, None)
+                        })
+
+                    linked_records_data[field] = field_values
 
         return render_template(self.template,
                                record=json.loads(record_ui),
                                linked_records_data=linked_records_data,
-                               backwards_linked_records=backwards_linked_records,
                                is_preview=False)
 
     # invenio id: wbdv5-sac84

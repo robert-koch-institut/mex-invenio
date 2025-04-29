@@ -1,5 +1,5 @@
-{# config.CUSTOM_FIELDS_UI_TYPES -> definitions #}
 {# record.ui.custom_fields -> values #}
+{% set resource_type = "resource" %}
 <div class="edit-btn"><a id="edit-record" class="button edit"
                          href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
                          target="_blank">Edit this record</a></div>
@@ -10,13 +10,13 @@
                 <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
                     <div class="tags top-tags">
                         <span class="tag">{{ record.metadata.resource_type.title.get(current_i18n.language, 'en') }}</span>
-                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC) %}
-                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL) %}
+                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, resource_type) %}
+                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, resource_type) %}
                         {% if resource_type_general %}
                             <span class="tag" title="Resource type">{{ resource_type_general }}
                                 {% if resource_type_specific %} /{{ resource_type_general }} {% endif %}</span>
                         {% endif %}
-                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION) -%}
+                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, resource_type) -%}
                         <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
                     </div>
                 </section>
@@ -24,15 +24,15 @@
                 <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
-                        <span id="record-created_date" class="muted">{{ val("created") }}</span>
+                        <span id="record-created_date" class="muted">{{ val("created", resource_type) }}</span>
                     </div>
-                    {% set alttitle = val("alternativeTitle") %}
+                    {% set alttitle = val("alternativeTitle", resource_type) %}
                     {% if alttitle %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
                     {% endif %}
                 </section>
 
-                {% set description = val("description") %}
+                {% set description = val("description", resource_type) %}
                 {% if description %}
                     <section id="record-description" aria-label="{{ _('Record Description') }}">
                         <p>{{ description }}</p>
@@ -41,9 +41,9 @@
 
                 <div class="ui divider"></div>
 
-                {% set icd10val = val("icd10code") %}
-                {% set loincval = val("loincId") %}
-                {% set meshval = val("meshId") %}
+                {% set icd10val = val("icd10code", resource_type) %}
+                {% set loincval = val("loincId", resource_type) %}
+                {% set meshval = val("meshId", resource_type) %}
                 {% if icd10val or loincval or meshval %}
                     <section id="record-ids" aria-label="{{ _('Record IDs') }}">
                         <div class="id-tags">
@@ -85,8 +85,8 @@
                         {% set ns = namespace(prop_exist=false) %}
                         {% if card.is_backwards_linked %}
                             {% for prop in card.properties %}
-                                {% if prop in backwards_linked_records %}
-                                    {% set value = backwards_linked_records[prop] %}
+                                {% if prop in linked_records %}
+                                    {% set value = linked_records[prop] %}
                                     {% set ns.prop_exist = true %}
                                 {% endif %}
                             {% endfor %}
@@ -111,11 +111,11 @@
                                 </h3>
                                 <div class="card-props">
                                     {% for prop in card.properties %}
-                                        {% set value = val(prop) %}
-                                        {% if val(prop) %}
+                                        {% set value = val(prop, resource_type) %}
+                                        {% if val(prop, resource_type) %}
                                             <p class="card-props-p">
                                                 <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
-                                                <span class="card-prop-value">{{ val(prop, is_backwards_linked=card.get("is_backwards_linked", false)) }}</span>
+                                                <span class="card-prop-value">{{ val(prop, resource_type) }}</span>
                                             </p>
                                         {% endif %}
                                     {% endfor %}
