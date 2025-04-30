@@ -75,23 +75,25 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% endmacro %}
 
 {% macro render_label(values) %}
-    {%- set lang = current_i18n.language.language -%}
+    {%- set lang = current_i18n.language -%}
     {%- for val in values -%}
         {{ pref_labels.get(val, {}).get(lang, val) }}{% if not loop.last %}, {% endif %}
     {%- endfor -%}
 {% endmacro %}
 
-{% macro render_identifier(identifiers) %}
-    {{ linked_records_data }}
+{% macro render_identifier(field_name,identifiers) %}
     {% for id in identifiers %}
-        {% if id.display_value %}
-            {% set first = id.display_value[0] %}
+        {% set value = linked_records_data[field_name] %}
+        {% if value %}
+            {% set first = value[0]["display_value"][0] %}
             {% if first is string %}
-                <a href="{{ id.link_id }}">{{ id.display_value | join(', ') }}</a>
-            {% elif first.value is defined %}
-                <a href="{{ id.link_id }}">{{ id.display_value | join(', ') }}</a>
+                {% for v in value %}
+                    <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                {% endfor %}
             {% else %}
-                <a href="{{ id.link_id }}">[No name]</a>
+                {% for v in value %}
+                    <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(v.display_value) }} {% else %} [No name] {% endif %}</a>
+                {% endfor %}
             {% endif %}
         {% else %}
             [No value]
@@ -116,8 +118,6 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
         {# Infer type from config #}
         {%- set type = field_types.get(resource_type).get(field_name) -%}
-        <p style="color: red">{{ type }}</p>
-        <p style="color: blue">{{ values }}</p>
         {%- if type == "string" or type == "int" -%}
             {{ values | join(", ") }}
         {%- elif type == "text" -%}
@@ -131,7 +131,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- elif type == "label" -%}
             {{ render_label(values) }}
         {%- elif type == "identifier" -%}
-            {{ render_identifier(values) }}
+            {{ render_identifier(field_name, values) }}
         {%- else -%}
             {%- for val in values -%}{{ val }}{% if not loop.last %}, {% endif %}{% endfor %}
         {%- endif -%}

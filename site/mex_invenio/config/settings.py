@@ -501,212 +501,213 @@ ENTITIES = [
 ]
 
 LINKED_RECORDS_FIELDS = {
-    "accessplatform": {
-        "mex:contact": {
-            "organizationalunit": {"name", "alternativeName"},
-            "person": {"fullName", "familyName", "givenName"},
-            "contactpoint": {"email"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:unitInCharge": {
-            "organizationalunit": {"name", "alternativeName"}
-        }
+  "accessplatform": {
+    "mex:contact": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:contactpoint": ["mex:email"]
     },
-    "activity": {
-        "mex:contact": {
-            "organizationalunit": {"name", "alternativeName"},
-            "person": {"fullName", "familyName", "givenName"},
-            "contactpoint": {"email"}
-        },
-        "mex:externalAssociate": {
-            "organization": {"officialName"},
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:funderOrCommissioner": {
-            "organization": {"officialName"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:involvedPerson": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:involvedUnit": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:isPartOfActivity": {
-            "activity": {"title"}
-        },
-        "mex:publication": {
-            "bibliographicresource": {"title"}
-        },
-        "mex:responsibleUnit": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:succeeds": {
-            "activity": {"title"}
-        }
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
-    "bibliographicresource": {
-        "mex:contributingUnit": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:creator": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:distribution": {
-            "distribution": {"title"}
-        },
-        "mex:editor": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:editorOfSeries": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:publisher": {
-            "organization": {"officialName"}
-        }
-    },
-    "concept": {
-        "mex:inScheme": {
-            "conceptscheme": {"prefLabel"}
-        }
-    },
-    "consent": {
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:hasDataSubject": {
-            "person": {"fullName", "familyName", "givenName"}
-        }
-    },
-    "contactpoint": {
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        }
-    },
-    "distribution": {
-        "mex:accessService": {
-            "accessplatform": {"title","alternativeTitle"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        }
-    },
-    "organization": {
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        }
-    },
-    "organizationalunit": {
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:parentUnit": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:unitOf": {
-            "organization": {"officialName"}
-        }
-    },
-    "person": {
-        "mex:affiliation": {
-            "organization": {"officialName"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:memberOf": {
-            "organizationalunit": {"name", "alternativeName"}
-        }
-    },
-    "primarysource": {
-        "mex:contact": {
-            "organizationalunit": {"name", "alternativeName"},
-            "person": {"fullName", "familyName", "givenName"},
-            "contactpoint": {"email"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:unitInCharge": {
-            "organizationalunit": {"name", "alternativeName"}
-        }
-    },
-    "resource": {
-        "mex:accessPlatform": {
-            "accessplatform": {"title","alternativeTitle"}
-        },
-        "mex:contact": {
-            "organizationalunit": {"name", "alternativeName"},
-            "person": {"fullName", "familyName", "givenName"},
-            "contactpoint": {"email"}
-        },
-        "mex:contributingUnit": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:contributor": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:creator": {
-            "person": {"fullName", "familyName", "givenName"}
-        },
-        "mex:distribution": {
-            "distribution": {"title"}
-        },
-        "mex:externalPartner": {
-            "organization": {"officialName"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:isPartOf": {
-            "resource": {"title"}
-        },
-        "mex:publication": {
-            "bibliographicresource": {"title"}
-        },
-        "mex:publisher": {
-            "organization": {"officialName"}
-        },
-        "mex:unitInCharge": {
-            "organizationalunit": {"name", "alternativeName"}
-        },
-        "mex:wasGeneratedBy": {
-            "activity": {"title"}
-        }
-    },
-    "variablegroup": {
-        "mex:containedBy": {
-            "resource": {"title"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        }
-    },
-    "variable": {
-        "mex:belongsTo": {
-            "variablegroup": {"label"}
-        },
-        "mex:hadPrimarySource": {
-            "primarysource": {"title","alternativeTitle"}
-        },
-        "mex:usedIn": {
-            "resource": {"title"}
-        }
+    "mex:unitInCharge": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
     }
+  },
+  "activity": {
+    "mex:contact": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:contactpoint": ["mex:email"]
+    },
+    "mex:externalAssociate": {
+      "mex:organization": ["mex:officialName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:funderOrCommissioner": {
+      "mex:organization": ["mex:officialName"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:involvedPerson": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:involvedUnit": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:isPartOfActivity": {
+      "mex:activity": ["mex:title"]
+    },
+    "mex:publication": {
+      "mex:bibliographicresource": ["mex:title"]
+    },
+    "mex:responsibleUnit": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:succeeds": {
+      "mex:activity": ["mex:title"]
+    }
+  },
+  "bibliographicresource": {
+    "mex:contributingUnit": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:creator": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:distribution": {
+      "mex:distribution": ["mex:title"]
+    },
+    "mex:editor": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:editorOfSeries": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:publisher": {
+      "mex:organization": ["mex:officialName"]
+    }
+  },
+  "concept": {
+    "mex:inScheme": {
+      "mex:conceptscheme": ["mex:prefLabel"]
+    }
+  },
+  "consent": {
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:hasDataSubject": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    }
+  },
+  "contactpoint": {
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    }
+  },
+  "distribution": {
+    "mex:accessService": {
+      "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    }
+  },
+  "organization": {
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    }
+  },
+  "organizationalunit": {
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:parentUnit": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:unitOf": {
+      "mex:organization": ["mex:officialName"]
+    }
+  },
+  "person": {
+    "mex:affiliation": {
+      "mex:organization": ["mex:officialName"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:memberOf": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    }
+  },
+  "primarysource": {
+    "mex:contact": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:contactpoint": ["mex:email"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:unitInCharge": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    }
+  },
+  "resource": {
+    "mex:accessPlatform": {
+      "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:contact": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:contactpoint": ["mex:email"]
+    },
+    "mex:contributingUnit": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:contributor": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:creator": {
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+    },
+    "mex:distribution": {
+      "mex:distribution": ["mex:title"]
+    },
+    "mex:externalPartner": {
+      "mex:organization": ["mex:officialName"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:isPartOf": {
+      "mex:resource": ["mex:title"]
+    },
+    "mex:publication": {
+      "mex:bibliographicresource": ["mex:title"]
+    },
+    "mex:publisher": {
+      "mex:organization": ["mex:officialName"]
+    },
+    "mex:unitInCharge": {
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+    },
+    "mex:wasGeneratedBy": {
+      "mex:activity": ["mex:title"]
+    }
+  },
+  "variablegroup": {
+    "mex:containedBy": {
+      "mex:resource": ["mex:title"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    }
+  },
+  "variable": {
+    "mex:belongsTo": {
+      "mex:variablegroup": ["mex:label"]
+    },
+    "mex:hadPrimarySource": {
+      "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
+    },
+    "mex:usedIn": {
+      "mex:resource": ["mex:title"]
+    }
+  }
 }
+
 
 
 
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
-        "mex:usedIn": "mex:label"
+        "mex:usedIn": ["mex:label"]
     }
 }
 
