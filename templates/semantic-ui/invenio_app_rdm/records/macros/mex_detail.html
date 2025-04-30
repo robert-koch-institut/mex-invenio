@@ -12,7 +12,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 
 {# Display date in user-friendly format #}
-{% macro format_date(date_str) %}
+{% macro render_date(date_str) %}
     {%- set months = {
         '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
         '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
@@ -104,11 +104,8 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {%- macro val(field_name, resource_type) -%}
     {%- set field_raw_value = record.ui.custom_fields.get(field_name) -%}
+    {%- if field_raw_value and field_raw_value is not none -%}
 
-    {%- if not field_raw_value -%}
-        <span class="empty">-</span>
-
-    {%- else -%}
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number -%}
             {%- set values = [field_raw_value] -%}
