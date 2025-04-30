@@ -17,7 +17,7 @@ class CUSTOM_TYPES:
 
 # Mapping for JSON $ref checks
 CUSTOM_FIELDS_UI_TYPES_AUTO = {
-    "/schema/entities/concept/": CUSTOM_TYPES.LABEL,
+    "/schema/entities/concept#/": CUSTOM_TYPES.LABEL,
     "/schema/entities/": CUSTOM_TYPES.IDENTIFIER,
     "/schema/fields/text": CUSTOM_TYPES.TEXT,
     "/schema/fields/link": CUSTOM_TYPES.URL,
