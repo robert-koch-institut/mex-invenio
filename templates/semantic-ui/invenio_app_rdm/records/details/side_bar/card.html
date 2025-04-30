@@ -5,7 +5,7 @@
 
 {% if card.is_backwards_linked %}
     {% for prop in card.properties %}
-        {% if prop in backwards_linked_records %}
+        {% if prop in linked_records_data %}
             {% set ns.prop_exist = true %}
         {% endif %}
     {% endfor %}
