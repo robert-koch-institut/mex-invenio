@@ -25,7 +25,7 @@ def get_entity_name(property):
     if "$ref" in property:
         ref = property["$ref"]
         if is_identifier(ref):
-            return {extract_entity_name(ref): {}}
+            return {"mex:"+extract_entity_name(ref): []}
 
     # Check if items.$ref exists for array types
     if "items" in property:
@@ -34,14 +34,14 @@ def get_entity_name(property):
             items = property["items"]["anyOf"]
             for i in items:
                 if "$ref" in i and is_identifier(i["$ref"]):
-                    entities[extract_entity_name(i["$ref"])] = {}
+                    entities["mex:"+extract_entity_name(i["$ref"])] = []
             return entities
         else:
             if "$ref" in property["items"]:
                 ref = property["items"]["$ref"]
                 try:
                     if is_identifier(ref):
-                        return {extract_entity_name(ref): {}}
+                        return {"mex:"+extract_entity_name(ref): []}
                 except NameError:
                     pass
 
@@ -52,7 +52,7 @@ def get_entity_name(property):
             if "$ref" in sub_property:
                 ref = sub_property["$ref"]
                 if is_identifier(ref):
-                    entities[extract_entity_name(ref)] = {}
+                    entities["mex:"+extract_entity_name(ref)] = []
         return entities
 
     return False
