@@ -32,10 +32,10 @@
             {% for prop in card.properties %}
                 {% set value = val(prop, resource_type) %}
                 {% if value %}
-                    <p class="card-props-p">
-                        <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
-                        <span class="card-prop-value">{{ value }}</span>
-                    </p>
+                    <div class="card-props-p">
+                        <p class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <div class="card-prop-value">{{ value }}</div>
+                    </div>
                 {% endif %}
             {% endfor %}
         </div>

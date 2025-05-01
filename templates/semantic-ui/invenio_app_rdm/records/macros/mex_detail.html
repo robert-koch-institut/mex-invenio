@@ -55,20 +55,20 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endif -%}
 
     {%- for item in items_to_display -%}
-        <p>{{ item.value }}</p>
+        {{ item.value }}{% if not loop.last %}</br>{% endif %}
     {%- endfor -%}
 {% endmacro %}
 
 {% macro render_url(items) %}
     {%- for item in items -%}
-        <a href="{{ item.link }}">{{ item.value or item.link }}</a>{% if not loop.last %}, {% endif %}
+        <a href="{{ item.link }}">{{ render_text(item.title) }}</a>
     {%- endfor -%}
 {% endmacro %}
 
 {% macro render_extid(values) %}
     {%- for val in values -%}
         {%- if val.startswith("http") -%}
-            <a href="{{ val }}">{{ val.split('/')[-1] }}</a>{% if not loop.last %}, {% endif %}
+            <a href="{{ val }}">{{ val.split('/')[-1] }}</a>
         {%- else -%}
             {{ val }}{% if not loop.last %}, {% endif %}
         {%- endif -%}
@@ -102,7 +102,6 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endfor %}
 {% endmacro %}
 
-
 {%- macro val(field_name, resource_type) -%}
     {%- set field_raw_value = record.ui.custom_fields.get(field_name) -%}
     {%- if field_raw_value and field_raw_value is not none -%}
@@ -114,15 +113,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- endif -%}
         {# Infer type from config #}
         {%- set type = field_types.get(resource_type).get(field_name) -%}
-
-        {%- if type == "string" or type == "int" -%}
+        {%- if field_name in config.EXTIDS -%}
+            {{ render_extid(values) }}
+        {%- elif type == "string" or type == "int" -%}
             {{ values | join(", ") }}
         {%- elif type == "text" -%}
             {{ render_text(values) }}
         {%- elif type == "url" -%}
             {{ render_url(values) }}
-        {%- elif type == "extid" -%}
-            {{ render_extid(values) }}
         {%- elif type == "date" -%}
             {{ render_date(values) }}
         {%- elif type == "label" -%}

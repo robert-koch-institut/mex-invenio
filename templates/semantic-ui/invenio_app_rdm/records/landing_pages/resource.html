@@ -13,8 +13,7 @@
                         {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, resource_type) %}
                         {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, resource_type) %}
                         {% if resource_type_general %}
-                            <span class="tag" title="Resource type">{{ resource_type_general }}
-                                {% if resource_type_specific %} /{{ resource_type_general }} {% endif %}</span>
+                            <span class="tag" title="Resource type">{{resource_type_general}}{%- if resource_type_specific -%}/{{resource_type_specific}}{%- endif -%}</span>
                         {% endif %}
                         {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, resource_type) -%}
                         <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
@@ -41,9 +40,9 @@
 
                 <div class="ui divider"></div>
 
-                {% set icd10val = val("icd10code", resource_type) %}
-                {% set loincval = val("loincId", resource_type) %}
-                {% set meshval = val("meshId", resource_type) %}
+                {% set icd10val = val("mex:icd10code", resource_type) %}
+                {% set loincval = val("mex:loincId", resource_type) %}
+                {% set meshval = val("mex:meshId", resource_type) %}
                 {% if icd10val or loincval or meshval %}
                     <section id="record-ids" aria-label="{{ _('Record IDs') }}">
                         <div class="id-tags">
@@ -113,10 +112,10 @@
                                     {% for prop in card.properties %}
                                         {% set value = val(prop, resource_type) %}
                                         {% if prop in record.ui.custom_fields and value %}
-                                            <p class="card-props-p">
-                                                <span class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</span>
-                                                <span class="card-prop-value">{{ val(prop, resource_type) }}</span>
-                                            </p>
+                                            <div class="card-props-p">
+                                                <p class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                                                <div class="card-prop-value">{{ val(prop, resource_type) }}</div>
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
