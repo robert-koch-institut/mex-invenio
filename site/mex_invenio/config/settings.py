@@ -503,8 +503,8 @@ ENTITIES = [
 LINKED_RECORDS_FIELDS = {
   "accessplatform": {
     "mex:contact": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"],
       "mex:contactpoint": ["mex:email"]
     },
     "mex:hadPrimarySource": {
@@ -702,12 +702,9 @@ LINKED_RECORDS_FIELDS = {
   }
 }
 
-
-
-
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
-        "mex:usedIn": ["mex:label"]
+        "mex:usedIn": ["mex:label"],
     }
 }
 
@@ -715,5 +712,12 @@ RECORD_SPECIAL_FIELDS = {
     "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
     "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
     "ACCESS_RESTRICTION": "mex:accessRestriction"
+}
+
+EXTIDS = {
+    "mex:doi": {"url": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
+    "mex:meshId":{"url": ["http://id.nlm.nih.gov/mesh/"]},
+    "mex:loincId": {"url":["https://loinc.org/"]},
+    "mex:icd10Code": {}
 }
 
