@@ -16,12 +16,16 @@ class LinkCF(BaseListCF):
             field_cls=fields.Nested,
             field_args=dict(
                 nested=dict(
-                    language=SanitizedUnicode(validate=validate.OneOf(choices=['en', 'de'])),
+                    language=SanitizedUnicode(
+                        validate=validate.OneOf(choices=["en", "de"])
+                    ),
                     title=SanitizedUnicode(),
-                    url=SanitizedUnicode(required=True, validate=validate.Length(min=1))
+                    url=SanitizedUnicode(
+                        required=True, validate=validate.Length(min=1)
+                    ),
                 )
             ),
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -29,11 +33,7 @@ class LinkCF(BaseListCF):
         """Return the mapping."""
         return {
             "properties": {
-                "language": {
-                    "type": "text"
-                },
-                "title": {
-                    "type": "text"
-                },
+                "language": {"type": "text"},
+                "title": {"type": "text"},
             }
         }

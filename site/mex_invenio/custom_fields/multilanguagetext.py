@@ -16,11 +16,15 @@ class MultiLanguageTextCF(BaseListCF):
             field_cls=fields.Nested,
             field_args=dict(
                 nested=dict(
-                    language=SanitizedUnicode(validate=validate.OneOf(choices=['en', 'de'])),
-                    value=SanitizedUnicode(required=True, validate=validate.Length(min=1))
+                    language=SanitizedUnicode(
+                        validate=validate.OneOf(choices=["en", "de"])
+                    ),
+                    value=SanitizedUnicode(
+                        required=True, validate=validate.Length(min=1)
+                    ),
                 )
             ),
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -28,11 +32,7 @@ class MultiLanguageTextCF(BaseListCF):
         """Return the mapping."""
         return {
             "properties": {
-                "language": {
-                    "type": "text"
-                },
-                "value": {
-                    "type": "text"
-                },
+                "language": {"type": "text"},
+                "value": {"type": "text"},
             }
         }

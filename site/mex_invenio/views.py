@@ -40,7 +40,9 @@ def redirect_to_mex(record_id):
     pid = None
     record = None
 
-    resolver = Resolver(pid_type="recid", object_type="rec", getter=RDMRecord.get_record)
+    resolver = Resolver(
+        pid_type="recid", object_type="rec", getter=RDMRecord.get_record
+    )
 
     try:
         pid, record = resolver.resolve(record_id)

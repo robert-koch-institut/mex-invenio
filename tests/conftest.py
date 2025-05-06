@@ -12,18 +12,31 @@ from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_app.factory import create_ui
-from invenio_rdm_records.cli import create_records_custom_field, custom_field_exists_in_records
+from invenio_rdm_records.cli import (
+    create_records_custom_field,
+    custom_field_exists_in_records,
+)
 from invenio_rdm_records.proxies import current_rdm_records
 from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.scripts.import_data import _import_data
-from mex_invenio.config import (OAISERVER_ID_PREFIX, OAISERVER_RELATIONS, RECORD_METADATA_CREATOR,
-                                RECORD_METADATA_DEFAULT_TITLE, RECORD_METADATA_TITLE_PROPERTIES)
-from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI, RDM_NAMESPACES
+from mex_invenio.config import (
+    OAISERVER_ID_PREFIX,
+    OAISERVER_RELATIONS,
+    RECORD_METADATA_CREATOR,
+    RECORD_METADATA_DEFAULT_TITLE,
+    RECORD_METADATA_TITLE_PROPERTIES,
+)
+from mex_invenio.custom_fields.custom_fields import (
+    RDM_CUSTOM_FIELDS,
+    RDM_CUSTOM_FIELDS_UI,
+    RDM_NAMESPACES,
+)
 
 
-created_regex = r'Created (\d) records. Ids: \[\'(\w{5}-\w{5})\'\]'
+created_regex = r"Created (\d) records. Ids: \[\'(\w{5}-\w{5})\'\]"
+
 
 def search_messages(messages, pattern):
     for message in messages:
@@ -31,18 +44,18 @@ def search_messages(messages, pattern):
             return re.search(pattern, message)
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def load_env():
-    env_file = find_dotenv('.env.tests')
+    env_file = find_dotenv(".env.tests")
     load_dotenv(env_file)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def module_tmp_path(tmp_path_factory):
-    return tmp_path_factory.mktemp('module_temp')
+    return tmp_path_factory.mktemp("module_temp")
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def app_config(app_config, module_tmp_path):
     # sqllite refused to create mock db without those parameters and they are missing
     app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -55,25 +68,25 @@ def app_config(app_config, module_tmp_path):
     app_config["SERVER_NAME"] = "127.0.0.1"
 
     # add custom fields
-    app_config['RDM_NAMESPACES'] = RDM_NAMESPACES
-    app_config['RDM_CUSTOM_FIELDS'] = RDM_CUSTOM_FIELDS
-    app_config['RDM_CUSTOM_FIELDS_UI'] = RDM_CUSTOM_FIELDS_UI
+    app_config["RDM_NAMESPACES"] = RDM_NAMESPACES
+    app_config["RDM_CUSTOM_FIELDS"] = RDM_CUSTOM_FIELDS
+    app_config["RDM_CUSTOM_FIELDS_UI"] = RDM_CUSTOM_FIELDS_UI
 
     # add import settings
-    app_config['RECORD_METADATA_DEFAULT_TITLE'] = RECORD_METADATA_DEFAULT_TITLE
-    app_config['RECORD_METADATA_TITLE_PROPERTIES'] = RECORD_METADATA_TITLE_PROPERTIES
-    app_config['RECORD_METADATA_CREATOR'] = RECORD_METADATA_CREATOR
+    app_config["RECORD_METADATA_DEFAULT_TITLE"] = RECORD_METADATA_DEFAULT_TITLE
+    app_config["RECORD_METADATA_TITLE_PROPERTIES"] = RECORD_METADATA_TITLE_PROPERTIES
+    app_config["RECORD_METADATA_CREATOR"] = RECORD_METADATA_CREATOR
 
     # add oai
-    app_config['OAISERVER_ID_PREFIX'] = OAISERVER_ID_PREFIX
-    app_config['OAISERVER_RELATIONS'] = OAISERVER_RELATIONS
+    app_config["OAISERVER_ID_PREFIX"] = OAISERVER_ID_PREFIX
+    app_config["OAISERVER_RELATIONS"] = OAISERVER_RELATIONS
 
     # add S3
-    app_config['S3_DOWNLOAD_FOLDER'] = module_tmp_path
+    app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path
     return app_config
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def create_app():
     return create_ui
 
@@ -93,9 +106,7 @@ def resource_type_v(app, resource_type_type):
         {
             "id": "contactpoint",
             "icon": "code",
-            "props": {
-                "type": "contactpoint"
-            },
+            "props": {"type": "contactpoint"},
             "title": {"en": "Contact point"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
@@ -107,9 +118,7 @@ def resource_type_v(app, resource_type_type):
         {
             "id": "organizationalunit",
             "icon": "code",
-            "props": {
-                "type": "organizationalunit"
-            },
+            "props": {"type": "organizationalunit"},
             "title": {"en": "Organizational unit"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
@@ -121,16 +130,14 @@ def resource_type_v(app, resource_type_type):
         {
             "id": "resource",
             "icon": "code",
-            "props": {
-                "type": "resource"
-            },
+            "props": {"type": "resource"},
             "title": {"en": "Resource"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
     )
 
-    '''vocab = vocabulary_service.create(
+    """vocab = vocabulary_service.create(
         system_identity,
         {
             "id": "image-photo",
@@ -152,7 +159,7 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )'''
+    )"""
 
     Vocabulary.index.refresh()
 
@@ -178,7 +185,7 @@ def contributors_role_v(app, contributors_role_type):
         },
     )
 
-    '''vocabulary_service.create(
+    """vocabulary_service.create(
         system_identity,
         {
             "id": "projectmanager",
@@ -196,7 +203,7 @@ def contributors_role_v(app, contributors_role_type):
             "title": {"en": "Other"},
             "type": "contributorsroles",
         },
-    )'''
+    )"""
 
     Vocabulary.index.refresh()
 
@@ -232,13 +239,14 @@ def initialise_custom_fields(app, location, db, search_clear, cli_runner):
 @pytest.fixture
 def create_file(tmp_path):
     """Create a file, either absolute or relative to the tmp_path."""
+
     def _create_file(filename, data, absolute=False):
         if isinstance(data, dict):
             data = json.dumps(data)
 
         if absolute:
-            os.makedirs("/".join(filename.split('/')[-1]), exist_ok=True)
-            with open(filename, 'w') as f:
+            os.makedirs("/".join(filename.split("/")[-1]), exist_ok=True)
+            with open(filename, "w") as f:
                 f.write(data)
             file_path = filename
         else:
@@ -262,12 +270,20 @@ def create_user(db):
 
 
 @pytest.fixture
-def import_file(initialise_custom_fields, custom_field_exists, db, caplog, cli_runner, create_user, create_file):
-    email = 'importer@address.com'
-    create_user('importer', email)
+def import_file(
+    initialise_custom_fields,
+    custom_field_exists,
+    db,
+    caplog,
+    cli_runner,
+    create_user,
+    create_file,
+):
+    email = "importer@address.com"
+    create_user("importer", email)
 
     def _import_file(filename, data):
-        contact_point_file = create_file(f'{filename}.json', data)
+        contact_point_file = create_file(f"{filename}.json", data)
 
         with caplog.at_level(logging.INFO):
             cli_runner(_import_data, email, contact_point_file)

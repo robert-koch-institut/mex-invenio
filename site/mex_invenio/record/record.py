@@ -12,15 +12,15 @@ from invenio_pidstore.errors import (
     PIDMissingObjectError,
     PIDRedirectedError,
     PIDUnregistered,
-    PIDValueError
+    PIDValueError,
 )
 
 import json
 
 
 def _get_record_by_field(field_id, value):
-    escaped_field = field_id.replace(':', '\:')
-    search_query = f'custom_fields.{escaped_field}:{value}'
+    escaped_field = field_id.replace(":", "\:")
+    search_query = f"custom_fields.{escaped_field}:{value}"
     results = list(current_rdm_records_service.search(g.identity, q=search_query))
 
     return results or None
@@ -39,12 +39,10 @@ def _get_record_by_id(mex_id):
 
 
 class MexRecord(MethodView):
-
     def __init__(self):
         self.template = "invenio_app_rdm/records/detail.html"
 
     def get(self, mex_id):
-
         try:
             record = _get_record_by_id(mex_id)
         except PIDDoesNotExistError:
@@ -64,19 +62,19 @@ class MexRecord(MethodView):
         backwards_linked_records = {}
 
         if record_type in settings.LINKED_RECORDS_FIELDS:
-
             for field, props in settings.LINKED_RECORDS_FIELDS[record_type].items():
                 raw_value = record["custom_fields"].get(field)
 
                 if not raw_value:
                     continue
 
-                linked_record_ids = raw_value if isinstance(raw_value, list) else [raw_value]
+                linked_record_ids = (
+                    raw_value if isinstance(raw_value, list) else [raw_value]
+                )
 
                 field_values = []
 
                 for linked_record_id in linked_record_ids:
-
                     display_value = linked_record_id
 
                     try:
@@ -90,33 +88,40 @@ class MexRecord(MethodView):
                             if display_value:
                                 break
                     else:
-                        display_value = f'Record with id {linked_record_id} not found'
+                        display_value = f"Record with id {linked_record_id} not found"
 
-                    field_values.append({
-                        "display_value": display_value,
-                        "link_id": linked_record_id
-                    })
+                    field_values.append(
+                        {"display_value": display_value, "link_id": linked_record_id}
+                    )
 
                 linked_records_data[field] = field_values
 
                 field_values = []
 
-                for field, title_field in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
+                for field, title_field in settings.RECORDS_LINKED_BACKWARDS[
+                    record_type
+                ].items():
                     records = _get_record_by_field(field, mex_id)
                     if records:
                         for r in records:
-                            field_values.append({
-                                "link_id": r["custom_fields"]["mex:identifier"],
-                                "display_value": r["custom_fields"].get(title_field, None)
-                            })
+                            field_values.append(
+                                {
+                                    "link_id": r["custom_fields"]["mex:identifier"],
+                                    "display_value": r["custom_fields"].get(
+                                        title_field, None
+                                    ),
+                                }
+                            )
 
                         backwards_linked_records[field] = field_values
 
-        return render_template(self.template,
-                               record=json.loads(record_ui),
-                               linked_records_data=linked_records_data,
-                               backwards_linked_records=backwards_linked_records,
-                               is_preview=False)
+        return render_template(
+            self.template,
+            record=json.loads(record_ui),
+            linked_records_data=linked_records_data,
+            backwards_linked_records=backwards_linked_records,
+            is_preview=False,
+        )
 
     # invenio id: wbdv5-sac84
     # mex id: cP1OvUS7rELcPULquIu1dZ
