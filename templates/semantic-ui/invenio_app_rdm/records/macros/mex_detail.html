@@ -77,8 +77,9 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {% macro render_label(values) %}
     {%- set lang = current_i18n.language -%}
+    {% set default = {"en": "Invalid label", "de": "Invalid label"} %}
     {%- for val in values -%}
-        {{ pref_labels.get(val, {}).get(lang, val) }}{% if not loop.last %}, {% endif %}
+        {{ pref_labels.get(val, default).get(lang, val) }}{% if not loop.last %}, {% endif %}
     {%- endfor -%}
 {% endmacro %}
 
@@ -102,8 +103,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endfor %}
 {% endmacro %}
 
-{%- macro val(field_name, resource_type) -%}
-    {%- set field_raw_value = record.ui.custom_fields.get(field_name) -%}
+{%- macro val(field_name, field_raw_value, resource_type) -%}
     {%- if field_raw_value and field_raw_value is not none -%}
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number -%}

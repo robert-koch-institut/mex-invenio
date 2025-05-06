@@ -1,3 +1,14 @@
+::selection {
+  background-color: @primaryColor;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: @primaryColor;
+  color: white;
+}
+
+
 .record-cards {
     display: flex;
     flex-wrap: wrap;
