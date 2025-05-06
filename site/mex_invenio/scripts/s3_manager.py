@@ -21,6 +21,7 @@ Before running the script, ensure you have the following:
 
 You can store these credentials in a custom file, a `.env` file,
 """
+
 import sys
 
 import click
@@ -62,23 +63,31 @@ def load_config():
         logger.error("Unable to fetch configration, env file is missing")
         sys.exit(1)
 
-    if not all([s3_config["bucket"], s3_config["aws_access_key_id"], s3_config["aws_secret_access_key"]]):
-        logger.error("Missing required configurations (bucket, aws_access_key, aws_secret_key).")
+    if not all(
+        [
+            s3_config["bucket"],
+            s3_config["aws_access_key_id"],
+            s3_config["aws_secret_access_key"],
+        ]
+    ):
+        logger.error(
+            "Missing required configurations (bucket, aws_access_key, aws_secret_key)."
+        )
         sys.exit(1)
 
     if not s3_config["email"]:
         logger.error("email environment variable is not set.")
         sys.exit(1)
 
-    s3_endpoint_url = current_app.config.get('S3_ENDPOINT_URL', None)
+    s3_endpoint_url = current_app.config.get("S3_ENDPOINT_URL", None)
 
     if s3_endpoint_url:
-        s3_config['endpoint_url'] = s3_endpoint_url
+        s3_config["endpoint_url"] = s3_endpoint_url
 
-    s3_object_key = current_app.config.get('S3_OBJECT_KEY', None)
+    s3_object_key = current_app.config.get("S3_OBJECT_KEY", None)
 
     if s3_object_key:
-        s3_config['object_key'] = s3_object_key
+        s3_config["object_key"] = s3_object_key
 
     return s3_config
 
@@ -108,15 +117,20 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
 def get_latest_existing_file(payload_folder):
     """Fetches the most recent file in the payload folder."""
     files = sorted(
-        [os.path.join(payload_folder, f) for f in os.listdir(payload_folder) if
-         os.path.isfile(os.path.join(payload_folder, f))],
+        [
+            os.path.join(payload_folder, f)
+            for f in os.listdir(payload_folder)
+            if os.path.isfile(os.path.join(payload_folder, f))
+        ],
         key=os.path.getmtime,  # Sort by last modified time
     )
 
     return files[-1] if files else None
 
 
-def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_comparison: bool):
+def rename_and_keep_latest_file(
+    existing_file, new_file, payload_folder, check_comparison: bool
+):
     """Handles file retention based on check flag."""
     if check_comparison and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
@@ -131,7 +145,9 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
 
     # Always replace old file if check == False
     os.remove(existing_file)
-    logger.info(f"Replaced old file: {existing_file} with new file: {final_new_file_path}")
+    logger.info(
+        f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
+    )
 
     return final_new_file_path
 
@@ -151,25 +167,30 @@ def manage_s3_files(check: bool):
     if not latest_file_key:
         return
 
-    s3_download_folder = current_app.config.get('S3_DOWNLOAD_FOLDER')
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER")
     os.makedirs(s3_download_folder, exist_ok=True)
 
     # This will be the most recently modified file in the download folder
     existing_file_path = get_latest_existing_file(s3_download_folder)
 
     # This is the most recently modified file in the S3 bucket
-    new_file_path = download_file(s3_client, s3_bucket, latest_file_key, s3_download_folder)
+    new_file_path = download_file(
+        s3_client, s3_bucket, latest_file_key, s3_download_folder
+    )
 
     if new_file_path:
-        final_file_path = rename_and_keep_latest_file(existing_file_path, new_file_path, s3_download_folder,
-                                                      check)
+        final_file_path = rename_and_keep_latest_file(
+            existing_file_path, new_file_path, s3_download_folder, check
+        )
         if final_file_path:
             logger.info(f"importing data using file {final_file_path}")
 
             result = import_data(user_email, final_file_path)
 
             if not result:
-                logger.error(f"Error in import_data, check the import log files for more details.")
+                logger.error(
+                    f"Error in import_data, check the import log files for more details."
+                )
                 sys.exit(1)
             else:
                 logger.info(f"Import successful. Data imported from {final_file_path}.")

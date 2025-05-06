@@ -1,5 +1,6 @@
 from invenio_records_resources.services.records.facets import NestedTermsFacet
 
+
 class RestrictedTermsFacet(NestedTermsFacet):
     """Facet that only displays specific values."""
 
@@ -8,7 +9,9 @@ class RestrictedTermsFacet(NestedTermsFacet):
         super().__init__(field=field, label=label, **kwargs)
         self.allowed_values = set(allowed_values) if allowed_values else None
 
-    def get_labelled_values(self, data, filter_values, bucket_label=True, key_prefix=None):
+    def get_labelled_values(
+        self, data, filter_values, bucket_label=True, key_prefix=None
+    ):
         """Get an unlabelled version of the bucket, filtered by allowed values."""
         out = []
         label_map = self.get_label_mapping(data.buckets)
@@ -27,7 +30,10 @@ class RestrictedTermsFacet(NestedTermsFacet):
                 }
                 if "inner" in bucket:
                     bucket_out["inner"] = self.get_labelled_values(
-                        bucket.inner, filter_values, bucket_label=False, key_prefix=full_key
+                        bucket.inner,
+                        filter_values,
+                        bucket_label=False,
+                        key_prefix=full_key,
                     )
                 out.append(bucket_out)
 
