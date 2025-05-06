@@ -1,25 +1,25 @@
 {% set cards = config.RECORD_CARDS.resource[column] %}
 {% set card = config.RECORD_CARDS.resource[column][card_name] %}
 
-{% set ns = namespace(prop_exist=false) %}
+{% set ns = namespace(prop_exist=false, value=none) %}
 
 {% if card.is_backwards_linked %}
     {% for prop in card.properties %}
         {% if prop in linked_records_data %}
+            {% set ns.value = linked_records_data[prop] %}
             {% set ns.prop_exist = true %}
         {% endif %}
     {% endfor %}
 {% else %}
     {% for prop in card.properties %}
         {% if prop in record.ui.custom_fields %}
-            {% set value = record.ui.custom_fields[prop] %}
-            {% if value %}
+            {% set ns.value = record.ui.custom_fields[prop] %}
+            {% if ns.value %}
                 {% set ns.prop_exist = true %}
             {% endif %}
         {% endif %}
     {% endfor %}
 {% endif %}
-
 {% if ns.prop_exist %}
     <div class="card">
         <h3>
@@ -30,7 +30,7 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% set value = val(prop, resource_type) %}
+                {% set value = val(prop, ns.value, resource_type) %}
                 {% if value %}
                     <div class="card-props-p">
                         <p class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>

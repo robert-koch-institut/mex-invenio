@@ -203,7 +203,7 @@
                                                 >
                                                     {% set section_format = section_cfg.section | replace(" ", "-") %}
                                                     <dl class="details-list">
-                                                        {{ val(field_cfg.field, resource_type) }}
+                                                        {{ val(field_cfg.field, record.custom_fields.get(field_cfg.field), resource_type) }}
                                                     </dl>
                                                 </div>
                                             </div>

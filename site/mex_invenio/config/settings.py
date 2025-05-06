@@ -433,7 +433,6 @@ RECORD_CARDS = {
                 "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
-                    "mex:accessRestriction",
                     "mex:doi",
                     "mex:license",
                     "mex:rights"
@@ -711,13 +710,16 @@ RECORDS_LINKED_BACKWARDS = {
 RECORD_SPECIAL_FIELDS = {
     "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
     "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
-    "ACCESS_RESTRICTION": "mex:accessRestriction"
+    "CREATED": "mex:CREATED",
+    "ACCESS_RESTRICTION": "mex:accessRestriction",
+    "ALT_TITLE": "mex:alternativeTitle",
+    "DESCRIPTION": "mex:description",
 }
 
 EXTIDS = {
-    "mex:doi": {"url": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
-    "mex:meshId":{"url": ["http://id.nlm.nih.gov/mesh/"]},
-    "mex:loincId": {"url":["https://loinc.org/"]},
-    "mex:icd10Code": {}
+    "DOI": {"prop": "mex:doi", "url": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
+    "MESH": {"prop": "mex:meshId", "url": ["http://id.nlm.nih.gov/mesh/"]},
+    "LOINC":{"prop": "mex:loincId", "url":["https://loinc.org/"]},
+    "ICD10": {"prop": "mex:icd10Code"}
 }
 

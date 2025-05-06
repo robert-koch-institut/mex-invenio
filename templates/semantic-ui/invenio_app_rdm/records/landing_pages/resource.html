@@ -10,12 +10,12 @@
                 <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
                     <div class="tags top-tags">
                         <span class="tag">{{ record.metadata.resource_type.title.get(current_i18n.language, 'en') }}</span>
-                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, resource_type) %}
-                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, resource_type) %}
+                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
+                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
                         {% if resource_type_general %}
                             <span class="tag" title="Resource type">{{resource_type_general}}{%- if resource_type_specific -%}/{{resource_type_specific}}{%- endif -%}</span>
                         {% endif %}
-                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, resource_type) -%}
+                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
                         <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
                     </div>
                 </section>
@@ -23,15 +23,15 @@
                 <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
-                        <span id="record-created_date" class="muted">{{ val("mex:created", resource_type) }}</span>
+                        <span id="record-created_date" class="muted">{{ val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) }}</span>
                     </div>
-                    {% set alttitle = val("alternativeTitle", resource_type) %}
+                    {% set alttitle = val("config.RECORD_SPECIAL_FIELDS.ALT_TITLE",record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
                     {% endif %}
                 </section>
 
-                {% set description = val("description", resource_type) %}
+                {% set description = val(config.RECORD_SPECIAL_FIELDS.DESCRIPTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.DESCRIPTION], resource_type) %}
                 {% if description %}
                     <section id="record-description" aria-label="{{ _('Record Description') }}">
                         <p>{{ description }}</p>
@@ -40,9 +40,9 @@
 
                 <div class="ui divider"></div>
 
-                {% set icd10val = val("mex:icd10code", resource_type) %}
-                {% set loincval = val("mex:loincId", resource_type) %}
-                {% set meshval = val("mex:meshId", resource_type) %}
+                {% set icd10val = val(config.EXTIDS.ICD10.prop, record.ui.custom_fields[config.EXTIDS.ICD10.prop], resource_type) %}
+                {% set loincval = val(config.EXTIDS.LOINC.prop, record.ui.custom_fields[config.EXTIDS.LOINC.prop], resource_type) %}
+                {% set meshval = val(config.EXTIDS.MESH.prop, record.ui.custom_fields[config.EXTIDS.MESH.prop], resource_type) %}
                 {% if icd10val or loincval or meshval %}
                     <section id="record-ids" aria-label="{{ _('Record IDs') }}">
                         <div class="id-tags">
@@ -81,46 +81,9 @@
                     {% set column = "left" %}
                     {% for card_name in config.RECORD_CARDS.resource.left %}
                         {% set card = config.RECORD_CARDS.resource.left[card_name] %}
-                        {% set ns = namespace(prop_exist=false) %}
-                        {% if card.is_backwards_linked %}
-                            {% for prop in card.properties %}
-                                {% if prop in linked_records_data %}
-                                    {% set value = linked_records_data[prop] %}
-                                    {% set ns.prop_exist = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {% for prop in card.properties %}
-                                {% if prop in record.ui.custom_fields %}
-                                    {% set value = record.ui.custom_fields[prop] %}
-                                    {% if value %}
-                                        {% set ns.prop_exist = true %}
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-
-                        {% if ns.prop_exist %}
-                            <div class="card">
-                                <h3>
-                                    <img class="ui image icon"
-                                         src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
-                                         alt=""/>
-                                    {{ _(card.title) }}
-                                </h3>
-                                <div class="card-props">
-                                    {% for prop in card.properties %}
-                                        {% set value = val(prop, resource_type) %}
-                                        {% if prop in record.ui.custom_fields and value %}
-                                            <div class="card-props-p">
-                                                <p class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
-                                                <div class="card-prop-value">{{ val(prop, resource_type) }}</div>
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
+                        {% with card=card_name %}
+                            {%- include "invenio_app_rdm/records/details/side_bar/card.html" with context %}
+                        {% endwith %}
                     {% endfor %}
                 </section>
 
