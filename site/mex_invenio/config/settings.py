@@ -723,3 +723,7 @@ EXTIDS = {
     "ICD10": {"prop": "mex:icd10Code"}
 }
 
+TAGS = [
+    "mex:keyword"
+]
+

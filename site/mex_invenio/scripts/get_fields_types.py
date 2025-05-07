@@ -131,3 +131,11 @@ with open(fields_types, 'w', encoding='utf-8') as template_file:
     template_file.write("{% set field_types = ")
     template_file.write(json.dumps(processed_data, indent=4))
     template_file.write(" %}")
+
+@click.command("pref_labels")
+def _pref_labels():
+    get_pref_labels()
+
+
+if __name__ == "__main__":
+    _pref_labels()
