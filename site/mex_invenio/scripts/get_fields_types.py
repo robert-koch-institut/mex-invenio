@@ -1,6 +1,7 @@
 import json
 import requests
 import os
+import click
 from jinja2 import Environment, FileSystemLoader
 from mex_invenio.config import settings
 
@@ -23,6 +24,8 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
     "/schema/fields/link": CUSTOM_TYPES.URL,
 }
 
+records_dir = 'site/mex_invenio/custom_fields/mex-model/mex/model/entities/'
+template_dir = 'templates/semantic-ui/invenio_app_rdm/records/macros'
 
 # Function to determine the field type based on the provided properties
 def get_field_type(property):
@@ -85,29 +88,20 @@ def get_field_type(property):
     return field_type
 
 
-# Function to fetch a JSON file from the GitHub repository
-def fetch_json_from_github(file_name):
-    url = f"https://raw.githubusercontent.com/robert-koch-institut/mex-model/main/mex/model/entities/{file_name}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error fetching {file_name}: {response.status_code}")
-        return None
-
-
 # Main function to process the files
-def process_json_files(file_names):
+def process_json_files():
     result = {}
 
-    for file_name in file_names:
-        # Fetch the JSON file from GitHub
-        data = fetch_json_from_github(file_name+".json")
+    if not os.path.isdir(records_dir):
+        return
+
+    for file in os.listdir(records_dir):
+        with open(f'{records_dir}/{file}') as f:
+            data = json.load(f)
 
         if data:
             properties = data.get("properties", {})
-            resource_type = file_name.replace("-","")
+            resource_type = file.replace("-","").replace(".json","")
             # Initialize the result for this file
             result[resource_type] = {}
 
@@ -121,21 +115,15 @@ def process_json_files(file_names):
     return result
 
 
-# Process the files and get the result
-processed_data = process_json_files(settings.ENTITIES)
+@click.command("_field_types")
+def _field_types():
+    processed_data = process_json_files()
+    fields_types = f'{template_dir}/fields_types.jinja'
 
-template_dir = '../../../templates/semantic-ui/invenio_app_rdm/records/macros'
-fields_types = f'{template_dir}/fields_types.jinja'
-
-with open(fields_types, 'w', encoding='utf-8') as template_file:
-    template_file.write("{% set field_types = ")
-    template_file.write(json.dumps(processed_data, indent=4))
-    template_file.write(" %}")
-
-@click.command("pref_labels")
-def _pref_labels():
-    get_pref_labels()
-
+    with open(fields_types, 'w', encoding='utf-8') as template_file:
+        template_file.write("{% set field_types = ")
+        template_file.write(json.dumps(processed_data, indent=4))
+        template_file.write(" %}")
 
 if __name__ == "__main__":
-    _pref_labels()
+    _field_types()
