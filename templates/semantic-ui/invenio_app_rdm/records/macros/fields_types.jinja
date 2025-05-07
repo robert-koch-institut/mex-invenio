@@ -1,45 +1,16 @@
 {% set field_types = {
-    "accessplatform": {
-        "mex:alternativeTitle": "text",
-        "mex:contact": "identifier",
+    "variable": {
+        "mex:belongsTo": "identifier",
+        "mex:codingSystem": "string",
+        "mex:dataType": "string",
         "mex:description": "text",
-        "mex:endpointDescription": "url",
-        "mex:endpointType": "label",
-        "mex:endpointURL": "url",
         "mex:hadPrimarySource": "identifier",
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
-        "mex:landingPage": "url",
+        "mex:label": "text",
         "mex:stableTargetId": "unknown",
-        "mex:technicalAccessibility": "label",
-        "mex:title": "text",
-        "mex:unitInCharge": "identifier"
-    },
-    "activity": {
-        "mex:abstract": "text",
-        "mex:activityType": "label",
-        "mex:alternativeTitle": "text",
-        "mex:contact": "identifier",
-        "mex:documentation": "url",
-        "mex:end": "unknown",
-        "mex:externalAssociate": "identifier",
-        "mex:funderOrCommissioner": "identifier",
-        "mex:fundingProgram": "string",
-        "mex:hadPrimarySource": "identifier",
-        "mex:identifier": "unknown",
-        "mex:identifierInPrimarySource": "string",
-        "mex:involvedPerson": "identifier",
-        "mex:involvedUnit": "identifier",
-        "mex:isPartOfActivity": "identifier",
-        "mex:publication": "identifier",
-        "mex:responsibleUnit": "identifier",
-        "mex:shortName": "text",
-        "mex:stableTargetId": "unknown",
-        "mex:start": "unknown",
-        "mex:succeeds": "identifier",
-        "mex:theme": "label",
-        "mex:title": "text",
-        "mex:website": "url"
+        "mex:usedIn": "identifier",
+        "mex:valueSet": "string"
     },
     "bibliographicresource": {
         "mex:abstract": "text",
@@ -78,30 +49,12 @@
         "mex:volume": "string",
         "mex:volumeOfSeries": "string"
     },
-    "conceptscheme": {
-        "mex:description": "text",
-        "mex:identifier": "string",
-        "mex:label": "text"
-    },
-    "concept": {
-        "mex:altLabel": "text",
-        "mex:broader": "label",
-        "mex:definition": "text",
-        "mex:exactMatch": "string",
-        "mex:identifier": "string",
-        "mex:inScheme": "identifier",
-        "mex:notation": "string",
-        "mex:note": "text",
-        "mex:prefLabel": "text"
-    },
-    "consent": {
+    "variablegroup": {
+        "mex:containedBy": "identifier",
         "mex:hadPrimarySource": "identifier",
-        "mex:hasConsentStatus": "label",
-        "mex:hasConsentType": "label",
-        "mex:hasDataSubject": "identifier",
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
-        "mex:isIndicatedAtTime": "string",
+        "mex:label": "text",
         "mex:stableTargetId": "unknown"
     },
     "contactpoint": {
@@ -110,21 +63,6 @@
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
         "mex:stableTargetId": "unknown"
-    },
-    "distribution": {
-        "mex:accessRestriction": "label",
-        "mex:accessService": "identifier",
-        "mex:accessURL": "url",
-        "mex:downloadURL": "url",
-        "mex:hadPrimarySource": "identifier",
-        "mex:identifier": "unknown",
-        "mex:identifierInPrimarySource": "string",
-        "mex:issued": "date",
-        "mex:license": "label",
-        "mex:mediaType": "label",
-        "mex:modified": "date",
-        "mex:stableTargetId": "unknown",
-        "mex:title": "text"
     },
     "organization": {
         "mex:alternativeName": "text",
@@ -141,6 +79,17 @@
         "mex:viafId": "string",
         "mex:wikidataId": "string"
     },
+    "concept": {
+        "mex:altLabel": "text",
+        "mex:broader": "label",
+        "mex:definition": "text",
+        "mex:exactMatch": "string",
+        "mex:identifier": "string",
+        "mex:inScheme": "identifier",
+        "mex:notation": "string",
+        "mex:note": "text",
+        "mex:prefLabel": "text"
+    },
     "organizationalunit": {
         "mex:alternativeName": "text",
         "mex:email": "string",
@@ -154,33 +103,15 @@
         "mex:unitOf": "identifier",
         "mex:website": "url"
     },
-    "person": {
-        "mex:affiliation": "identifier",
-        "mex:email": "string",
-        "mex:familyName": "string",
-        "mex:fullName": "string",
-        "mex:givenName": "string",
+    "consent": {
         "mex:hadPrimarySource": "identifier",
+        "mex:hasConsentStatus": "label",
+        "mex:hasConsentType": "label",
+        "mex:hasDataSubject": "identifier",
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
-        "mex:isniId": "string",
-        "mex:memberOf": "identifier",
-        "mex:orcidId": "string",
+        "mex:isIndicatedAtTime": "string",
         "mex:stableTargetId": "unknown"
-    },
-    "primarysource": {
-        "mex:alternativeTitle": "text",
-        "mex:contact": "identifier",
-        "mex:description": "text",
-        "mex:documentation": "url",
-        "mex:hadPrimarySource": "identifier",
-        "mex:identifier": "unknown",
-        "mex:identifierInPrimarySource": "string",
-        "mex:locatedAt": "url",
-        "mex:stableTargetId": "unknown",
-        "mex:title": "text",
-        "mex:unitInCharge": "identifier",
-        "mex:version": "string"
     },
     "resource": {
         "mex:accessPlatform": "identifier",
@@ -235,25 +166,94 @@
         "mex:unitInCharge": "identifier",
         "mex:wasGeneratedBy": "identifier"
     },
-    "variablegroup": {
-        "mex:containedBy": "identifier",
+    "distribution": {
+        "mex:accessRestriction": "label",
+        "mex:accessService": "identifier",
+        "mex:accessURL": "url",
+        "mex:downloadURL": "url",
         "mex:hadPrimarySource": "identifier",
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
-        "mex:label": "text",
+        "mex:issued": "date",
+        "mex:license": "label",
+        "mex:mediaType": "label",
+        "mex:modified": "date",
+        "mex:stableTargetId": "unknown",
+        "mex:title": "text"
+    },
+    "accessplatform": {
+        "mex:alternativeTitle": "text",
+        "mex:contact": "identifier",
+        "mex:description": "text",
+        "mex:endpointDescription": "url",
+        "mex:endpointType": "label",
+        "mex:endpointURL": "url",
+        "mex:hadPrimarySource": "identifier",
+        "mex:identifier": "unknown",
+        "mex:identifierInPrimarySource": "string",
+        "mex:landingPage": "url",
+        "mex:stableTargetId": "unknown",
+        "mex:technicalAccessibility": "label",
+        "mex:title": "text",
+        "mex:unitInCharge": "identifier"
+    },
+    "person": {
+        "mex:affiliation": "identifier",
+        "mex:email": "string",
+        "mex:familyName": "string",
+        "mex:fullName": "string",
+        "mex:givenName": "string",
+        "mex:hadPrimarySource": "identifier",
+        "mex:identifier": "unknown",
+        "mex:identifierInPrimarySource": "string",
+        "mex:isniId": "string",
+        "mex:memberOf": "identifier",
+        "mex:orcidId": "string",
         "mex:stableTargetId": "unknown"
     },
-    "variable": {
-        "mex:belongsTo": "identifier",
-        "mex:codingSystem": "string",
-        "mex:dataType": "string",
-        "mex:description": "text",
+    "activity": {
+        "mex:abstract": "text",
+        "mex:activityType": "label",
+        "mex:alternativeTitle": "text",
+        "mex:contact": "identifier",
+        "mex:documentation": "url",
+        "mex:end": "unknown",
+        "mex:externalAssociate": "identifier",
+        "mex:funderOrCommissioner": "identifier",
+        "mex:fundingProgram": "string",
         "mex:hadPrimarySource": "identifier",
         "mex:identifier": "unknown",
         "mex:identifierInPrimarySource": "string",
-        "mex:label": "text",
+        "mex:involvedPerson": "identifier",
+        "mex:involvedUnit": "identifier",
+        "mex:isPartOfActivity": "identifier",
+        "mex:publication": "identifier",
+        "mex:responsibleUnit": "identifier",
+        "mex:shortName": "text",
         "mex:stableTargetId": "unknown",
-        "mex:usedIn": "identifier",
-        "mex:valueSet": "string"
+        "mex:start": "unknown",
+        "mex:succeeds": "identifier",
+        "mex:theme": "label",
+        "mex:title": "text",
+        "mex:website": "url"
+    },
+    "conceptscheme": {
+        "mex:description": "text",
+        "mex:identifier": "string",
+        "mex:label": "text"
+    },
+    "primarysource": {
+        "mex:alternativeTitle": "text",
+        "mex:contact": "identifier",
+        "mex:description": "text",
+        "mex:documentation": "url",
+        "mex:hadPrimarySource": "identifier",
+        "mex:identifier": "unknown",
+        "mex:identifierInPrimarySource": "string",
+        "mex:locatedAt": "url",
+        "mex:stableTargetId": "unknown",
+        "mex:title": "text",
+        "mex:unitInCharge": "identifier",
+        "mex:version": "string"
     }
 } %}
