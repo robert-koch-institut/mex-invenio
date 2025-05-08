@@ -24,7 +24,7 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/records/<record_id>",
+        "/records/pid/<record_id>",
         view_func=redirect_to_mex,
     )
 
