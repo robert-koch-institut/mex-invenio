@@ -24,7 +24,7 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/records/<record_id>",
+        "/records/pid/<record_id>",
         view_func=redirect_to_mex,
     )
 
@@ -37,9 +37,7 @@ def create_blueprint(app):
 
 
 def redirect_to_mex(record_id):
-    pid = None
     record = None
-
     resolver = Resolver(pid_type="recid", object_type="rec", getter=RDMRecord.get_record)
 
     try:
@@ -50,6 +48,9 @@ def redirect_to_mex(record_id):
         current_app.logger.exception(
             "No object assigned to {0}.".format(e.pid), extra={"pid": e.pid}
         )
+        abort(500)
+    except Error as e:
+        current_app.logger.exception("Unknown error occured.", extra={"error": e})
         abort(500)
     try:
         mex_id = record["custom_fields"]["mex:identifier"]
