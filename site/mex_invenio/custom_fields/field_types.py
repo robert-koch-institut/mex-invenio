@@ -86,7 +86,7 @@ def get_field_type(property):
 
 
 # Main function to process the files
-def get_fields_types() -> dict:
+def get_field_types() -> dict:
     field_types = {}
 
     if not os.path.isdir(records_dir):
