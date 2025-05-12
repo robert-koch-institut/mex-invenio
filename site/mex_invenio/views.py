@@ -1,12 +1,10 @@
-from flask import Blueprint, redirect, url_for, request, current_app, abort
+from flask import Blueprint, redirect, url_for, current_app, abort
 from .record.record import MexRecord
 
 from invenio_pidstore.resolver import Resolver
 from invenio_pidstore.errors import (
-    PIDDeletedError,
     PIDDoesNotExistError,
     PIDMissingObjectError,
-    PIDRedirectedError,
     PIDUnregistered,
 )
 from invenio_rdm_records.records.api import RDMRecord
@@ -23,6 +21,10 @@ def create_blueprint(app):
         template_folder="./templates",
     )
 
+    # Ideally we would overwrite /records/<record_id>, however blueprints are loaded
+    # in a non-deterministic way. Therefore, there is a redirect in the nginx config
+    # that redirects /records/<record_id> to /records/pid/<record_id>.
+    # see (/docker/nginx/conf.d/default.conf)
     blueprint.add_url_rule(
         "/records/pid/<record_id>",
         view_func=redirect_to_mex,
@@ -49,14 +51,14 @@ def redirect_to_mex(record_id):
             "No object assigned to {0}.".format(e.pid), extra={"pid": e.pid}
         )
         abort(500)
-    except Error as e:
-        current_app.logger.exception("Unknown error occured.", extra={"error": e})
+    except Exception as e:
+        current_app.logger.exception("Unknown error occurred.", extra={"error": e})
         abort(500)
     try:
         mex_id = record["custom_fields"]["mex:identifier"]
     except Exception as e:
         current_app.logger.exception(
-            "No mex id for the record {0}.".format(e.pid), extra={"pid": e.pid}
+            "No mex id for the record {0}.".format(e)
         )
         abort(500)
 
