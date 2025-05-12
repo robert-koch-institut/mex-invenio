@@ -1,9 +1,6 @@
 import json
-import requests
 import os
-import click
-from jinja2 import Environment, FileSystemLoader
-from mex_invenio.config import settings
+
 
 # Custom types definition
 class CUSTOM_TYPES:
@@ -25,7 +22,7 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
 }
 
 records_dir = 'site/mex_invenio/custom_fields/mex-model/mex/model/entities/'
-template_dir = 'templates/semantic-ui/invenio_app_rdm/records/macros'
+
 
 # Function to determine the field type based on the provided properties
 def get_field_type(property):
@@ -89,11 +86,11 @@ def get_field_type(property):
 
 
 # Main function to process the files
-def process_json_files():
-    result = {}
+def get_fields_types() -> dict:
+    field_types = {}
 
     if not os.path.isdir(records_dir):
-        return
+        return field_types
 
     for file in os.listdir(records_dir):
         with open(f'{records_dir}/{file}') as f:
@@ -101,29 +98,15 @@ def process_json_files():
 
         if data:
             properties = data.get("properties", {})
-            resource_type = file.replace("-","").replace(".json","")
+            resource_type = file.replace("-", "").replace(".json", "")
             # Initialize the result for this file
-            result[resource_type] = {}
+            field_types[resource_type] = {}
 
             for prop_name, prop_value in properties.items():
                 field_type = get_field_type(prop_value)
                 if field_type:
-                    result[resource_type]["mex:" + prop_name] = field_type
+                    field_types[resource_type]["mex:" + prop_name] = field_type
                 else:
-                    result[resource_type]["mex:" + prop_name] = "unknown"
+                    field_types[resource_type]["mex:" + prop_name] = "unknown"
 
-    return result
-
-
-@click.command("_field_types")
-def _field_types():
-    processed_data = process_json_files()
-    fields_types = f'{template_dir}/fields_types.jinja'
-
-    with open(fields_types, 'w', encoding='utf-8') as template_file:
-        template_file.write("{% set field_types = ")
-        template_file.write(json.dumps(processed_data, indent=4))
-        template_file.write(" %}")
-
-if __name__ == "__main__":
-    _field_types()
+    return field_types

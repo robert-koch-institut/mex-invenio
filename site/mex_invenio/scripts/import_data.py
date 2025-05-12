@@ -91,8 +91,12 @@ def process_record(
             elif len(results) > 1:
                 # Log and skip the record if multiple records are found
                 logger.error(f"Multiple records found for MEx id: {mex_id}")
+                return None
+
+            return None
         except Exception as e:
             logger.error(f"Error processing record: {str(e)}")
+            return None
 
 
 @click.command("import_data")

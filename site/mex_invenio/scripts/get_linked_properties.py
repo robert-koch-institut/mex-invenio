@@ -1,7 +1,7 @@
 import json
 import requests
-import os
-from mex_invenio.config import settings
+
+from flask import current_app
 
 
 # Define the base URL for the GitHub repository
@@ -59,8 +59,9 @@ def get_entity_name(property):
 
 # Dictionary to store the results
 identifier_properties = {}
+
 # Process each file
-for name in settings.ENTITIES:
+for name in current_app.config.get('ENTITIES', {}):
     # Fetch the JSON file from GitHub
     file_name = name + ".json"
     url = BASE_URL + file_name
