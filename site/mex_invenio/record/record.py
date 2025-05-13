@@ -134,6 +134,9 @@ class MexRecord(MethodView):
         record_ui = ui_serializer.serialize_object(record_item.data)
 
         linked_records_data = _get_linked_records(record, mex_id)
+        current_app.logger.info(f"Linked records data: {linked_records_data}")
+        current_app.logger.info(f"{record}")
+        current_app.logger.info(f"{mex_id}")
 
         return render_template(self.template,
                                record=json.loads(record_ui),
