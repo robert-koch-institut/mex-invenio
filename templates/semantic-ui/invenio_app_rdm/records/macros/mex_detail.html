@@ -74,7 +74,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- set lang = current_i18n.language -%}
     {% set default = {"en": "Invalid label", "de": "Invalid label"} %}
     {%- for val in values -%}
-        {{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if not loop.last %}, {% endif %}
+        {% if config.PREF_LABELS %}
+            {{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if not loop.last %}, {% endif %}
+        {% else %}
+            {{ val }}{% if not loop.last %}, {% endif %}
+        {% endif %}
     {%- endfor -%}
 {% endmacro %}
 
@@ -99,7 +103,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% endmacro %}
 
 {%- macro val(field_name, field_raw_value, resource_type) -%}
-    {%- if field_raw_value and field_raw_value is not none -%}
+    {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number -%}
             {%- set values = [field_raw_value] -%}
