@@ -83,23 +83,25 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% endmacro %}
 
 {% macro render_identifier(field_name,identifiers) %}
-    {% for id in identifiers %}
-        {% set value = linked_records_data[field_name] %}
-        {% if value %}
-            {% set first = value[0]["display_value"][0] %}
-            {% if first is string %}
-                {% for v in value %}
-                    <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
-                {% endfor %}
+    {% if linked_records_data %}
+        {% for id in identifiers %}
+            {% set value = linked_records_data[field_name] %}
+            {% if value %}
+                {% set first = value[0]["display_value"][0] %}
+                {% if first is string %}
+                    {% for v in value %}
+                        <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                    {% endfor %}
+                {% else %}
+                    {% for v in value %}
+                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} [No name] {% endif %}</a>
+                    {% endfor %}
+                {% endif %}
             {% else %}
-                {% for v in value %}
-                    <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} [No name] {% endif %}</a>
-                {% endfor %}
+                [No value]
             {% endif %}
-        {% else %}
-            [No value]
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
+    {% endif %}
 {% endmacro %}
 
 {%- macro val(field_name, field_raw_value, resource_type) -%}
