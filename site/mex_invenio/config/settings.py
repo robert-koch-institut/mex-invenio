@@ -13,6 +13,8 @@ from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
 from mex_invenio.custom_fields.custom_fields import RDM_NAMESPACES, RDM_CUSTOM_FIELDS, RDM_CUSTOM_FIELDS_UI
+from mex_invenio.custom_fields.field_types import get_field_types
+from mex_invenio.custom_fields.pref_labels import get_pref_labels
 
 
 def _(x):  # needed to avoid start time failure with lazy strings
@@ -726,3 +728,6 @@ EXTIDS = {
 TAGS = [
     "mex:keyword"
 ]
+
+FIELD_TYPES = get_field_types()
+PREF_LABELS = get_pref_labels()

@@ -1,32 +1,27 @@
-from flask import render_template, abort, g
+from flask import current_app, render_template, abort, g
 from flask.views import MethodView
-from invenio_pidstore.resolver import Resolver
-from invenio_rdm_records.records.api import RDMRecord
 from invenio_rdm_records.resources.serializers import UIJSONSerializer
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_access.permissions import system_identity
-from mex_invenio.config import settings
 from invenio_pidstore.errors import (
-    PIDDeletedError,
     PIDDoesNotExistError,
-    PIDMissingObjectError,
-    PIDRedirectedError,
-    PIDUnregistered,
     PIDValueError
 )
 
 import json
 
 
-def _get_records_by_field(field_id, value):
+def _get_records_by_field(field_id: str, value) -> list:
+    """Fetch records by a specific field and value."""
     escaped_field = field_id.replace(':', '\:')
     search_query = f'custom_fields.{escaped_field}:{value}'
     results = list(current_rdm_records_service.search(g.identity, q=search_query))
 
-    return results or None
+    return results
 
 
-def _get_record_by_id(mex_id):
+def _get_record_by_mex_id(mex_id: str) -> dict:
+    """Fetch a record by its MEx ID."""
     results = _get_records_by_field("mex:identifier", mex_id)
 
     if not results:
@@ -39,14 +34,15 @@ def _get_record_by_id(mex_id):
 
 
 def _get_linked_records(record, mex_id):
-
+    """Fetch metadata about linked records for a given record."""
     record_type = record["metadata"]["resource_type"]["id"]
-
+    linked_records_fields = current_app.config.get('LINKED_RECORDS_FIELDS', {})
+    records_linked_backwards = current_app.config.get('RECORDS_LINKED_BACKWARDS', {})
     linked_records_data = {}
 
-    if record_type in settings.LINKED_RECORDS_FIELDS:
+    if record_type in linked_records_fields:
 
-        for field, props in settings.LINKED_RECORDS_FIELDS[record_type].items():
+        for field, props in linked_records_fields[record_type].items():
             raw_value = record["custom_fields"].get(field)
 
             if not raw_value:
@@ -61,7 +57,7 @@ def _get_linked_records(record, mex_id):
                 display_value = [linked_record_id]
 
                 try:
-                    linked_record = _get_record_by_id(linked_record_id)
+                    linked_record = _get_record_by_mex_id(linked_record_id)
                 except Exception:
                     linked_record = None
 
@@ -83,16 +79,14 @@ def _get_linked_records(record, mex_id):
 
             linked_records_data[field] = field_values
 
-    if record_type in settings.RECORDS_LINKED_BACKWARDS:
+    if record_type in records_linked_backwards:
 
-        for field, props in settings.RECORDS_LINKED_BACKWARDS[record_type].items():
+        for field, props in records_linked_backwards[record_type].items():
 
-            linked_records_raw = _get_records_by_field(field, mex_id)
+            linked_records = _get_records_by_field(field, mex_id)
 
-            if not linked_records_raw:
+            if not linked_records:
                 continue
-
-            linked_records = linked_records_raw if isinstance(linked_records_raw, list) else [linked_records_raw]
 
             field_values = []
 
@@ -127,7 +121,7 @@ class MexRecord(MethodView):
     def get(self, mex_id):
 
         try:
-            record = _get_record_by_id(mex_id)
+            record = _get_record_by_mex_id(mex_id)
         except PIDDoesNotExistError:
             abort(404)
         except Exception:
@@ -145,6 +139,3 @@ class MexRecord(MethodView):
                                record=json.loads(record_ui),
                                linked_records_data=linked_records_data,
                                is_preview=False)
-
-    # invenio id: wbdv5-sac84
-    # mex id: cP1OvUS7rELcPULquIu1dZ
