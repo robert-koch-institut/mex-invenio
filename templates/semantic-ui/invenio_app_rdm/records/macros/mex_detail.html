@@ -65,8 +65,9 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- if val.startswith("http") -%}
             <a href="{{ val }}">{{ val.split('/')[-1] }}</a>
         {%- else -%}
-            {{ val }}{% if not loop.last %}, {% endif %}
+            {{ val }}
         {%- endif -%}
+        {% if not loop.last %}&nbsp;&nbsp;{% endif %}
     {%- endfor -%}
 {% endmacro %}
 
@@ -84,23 +85,21 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {% macro render_identifier(field_name,identifiers) %}
     {% if linked_records_data %}
-        {% for id in identifiers %}
-            {% set value = linked_records_data[field_name] %}
-            {% if value %}
-                {% set first = value[0]["display_value"][0] %}
-                {% if first is string %}
-                    {% for v in value %}
-                        <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
-                    {% endfor %}
-                {% else %}
-                    {% for v in value %}
-                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} [No name] {% endif %}</a>
-                    {% endfor %}
-                {% endif %}
+        {% set value = linked_records_data[field_name] %}
+        {% if value %}
+            {% set first = value[0]["display_value"][0] %}
+            {% if first is string %}
+                {% for v in value %}
+                    <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                {% endfor %}
             {% else %}
-                [No value]
+                {% for v in value %}
+                    <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} [No name] {% endif %}</a>
+                {% endfor %}
             {% endif %}
-        {% endfor %}
+        {% else %}
+            [No value]
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -115,11 +114,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
         {# Infer type from config #}
         {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
-        {% if type == None %}
-            {% if field_name in config.RECORDS_LINKED_BACKWARDS.get(resource_type) %}
+        {%- if type == None -%}
+            {%- if field_name in config.RECORDS_LINKED_BACKWARDS.get(resource_type) -%}
                 {%- set type = config.CUSTOM_TYPES.IDENTIFIER -%}
-            {% endif %}
-        {% endif %}
+            {%- endif -%}
+        {%- endif -%}
         {%- if field_name in config.EXTIDS.props -%}
             {{ render_extid(values) }}
         {%- elif type == "string" or type == "int" -%}
