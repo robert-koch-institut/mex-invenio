@@ -115,6 +115,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
         {# Infer type from config #}
         {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
+        {% if type == None %}
+            {% if field_name in config.RECORDS_LINKED_BACKWARDS.get(resource_type) %}
+                {%- set type = config.CUSTOM_TYPES.IDENTIFIER -%}
+            {% endif %}
+        {% endif %}
         {%- if field_name in config.EXTIDS.props -%}
             {{ render_extid(values) }}
         {%- elif type == "string" or type == "int" -%}
