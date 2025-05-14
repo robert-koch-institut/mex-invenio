@@ -733,3 +733,6 @@ TAGS = [
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
+
+from mex_invenio.custom_fields import field_types
+CUSTOM_TYPES = field_types.CUSTOM_TYPES
