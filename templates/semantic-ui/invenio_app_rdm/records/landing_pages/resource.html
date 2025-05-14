@@ -25,7 +25,7 @@
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
                         <span id="record-created_date" class="muted">{{ val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) }}</span>
                     </div>
-                    {% set alttitle = val("config.RECORD_SPECIAL_FIELDS.ALT_TITLE",record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
+                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
                     {% endif %}
@@ -33,7 +33,7 @@
 
                 {% set description = val(config.RECORD_SPECIAL_FIELDS.DESCRIPTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.DESCRIPTION], resource_type) %}
                 {% if description %}
-                    <section id="record-description" aria-label="{{ _('Record Description') }}">
+                    <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
                         <p>{{ description }}</p>
                     </section>
                 {% endif %}
