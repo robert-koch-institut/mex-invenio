@@ -722,8 +722,10 @@ EXTIDS = {
     "DOI": {"prop": "mex:doi", "url": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
     "MESH": {"prop": "mex:meshId", "url": ["http://id.nlm.nih.gov/mesh/"]},
     "LOINC":{"prop": "mex:loincId", "url":["https://loinc.org/"]},
-    "ICD10": {"prop": "mex:icd10Code"}
+    "ICD10": {"prop": "mex:icd10Code"},
 }
+
+EXTIDS["props"] = [x["prop"] for x in EXTIDS.values()]
 
 TAGS = [
     "mex:keyword"
