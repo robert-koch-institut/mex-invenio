@@ -69,18 +69,19 @@ under the terms of the MIT License; see LICENSE file for more details.
                             {%- include "invenio_app_rdm/searchbar.html" %}
 
                             {%- block navbar_nav %}
+                                {% set resource_types = {
+                                  'resource': _('Resources'),
+                                  'variable': _('Variables'),
+                                  'activity': _('Activities'),
+                                  'bibliographicresource': _('Publications')
+                                } %}
+                                {% for type, label in resource_types.items() %}
                                 <div class="item">
-                                    <a href="/search">{{ _("Resources") }}</a>
+                                    <a href="/search?q=&f=restricted_resource_type%3A{{ type }}&l=list&p=1&s=10&sort=newest">
+                                        {{ label }}
+                                    </a>
                                 </div>
-                                <div class="item">
-                                    <a href="/search">{{ _("Activities") }}</a>
-                                </div>
-                                <div class="item">
-                                    <a href="/search">{{ _("Publications") }}</a>
-                                </div>
-                                <div class="item">
-                                    <a href="/search">{{ _("Variables") }}</a>
-                                </div>
+                                {% endfor %}
                             {%- endblock navbar_nav %}
                         </nav>
                     </nav>
