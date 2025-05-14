@@ -54,7 +54,7 @@ def _get_linked_records(record, mex_id):
 
             for linked_record_id in linked_record_ids:
 
-                display_value = [linked_record_id]
+                display_value = False
 
                 try:
                     linked_record = _get_record_by_mex_id(linked_record_id)
@@ -71,6 +71,9 @@ def _get_linked_records(record, mex_id):
                             break
                 else:
                     display_value = f'Record with id {linked_record_id} not found'
+
+                if not display_value:
+                    display_value = [linked_record_id]
 
                 field_values.append({
                     "display_value": display_value,
