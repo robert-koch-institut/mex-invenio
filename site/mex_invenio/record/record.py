@@ -70,7 +70,6 @@ def _get_linked_records(record, mex_id):
                         if display_value:
                             break
                 else:
-                    print(linked_record_id)
                     display_value = current_app.config.get("NO_RECORD_STRING", "No record found")
 
                 if not display_value:
