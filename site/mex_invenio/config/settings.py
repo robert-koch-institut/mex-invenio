@@ -519,18 +519,18 @@ LINKED_RECORDS_FIELDS = {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
     "mex:unitInCharge": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     }
   },
   "activity": {
     "mex:contact": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"],
       "mex:contactpoint": ["mex:email"]
     },
     "mex:externalAssociate": {
       "mex:organization": ["mex:officialName"],
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName","mex:email"]
     },
     "mex:funderOrCommissioner": {
       "mex:organization": ["mex:officialName"]
@@ -539,10 +539,10 @@ LINKED_RECORDS_FIELDS = {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
     "mex:involvedPerson": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:involvedUnit": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:isPartOfActivity": {
       "mex:activity": ["mex:title"]
@@ -551,7 +551,7 @@ LINKED_RECORDS_FIELDS = {
       "mex:bibliographicresource": ["mex:title"]
     },
     "mex:responsibleUnit": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:succeeds": {
       "mex:activity": ["mex:title"]
@@ -559,19 +559,19 @@ LINKED_RECORDS_FIELDS = {
   },
   "bibliographicresource": {
     "mex:contributingUnit": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:creator": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:distribution": {
       "mex:distribution": ["mex:title"]
     },
     "mex:editor": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:editorOfSeries": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:hadPrimarySource": {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
@@ -590,7 +590,7 @@ LINKED_RECORDS_FIELDS = {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
     "mex:hasDataSubject": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     }
   },
   "contactpoint": {
@@ -616,7 +616,7 @@ LINKED_RECORDS_FIELDS = {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
     "mex:parentUnit": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:unitOf": {
       "mex:organization": ["mex:officialName"]
@@ -630,13 +630,13 @@ LINKED_RECORDS_FIELDS = {
       "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
     },
     "mex:memberOf": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     }
   },
   "primarysource": {
     "mex:contact": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"],
       "mex:contactpoint": ["mex:email"]
     },
     "mex:hadPrimarySource": {
@@ -652,17 +652,17 @@ LINKED_RECORDS_FIELDS = {
     },
     "mex:contact": {
       "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"],
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"],
       "mex:contactpoint": ["mex:email"]
     },
     "mex:contributingUnit": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:contributor": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:creator": {
-      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName"]
+      "mex:person": ["mex:fullName", "mex:familyName", "mex:givenName", "mex:email"]
     },
     "mex:distribution": {
       "mex:distribution": ["mex:title"]
@@ -683,7 +683,7 @@ LINKED_RECORDS_FIELDS = {
       "mex:organization": ["mex:officialName"]
     },
     "mex:unitInCharge": {
-      "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
+      "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
     },
     "mex:wasGeneratedBy": {
       "mex:activity": ["mex:title"]
