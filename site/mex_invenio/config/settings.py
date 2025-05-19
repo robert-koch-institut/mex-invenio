@@ -391,10 +391,17 @@ RECORD_CARDS = {
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
-                    "mex:mex:resourceCreationMethod",
-                    "mex:mex:accrualPeriodicity",
-                    "mex:mex:anonymization/pseudonymization",
-                    "mex:mex:instrumentToolOrApparatus"
+                    "mex:resourceCreationMethod",
+                    "mex:accrualPeriodicity",
+                    "mex:anonymization/pseudonymization",
+                    "mex:instrumentToolOrApparatus"
+                ]
+            },
+            "quality": {
+                "title": "Standards & Quality",
+                "icon": "quality.svg",
+                "properties": [
+                    "mex:conformsTo"
                 ]
             },
             "methodology": {
