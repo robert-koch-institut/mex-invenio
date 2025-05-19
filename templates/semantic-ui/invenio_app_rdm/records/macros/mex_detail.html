@@ -56,7 +56,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {% macro render_url(field_name,items) %}
     {%- for item in items -%}
-        <a href="{{ item.link }}">{{ render_text(field_name,item.title) }}</a>
+        <a href="{{ item.url }}">{{ render_text(field_name,[{"value": item.title, "language": item.language}]) }}</a>
     {%- endfor -%}
 {% endmacro %}
 
@@ -112,15 +112,13 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% endmacro %}
 
 {%- macro val(field_name, field_raw_value, resource_type) -%}
-
     {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
         {# Normalize: wrap single values into a list #}
-        {%- if field_raw_value is string or field_raw_value is number -%}
+        {%- if field_raw_value is string or field_raw_value is number or field_raw_value is mapping -%}
             {%- set values = [field_raw_value] -%}
         {%- else -%}
             {%- set values = field_raw_value -%}
         {%- endif -%}
-
         {# Infer type from config #}
         {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
         {%- if type == None -%}
