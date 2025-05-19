@@ -90,20 +90,29 @@ it under the terms of the MIT License; see LICENSE file for more details.
             {% set first = value[0]["display_value"][0] %}
             {% if first is string %}
                 {% for v in value %}
-                    <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                    {% if v["display_value"] != config.NO_RECORD_STRING %}
+                        <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                    {% else %}
+                        <i class="muted">Record {{ v.link_id }} not found.</i>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 {% for v in value %}
-                    <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} [No name] {% endif %}</a>
+                    {% if v != config.NO_RECORD_STRING %}
+                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
+                    {% else %}
+                        <i class="muted">Record {{ v.link_id }} not found.</i>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
         {% else %}
-            [No value]
+            <i class="muted">[No value]</i>
         {% endif %}
     {% endif %}
 {% endmacro %}
 
 {%- macro val(field_name, field_raw_value, resource_type) -%}
+
     {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number -%}
