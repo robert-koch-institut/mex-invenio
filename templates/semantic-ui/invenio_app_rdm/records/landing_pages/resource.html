@@ -38,6 +38,13 @@
                     </section>
                 {% endif %}
 
+                {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
+                {% if description %}
+                    <section id="record-language" aria-label="{{ _('Record Language') }}" style="margin-top: 1rem;">
+                        <b style="color: #404565">{{ _('Language') }}: {{ language }}</b>
+                    </section>
+                {% endif %}
+
                 <div class="ui divider"></div>
 
                 {% set icd10val = val(config.EXTIDS.ICD10.prop, record.ui.custom_fields[config.EXTIDS.ICD10.prop], resource_type) %}

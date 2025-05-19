@@ -1,3 +1,12 @@
+.muted {
+    white-space: nowrap;
+    flex-shrink: 0;
+    color: @mutedTextColor;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 2.1rem;
+}
+
 ::selection {
   background-color: @primaryColor;
   color: white;
@@ -207,14 +216,6 @@ a.light {
                 font-size: 1.3rem;
                 font-weight: 600;
                 line-height: 2rem;
-            }
-            .muted {
-                white-space: nowrap;
-                flex-shrink: 0;
-                color: @mutedTextColor;
-                font-size: 1rem;
-                font-weight: 400;
-                line-height: 2.1rem;
             }
         }
         h2.alttitle {
