@@ -21,7 +21,7 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
     "/schema/fields/link": CUSTOM_TYPES.URL,
 }
 
-records_dir = 'site/mex_invenio/custom_fields/mex-model/mex/model/entities/'
+records_dir = "site/mex_invenio/custom_fields/mex-model/mex/model/entities/"
 
 
 # Function to determine the field type based on the provided properties
@@ -63,7 +63,6 @@ def get_field_type(property):
     # Handle special date types based on "anyOf"
     if not field_type and "anyOf" in property:
         for sub_property in property["anyOf"]:
-
             if "$ref" in sub_property:
                 ref = sub_property["$ref"]
                 # Check for matching $ref to get label or field type
@@ -93,7 +92,7 @@ def get_field_types() -> dict:
         return field_types
 
     for file in os.listdir(records_dir):
-        with open(f'{records_dir}/{file}') as f:
+        with open(f"{records_dir}/{file}") as f:
             data = json.load(f)
 
         if data:
