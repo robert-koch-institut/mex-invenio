@@ -348,7 +348,7 @@ RECORD_CARDS = {
     "resource": {
         "left": {
             "creators": {
-                "title": "Contributors & Creators",
+                "title": "Creators & Contributors",
                 "icon": "creators.svg",
                 "properties": [
                     "mex:creator",
