@@ -47,9 +47,9 @@
 
                 <div class="ui divider"></div>
 
-                {% set icd10val = val(config.EXTIDS.ICD10.prop, record.ui.custom_fields[config.EXTIDS.ICD10.prop], resource_type) %}
-                {% set loincval = val(config.EXTIDS.LOINC.prop, record.ui.custom_fields[config.EXTIDS.LOINC.prop], resource_type) %}
-                {% set meshval = val(config.EXTIDS.MESH.prop, record.ui.custom_fields[config.EXTIDS.MESH.prop], resource_type) %}
+                {% set icd10val = val("mex:icd10code", record.ui.custom_fields["mex:icd10code"], resource_type) %}
+                {% set loincval = val("mex:loincId", record.ui.custom_fields["mex:loincId"], resource_type) %}
+                {% set meshval = val("mex:meshId", record.ui.custom_fields["mex:meshId"], resource_type) %}
                 {% if icd10val or loincval or meshval %}
                     <section id="record-ids" aria-label="{{ _('Record IDs') }}">
                         <div class="id-tags">

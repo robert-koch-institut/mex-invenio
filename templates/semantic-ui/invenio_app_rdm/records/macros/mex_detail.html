@@ -60,10 +60,17 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endfor -%}
 {% endmacro %}
 
-{% macro render_extid(values) %}
+{% macro render_extid(field_name, values) %}
+{% set ns = namespace(matched=false, displayed=val) %}
     {%- for val in values -%}
         {%- if val.startswith("http") -%}
-            <a href="{{ val }}">{{ val.split('/')[-1] }}</a>
+            {%- for prefix in config.EXTIDS[field_name].urls -%}
+                {%- if not matched and val.startswith(prefix) -%}
+                    {%- set ns.displayed = val | replace(prefix, '') -%}
+                    {%- set ns.matched = true -%}
+                {%- endif -%}
+            {%- endfor -%}
+            <a href="{{ val }}">{{ ns.displayed }}</a>
         {%- else -%}
             {{ val }}
         {%- endif -%}
@@ -126,8 +133,8 @@ it under the terms of the MIT License; see LICENSE file for more details.
                 {%- set type = config.CUSTOM_TYPES.IDENTIFIER -%}
             {%- endif -%}
         {%- endif -%}
-        {%- if field_name in config.EXTIDS.props -%}
-            {{ render_extid(values) }}
+        {%- if field_name in config.EXTIDS -%}
+            {{ render_extid(field_name, values) }}
         {%- elif type == "string" or type == "int" -%}
             {{ values | join(", ") }}
         {%- elif type == "text" -%}

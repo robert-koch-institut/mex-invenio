@@ -393,7 +393,7 @@ RECORD_CARDS = {
                 "properties": [
                     "mex:resourceCreationMethod",
                     "mex:accrualPeriodicity",
-                    "mex:anonymization/pseudonymization",
+                    "mex:anonymizationPseudonymization",
                     "mex:instrumentToolOrApparatus"
                 ]
             },
@@ -727,13 +727,12 @@ RECORD_SPECIAL_FIELDS = {
 }
 
 EXTIDS = {
-    "DOI": {"prop": "mex:doi", "url": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
-    "MESH": {"prop": "mex:meshId", "url": ["http://id.nlm.nih.gov/mesh/"]},
-    "LOINC":{"prop": "mex:loincId", "url":["https://loinc.org/"]},
-    "ICD10": {"prop": "mex:icd10code"},
+    "mex:doi": {"urls": ["https://dx.doi.org/", "http://doi.org/","https://doi.org/", "http://dx.doi.org/"]},
+    "mex:meshId": {"urls": ["http://id.nlm.nih.gov/mesh/"]},
+    "mex:loincId": {"urls":["https://loinc.org/"]},
+    "mex:icd10code": {},
 }
 
-EXTIDS["props"] = [x["prop"] for x in EXTIDS.values()]
 
 TAGS = [
     "mex:keyword"
