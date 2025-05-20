@@ -4,9 +4,9 @@
                          href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
                          target="_blank">Edit this record</a></div>
 <div class="ui container">
-    <div class="ui relaxed grid mt-5">
+    <div class="ui relaxed stackable reversed mobile grid mt-5">
         <div class="two column row top-padded">
-            <article class="sixteen wide tablet eleven wide computer column main-record-content">
+            <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
                 <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
                     <div class="tags top-tags">
                         <span class="tag">{{ record.metadata.resource_type.title.get(current_i18n.language, 'en') }}</span>
@@ -95,7 +95,7 @@
                 </section>
 
             </article>
-            <aside class="sixteen wide tablet five wide computer column sidebar record-cards verticals"
+            <aside class="five wide tablet five wide computer column sixteen wide mobile sidebar record-cards vertical"
                    aria-label="{{ _('Record details') }}">
                 {% set column = "right" %}
                 {% block record_sidebar %}

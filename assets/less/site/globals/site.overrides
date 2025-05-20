@@ -17,15 +17,19 @@
   color: white;
 }
 
+.landing_page > .ui.container {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 85vw;
+}
 
 .record-cards {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     &.vertical {
-        flex-direction: column;
         .card {
-            width: 100%;
+            flex: 0 0 100%;
         }
     }
     .card {
@@ -93,7 +97,7 @@
     .navbar-links {
         .item a {
             color: @darkLinkColor;
-            text-decorations: none;
+            text-decoration: none;
             &:hover {
                 color: @darkLinkColor !important;
                 text-decoration: underline !important;
