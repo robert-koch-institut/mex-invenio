@@ -481,3 +481,6 @@ msgstr "Barrierefreiheit"
 
 msgid "Imprint"
 msgstr "Impressum"
+
+msgid "Jump up"
+msgstr "Aufspringen"
