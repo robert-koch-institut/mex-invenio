@@ -21,7 +21,7 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
     "/schema/fields/link": CUSTOM_TYPES.URL,
 }
 
-records_dir = 'site/mex_invenio/custom_fields/mex-model/mex/model/entities/'
+records_dir = "site/mex_invenio/custom_fields/mex-model/mex/model/entities/"
 
 
 # Function to determine the field type based on the provided properties
@@ -93,7 +93,7 @@ def get_field_types() -> dict:
         return field_types
 
     for file in os.listdir(records_dir):
-        with open(f'{records_dir}/{file}') as f:
+        with open(f"{records_dir}/{file}") as f:
             data = json.load(f)
 
         if data:

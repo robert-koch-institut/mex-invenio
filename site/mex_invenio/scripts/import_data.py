@@ -42,38 +42,52 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-def process_record(mex_id: str, mex_data: dict, owner_id: int) -> Union[None, dict[str, Any]]:
+def process_record(
+    mex_id: str, mex_data: dict, owner_id: int
+) -> Union[None, dict[str, Any]]:
     """Create and publish a single record."""
     app = current_app._get_current_object()  # Get the actual Flask app object
     with app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
 
         try:  # Create draft record and publish
-            search_query = f'custom_fields.mex\:identifier:{mex_id}'
+            search_query = f"custom_fields.mex\:identifier:{mex_id}"
             results = list(current_rdm_records_service.search(identity, q=search_query))
 
             if len(results) == 0:
                 # Create a new record
-                draft = current_rdm_records_service.create(data=mex_data, identity=identity)
-                published = current_rdm_records_service.publish(id_=draft.id, identity=identity)
+                draft = current_rdm_records_service.create(
+                    data=mex_data, identity=identity
+                )
+                published = current_rdm_records_service.publish(
+                    id_=draft.id, identity=identity
+                )
 
-                return {'action': 'create', 'id': published.id}
+                return {"action": "create", "id": published.id}
             elif len(results) == 1:
                 # Update an existing record
-                record_pid = results[0]['id']
+                record_pid = results[0]["id"]
 
                 # Check if the record needs to be updated, it's sufficient to compare
                 # the custom_fields as the Datacite metadata is not expected to change
-                metadata_diff = compare_dicts(results[0]['custom_fields'], mex_data['custom_fields'])
+                metadata_diff = compare_dicts(
+                    results[0]["custom_fields"], mex_data["custom_fields"]
+                )
 
                 if metadata_diff != {}:
-                    new_version = current_rdm_records_service.new_version(id_=record_pid, identity=identity)
-                    current_rdm_records_service.update_draft(identity, new_version.id, mex_data)
-                    new_record = current_rdm_records_service.publish(identity=identity, id_=new_version.id)
+                    new_version = current_rdm_records_service.new_version(
+                        id_=record_pid, identity=identity
+                    )
+                    current_rdm_records_service.update_draft(
+                        identity, new_version.id, mex_data
+                    )
+                    new_record = current_rdm_records_service.publish(
+                        identity=identity, id_=new_version.id
+                    )
 
-                    return {'action': 'update', 'id': new_record.id}
+                    return {"action": "update", "id": new_record.id}
                 else:
-                    return {'action': 'skip', 'id': record_pid}
+                    return {"action": "skip", "id": record_pid}
             elif len(results) > 1:
                 # Log and skip the record if multiple records are found
                 logger.error(f"Multiple records found for MEx id: {mex_id}")
@@ -93,11 +107,13 @@ def _import_data(email: str, filepath: str, batch_size: int):
     return import_data(email, filepath, batch_size, cli=True)
 
 
-def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, cli: bool = False) -> bool:
+def import_data(
+    email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, cli: bool = False
+) -> bool:
     """Main function to import data.
-       Batch size is set to 10mb by default.
-       Expected data source is a JSON file with one MEx record per line.
-       About 50k records, or ~100mb."""
+    Batch size is set to 10mb by default.
+    Expected data source is a JSON file with one MEx record per line.
+    About 50k records, or ~100mb."""
 
     if not os.path.isfile(filepath):
         message = f"File {filepath} not found."
@@ -129,7 +145,7 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
-    report = {'created': [], 'updated': [], 'skipped': []}
+    report = {"created": [], "updated": [], "skipped": []}
 
     # Batch read the file to avoid memory issues
     with open(filepath) as f:
@@ -138,7 +154,7 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
             lines = f.readlines(batch_size)
             num_lines += len(lines)
 
-            if not lines or lines[0] == '':
+            if not lines or lines[0] == "":
                 break
 
             # Use multiprocessing Pool to parallelize the process
@@ -146,7 +162,7 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
                 for line in lines:
                     json_data = json.loads(line)
                     clean_data = clean_dict(json_data)
-                    mex_id = json_data['identifier']
+                    mex_id = json_data["identifier"]
 
                     try:
                         mex_data = mex_to_invenio_schema(clean_data)
@@ -159,7 +175,9 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
                         logger.error(f"KeyError: {ke}\nError processing record: {line}")
                         continue
 
-                    futures.append(pool.apply_async(process_record, (mex_id, mex_data, owner.id)))
+                    futures.append(
+                        pool.apply_async(process_record, (mex_id, mex_data, owner.id))
+                    )
 
                 # Collect the results as they complete
                 for future in futures:
@@ -167,12 +185,12 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
                         result = future.get()  # get the result from the process
 
                         if result is not None:
-                            if result['action'] == 'create':
-                                report['created'].append(result['id'])
-                            elif result['action'] == 'update':
-                                report['updated'].append(result['id'])
-                            elif result['action'] == 'skip':
-                                report['skipped'].append(result['id'])
+                            if result["action"] == "create":
+                                report["created"].append(result["id"])
+                            elif result["action"] == "update":
+                                report["updated"].append(result["id"])
+                            elif result["action"] == "skip":
+                                report["skipped"].append(result["id"])
                     except Exception as e:
                         logger.error(f"Error processing record: {str(e)}")
 
@@ -187,10 +205,14 @@ def import_data(email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, c
         record_count = len(report[action])
 
         if record_count > 0:
-            logger.info(f"{action.capitalize()} {record_count} records. Ids: {report[action]}")
+            logger.info(
+                f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
+            )
 
     if minutes:
-        time_taken = f"Total time taken: {int(minutes)} minutes and {seconds:.2f} seconds."
+        time_taken = (
+            f"Total time taken: {int(minutes)} minutes and {seconds:.2f} seconds."
+        )
     else:
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
