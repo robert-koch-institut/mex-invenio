@@ -140,9 +140,6 @@ class MexRecord(MethodView):
         record_ui = json.dumps(r)
 
         linked_records_data = _get_linked_records(record, mex_id)
-        current_app.logger.info(f"Linked records data: {linked_records_data}")
-        current_app.logger.info(f"{record}")
-        current_app.logger.info(f"{mex_id}")
 
         return render_template(
             self.template,
