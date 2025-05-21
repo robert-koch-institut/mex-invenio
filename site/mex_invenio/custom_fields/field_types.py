@@ -63,7 +63,6 @@ def get_field_type(property):
     # Handle special date types based on "anyOf"
     if not field_type and "anyOf" in property:
         for sub_property in property["anyOf"]:
-
             if "$ref" in sub_property:
                 ref = sub_property["$ref"]
                 # Check for matching $ref to get label or field type

@@ -40,7 +40,9 @@ def create_blueprint(app):
 
 def redirect_to_mex(record_id):
     record = None
-    resolver = Resolver(pid_type="recid", object_type="rec", getter=RDMRecord.get_record)
+    resolver = Resolver(
+        pid_type="recid", object_type="rec", getter=RDMRecord.get_record
+    )
 
     try:
         pid, record = resolver.resolve(record_id)
@@ -57,9 +59,7 @@ def redirect_to_mex(record_id):
     try:
         mex_id = record["custom_fields"]["mex:identifier"]
     except Exception as e:
-        current_app.logger.exception(
-            "No mex id for the record {0}.".format(e)
-        )
+        current_app.logger.exception("No mex id for the record {0}.".format(e))
         abort(500)
 
     return redirect(url_for(".mex_view", mex_id=mex_id))

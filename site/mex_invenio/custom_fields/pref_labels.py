@@ -7,7 +7,7 @@ def get_pref_labels() -> dict:
     vocabularies directory to a template accessible file."""
 
     pref_labels = {}
-    vocab_dir = 'site/mex_invenio/custom_fields/mex-model/mex/model/vocabularies'
+    vocab_dir = "site/mex_invenio/custom_fields/mex-model/mex/model/vocabularies"
 
     if not os.path.isdir(vocab_dir):
         return pref_labels
