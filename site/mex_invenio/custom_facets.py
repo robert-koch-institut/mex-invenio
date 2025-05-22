@@ -14,7 +14,9 @@ class RestrictedTermsFacet(NestedTermsFacet):
         """Get the aggregation and subaggregation."""
         kwargs = {
             "field": self._field,
-            "aggs": {"inner": dsl.A("terms", field=self._subfield), }
+            "aggs": {
+                "inner": dsl.A("terms", field=self._subfield),
+            },
         }
 
         if self.excluded_values:
