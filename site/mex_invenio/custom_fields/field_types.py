@@ -1,5 +1,6 @@
 import json
 import os
+from importlib import resources
 
 
 # Custom types definition
@@ -20,8 +21,6 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
     "/schema/fields/text": CUSTOM_TYPES.TEXT,
     "/schema/fields/link": CUSTOM_TYPES.URL,
 }
-
-records_dir = "site/mex_invenio/custom_fields/mex-model/mex/model/entities/"
 
 
 # Function to determine the field type based on the provided properties
@@ -86,18 +85,20 @@ def get_field_type(property):
 
 # Main function to process the files
 def get_field_types() -> dict:
+    entities_directory = resources.files("mex").joinpath("model/entities")
+
+    if not os.path.isdir(entities_directory):
+        return {}
+
     field_types = {}
 
-    if not os.path.isdir(records_dir):
-        return field_types
+    for entity_filename in os.listdir(entities_directory):
+        try:
+            with open(f"{entities_directory}/{entity_filename}") as f:
+                data = json.load(f)
 
-    for file in os.listdir(records_dir):
-        with open(f"{records_dir}/{file}") as f:
-            data = json.load(f)
-
-        if data:
             properties = data.get("properties", {})
-            resource_type = file.replace("-", "").replace(".json", "")
+            resource_type = data.get("$id").split("/")[-1].replace("-", "")
             # Initialize the result for this file
             field_types[resource_type] = {}
 
@@ -107,5 +108,7 @@ def get_field_types() -> dict:
                     field_types[resource_type]["mex:" + prop_name] = field_type
                 else:
                     field_types[resource_type]["mex:" + prop_name] = "unknown"
+        except Exception:
+            continue
 
     return field_types

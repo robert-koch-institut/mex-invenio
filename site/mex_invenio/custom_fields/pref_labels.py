@@ -1,16 +1,28 @@
-from mex.model import VOCABULARY_JSON_BY_NAME
-from mex_invenio.scripts.utils import compare_files
+from importlib import resources
+import os
+import json
+
 
 def get_pref_labels() -> dict:
-    """Read and write pref labels from JSON files in the
-    vocabularies directory to a template accessible file."""
+    """Get pref labels from Mex model package."""
+
+    vocabularies_directory = resources.files("mex").joinpath("model/vocabularies")
+
+    if not os.path.isdir(vocabularies_directory):
+        return {}
 
     pref_labels = {}
 
-    for vocabulary in VOCABULARY_JSON_BY_NAME:
-        for pref in vocabulary:
-            identifier = pref.get('identifier')
-            pref_label = pref.get('prefLabel')
-            pref_labels[identifier] = pref_label
+    for vocabulary_filename in os.listdir(vocabularies_directory):
+        try:
+            with open(f"{vocabularies_directory}/{vocabulary_filename}", "r") as f:
+                vocabularies = json.load(f)
+
+                for vocabulary in vocabularies:
+                    identifier = vocabulary.get("identifier")
+                    pref_label = vocabulary.get("prefLabel")
+                    pref_labels[identifier] = pref_label
+        except Exception as e:
+            print(e)
 
     return pref_labels
