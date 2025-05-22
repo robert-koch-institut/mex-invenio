@@ -297,12 +297,16 @@ RDM_FACETS = {
             # Field to filter on
             label=_("Resource types"),
             value_labels=VocabularyLabels("resourcetypes"),
-            allowed_values=[
-                "resource",
-                "bibliographicresource",
-                "variable",
-                "activity",
-            ],
+            excluded_values=['accessplatform',
+                             'concept',
+                             'consent',
+                             'contactpoint',
+                             'distribution',
+                             'organization',
+                             'organizationalunit',
+                             'person',
+                             'primarysource',
+                             'variablegroup'],
         ),
         "ui": {"field": "resource_type.id"},
     },
@@ -764,7 +768,6 @@ EXTIDS = {
     "mex:loincId": {"urls": ["https://loinc.org/"]},
     "mex:icd10code": {},
 }
-
 
 TAGS = ["mex:keyword"]
 
