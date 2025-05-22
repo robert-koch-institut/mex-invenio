@@ -135,9 +135,6 @@ class MexRecord(MethodView):
         record_item = service.read(system_identity, pid)
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
-        r = json.loads(record_ui)
-        r["ui"]["custom_fields"]["mex:documentation"] = []
-        record_ui = json.dumps(r)
 
         linked_records_data = _get_linked_records(record, mex_id)
 
