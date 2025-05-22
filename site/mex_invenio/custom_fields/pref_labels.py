@@ -1,32 +1,28 @@
-import json
+from importlib import resources
 import os
+import json
 
 
 def get_pref_labels() -> dict:
-    """Read and write pref labels from JSON files in the
-    vocabularies directory to a template accessible file."""
+    """Get pref labels from Mex model package."""
+
+    vocabularies_directory = resources.files("mex").joinpath("model/vocabularies")
+
+    if not os.path.isdir(vocabularies_directory):
+        return {}
 
     pref_labels = {}
-    vocab_dir = "site/mex_invenio/custom_fields/mex-model/mex/model/vocabularies"
 
-    if not os.path.isdir(vocab_dir):
-        return pref_labels
+    for vocabulary_filename in os.listdir(vocabularies_directory):
+        try:
+            with open(f"{vocabularies_directory}/{vocabulary_filename}", "r") as f:
+                vocabularies = json.load(f)
 
-    for vocab in os.listdir(vocab_dir):
-        with open(f"{vocab_dir}/{vocab}") as vocab_file:
-            prefs = json.load(vocab_file)
-            for pref in prefs:
-                identifier = pref.get("identifier")
-                pref_label = pref.get("prefLabel")
-                description = pref.get("description")
-
-                if description:
-                    # Concept-schemes.json contains a description of each concept
-                    # it is metadata and not a prefLabel
-                    pref.pop("identifier")
-                    pref_labels[identifier] = pref
-
-                else:
+                for vocabulary in vocabularies:
+                    identifier = vocabulary.get("identifier")
+                    pref_label = vocabulary.get("prefLabel")
                     pref_labels[identifier] = pref_label
+        except Exception as e:
+            print(e)
 
     return pref_labels
