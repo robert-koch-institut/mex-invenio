@@ -66,8 +66,16 @@
                 gap: 1rem;
                 align-items: start;
                 margin-bottom: 0;
+
+                &.vertical {
+                    grid-template-columns: 100%;
+                }
                 .card-prop-label {
                     font-weight: 600;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-bottom: 0
                 }
                 .card-prop-value {
                     display: flex;

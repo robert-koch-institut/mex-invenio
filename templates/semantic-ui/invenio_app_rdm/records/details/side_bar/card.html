@@ -44,3 +44,21 @@
         </div>
     </div>
 {% endif %}
+
+{% block javascript %}
+<script>
+    document.querySelectorAll('.card-prop-label').forEach(el => {
+        if (el.offsetWidth < el.scrollWidth) {
+            el.setAttribute('title', el.textContent);
+        } else {
+            el.removeAttribute('title');
+        }
+    });
+    document.querySelectorAll('.card-props-p').forEach(pair => {
+        const label = pair.querySelector('.card-prop-label');
+        if (label.scrollWidth > label.clientWidth) {
+            pair.classList.add('vertical');
+        }
+    });
+</script>
+{% endblock %}
