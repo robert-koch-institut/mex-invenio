@@ -1,10 +1,7 @@
 .muted {
-    white-space: nowrap;
     flex-shrink: 0;
     color: @mutedTextColor;
-    font-size: 1rem;
     font-weight: 400;
-    line-height: 2.1rem;
 }
 
 ::selection {
@@ -65,17 +62,17 @@
                 grid-template-columns: 30% auto;
                 gap: 1rem;
                 align-items: start;
-                margin-bottom: 0;
-
-                &.vertical {
-                    grid-template-columns: 100%;
-                }
                 .card-prop-label {
                     font-weight: 600;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    margin-bottom: 0
+                }
+                &.vertical {
+                    grid-template-columns: 100%;
+                    .card-prop-label {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin-bottom: 0;
+                    }
                 }
                 .card-prop-value {
                     display: flex;

@@ -36,7 +36,7 @@
                 {% set value = val(prop, record_data[prop], resource_type) %}
                 {% if value %}
                     <div class="card-props-p">
-                        <p class="card-prop-label">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}" {% if value == 'Tief Ball Tisch glauben. Uhr ob Feuer schnell. Gar arbeiten dunkel zehn. Im schlagen ging damit nennen weiß Berg. Platz sicher Auto wer Buch drehen. Spiel frei schreiben Geld bis Klasse.' %} id="aaa" {% endif %}>{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}
@@ -47,18 +47,17 @@
 
 {% block javascript %}
 <script>
-    document.querySelectorAll('.card-prop-label').forEach(el => {
-        if (el.offsetWidth < el.scrollWidth) {
-            el.setAttribute('title', el.textContent);
-        } else {
-            el.removeAttribute('title');
-        }
-    });
-    document.querySelectorAll('.card-props-p').forEach(pair => {
-        const label = pair.querySelector('.card-prop-label');
-        if (label.scrollWidth > label.clientWidth) {
-            pair.classList.add('vertical');
-        }
-    });
+    function updateCardStyles() {
+        document.querySelectorAll('.card-props-p').forEach(pair => {
+            pair.classList.remove('vertical');
+            const label = pair.querySelector('.card-prop-label');
+            if (label.offsetWidth <= label.scrollWidth) {
+                pair.classList.add('vertical');
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', updateCardStyles);
+    window.addEventListener('resize', updateCardStyles);
 </script>
 {% endblock %}
