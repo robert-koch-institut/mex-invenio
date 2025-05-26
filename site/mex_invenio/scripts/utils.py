@@ -28,7 +28,19 @@ def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
     for key in current_app.config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
         if key in mex_data and len(mex_data[key]) > 0:
-            return _get_value_by_lang(mex_data, key, "de")
+            title = _get_value_by_lang(mex_data, key, "de")
+
+            # This is a clumsy check to make sure we're not passing in a title
+            # that is less than 3 characters which is the minimum
+            if len(title) < 3:
+                if isinstance(mex_data[key], str):
+                    mex_data.pop(key, None)
+                elif isinstance(mex_data[key], list):
+                    mex_data[key].pop(0)
+
+                return get_title(mex_data)
+
+            return title
 
     return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
