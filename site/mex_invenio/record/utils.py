@@ -132,6 +132,9 @@ def _get_linked_records_data(record, mex_id):
     records_linked_backwards = current_app.config.get("RECORDS_LINKED_BACKWARDS", {})
     linked_records_data = {}
 
+    # TODO:
+    # Include lookup for records linked backwards in query for linked records
+
     if record_type in linked_records_fields:
         field_items = linked_records_fields[record_type].items()
         linked_records = _get_linked_records(record, field_items)
