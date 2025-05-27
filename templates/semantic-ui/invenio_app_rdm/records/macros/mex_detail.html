@@ -90,13 +90,22 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endfor -%}
 {% endmacro %}
 
-{% macro render_identifier(field_name,identifiers) %}
+{% macro render_identifier(field_name,identifiers,backwards_linked) %}
     {% if linked_records_data %}
-        {% set value = linked_records_data[field_name] %}
+        {% if backwards_linked %}
+            {% set value = linked_records_data["backwards_linked"][field_name] %}
+        {% else %}
+            {% set value = linked_records_data[field_name] %}
+        {% endif %}
         {% if value %}
-            {% set first = value[0]["display_value"][0] %}
+            {%- if value is string or value is mapping -%}
+                {%- set values = [value] -%}
+            {%- else -%}
+                {%- set values = value -%}
+            {%- endif -%}
+            {% set first = values[0]["display_value"][0] %}
             {% if first is string %}
-                {% for v in value %}
+                {% for v in values %}
                     {% if v["display_value"] != config.NO_RECORD_STRING %}
                         <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
                     {% else %}
@@ -104,7 +113,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
                     {% endif %}
                 {% endfor %}
             {% else %}
-                {% for v in value %}
+                {% for v in values %}
                     {% if v != config.NO_RECORD_STRING %}
                         <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
                     {% else %}
@@ -118,7 +127,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endif %}
 {% endmacro %}
 
-{%- macro val(field_name, field_raw_value, resource_type) -%}
+{%- macro val(field_name, field_raw_value, resource_type, backwards_linked=false) -%}
     {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number or field_raw_value is mapping -%}
@@ -146,7 +155,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- elif type == "label" -%}
             {{ render_label(values) }}
         {%- elif type == "identifier" -%}
-            {{ render_identifier(field_name, values) }}
+            {{ render_identifier(field_name, values, backwards_linked) }}
         {%- else -%}
             {%- for val in values -%}{{ val }}{% if not loop.last %}, {% endif %}{% endfor %}
         {%- endif -%}

@@ -1,0 +1,77 @@
+{% set card_container = config.RECORD_CARDS.resource[column][card_name] %}
+
+{% set ns = namespace(prop_exist=false, cards_exist={}, show_container=false) %}
+{% for card in card_container.components %}
+    {% set ns.prop_exist = false %}
+    {% if card.is_backwards_linked %}
+        {% for prop in card.properties %}
+            {% if prop in linked_records_data %}
+                {% set ns.prop_exist = true %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% for prop in card.properties %}
+            {% if prop in record.ui.custom_fields %}
+                {% if record.ui.custom_fields[prop] %}
+                    {% set ns.prop_exist = true %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% set _ = ns.cards_exist.update({card.title: ns.prop_exist}) %}
+    {% if ns.prop_exist %} {% set ns.show_container = true %} {% endif %}
+{% endfor %}
+
+{% if ns.show_container %}
+    <div class="card long">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card_container.icon) }}"
+                 alt=""/>
+            {{ _(card_container.title) }}
+        </h3>
+        {% for card in card_container.components %}
+            {% if ns.cards_exist[card.title] %}
+                {% if card.is_backwards_linked %}
+                    {% set record_data = linked_records_data["backwards_linked"] %}
+                {% else %}
+                    {% set record_data = record.ui.custom_fields %}
+                {% endif %}
+                <h4>
+                    {{ _(card.title) }}
+                </h4>
+                <div class="card-props">
+                    {% for prop in card.properties %}
+                        {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                        {% if value %}
+                            <div class="card-props-p">
+                                {% if prop not in config.PROPS_WITHOUT_LABELS[resource_type] %}
+                                    <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                                {% endif %}
+                                <div class="card-prop-value">{{ value }}</div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if not loop.last %}<div class="ui divider"></div>{% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% block javascript %}
+<script>
+    function updateCardStyles() {
+        document.querySelectorAll('.card-props-p').forEach(pair => {
+            pair.classList.remove('vertical');
+            const label = pair.querySelector('.card-prop-label');
+            if (label.offsetWidth < label.scrollWidth) {
+                pair.classList.add('vertical');
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', updateCardStyles);
+    window.addEventListener('resize', updateCardStyles);
+</script>
+{% endblock %}

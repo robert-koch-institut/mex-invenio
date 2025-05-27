@@ -3,19 +3,17 @@
 
 {% set ns = namespace(prop_exist=false, value=none) %}
 {% if card.is_backwards_linked %}
-    {% set record_data = linked_records_data %}
+    {% set record_data = linked_records_data["backwards_linked"] %}
     {% for prop in card.properties %}
-        {% if prop in linked_records_data %}
-            {% set ns.value = linked_records_data[prop] %}
+        {% if prop in record_data %}
+            {% set ns.value = record_data[prop] %}
             {% set ns.prop_exist = true %}
         {% endif %}
     {% endfor %}
 {% else %}
     {% set record_data = record.ui.custom_fields %}
     {% for prop in card.properties %}
-
         {% if prop in record.ui.custom_fields %}
-
             {% set ns.value = record.ui.custom_fields[prop] %}
             {% if ns.value %}
                 {% set ns.prop_exist = true %}
@@ -33,10 +31,10 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% set value = val(prop, record_data[prop], resource_type) %}
+                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
                 {% if value %}
                     <div class="card-props-p">
-                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}" {% if value == 'Tief Ball Tisch glauben. Uhr ob Feuer schnell. Gar arbeiten dunkel zehn. Im schlagen ging damit nennen weiß Berg. Platz sicher Auto wer Buch drehen. Spiel frei schreiben Geld bis Klasse.' %} id="aaa" {% endif %}>{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}

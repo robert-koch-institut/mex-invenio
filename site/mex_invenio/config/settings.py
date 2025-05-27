@@ -377,6 +377,7 @@ RECORD_CARDS = {
     "resource": {
         "left": {
             "creators": {
+                "type": "single",
                 "title": "Creators & Contributors",
                 "icon": "creators.svg",
                 "properties": [
@@ -388,6 +389,7 @@ RECORD_CARDS = {
                 ],
             },
             "theme": {
+                "type": "single",
                 "title": "Theme & Keywords",
                 "icon": "theme.svg",
                 "properties": [
@@ -396,6 +398,7 @@ RECORD_CARDS = {
                 ],
             },
             "coverage": {
+                "type": "single",
                 "title": "Data Representation & Coverage",
                 "icon": "coverage.svg",
                 "properties": [
@@ -408,6 +411,7 @@ RECORD_CARDS = {
                 ],
             },
             "legal": {
+                "type": "single",
                 "title": "Legal Basis & Data Provenance",
                 "icon": "legal.svg",
                 "properties": [
@@ -417,6 +421,7 @@ RECORD_CARDS = {
                 ],
             },
             "processing": {
+                "type": "single",
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
@@ -427,54 +432,84 @@ RECORD_CARDS = {
                 ],
             },
             "quality": {
+                "type": "single",
                 "title": "Standards & Quality",
                 "icon": "quality.svg",
-                "properties": ["mex:conformsTo"],
+                "properties": ["mex:conformsTo", "mex:qualityInformation"],
             },
             "methodology": {
+                "type": "single",
                 "title": "Methodology",
                 "icon": "methodology.svg",
                 "properties": ["mex:method", "mex:methodDescription"],
             },
             "publication": {
+                "type": "single",
                 "title": "Related Publication & Further Documentation",
                 "icon": "publication.svg",
                 "properties": ["mex:publication", "mex:documentation"],
             },
-            "childOf": {
-                "title": "Related Resources",
-                "icon": "contained.svg",
-                "properties": ["mex:isPartOf"],
+            "generatedBy": {
+                "type": "single",
+                "title": "Related Projects",
+                "icon": "relatedProjects.svg",
+                "properties": ["mex:wasGeneratedBy"]
             },
+            "relatedResources": {
+                "type": "container",
+                "title": "Related Resources",
+                "icon": "relatedResources.svg",
+                "components": [
+                    {
+                        "type": "component",
+                        "title": "Part Of",
+                        "properties": ["mex:isPartOf"],
+                    },
+                    {
+                        "type": "component",
+                        "title": "Includes",
+                        "is_backwards_linked": True,
+                        "properties": ["mex:isPartOf"]
+                    }
+                ]
+            }
         },
         "right": {
             "contact": {
+                "type": "single",
                 "title": "Contact",
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": ["mex:contact"],
             },
             "access": {
+                "type": "single",
                 "title": "Access & Usage Rights",
                 "template": "access.html",
                 "icon": "access.svg",
-                "properties": ["mex:doi", "mex:license", "mex:rights"],
+                "properties": ["mex:accessRestriction", "mex:doi", "mex:license", "mex:rights"],
             },
             "files": {
+                "type": "single",
                 "title": "Files",
                 "template": "files.html",
                 "icon": "distribution.svg",
                 "properties": ["mex:distribution"],
             },
             "variables": {
+                "type": "single",
                 "title": "Variables",
                 "template": "variables.html",
                 "icon": "variables.svg",
                 "is_backwards_linked": True,
                 "properties": ["mex:usedIn"],
             },
-        },
+        }
     }
+}
+
+PROPS_WITHOUT_LABELS = {
+    "resource": ["mex:theme", "mex:isPartOf"]
 }
 
 IS_ACCESS_STATUS_OPEN = {
@@ -684,6 +719,9 @@ LINKED_RECORDS_FIELDS = {
         "mex:accessPlatform": {
             "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
         },
+        "mex:belongsTo": {
+            "mex:activity": ["mex:title"]
+        },
         "mex:contact": {
             "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
             "mex:person": [
@@ -718,7 +756,7 @@ LINKED_RECORDS_FIELDS = {
         "mex:hadPrimarySource": {
             "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
         },
-        "mex:isPartOf": {"mex:resource": ["mex:title"]},
+        "mex:isPartOf": {"mex:resource": ["mex:title", "mex:alternativeTitle"]},
         "mex:publication": {"mex:bibliographicresource": ["mex:title"]},
         "mex:publisher": {"mex:organization": ["mex:officialName"]},
         "mex:unitInCharge": {
@@ -744,6 +782,7 @@ LINKED_RECORDS_FIELDS = {
 RECORDS_LINKED_BACKWARDS = {
     "resource": {
         "mex:usedIn": ["mex:label"],
+        "mex:isPartOf": ["mex:title"],
     }
 }
 

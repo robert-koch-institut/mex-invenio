@@ -407,7 +407,7 @@ msgid "Legal Basis & Data Provenance"
 msgstr "Rechtsgrundlage & Provenzienz"
 
 msgid "Data Collection & Processing"
-msgstr "Datenerhebung & -prozessierung"
+msgstr "Datenerhebung & Pprozessierung"
 
 msgid "Methodology"
 msgstr "Methodik"
@@ -481,6 +481,9 @@ msgstr "Barrierefreiheit"
 
 msgid "Imprint"
 msgstr "Impressum"
+
+msgid "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
+msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
 
 msgid "Jump up"
 msgstr "Aufspringen"

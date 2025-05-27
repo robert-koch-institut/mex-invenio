@@ -20,10 +20,9 @@
                     </div>
                 </section>
 
-                <section id="record-title-section" aria-label="{{ _('Record title and created date') }}">
+                <section id="record-title-section">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
-                        <span id="record-created_date" class="muted">{{ val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) }}</span>
                     </div>
                     {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
@@ -39,9 +38,15 @@
                 {% endif %}
 
                 {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
-                {% if description %}
-                    <section id="record-language" aria-label="{{ _('Record Language') }}" style="margin-top: 1rem;">
-                        <b style="color: #404565">{{ _('Language') }}: {{ language }}</b>
+                {% set created = val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) %}
+                {% if language or created %}
+                    <section class="detail">
+                        {% if language %}
+                            <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
+                        {% endif %}
+                        {% if created %}
+                            <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
+                        {% endif %}
                     </section>
                 {% endif %}
 
@@ -88,9 +93,21 @@
                     {% set column = "left" %}
                     {% for card_name in config.RECORD_CARDS.resource.left %}
                         {% set card = config.RECORD_CARDS.resource.left[card_name] %}
-                        {% with card=card_name %}
-                            {%- include "invenio_app_rdm/records/details/side_bar/card.html" with context %}
-                        {% endwith %}
+                        {% if card.type == "single" %}
+                            {% with card=card_name %}
+                                {%- include "invenio_app_rdm/records/details/components/card.html" with context %}
+                            {% endwith %}
+                        {% elif card.type == "container" %}
+                            {% with card=card_name %}
+                                {%- include "invenio_app_rdm/records/details/components/card_container.html" with context %}
+                            {% endwith %}
+                        {% else %}
+                            <div class="card">
+                                <p><i class="muted">
+                                    {{ _("Card misconfigured: ") }} {{ card_name }}
+                                </i></p>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </section>
 
@@ -101,9 +118,21 @@
                 {% block record_sidebar %}
                     {%- for card_name in config.RECORD_CARDS.resource.right %}
                         {% set card = config.RECORD_CARDS.resource.right[card_name] %}
-                        {% with card=card_name %}
-                            {%- include "invenio_app_rdm/records/details/side_bar/card.html" with context %}
-                        {% endwith %}
+                        {% if card.type == "single" %}
+                            {% with card=card_name %}
+                                {%- include "invenio_app_rdm/records/details/components/card.html" with context %}
+                            {% endwith %}
+                        {% elif card.type == "container" %}
+                            {% with card=card_name %}
+                                {%- include "invenio_app_rdm/records/details/components/card_container.html" with context %}
+                            {% endwith %}
+                        {% else %}
+                            <div class="card">
+                                <p><i class="muted">
+                                    {{ _("Card misconfigured: ") }} {{ card_name }}
+                                </i></p>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                     {%- include "invenio_app_rdm/records/details/side_bar.html" %}
                 {% endblock record_sidebar %}

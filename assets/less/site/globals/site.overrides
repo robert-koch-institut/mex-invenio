@@ -20,6 +20,12 @@
     width: 85vw;
 }
 
+.detail {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
 .record-cards {
     display: flex;
     flex-wrap: wrap;
@@ -31,6 +37,9 @@
     }
     .card {
         flex: 1 1 calc(50% - 0.25rem);
+        &.long {
+            flex: 1 1 1;
+        }
         box-sizing: border-box;
         padding: 1rem 0.5rem 0.5rem 0.5rem;
         background-color: @whiteBackground;
