@@ -69,15 +69,13 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
             "resource_type": {"id": resource_type},
             "creators": [current_app.config.get("RECORD_METADATA_CREATOR", "")],
             "publication_date": datetime.today().strftime("%Y-%m-%d"),
+            "title": get_title(mex_data),
         },
         "custom_fields": {},
     }
 
     for k in mex_data:
         data["custom_fields"][f"mex:{k}"] = mex_data[k]
-
-    # Do this last to ensure the title is set correctly
-    data["metadata"]["title"] = get_title(mex_data)
 
     return data
 
