@@ -9,7 +9,7 @@
             <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
                 <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
                     <div class="tags top-tags">
-                        <span class="tag">{{ record.metadata.resource_type.title.get(current_i18n.language, 'en') }}</span>
+                        <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
                         {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
                         {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
                         {% if resource_type_general %}

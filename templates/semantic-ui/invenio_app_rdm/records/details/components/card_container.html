@@ -5,7 +5,7 @@
     {% set ns.prop_exist = false %}
     {% if card.is_backwards_linked %}
         {% for prop in card.properties %}
-            {% if prop in linked_records_data %}
+            {% if prop in linked_records_data["backwards_linked"] %}
                 {% set ns.prop_exist = true %}
             {% endif %}
         {% endfor %}
@@ -21,7 +21,6 @@
     {% set _ = ns.cards_exist.update({card.title: ns.prop_exist}) %}
     {% if ns.prop_exist %} {% set ns.show_container = true %} {% endif %}
 {% endfor %}
-
 {% if ns.show_container %}
     <div class="card long">
         <h3>
@@ -31,6 +30,9 @@
             {{ _(card_container.title) }}
         </h3>
         {% for card in card_container.components %}
+            {% set current_exists = ns.cards_exist[card.title] %}
+            {% set previous_exists = ns.cards_exist[card_container.components[loop.index0 - 1].title] if not loop.first else false %}
+            {% if not loop.first and current_exists and previous_exists %}<div class="ui divider"></div>{% endif %}
             {% if ns.cards_exist[card.title] %}
                 {% if card.is_backwards_linked %}
                     {% set record_data = linked_records_data["backwards_linked"] %}
@@ -53,7 +55,6 @@
                         {% endif %}
                     {% endfor %}
                 </div>
-                {% if not loop.last %}<div class="ui divider"></div>{% endif %}
             {% endif %}
         {% endfor %}
     </div>
@@ -65,7 +66,7 @@
         document.querySelectorAll('.card-props-p').forEach(pair => {
             pair.classList.remove('vertical');
             const label = pair.querySelector('.card-prop-label');
-            if (label.offsetWidth < label.scrollWidth) {
+            if (label && label.offsetWidth < label.scrollWidth) {
                 pair.classList.add('vertical');
             }
         });

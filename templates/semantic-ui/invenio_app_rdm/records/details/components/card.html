@@ -49,7 +49,7 @@
         document.querySelectorAll('.card-props-p').forEach(pair => {
             pair.classList.remove('vertical');
             const label = pair.querySelector('.card-prop-label');
-            if (label.offsetWidth < label.scrollWidth) {
+            if (label && label.offsetWidth < label.scrollWidth) {
                 pair.classList.add('vertical');
             }
         });

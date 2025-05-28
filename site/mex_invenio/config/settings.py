@@ -416,8 +416,7 @@ RECORD_CARDS = {
                 "icon": "legal.svg",
                 "properties": [
                     "mex:hasLegalBasis",
-                    "mex:hasPersonalData",
-                    "mex:wasGeneratedBy",
+                    "mex:hasPersonalData"
                 ],
             },
             "processing": {
@@ -509,7 +508,7 @@ RECORD_CARDS = {
 }
 
 PROPS_WITHOUT_LABELS = {
-    "resource": ["mex:theme", "mex:isPartOf"]
+    "resource": ["mex:isPartOf"]
 }
 
 IS_ACCESS_STATUS_OPEN = {
@@ -551,6 +550,15 @@ ENTITIES = [
     "variable-group",
     "variable",
 ]
+
+CORE_ENTITIES_LABELS = {
+    "Resource": "Data Source/Dataset",
+    "Activity": "Project",
+    "Variable": "Variable",
+    "BibliographicResource": "Publication"
+}
+
+DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
 
 LINKED_RECORDS_FIELDS = {
     "accessplatform": {

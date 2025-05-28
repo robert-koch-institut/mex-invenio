@@ -83,13 +83,14 @@
                 .card-prop-value {
                     display: flex;
                     flex-direction: column;
+                    gap: .5rem;
                 }
             }
         }
         &.long {
             flex: 1 1 100%;
             .card-props > .card-props-p {
-                grid-template-columns: 30% auto;
+                grid-template-columns: 100% auto;
             }
         }
     }

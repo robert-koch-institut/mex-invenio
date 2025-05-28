@@ -452,14 +452,26 @@ msgstr "Eintrag editieren"
 msgid "Search records"
 msgstr "Suche Einträge"
 
+msgid "Data Source/Dataset"
+msgstr "Datenbestand & Datensatz"
+
 msgid "Data Sources & Datasets"
 msgstr "Datenbestände & Datensätze"
+
+msgid "Project"
+msgstr "Projekt"
 
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Publication"
+msgstr "Publikation"
+
 msgid "Publications"
 msgstr "Publikationen"
+
+msgid "Variable"
+msgstr "Variable"
 
 msgid "Variables"
 msgstr "Variablen"
