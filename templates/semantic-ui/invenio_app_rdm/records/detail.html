@@ -286,4 +286,21 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {{ webpack['invenio-app-rdm-landing-page-theme.js'] }}
 {{ webpack['invenio-app-rdm-landing-page.js'] }}
 {{ webpack['previewer_theme.js'] }}
+
+<script>
+    function updateCardStyles() {
+        document.querySelectorAll('.card-props-p').forEach(pair => {
+            pair.classList.remove('vertical');
+
+            const label = pair.querySelector('.card-prop-label');
+            if (label && label.offsetWidth < label.scrollWidth) {
+                pair.classList.add('vertical');
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', updateCardStyles);
+    window.addEventListener('resize', updateCardStyles);
+</script>
+
 {%- endblock javascript %}

@@ -2,7 +2,7 @@
 {% set card = config.RECORD_CARDS.resource[column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, value=none) %}
-{% if card.is_backwards_linked %}
+{% if linked_records_data and card.is_backwards_linked %}
     {% set record_data = linked_records_data["backwards_linked"] %}
     {% for prop in card.properties %}
         {% if prop in record_data %}
@@ -42,20 +42,3 @@
         </div>
     </div>
 {% endif %}
-
-{% block javascript %}
-<script>
-    function updateCardStyles() {
-        document.querySelectorAll('.card-props-p').forEach(pair => {
-            pair.classList.remove('vertical');
-            const label = pair.querySelector('.card-prop-label');
-            if (label && label.offsetWidth < label.scrollWidth) {
-                pair.classList.add('vertical');
-            }
-        });
-    }
-
-    window.addEventListener('DOMContentLoaded', updateCardStyles);
-    window.addEventListener('resize', updateCardStyles);
-</script>
-{% endblock %}

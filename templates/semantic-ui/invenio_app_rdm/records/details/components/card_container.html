@@ -5,7 +5,7 @@
     {% set ns.prop_exist = false %}
     {% if card.is_backwards_linked %}
         {% for prop in card.properties %}
-            {% if prop in linked_records_data["backwards_linked"] %}
+            {% if linked_records_data and prop in linked_records_data["backwards_linked"] %}
                 {% set ns.prop_exist = true %}
             {% endif %}
         {% endfor %}
@@ -59,20 +59,3 @@
         {% endfor %}
     </div>
 {% endif %}
-
-{% block javascript %}
-<script>
-    function updateCardStyles() {
-        document.querySelectorAll('.card-props-p').forEach(pair => {
-            pair.classList.remove('vertical');
-            const label = pair.querySelector('.card-prop-label');
-            if (label && label.offsetWidth < label.scrollWidth) {
-                pair.classList.add('vertical');
-            }
-        });
-    }
-
-    window.addEventListener('DOMContentLoaded', updateCardStyles);
-    window.addEventListener('resize', updateCardStyles);
-</script>
-{% endblock %}
