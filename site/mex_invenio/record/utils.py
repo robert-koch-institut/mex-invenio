@@ -73,13 +73,17 @@ def _get_linked_records(record, field_items):
                 if not display_value:
                     display_value = [linked_record_id]
             else:
-                display_value = [current_app.config.get(
-                    "NO_RECORD_STRING", "No record found"
-                )]
+                display_value = [
+                    current_app.config.get("NO_RECORD_STRING", "No record found")
+                ]
 
             field_values.append(
-                {"display_value": display_value if isinstance(display_value, list) else [display_value],
-                 "link_id": linked_record_id}
+                {
+                    "display_value": display_value
+                    if isinstance(display_value, list)
+                    else [display_value],
+                    "link_id": linked_record_id,
+                }
             )
 
         records_fields[field] = field_values
@@ -107,7 +111,9 @@ def _get_records_linked_backwards(mex_id, field_items):
                     field_values.append(
                         {
                             "link_id": r["custom_fields"]["mex:identifier"],
-                            "display_value": display_value if isinstance(display_value, list) else [display_value]
+                            "display_value": display_value
+                            if isinstance(display_value, list)
+                            else [display_value],
                         }
                     )
                     break

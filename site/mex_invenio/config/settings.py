@@ -414,10 +414,7 @@ RECORD_CARDS = {
                 "type": "single",
                 "title": "Legal Basis & Data Provenance",
                 "icon": "legal.svg",
-                "properties": [
-                    "mex:hasLegalBasis",
-                    "mex:hasPersonalData"
-                ],
+                "properties": ["mex:hasLegalBasis", "mex:hasPersonalData"],
             },
             "processing": {
                 "type": "single",
@@ -452,7 +449,7 @@ RECORD_CARDS = {
                 "type": "single",
                 "title": "Related Projects",
                 "icon": "relatedProjects.svg",
-                "properties": ["mex:wasGeneratedBy"]
+                "properties": ["mex:wasGeneratedBy"],
             },
             "relatedResources": {
                 "type": "container",
@@ -468,10 +465,10 @@ RECORD_CARDS = {
                         "type": "component",
                         "title": "Includes",
                         "is_backwards_linked": True,
-                        "properties": ["mex:isPartOf"]
-                    }
-                ]
-            }
+                        "properties": ["mex:isPartOf"],
+                    },
+                ],
+            },
         },
         "right": {
             "contact": {
@@ -486,7 +483,12 @@ RECORD_CARDS = {
                 "title": "Access & Usage Rights",
                 "template": "access.html",
                 "icon": "access.svg",
-                "properties": ["mex:accessRestriction", "mex:doi", "mex:license", "mex:rights"],
+                "properties": [
+                    "mex:accessRestriction",
+                    "mex:doi",
+                    "mex:license",
+                    "mex:rights",
+                ],
             },
             "files": {
                 "type": "single",
@@ -503,13 +505,11 @@ RECORD_CARDS = {
                 "is_backwards_linked": True,
                 "properties": ["mex:usedIn"],
             },
-        }
+        },
     }
 }
 
-PROPS_WITHOUT_LABELS = {
-    "resource": ["mex:isPartOf"]
-}
+PROPS_WITHOUT_LABELS = {"resource": ["mex:isPartOf"]}
 
 IS_ACCESS_STATUS_OPEN = {
     "https://mex.rki.de/item/access-restriction-1": True,
@@ -555,7 +555,7 @@ CORE_ENTITIES_LABELS = {
     "Resource": "Data Source/Dataset",
     "Activity": "Project",
     "Variable": "Variable",
-    "BibliographicResource": "Publication"
+    "BibliographicResource": "Publication",
 }
 
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
@@ -727,9 +727,7 @@ LINKED_RECORDS_FIELDS = {
         "mex:accessPlatform": {
             "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
         },
-        "mex:belongsTo": {
-            "mex:activity": ["mex:title"]
-        },
+        "mex:belongsTo": {"mex:activity": ["mex:title"]},
         "mex:contact": {
             "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
             "mex:person": [
