@@ -56,7 +56,13 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {% macro render_url(field_name,items) %}
     {%- for item in items -%}
-        <a href="{{ item.url }}">{{ render_text(field_name,[{"value": item.title, "language": item.language}]) }}</a>
+        <a href="{{ item.url }}">
+            {%- if item.title -%}
+                {{ render_text(field_name,[{"value": item.title, "language": item.language}]) }}
+            {%- else -%}
+                {{ item.url }}
+            {%- endif -%}
+        </a>
     {%- endfor -%}
 {% endmacro %}
 
