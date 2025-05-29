@@ -1,0 +1,13 @@
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/invenioid.svg') }}"
+                 alt=""/>
+            {{ _('Invenio ID') }}
+        </h3>
+        <div class="card-props">
+            <div class="card-props-p">
+                <div class="card-prop-value"><a href="/api/records/{{- record.id -}}">{{ record.id }}</a></div>
+            </div>
+        </div>
+    </div>

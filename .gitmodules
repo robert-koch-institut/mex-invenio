@@ -1,3 +1,0 @@
-[submodule "site/mex_invenio/custom_fields/mex-model"]
-	path = site/mex_invenio/custom_fields/mex-model
-	url = git@github.com:robert-koch-institut/mex-model.git
