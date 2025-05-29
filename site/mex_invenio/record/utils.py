@@ -1,4 +1,3 @@
-from itertools import chain
 from typing import List
 
 from flask import current_app, g
@@ -37,8 +36,16 @@ def _get_record_by_mex_id(mex_id):
 def _get_linked_records(record, field_items):
     records_fields = {}
     cf = record["custom_fields"]
-    linked_record_ids = [cf.get(f[0]) for f in field_items if cf.get(f[0]) is not None]
-    linked_record_ids = list(chain.from_iterable(linked_record_ids))
+    linked_record_ids = []
+
+    for f in field_items:
+        linked_ids = cf.get(f[0])
+        if linked_ids is not None:
+            # Get the linked record ids from the custom fields
+            if isinstance(linked_ids, list):
+                linked_record_ids.extend(linked_ids)
+            else:
+                linked_record_ids.append(linked_ids)
 
     linked_records = _get_record_by_mex_id(linked_record_ids)
 
