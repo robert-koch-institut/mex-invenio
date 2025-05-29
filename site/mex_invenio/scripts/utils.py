@@ -46,7 +46,10 @@ def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
     for key in current_app.config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
         if key in mex_data and len(mex_data[key]) > 0:
-            return _get_value_by_lang(mex_data, key, "de", lambda x: len(x) > 2)
+            try:
+                return _get_value_by_lang(mex_data, key, "de", lambda x: len(x) > 2)
+            except TypeError:
+                continue
 
     return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
