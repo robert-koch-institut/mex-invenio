@@ -441,7 +441,7 @@ RECORD_CARDS = {
             },
             "publication": {
                 "type": "single",
-                "title": "Related Publication & Further Documentation",
+                "title": "Related Publications & Further Documentation",
                 "icon": "publication.svg",
                 "properties": ["mex:publication", "mex:documentation"],
             },
@@ -519,6 +519,7 @@ IS_ACCESS_STATUS_OPEN = {
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
     "invenio_app_rdm/records/details/side_bar/metrics.html",
     "invenio_app_rdm/records/details/side_bar/versions.html",
+    "invenio_app_rdm/records/details/side_bar/invenio_id.html",
     "invenio_app_rdm/records/details/side_bar/export.html",
 ]
 

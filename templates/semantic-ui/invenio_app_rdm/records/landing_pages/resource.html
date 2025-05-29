@@ -22,7 +22,7 @@
 
                 <section id="record-title-section">
                     <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}<small class="muted">   ({{ record.id }})</small></h1>
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
                     </div>
                     {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
