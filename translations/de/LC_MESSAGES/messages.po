@@ -18,222 +18,272 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
-#: /mex-invenio/site/mex_invenio/config/settings.py:91
-msgid "English"
-msgstr ""
-
-#: /mex-invenio/site/mex_invenio/config/settings.py:91
-msgid "German"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:37
-msgid "home"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:50
-msgid "Menu"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:67
-msgid "Close menu"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:117
-msgid "Requests"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:119
-msgid "Inbox"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
 msgid "Search repository"
 msgstr "Repository durchsuchen"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:37
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:38
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:39
-msgid "Search"
-msgstr ""
+msgid "Access Platform"
+msgstr "Zugriffsplattform"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:51
-msgid "Information banner"
-msgstr ""
+msgid "Access Restriction"
+msgstr "Zugriffsbeschränkung"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:92
-msgid "Community visibility"
-msgstr ""
+msgid "Accrual Periodicity"
+msgstr "Frequenz"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:93
-msgid "The community is restricted to users with access."
-msgstr ""
+msgid "Alternative Title"
+msgstr "Alternativer Titel"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:95
-msgid "Restricted"
-msgstr ""
+msgid "Anonymization Pseudonymization"
+msgstr "Anonymisierung/Pseudonymisierung"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:112
-msgid "Preview"
-msgstr ""
+msgid "Conforms To"
+msgstr "Standard"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:116
-msgid "You are previewing a published record."
-msgstr ""
+msgid "Contact"
+msgstr "Kontakt"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:118
-msgid "You are previewing changes that have not yet been published."
-msgstr ""
+msgid "Contributing Unit"
+msgstr "Mitwirkendes Fachgebiet"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:120
-msgid "You are previewing a new record that has not yet been published."
-msgstr ""
+msgid "Contributor"
+msgstr "Mitwirkende*r"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:122
-msgid "You are previewing a new record version that has not yet been published."
-msgstr ""
+msgid "Created"
+msgstr "Erstellt"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:137
-#, python-format
-msgid "There is a %(link_start)snewer version%(link_end)s of the record available."
-msgstr ""
+msgid "Creator"
+msgstr "Autor*in"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:161
-msgid "Record access information"
-msgstr ""
+msgid "Description"
+msgstr "Beschreibung"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:168
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:325
-msgid "Reason"
-msgstr ""
+msgid "Distribution"
+msgstr "Datei"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:181
-msgid "Back-navigation"
-msgstr ""
+msgid "Documentation"
+msgstr "Dokumentation"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:183
-msgid "Back to edit"
-msgstr ""
+msgid "Doi"
+msgstr "DOI"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:201
-msgid "Manage record"
-msgstr ""
+msgid "External Partner"
+msgstr "Weitere Beteiligte"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:217
-msgid "Publication date and version number"
-msgstr ""
+msgid "Had Primary Source"
+msgstr "Originaldatenspeicher"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:221
-msgid "Publication date"
-msgstr ""
+msgid "Has Legal Basis"
+msgstr "Rechtliche Grundlage"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:222
-msgid "Published"
-msgstr ""
+msgid "Has Personal Data"
+msgstr "Personenbezogene Daten"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:225
-msgid "Version {version_number}"
-msgstr ""
+msgid "Icd10 Code"
+msgstr "ICD-10-Code"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:232
-msgid "Resource type"
-msgstr ""
+msgid "Identifier"
+msgstr "Identifier des extrahierten Metadatenobjekts"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:242
-msgid "Access status"
-msgstr ""
+msgid "Identifier In Primary Source"
+msgstr "Identifier des Metadatenobjekts im Originaldatenspeicher"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:264
-msgid "Record title and creators"
-msgstr ""
+msgid "Includes"
+msgstr "Untergeordnete Ressourcen"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:270
-msgid "Creators and contributors"
-msgstr ""
+msgid "Instrument Tool Or Apparatus"
+msgstr "Tool"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:287
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:292
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:309
+msgid "Part Of"
+msgstr "Übergeordnete Ressourcen"
+
+msgid "Keyword"
+msgstr "Stichwort"
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "License"
+msgstr "Lizenz"
+
+msgid "Loinc Id"
+msgstr "Loinc-ID"
+
+msgid "Max Typical Age"
+msgstr "Maximales typisches Alter"
+
+msgid "Mesh Id"
+msgstr "Mesh-ID"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Method Description"
+msgstr "Methodenbeschreibung"
+
+msgid "Min Typical Age"
+msgstr "Minimales typisches Alter"
+
+msgid "Modified"
+msgstr "Letzte Änderung"
+
+msgid "Population Coverage"
+msgstr "Bevölkerungsabdeckung"
+
+msgid "Publication"
+msgstr "Publikation"
+
+msgid "Publisher"
+msgstr "Herausgeber"
+
+msgid "Quality Information"
+msgstr "Qualitätsinformationen"
+
+msgid "Resource Creation Method"
+msgstr "Methodik"
+
+msgid "Rights"
+msgstr "Nutzungsbedingungen"
+
+msgid "Size Of Data Basis"
+msgstr "Datenbasis"
+
+msgid "Spatial"
+msgstr "Räumlicher Bezug"
+
+msgid "State Of Data Processing"
+msgstr "Datenprozessierungsstand"
+
+msgid "Temporal"
+msgstr "Zeitlicher Bezug"
+
+msgid "Theme"
+msgstr "Thema"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Unit In Charge"
+msgstr "Verantwortliches Fachgebiet"
+
+msgid "Was Generated By"
+msgstr "Zugehöriges Projekt"
+
+msgid "Variable"
+msgstr "Variable"
+
+#: Resource Cards Titles and headers
+
+msgid "Language"
+msgstr "Sprache"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Creators & Contributors"
+msgstr "Verantwortliche & Mitwirkende"
+
+msgid "Theme & Keywords"
+msgstr "Thema & Stichworte"
+
+msgid "Data Representation & Coverage"
+msgstr "Datenabdeckung"
+
+msgid "Legal Basis & Data Provenance"
+msgstr "Rechtsgrundlage & Provenienz"
+
+msgid "Data Collection & Processing"
+msgstr "Datenerhebung & Prozessierung"
+
+msgid "Methodology"
+msgstr "Methodik"
+
+msgid "Standards & Quality"
+msgstr "Standards & Qualität"
+
+msgid "Related Projects"
+msgstr "Verknüpfte Projekte"
+
+msgid "Related Publications & Further Documentation"
+msgstr "Publikationen & Dokumentation"
+
+msgid "Related Resources"
+msgstr "Verknüpfte Datenbestände & Datensätze"
+
+msgid "Views"
+msgstr "Aufrufe"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Access & Usage Rights"
+msgstr "Zugriff & Nutzungsrechte"
+
 msgid "Files"
-msgstr ""
+msgstr "Dateien"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:331
-msgid "Request access"
-msgstr ""
+msgid "Metadata Version"
+msgstr "Metadaten-Version"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:333
-msgid ""
-"If you would like to request access to these files, please fill out the "
-"form below."
-msgstr ""
+msgid "Access Platform"
+msgstr "Zugriffsplattform"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:341
-msgid ""
-"You need to satisfy these conditions in order for this request to be accepted:"
-msgstr ""
+msgid "Variables"
+msgstr "Variablen"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:366
-msgid "System files"
-msgstr ""
+msgid "Metadata Export"
+msgstr "Metadaten Export"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:437
-msgid "Additional record details"
-msgstr ""
+#: Header & Footer
+msgid "Edit this record"
+msgstr "Eintrag editieren"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:451
-msgid "Record details"
-msgstr ""
+msgid "Search records"
+msgstr "Suche Einträge"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:468
-msgid "Jump to top of page"
-msgstr ""
+msgid "Data Source/Dataset"
+msgstr "Datenbestand/Datensatz"
 
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:470
+msgid "Data Sources & Datasets"
+msgstr "Datenbestände & Datensätze"
+
+msgid "Project"
+msgstr "Projekt"
+
+msgid "Projects"
+msgstr "Projekte"
+
+msgid "Publication"
+msgstr "Publikation"
+
+msgid "Publications"
+msgstr "Publikationen"
+
+msgid "Variable"
+msgstr "Variable"
+
+msgid "Variables"
+msgstr "Variablen"
+
+msgid "Edit this record"
+msgstr "Eintrag editieren"
+
+msgid "About MEx"
+msgstr "Über MEx"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Data privacy"
+msgstr "Datenschutzerklärung"
+
+msgid "Accessibility"
+msgstr "Barrierefreiheit"
+
+msgid "Imprint"
+msgstr "Impressum"
+
+msgid "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
+msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
+
 msgid "Jump up"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:27
-msgid "Additional details"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:44
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:62
-msgid "Additional titles"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:87
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:105
-msgid "Identifiers"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:130
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:146
-msgid "Related works"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:169
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:187
-msgid "Funding"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:212
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:230
-msgid "Dates"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:255
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/mex_details.html:271
-msgid "References"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html:133
-msgid "Open external link"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html:176
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html:205
-msgid "Opens in new tab"
-msgstr ""
-
-#: /mex-invenio/templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html:305
-msgid "Conference website"
-msgstr ""
+msgstr "Nach oben"

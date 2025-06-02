@@ -1,11 +1,38 @@
+.muted {
+    flex-shrink: 0;
+    color: @mutedTextColor;
+    font-weight: 400;
+}
+
+::selection {
+  background-color: @primaryColor;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: @primaryColor;
+  color: white;
+}
+
+.landing_page > .ui.container {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 85vw;
+}
+
+.detail {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
 .record-cards {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     &.vertical {
-        flex-direction: column;
         .card {
-            width: 100%;
+            flex: 0 0 100%;
         }
     }
     .card {
@@ -41,14 +68,29 @@
                 grid-template-columns: 30% auto;
                 gap: 1rem;
                 align-items: start;
-                margin-bottom: 0;
                 .card-prop-label {
                     font-weight: 600;
+                }
+                &.vertical {
+                    grid-template-columns: 100%;
+                    .card-prop-label {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin-bottom: 0;
+                    }
                 }
                 .card-prop-value {
                     display: flex;
                     flex-direction: column;
+                    gap: .5rem;
                 }
+            }
+        }
+        &.long {
+            flex: 1 1 100%;
+            .card-props > .card-props-p {
+                grid-template-columns: 100% auto;
             }
         }
     }
@@ -73,7 +115,7 @@
     .navbar-links {
         .item a {
             color: @darkLinkColor;
-            text-decorations: none;
+            text-decoration: none;
             &:hover {
                 color: @darkLinkColor !important;
                 text-decoration: underline !important;
@@ -133,6 +175,17 @@ a.light {
 
 .ui.divider {
     margin: 1.5rem 0;
+}
+
+aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: max-content;
+    .card {
+        flex: 0 0 100%;
+        height: max-content;
+    }
 }
 
 .landing_page.resource {
@@ -196,14 +249,6 @@ a.light {
                 font-size: 1.3rem;
                 font-weight: 600;
                 line-height: 2rem;
-            }
-            .muted {
-                white-space: nowrap;
-                flex-shrink: 0;
-                color: @mutedTextColor;
-                font-size: 1rem;
-                font-weight: 400;
-                line-height: 2.1rem;
             }
         }
         h2.alttitle {
