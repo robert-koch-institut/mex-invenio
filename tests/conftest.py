@@ -58,10 +58,7 @@ def module_tmp_path(tmp_path_factory):
 @pytest.fixture(scope="module")
 def app_config(app_config, module_tmp_path):
     # sqllite refused to create mock db without those parameters and they are missing
-    app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": False,
-        "pool_recycle": 3600,
-    }
+    app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {}
 
     # need this to make sure separate indexes are created for testing
     app_config["SEARCH_INDEX_PREFIX"] = "test"
