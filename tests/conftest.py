@@ -242,7 +242,6 @@ def create_file(tmp_path):
             data = json.dumps(data)
 
         if absolute:
-            os.makedirs("/".join(filename.split("/")[-1]), exist_ok=True)
             with open(filename, "w") as f:
                 f.write(data)
             file_path = filename
