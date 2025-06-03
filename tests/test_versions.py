@@ -32,7 +32,9 @@ def test_import_person_skipped(
     assert record["id"] == published_record_id
     # Check the custom fields and metadata.
     assert "dennisray@example.org" in record["custom_fields"]["mex:email"]
-    assert record["metadata"]["title"] == "these role early" # original data has two titles, but one only has 2 chars
+    assert (
+        record["metadata"]["title"] == "these role early"
+    )  # original data has two titles, but one only has 2 chars
 
     # Reimport the same person data to test the "Skipped" case.
     messages = import_file("person", person_data)
@@ -74,7 +76,9 @@ def test_import_person_2nd_version(
     assert record["id"] == published_record_id
     # Check the custom fields and metadata.
     assert "dennisray@example.org" in record["custom_fields"]["mex:email"]
-    assert record["metadata"]["title"] == "these role early" # original data has two titles, but one only has 2 chars
+    assert (
+        record["metadata"]["title"] == "these role early"
+    )  # original data has two titles, but one only has 2 chars
     assert record["versions"]["index"] == 1
 
     # Remove the email to trigger an update.
