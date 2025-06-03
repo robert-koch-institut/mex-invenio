@@ -8,9 +8,7 @@ from typing import Union, Any, Callable
 from flask import current_app
 
 
-def _get_value_by_lang(
-    mex_data: dict, key: str, lang: str, val_filter: Callable
-) -> str:
+def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable):
     """Get the value of a key in the MEx metadata by language."""
     if isinstance(mex_data[key], str) and (
         val_filter is None or val_filter(mex_data[key])
@@ -39,7 +37,10 @@ def _get_value_by_lang(
             ):
                 return item["value"]
 
-    return mex_data[key][0]["value"]
+    if val_filter is None or val_filter(mex_data[key][0]["value"]):
+        return mex_data[key][0]["value"]
+
+    return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
 
 def get_title(mex_data: dict) -> str:
