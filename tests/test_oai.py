@@ -29,7 +29,7 @@ def test_get_oai_record(
     match = search_messages(messages, created_regex)
 
     assert match is not None
-    rec_id = match.group(2)
+    rec_id = match.group("record_id")
     # oai_url = f"/oai2d?verb=GetRecord&identifier=oai:{oai_prefix}:{rec_id}&metadataPrefix=oai_mex"
 
     res = client.get("/oai2d?verb=ListRecords&metadataPrefix=oai_dc")
