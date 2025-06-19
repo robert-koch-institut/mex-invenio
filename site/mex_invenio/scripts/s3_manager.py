@@ -52,21 +52,15 @@ logger.addHandler(file_handler)
 
 
 def load_config(no_import):
-    s3_config = {}
-    file_found = load_dotenv()
+    load_dotenv()
 
-    if file_found:
-        s3_config = {
-            "bucket": os.getenv("bucket"),
-            "aws_access_key_id": os.getenv("aws_access_key_id"),
-            "aws_secret_access_key": os.getenv("aws_secret_access_key"),
-            "region_name": os.getenv("region_name", "eu-central-1"),
-            "email": os.getenv("email"),
-        }
-
-    if not s3_config:
-        logger.error("Unable to fetch configration, env file is missing")
-        sys.exit(1)
+    s3_config = {
+        "bucket": os.getenv("bucket"),
+        "aws_access_key_id": os.getenv("aws_access_key_id"),
+        "aws_secret_access_key": os.getenv("aws_secret_access_key"),
+        "region_name": os.getenv("region_name", "eu-central-1"),
+        "email": os.getenv("email"),
+    }
 
     if not all(
         [
