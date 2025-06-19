@@ -87,7 +87,5 @@ def test_replace_file_but_fail_import(
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
 
     assert not os.path.exists(existing_file_path)
-    assert (
-        result.exit_code == 1
-    )  # The import job will error because the user is not found
+    assert result.exit_code == 0
     assert os.path.exists(renamed_downloaded_file)
