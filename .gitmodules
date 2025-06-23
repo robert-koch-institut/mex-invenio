@@ -1,0 +1,3 @@
+[submodule "site/mex_invenio/assets/semantic-ui/js/mex_invenio/edges"]
+	path = site/mex_invenio/assets/semantic-ui/js/mex_invenio/edges
+	url = git@github.com:CottageLabs/edges.git
