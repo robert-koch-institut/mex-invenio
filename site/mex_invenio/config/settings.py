@@ -250,14 +250,6 @@ USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 
 S3_DOWNLOAD_FOLDER = "s3_downloads"
 
-# If S3_ENDPOINT_URL is not set the script will use the default AWS S3 endpoint
-# S3_ENDPOINT_URL = 'http://localhost:9000'
-
-# If S3_OBJECT_KEY is set, the script will download that specific file from S3
-# if it is not set the script will download the latest file in the bucket
-# NOTE that this requires permissions to list objects in the bucket
-S3_OBJECT_KEY = "pub_small.ndjson"
-
 COMMUNITIES_GROUPS_ENABLED = False
 
 # Script log config
