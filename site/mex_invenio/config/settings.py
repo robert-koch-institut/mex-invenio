@@ -11,6 +11,8 @@ from datetime import datetime
 
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
+from invenio_rdm_records.records import RDMRecord
+from invenio_records.dumpers import SearchDumper
 
 from mex_invenio.custom_fields.custom_fields import (
     RDM_NAMESPACES,
@@ -83,6 +85,17 @@ APP_DEFAULT_SECURE_HEADERS = {
     "strict_transport_security_max_age": 31556926,  # One year in seconds
     "strict_transport_security_preload": False,
 }
+
+class CustomDumper(SearchDumper):
+    def dump(self, record, data):
+        dump_data = super(CustomDumper, self).dump(record, data)
+        # dump_data["custom_fields"]["index_test"] = "Just testing"
+        return dump_data
+
+class CustomRDMRecord(RDMRecord):
+    dumper = CustomDumper()
+
+RDM_RECORD_CLS = CustomRDMRecord
 
 # Flask-Babel
 # ===========

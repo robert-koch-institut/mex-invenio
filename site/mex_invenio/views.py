@@ -1,4 +1,18 @@
-from flask import Blueprint, redirect, url_for, current_app, abort
+import json
+
+from flask import Blueprint, redirect, url_for, current_app, abort, render_template, make_response, jsonify
+from invenio_access.permissions import system_identity
+from invenio_rdm_records.services.config import SearchOptions
+from invenio_rdm_records import InvenioRDMRecords
+from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_rdm_records.services import RDMRecordService
+from invenio_records.dumpers import SearchDumperExt
+from invenio_records_resources.services.base.config import SearchOptionsMixin
+from invenio_records_resources.services.records.params import ParamInterpreter
+from invenio_records_resources.services.records.queryparser import QueryParser
+from invenio_search import current_search, RecordsSearch, RecordsSearchV2
+from speaklater import _LazyString
+
 from .record.record import MexRecord
 
 from invenio_pidstore.resolver import Resolver
@@ -9,6 +23,7 @@ from invenio_pidstore.errors import (
 )
 from invenio_rdm_records.records.api import RDMRecord
 
+import opensearch_dsl as dsl
 
 #
 # Registration
@@ -35,8 +50,136 @@ def create_blueprint(app):
         view_func=MexRecord.as_view("mex_view"),
     )
 
+    blueprint.add_url_rule(
+        "/search/variables",
+        view_func=search_variables
+    )
+
+    blueprint.add_url_rule(
+        "/search/api",
+        view_func=search_api
+    )
+
     return blueprint
 
+def search_variables():
+    return render_template("mex_invenio/search/variables.html")
+
+class GenericQueryParamsInterpreter(ParamInterpreter):
+    def apply(self, identity, search, params):
+        """Apply generic query parameters to the search."""
+        # This is a placeholder for any generic query parameter handling
+        # that might be needed in the future.
+        return search.from_dict(params["raw"])
+
+class CustomSearchOptions(SearchOptions, SearchOptionsMixin):
+    search_cls = RecordsSearchV2
+    query_parser_cls = QueryParser
+    suggest_parser_cls = None
+    # sort_default = "bestmatch"
+    # sort_default_no_query = "newest"
+    # sort_options = {
+    #     "bestmatch": dict(
+    #         title=_("Best match"),
+    #         fields=["_score"],  # ES defaults to desc on `_score` field
+    #     ),
+    #     "newest": dict(
+    #         title=_("Newest"),
+    #         fields=["-created"],
+    #     ),
+    #     "oldest": dict(
+    #         title=_("Oldest"),
+    #         fields=["created"],
+    #     ),
+    # }
+    facets = {}
+    pagination_options = {"default_results_per_page": 25, "default_max_results": 10000}
+    #params_interpreters_cls = [QueryStrParam, PaginationParam, SortParam, FacetsParam]
+    params_interpreters_cls = [
+        GenericQueryParamsInterpreter,
+        # Add other interpreters as needed
+    ]
+
+def search_api():
+    q = {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "term": {
+                            "metadata.resource_type.id": "activity"
+                        }
+                    }
+                ]
+            }
+        },
+        "aggs": {
+            "user": {
+                "terms": {
+                    "field": "parent.access.owned_by.user",
+                    "size": 10
+                }
+            }
+        },
+        "size": 1
+    }
+
+    #search_instance = dsl.Search.from_dict(q)
+
+    search_opts = CustomSearchOptions()
+    #search_opts.customize({})
+
+
+    # Define search parameters
+    search_params = {
+        "raw": q,
+        "sort": None,
+        "size": 1,
+        "page": 1
+    }
+
+    # Perform the search
+    print("####################################")
+    print(current_rdm_records_service.config.record_cls.dumper)
+    # print(current_rdm_records_service)
+    # search_result = current_rdm_records_service.search(
+    #     identity=system_identity,
+    #     params=search_params
+    # )
+
+    search_result = current_rdm_records_service.search(identity=system_identity, params=search_params, search_opts=search_opts)
+
+    print("####################################")
+    print(search_result)
+    from invenio_rdm_records.services.results import RecordList
+
+    print("####################################")
+    print(search_result._results.to_dict())
+
+    def custom_serialiser(obj):
+        if isinstance(obj, _LazyString):
+            return str(obj)
+
+    # Access the search results
+    result = search_result._results.to_dict()
+    response = make_response(json.dumps(result, default=custom_serialiser), 200)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+    #return hits
+
+    #recordservice = current_rdm_records_service
+    # from opensearch_dsl import Q
+    # q = Q({"bool": {"must": [{"term": {"metadata.resource_type.id": "activity"}}]}})
+    # todo = current_search.faceted_search(q)
+    # res = todo.execute()
+    # raw = res.response
+    # response = make_response(json.dumps(raw), 200)
+    # response.headers["Content-Type"] = "application/json"
+    # return response
+
+    #assert isinstance(recordservice, RDMRecordService)
+    #recordservice.search(system_identity, q={"query": {"match_all": {}}})
 
 def redirect_to_mex(record_id):
     record = None

@@ -9,6 +9,7 @@ theme = WebpackThemeBundle(
     themes={
         "semantic-ui": dict(
             entry={
+                "my-js": "./js/mex_invenio/myjs.js",
                 # Add your webpack entrypoints
             },
         ),
