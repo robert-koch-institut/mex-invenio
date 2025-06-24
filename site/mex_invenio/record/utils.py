@@ -84,14 +84,25 @@ def _get_linked_records(record, field_items):
                     current_app.config.get("NO_RECORD_STRING", "No record found")
                 ]
 
-            field_values.append(
-                {
-                    "display_value": display_value
-                    if isinstance(display_value, list)
-                    else [display_value],
-                    "link_id": linked_record_id,
-                }
-            )
+            field_value = {
+                "display_value": display_value
+                if isinstance(display_value, list)
+                else [display_value],
+                "link_id": linked_record_id,
+            }
+
+            flattened = [item for items in props.values() for item in items]
+
+            if "mex:email" in flattened:
+                email = linked_record["custom_fields"].get("mex:email", "")
+
+                if email:
+                    # If the field is an email, we add the email address to the field value
+                    field_value["email"] = linked_record["custom_fields"].get(
+                        "mex:email", ""
+                    )
+
+            field_values.append(field_value)
 
         records_fields[field] = field_values
 
@@ -138,7 +149,7 @@ def _get_records_linked_backwards(mex_id, field_items):
     return records_fields
 
 
-def _get_linked_records_data(record, mex_id):
+def _get_linked_records_data(record, mex_id) -> dict:
     """Fetch metadata about linked records for a given record."""
     record_type = record["metadata"]["resource_type"]["id"]
     linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})

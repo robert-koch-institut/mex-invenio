@@ -39,6 +39,11 @@ def create_blueprint(app):
 
 
 def redirect_to_mex(record_id):
+    """
+    Redirects to the MEX view based on the record ID.
+    :param record_id:
+    :return:
+    """
     record = None
     resolver = Resolver(
         pid_type="recid", object_type="rec", getter=RDMRecord.get_record

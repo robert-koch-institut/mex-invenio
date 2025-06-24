@@ -289,3 +289,16 @@ aside {
         }
     }
 }
+
+/* The following two styles are used in records/details/components/card.html
+   to display email addresses correctly */
+
+span.email-container {
+    white-space: normal;
+    word-break: break-word;
+}
+
+i.copy-email {
+    cursor: pointer;
+    color: @core-color-brand-default;
+}
