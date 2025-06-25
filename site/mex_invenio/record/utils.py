@@ -91,16 +91,18 @@ def _get_linked_records(record, field_items):
                 "link_id": linked_record_id,
             }
 
-            flattened = [item for items in props.values() for item in items]
+            # Only check for email if the field is "mex:contact" and there is a linked record
+            if linked_record and field == "mex:contact":
+                flattened = [item for items in props.values() for item in items]
 
-            if "mex:email" in flattened:
-                email = linked_record["custom_fields"].get("mex:email", "")
+                if "mex:email" in flattened:
+                    email = linked_record["custom_fields"].get("mex:email", "")
 
-                if email:
-                    # If the field is an email, we add the email address to the field value
-                    field_value["email"] = linked_record["custom_fields"].get(
-                        "mex:email", ""
-                    )
+                    if email:
+                        # If the field is an email, we add the email address to the field value
+                        field_value["email"] = linked_record["custom_fields"].get(
+                            "mex:email", ""
+                        )
 
             field_values.append(field_value)
 
