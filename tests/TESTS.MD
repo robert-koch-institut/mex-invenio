@@ -12,13 +12,13 @@ To run unit tests in Invenio 13 pytest presumably does not have to be pinned to 
 
 ### Pytest-Invenio
 
-We need to install `pytest-invenio` version 2.1.1. This specific version is required
+We need to install `pytest-invenio` < 3. This specific version is required
 because `pytest-invenio` version 3 (the [current version](https://github.com/inveniosoftware/pytest-invenio))
 introduces a breaking change where the `flask_sqlalchemy.session` module is not found,
 causing the tests to fail.
 
 To run unit tests in Invenio 13 `pytest-invenio` presumably does not have to be pinned
-to 2.1.1.
+< 3.
 
 ### Overview
 
@@ -30,20 +30,9 @@ them explicitly.
 The default method is for a SQLLite database to be created for each test run. This
 requires changes to the app config in `conftest.py`.
 
-```python
-@pytest.fixture(scope='module')
-def app_config(app_config):
-    # sqllite refused to create mock db without those parameters and they are missing
-    app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": False,
-        "pool_recycle": 3600,
-    }
-    # need this to make sure separate indexes are created for testing
-    app_config["SEARCH_INDEX_PREFIX"] = "test"
-    app_config["SERVER_NAME"] = "127.0.0.1"
-
-    return app_config
-```
+Earlier tests were run against a SQLite database, which required app config
+"`SQLALCHEMY_ENGINE_OPTIONS`" settings to be empty. This is no longer the case as
+there are latency issues when using SQLite for testing.
 
 #### Using Fixtures in Test Methods
 
@@ -85,7 +74,8 @@ They can be found in [invenio_rdm_recods.tests.conftest](https://github.com/inve
 To see tests we've done for Mex, please refer to the [tests](https://github.com/robert-koch-institut/mex-invenio/tree/main/tests) directory.
 
 ## Running unit tests
-Tests are stored in `./tests`.
+Tests are stored in `./tests`. The tests can be run using the bash script `run_tests.sh`
+in the root directory of the project.
 
 To install the testing environment, run the following command:
 
@@ -93,20 +83,26 @@ To install the testing environment, run the following command:
 pipenv install -d
 ```
 
-To run the tests, execute the following command:
+To run the tests, execute the following command to activate the virtual environment:
 
 ```bash
-pipenv run pytest
+source $(pipenv --venv)/bin/activate
 ```
 
-with the option -W ignore to suppress warnings:
+bring up the required services using the `docker-services-cli` tool:
 
 ```bash
-pipenv run pytest -W ignore
+eval "$(docker-services-cli up --db ${DB:-postgresql} --search ${SEARCH:-opensearch2} --cache ${CACHE:-redis} --mq ${MQ:-rabbitmq} --env)"
 ```
 
-with the option -s to show stdout from the app:
+with the optional options -s to show stdout and -W ignore to ignore warnings:
 
 ```bash
-pipenv run pytest -W ignore -s
+python -m pytest -W ignore -s
+```
+
+remember to bring the services down after running the tests:
+
+```bash
+docker-services-cli down
 ```
