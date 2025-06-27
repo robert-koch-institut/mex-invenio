@@ -19,7 +19,7 @@ from mex_invenio.custom_fields.custom_fields import (
 )
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
-
+from mex_invenio.custom_record import MexRDMRecord
 
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
@@ -83,6 +83,10 @@ APP_DEFAULT_SECURE_HEADERS = {
     "strict_transport_security_max_age": 31556926,  # One year in seconds
     "strict_transport_security_preload": False,
 }
+
+# Custom RDM Record Class which implements the additional features required
+# by the Mex model (especially record indexing)
+RDM_RECORD_CLS = MexRDMRecord
 
 # Flask-Babel
 # ===========

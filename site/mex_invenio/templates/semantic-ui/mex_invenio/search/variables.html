@@ -1,0 +1,41 @@
+{%- extends "invenio_theme/page.html" %}
+
+{% block page_body %}
+    <div id="contact-page" class="ui container">
+        <h1>Variables</h1>
+        {% block root_section %}
+            <div id="root-container" class="panel-body">
+                <div id="edge-container"></div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+
+    {% set static="/static/js" %}
+    {% set edges=static ~ "/edges" %}
+    {% set vendor = edges ~ "/vendor" %}
+    {% set src=edges ~ "/src" %}
+    {% set components=src ~ "/components" %}
+    {% set bs3=src ~ "/renderers/bs3" %}
+
+    <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+    <script src="{{ src }}/datasources/es7x.js"></script>
+    <script src="{{ src }}/edges.js"></script>
+
+    <script src="{{ src }}/templates/bs3/Facetview.js"></script>
+
+    <script src="{{ components }}/RefiningANDTermSelector.js"></script>
+    <script src="{{ components }}/FullSearchController.js"></script>
+    <script src="{{ components }}/ResultsDisplay.js"></script>
+
+    <script src="{{ bs3 }}/RefiningANDTermSelector.js"></script>
+    <script src="{{ bs3 }}/FullSearchController.js"></script>
+    <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
+
+    <script src="{{ static }}/edges.common.js"></script>
+    <script src="{{ static }}/variables.js"></script>
+
+{% endblock %}
