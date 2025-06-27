@@ -1,6 +1,6 @@
-import json
+import json, urllib.parse
 
-from flask import Blueprint, redirect, url_for, current_app, abort, render_template, make_response, jsonify
+from flask import Blueprint, redirect, url_for, current_app, abort, render_template, make_response, jsonify, request
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.services.config import SearchOptions
 from invenio_rdm_records import InvenioRDMRecords
@@ -56,7 +56,12 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/search/api",
+        "/search/bibliographic-resources",
+        view_func=search_bibliographic_resources
+    )
+
+    blueprint.add_url_rule(
+        "/search/api/bibliographic-resources",
         view_func=search_api
     )
 
@@ -65,12 +70,25 @@ def create_blueprint(app):
 def search_variables():
     return render_template("mex_invenio/search/variables.html")
 
+def search_bibliographic_resources():
+    return render_template("mex_invenio/search/bibliographic-resources.html")
+
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Apply generic query parameters to the search."""
         # This is a placeholder for any generic query parameter handling
         # that might be needed in the future.
         return search.from_dict(params["raw"])
+
+class TypeLimiterParamsInterpreter(ParamInterpreter):
+    def apply(self, identity, search, params):
+        """Apply type limiter to the search."""
+        resource_type = params.get("resource_type")
+        if resource_type:
+            search = search.filter("term", metadata__resource_type__id=resource_type)
+        print("#####################################")
+        print(search.to_dict())
+        return search
 
 class CustomSearchOptions(SearchOptions, SearchOptionsMixin):
     search_cls = RecordsSearchV2
@@ -97,50 +115,79 @@ class CustomSearchOptions(SearchOptions, SearchOptionsMixin):
     #params_interpreters_cls = [QueryStrParam, PaginationParam, SortParam, FacetsParam]
     params_interpreters_cls = [
         GenericQueryParamsInterpreter,
+        TypeLimiterParamsInterpreter,
         # Add other interpreters as needed
     ]
 
+from functools import wraps
+def jsonp(f):
+    """Wraps JSONified output for JSONP"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        callback = request.args.get('callback', False)
+        if callback:
+            content = str(callback) + '(' + str(f(*args, **kwargs).data.decode("utf-8")) + ')'
+            return current_app.response_class(content, mimetype='application/javascript')
+        else:
+            return f(*args, **kwargs)
+    return decorated_function
+
+@jsonp
 def search_api():
-    q = {
-        "query": {
-            "bool": {
-                "must": [
-                    {
-                        "term": {
-                            "metadata.resource_type.id": "activity"
-                        }
-                    }
-                ]
-            }
-        },
-        "aggs": {
-            "user": {
-                "terms": {
-                    "field": "parent.access.owned_by.user",
-                    "size": 10
-                }
-            }
-        },
-        "size": 1
-    }
+    q = None
+    # if this is a POST, read the contents out of the body
+    if request.method == "POST":
+        q = request.json
+    # if there is a source param, load the json from it
+    elif 'source' in request.values:
+        try:
+            q = json.loads(urllib.parse.unquote(request.values['source']))
+        except ValueError:
+            abort(400)
+
+    # q = {
+    #     "query": {
+    #         "bool": {
+    #             "must": [
+    #                 {
+    #                     "term": {
+    #                         "metadata.resource_type.id": "activity"
+    #                     }
+    #                 }
+    #             ]
+    #         }
+    #     },
+    #     "aggs": {
+    #         "user": {
+    #             "terms": {
+    #                 "field": "parent.access.owned_by.user",
+    #                 "size": 10
+    #             }
+    #         }
+    #     },
+    #     "size": 1
+    # }
 
     #search_instance = dsl.Search.from_dict(q)
 
     search_opts = CustomSearchOptions()
     #search_opts.customize({})
 
-
+    if q is None:
+        # If no query is provided, use a match_all query
+        q = {"query": {"match_all": {}}}
     # Define search parameters
     search_params = {
         "raw": q,
-        "sort": None,
-        "size": 1,
-        "page": 1
+        "resource_type": "bibliographicresource"
+        # "sort": None,
+        # "size": 1,
+        # "page": 1
     }
 
     # Perform the search
-    print("####################################")
-    print(current_rdm_records_service.config.record_cls.dumper)
+    # print("####################################")
+    # print(current_rdm_records_service.config.record_cls.dumper)
     # print(current_rdm_records_service)
     # search_result = current_rdm_records_service.search(
     #     identity=system_identity,
@@ -151,7 +198,6 @@ def search_api():
 
     print("####################################")
     print(search_result)
-    from invenio_rdm_records.services.results import RecordList
 
     print("####################################")
     print(search_result._results.to_dict())

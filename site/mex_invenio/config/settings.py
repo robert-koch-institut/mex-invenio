@@ -26,7 +26,6 @@ from mex_invenio.custom_fields.pref_labels import get_pref_labels
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
 
-
 # Flask
 # =====
 # See https://flask.palletsprojects.com/en/1.1.x/config/
