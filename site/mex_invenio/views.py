@@ -39,6 +39,12 @@ def create_blueprint(app):
 
 
 def redirect_to_mex(record_id):
+    """
+    Redirects to the MEX view based on the record ID,
+    also passes the version id if it is not the latest record.
+    :param record_id:
+    :return:
+    """
     record = None
     resolver = Resolver(
         pid_type="recid", object_type="rec", getter=RDMRecord.get_record
@@ -61,5 +67,9 @@ def redirect_to_mex(record_id):
     except Exception as e:
         current_app.logger.exception("No mex id for the record {0}.".format(e))
         abort(500)
+
+    if record.versions.index != record.versions.latest_index:
+        # If the record is not the latest version, include version id
+        return redirect(url_for(".mex_view", mex_id=mex_id, version_id=record.versions.index))
 
     return redirect(url_for(".mex_view", mex_id=mex_id))
