@@ -6,6 +6,7 @@ from invenio_records_resources.services.custom_fields import (
 
 from mex_invenio.custom_fields.link import LinkCF
 from mex_invenio.custom_fields.multilanguagetext import MultiLanguageTextCF
+from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringCF
 
 RDM_NAMESPACES = {
     "mex": "https://mex.rki.de/",
@@ -44,7 +45,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:editor", multiple=True),
     TextCF(name="mex:editorOfSeries", multiple=True),
     TextCF(name="mex:email", multiple=True),
-    EDTFDateStringCF(name="mex:end", multiple=True),
+    FixedEDTFDateStringCF(name="mex:end", multiple=True),
     LinkCF(name="mex:endpointDescription"),
     TextCF(name="mex:endpointType"),
     LinkCF(name="mex:endpointURL"),
@@ -107,7 +108,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:shortName", multiple=True),
     TextCF(name="mex:sizeOfDataBasis"),
     MultiLanguageTextCF(name="mex:spatial", multiple=True),
-    EDTFDateStringCF(name="mex:start", multiple=True),
+    FixedEDTFDateStringCF(name="mex:start", multiple=True),
     TextCF(name="mex:stateOfDataProcessing", multiple=True),
     MultiLanguageTextCF(name="mex:subtitle", multiple=True),
     TextCF(name="mex:succeeds", multiple=True),

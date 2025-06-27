@@ -35,13 +35,18 @@ from mex_invenio.custom_fields.custom_fields import (
 )
 
 
-created_regex = r"Created (\d) records. Ids: \[\'(\w{5}-\w{5})\'\]"
+created_regex = (
+    r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
+)
 
 
 def search_messages(messages, pattern):
-    for message in messages:
+    """Search for a pattern in the log messages. Returns the first/most recent match."""
+    for message in reversed(messages):
         if re.search(pattern, message):
             return re.search(pattern, message)
+
+    return None
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -58,10 +63,7 @@ def module_tmp_path(tmp_path_factory):
 @pytest.fixture(scope="module")
 def app_config(app_config, module_tmp_path):
     # sqllite refused to create mock db without those parameters and they are missing
-    app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_pre_ping": False,
-        "pool_recycle": 3600,
-    }
+    # app_config["SQLALCHEMY_ENGINE_OPTIONS"] = {}
 
     # need this to make sure separate indexes are created for testing
     app_config["SEARCH_INDEX_PREFIX"] = "test"
@@ -132,6 +134,18 @@ def resource_type_v(app, resource_type_type):
             "icon": "code",
             "props": {"type": "resource"},
             "title": {"en": "Resource"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
+    )
+
+    vocabulary_service.create(
+        system_identity,
+        {
+            "id": "person",
+            "icon": "code",
+            "props": {"type": "person"},
+            "title": {"en": "Person"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
@@ -245,7 +259,6 @@ def create_file(tmp_path):
             data = json.dumps(data)
 
         if absolute:
-            os.makedirs("/".join(filename.split("/")[-1]), exist_ok=True)
             with open(filename, "w") as f:
                 f.write(data)
             file_path = filename

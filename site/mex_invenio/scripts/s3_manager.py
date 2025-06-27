@@ -50,7 +50,7 @@ formatter = logging.Formatter(S3_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-envvar_prefix = 'MEX_IMPORT_'
+envvar_prefix = "MEX_IMPORT_"
 
 
 def load_config(ingest):
@@ -124,7 +124,9 @@ def get_latest_existing_file(payload_folder):
     return files[-1] if files else None
 
 
-def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_comparison: bool):
+def rename_and_keep_latest_file(
+    existing_file, new_file, payload_folder, check_comparison: bool
+):
     """Handles file retention based on check flag."""
     if check_comparison and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
@@ -141,7 +143,7 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder, check_c
         os.remove(existing_file)
         logger.info(
             f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
-)
+        )
 
     return final_new_file_path
 

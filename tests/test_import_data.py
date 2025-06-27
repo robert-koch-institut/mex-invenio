@@ -56,11 +56,11 @@ def test_import_contact_point(
     # conftest and returned by the fixture as a list of messages.
     match = search_messages(messages, created_regex)
 
-    number_of_records_published = int(match.group(1))
-    published_record_id = match.group(2)
+    number_of_records_published = int(match.group("count"))
+    published_record_id = match.group("record_id")
 
     assert match is not None
-    assert len(match.groups()) == 2
+    assert len(match.groups()) == 3
 
     search_obj = service.search(system_identity)
     record = list(search_obj.hits)[0]
