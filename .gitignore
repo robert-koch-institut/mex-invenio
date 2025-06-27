@@ -47,7 +47,7 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
+# Individual log files
 *.log
 
 # Sphinx documentation
@@ -60,9 +60,6 @@ test.db
 
 # Environments
 .venv/
-
-# Logs
-logs/
 
 # Invenio-cli per machine file
 .invenio.private

@@ -12,7 +12,6 @@ from datetime import datetime
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
-
 from mex_invenio.custom_fields.custom_fields import (
     RDM_NAMESPACES,
     RDM_CUSTOM_FIELDS,
@@ -22,9 +21,9 @@ from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.custom_record import MexRDMRecord
 
-
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
+
 
 # Flask
 # =====
