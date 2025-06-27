@@ -9,7 +9,7 @@ edges.instances.bibliographicResources.init = function(params) {
     let current_domain = document.location.host;
     let current_scheme = window.location.protocol;
     let selector = params.selector || "#bibliographic-resources";
-    let search_url = current_scheme + "//" + current_domain + "/search/api/bibliographic-resources";
+    let search_url = current_scheme + "//" + current_domain + "/query/api/bibliographic-resources";
 
     let countFormat = edges.util.numFormat({
         thousandsSeparator: ","

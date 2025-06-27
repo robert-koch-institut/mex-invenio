@@ -8,8 +8,7 @@ theme = WebpackThemeBundle(
     default="semantic-ui",
     themes={
         "semantic-ui": dict(
-            entry={
-                            },
+            entry={},
         ),
     },
 )
