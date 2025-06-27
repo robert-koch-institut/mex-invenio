@@ -7,19 +7,24 @@ pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
 
 ### Parameters
 The script takes the following parameters:
-2. **checkLastDownload** This flag compares the latest downloaded file with the
-   previous one to determine whether an upload is necessary.
+1. **check** Whether to compare the latest downloaded file with the previous one
+ to determine whether an upload is necessary.
+2. **ingest** Whether to import the data after downloading it from S3.
 
 ### Requirements
-Before running the script, ensure you have the following:
-- **S3 Credentials**, which should include:
-  - `bucket`
-  - `aws_access_key`
-  - `aws_secret_key`
-  - `region`
-- Make sure you also have added email (used for uploading data on mex) in your file
+Before running the script, there is a number of environment variables you can set:
+- **S3 Credentials**:
+  - `MEX_IMPORT_BUCKET`: the name of the S3 bucket
+  - `MEX_IMPORT_AWS_KEY_ID`: your AWS access key ID
+  - `MEX_IMPORT_AWS_SECRET`: your AWS secret access key
+  - `MEX_IMPORT_REGION_NAME`: the AWS region where your bucket is located, optional and defaults to
+   `eu-central-1`
+  - `MEX_IMPORT_ENDPOINT_URL`: optional, if you are using a custom S3 endpoint
+  - `MEX_IMPORT_OBJECT_KEY`: optional, if you want to download a specific file from S3 if it
+   is not set the script will download the latest file in the bucket
+- Make sure you also have added email (used for uploading data on mex) in your file via MEX_IMPORT_EMAIL
 
-You can store these credentials in a custom file, a `.env` file,
+You can store these credentials in a `.env` file,
 """
 
 import sys
@@ -45,23 +50,24 @@ formatter = logging.Formatter(S3_LOG_FORMAT)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+envvar_prefix = "MEX_IMPORT_"
 
-def load_config():
-    s3_config = {}
-    file_found = load_dotenv()
 
-    if file_found:
-        s3_config = {
-            "bucket": os.getenv("bucket"),
-            "aws_access_key_id": os.getenv("aws_access_key"),
-            "aws_secret_access_key": os.getenv("aws_secret_key"),
-            "region_name": os.getenv("region", "eu-central-1"),
-            "email": os.getenv("email"),
-        }
+def load_config(ingest):
+    load_dotenv()
 
-    if not s3_config:
-        logger.error("Unable to fetch configration, env file is missing")
-        sys.exit(1)
+    s3_config = {
+        "bucket": os.getenv(envvar_prefix + "BUCKET"),
+        "aws_access_key_id": os.getenv(envvar_prefix + "AWS_KEY_ID"),
+        "aws_secret_access_key": os.getenv(envvar_prefix + "AWS_SECRET"),
+        "region_name": os.getenv(envvar_prefix + "REGION_NAME", "eu-central-1"),
+        "email": os.getenv(envvar_prefix + "EMAIL"),
+        "endpoint_url": os.getenv(envvar_prefix + "ENDPOINT_URL", None),
+        "object_key": os.getenv(envvar_prefix + "OBJECT_KEY", None),
+    }
+
+    # Get rid of the None values that weren't provided
+    s3_config = {k: v for k, v in s3_config.items() if v is not None}
 
     if not all(
         [
@@ -75,19 +81,9 @@ def load_config():
         )
         sys.exit(1)
 
-    if not s3_config["email"]:
-        logger.error("email environment variable is not set.")
+    if ingest and not s3_config["email"]:
+        logger.error("Can't ingest: email environment variable is not set.")
         sys.exit(1)
-
-    s3_endpoint_url = current_app.config.get("S3_ENDPOINT_URL", None)
-
-    if s3_endpoint_url:
-        s3_config["endpoint_url"] = s3_endpoint_url
-
-    s3_object_key = current_app.config.get("S3_OBJECT_KEY", None)
-
-    if s3_object_key:
-        s3_config["object_key"] = s3_object_key
 
     return s3_config
 
@@ -134,7 +130,7 @@ def rename_and_keep_latest_file(
     """Handles file retention based on check flag."""
     if check_comparison and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
-        return  # New file is identical, so discard it
+        return None  # New file is identical, so discard it
 
     # Generate a timestamped filename to avoid overwriting
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
@@ -143,21 +139,22 @@ def rename_and_keep_latest_file(
 
     os.rename(new_file, final_new_file_path)  # Rename new file
 
-    # Always replace old file if check == False
-    os.remove(existing_file)
-    logger.info(
-        f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
-    )
+    if existing_file:
+        os.remove(existing_file)
+        logger.info(
+            f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
+        )
 
     return final_new_file_path
 
 
 @click.command("manage_s3_files")
 @click.option("--check", is_flag=True, default=False)
-def manage_s3_files(check: bool):
+@click.option("--ingest", is_flag=True, default=False)
+def manage_s3_files(check: bool, ingest: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
 
-    s3_config = load_config()
+    s3_config = load_config(ingest)
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")
     s3_object_key = s3_config.pop("object_key", None)
@@ -182,7 +179,7 @@ def manage_s3_files(check: bool):
         final_file_path = rename_and_keep_latest_file(
             existing_file_path, new_file_path, s3_download_folder, check
         )
-        if final_file_path:
+        if ingest and final_file_path:
             logger.info(f"importing data using file {final_file_path}")
 
             result = import_data(user_email, final_file_path)

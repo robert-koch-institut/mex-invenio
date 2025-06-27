@@ -9,6 +9,7 @@ from freezegun import freeze_time
 def test_identical_files(
     app_config, db, create_file, load_env, mock_s3_client, cli_runner
 ):
+    """Test that the script does not import files that are identical."""
     # download_path is a module scope temp path, so we need to be careful about
     # file names
     download_path = app_config["S3_DOWNLOAD_FOLDER"]
@@ -51,6 +52,7 @@ def test_identical_files(
 def test_replace_file_but_fail_import(
     app_config, db, create_file, load_env, mock_s3_client, cli_runner
 ):
+    """Test that the script replaces a file but fails to import it."""
     # download_path is a module scope temp path, so we need to be careful about
     # file names
     download_path = app_config["S3_DOWNLOAD_FOLDER"]
@@ -87,7 +89,5 @@ def test_replace_file_but_fail_import(
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
 
     assert not os.path.exists(existing_file_path)
-    assert (
-        result.exit_code == 1
-    )  # The import job will error because the user is not found
+    assert result.exit_code == 0
     assert os.path.exists(renamed_downloaded_file)

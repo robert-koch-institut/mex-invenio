@@ -14,12 +14,17 @@ COPY site ./site
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --system
 
+# Logs dir for the import script
+RUN mkdir -p ./logs
+
 COPY ./docker/uwsgi/ ${INVENIO_INSTANCE_PATH}
 COPY ./invenio.cfg ${INVENIO_INSTANCE_PATH}
 COPY ./templates/ ${INVENIO_INSTANCE_PATH}/templates/
 COPY ./app_data/ ${INVENIO_INSTANCE_PATH}/app_data/
 COPY ./translations/ ${INVENIO_INSTANCE_PATH}/translations/
 COPY ./ .
+
+RUN mkdir -p ${INVENIO_INSTANCE_PATH}/logs/
 
 RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \
     cp -r ./assets/. ${INVENIO_INSTANCE_PATH}/assets/ && \

@@ -3,32 +3,54 @@
 import filecmp
 import os
 from datetime import datetime
-from typing import Union, Any
+from typing import Union, Any, Callable
 
 from flask import current_app
 
 
-def _get_value_by_lang(mex_data: dict, key: str, lang: str) -> str:
+def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable):
     """Get the value of a key in the MEx metadata by language."""
-    if isinstance(mex_data[key], str):
+    if isinstance(mex_data[key], str) and (
+        val_filter is None or val_filter(mex_data[key])
+    ):
         return mex_data[key]
 
-    if isinstance(mex_data[key][0], str):
-        return mex_data[key][0]
+    if isinstance(mex_data[key], list):
+        for item in mex_data[key]:
+            if (
+                isinstance(item, str)
+                and item
+                and (val_filter is None or val_filter(item))
+            ):
+                return item
 
-    if [t for t in mex_data[key] if "language" in t and t["language"] == lang]:
-        return [t for t in mex_data[key] if "language" in t and t["language"] == lang][
-            0
-        ]["value"]
+    values_by_lang = [
+        t for t in mex_data[key] if "language" in t and t["language"] == lang
+    ]
 
-    return mex_data[key][0]["value"]
+    if values_by_lang:
+        for item in values_by_lang:
+            if (
+                isinstance(item["value"], str)
+                and item["value"]
+                and (val_filter is None or val_filter(item["value"]))
+            ):
+                return item["value"]
+
+    if val_filter is None or val_filter(mex_data[key][0]["value"]):
+        return mex_data[key][0]["value"]
+
+    return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
 
 def get_title(mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
     for key in current_app.config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
         if key in mex_data and len(mex_data[key]) > 0:
-            return _get_value_by_lang(mex_data, key, "de")
+            try:
+                return _get_value_by_lang(mex_data, key, "de", lambda x: len(x) > 2)
+            except TypeError:
+                continue
 
     return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 

@@ -134,3 +134,19 @@ resource_data = {
     "entityType": "MergedResource",
     "identifier": "fGh6zMaW4iugHnDnw17601",
 }
+
+person_data = {
+    "affiliation": [],
+    "email": ["dennisray@example.org", "johnsoncynthia@example.org"],
+    "entityType": "MergedPerson",
+    "familyName": [],
+    "fullName": ["me", "these role early"],
+    "givenName": [],
+    "identifier": "f3sOhpidaNuj5P2kpPNrnN",
+    "isniId": ["https://isni.org/isni/4300367410484481"],
+    "memberOf": ["dbH9MailktkHGSffoZ4cFP"],
+    "orcidId": [
+        "https://orcid.org/8314-0231-6277-8087",
+        "https://orcid.org/4826-2772-7133-640X",
+    ],
+}

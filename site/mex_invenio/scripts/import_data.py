@@ -46,8 +46,8 @@ def process_record(
     mex_id: str, mex_data: dict, owner_id: int
 ) -> Union[None, dict[str, Any]]:
     """Create and publish a single record."""
-    app = current_app._get_current_object()  # Get the actual Flask app object
-    with app.app_context():  # Manually push application context in each process
+
+    with current_app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
 
         try:  # Create draft record and publish
@@ -91,8 +91,12 @@ def process_record(
             elif len(results) > 1:
                 # Log and skip the record if multiple records are found
                 logger.error(f"Multiple records found for MEx id: {mex_id}")
-        except Exception as e:
-            logger.error(f"Error processing record: {str(e)}")
+                return None
+
+            return None
+        except Exception:
+            logger.exception(f"Error processing record:")
+            return None
 
 
 @click.command("import_data")
