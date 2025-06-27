@@ -55,13 +55,28 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/search/variables",
-        view_func=search_variables
+        "/search/activities",
+        view_func=search_activities
     )
 
     blueprint.add_url_rule(
         "/search/bibliographic-resources",
         view_func=search_bibliographic_resources
+    )
+
+    blueprint.add_url_rule(
+        "/search/activities-bibliographic-resources",
+        view_func=search_activities_bibliographic_resources
+    )
+
+    blueprint.add_url_rule(
+        "/search/resources",
+        view_func=search_resources
+    )
+
+    blueprint.add_url_rule(
+        "/search/variables",
+        view_func=search_variables
     )
 
     blueprint.add_url_rule(
@@ -71,16 +86,28 @@ def create_blueprint(app):
 
     return blueprint
 
-def search_variables():
-    return render_template("mex_invenio/search/variables.html")
+def search_activities():
+    return render_template("mex_invenio/search/activities.html")
 
 def search_bibliographic_resources():
     return render_template("mex_invenio/search/bibliographic-resources.html")
+
+def search_activities_bibliographic_resources():
+    return render_template("mex_invenio/search/activities-bibliographic-resources.html")
+
+def search_resources():
+    return render_template("mex_invenio/search/resources.html")
+
+def search_variables():
+    return render_template("mex_invenio/search/variables.html")
 
 # mapping from URL query arguments on the /query/api/<resource_type> endpoint
 # to the resource_type used in the OpenSearch query.
 URL_RESOURCE_TYPE_MAP = {
     "bibliographic-resources": "bibliographicresource",
+    "activities": "activity",
+    "resources": "resource",
+    "variables": "variable"
 }
 
 @jsonp
