@@ -1,13 +1,12 @@
-from flask import Blueprint, redirect, url_for, current_app, abort
+from flask import Blueprint, redirect, url_for, current_app, abort, g
+
 from .record.record import MexRecord
 
-from invenio_pidstore.resolver import Resolver
 from invenio_pidstore.errors import (
     PIDDoesNotExistError,
-    PIDMissingObjectError,
     PIDUnregistered,
 )
-from invenio_rdm_records.records.api import RDMRecord
+from invenio_rdm_records.proxies import current_rdm_records_service
 
 
 #
@@ -46,30 +45,23 @@ def redirect_to_mex(record_id):
     :return:
     """
     record = None
-    resolver = Resolver(
-        pid_type="recid", object_type="rec", getter=RDMRecord.get_record
-    )
 
     try:
-        pid, record = resolver.resolve(record_id)
+        record = current_rdm_records_service.read(g.identity, record_id)
     except (PIDDoesNotExistError, PIDUnregistered):
         abort(404)
-    except PIDMissingObjectError as e:
-        current_app.logger.exception(
-            "No object assigned to {0}.".format(e.pid), extra={"pid": e.pid}
-        )
-        abort(500)
     except Exception as e:
         current_app.logger.exception("Unknown error occurred.", extra={"error": e})
         abort(500)
+
     try:
-        mex_id = record["custom_fields"]["mex:identifier"]
+        mex_id = record.data["custom_fields"]["mex:identifier"]
     except Exception as e:
         current_app.logger.exception("No mex id for the record {0}.".format(e))
         abort(500)
 
-    if record.versions.index != record.versions.latest_index:
+    if not record.data['versions']['is_latest']:
         # If the record is not the latest version, include version id
-        return redirect(url_for(".mex_view", mex_id=mex_id, version_id=record.versions.index))
+        return redirect(url_for(".mex_view", mex_id=mex_id, version_id=record.data['versions']['index']))
 
     return redirect(url_for(".mex_view", mex_id=mex_id))
