@@ -60,8 +60,12 @@ def redirect_to_mex(record_id):
         current_app.logger.exception("No mex id for the record {0}.".format(e))
         abort(500)
 
-    if not record.data['versions']['is_latest']:
+    if not record.data["versions"]["is_latest"]:
         # If the record is not the latest version, include version id
-        return redirect(url_for(".mex_view", mex_id=mex_id, version_id=record.data['versions']['index']))
+        return redirect(
+            url_for(
+                ".mex_view", mex_id=mex_id, version_id=record.data["versions"]["index"]
+            )
+        )
 
     return redirect(url_for(".mex_view", mex_id=mex_id))

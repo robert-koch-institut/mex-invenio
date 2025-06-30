@@ -30,8 +30,9 @@ class MexRecord(MethodView):
             # Note: RDMRecord.model_cls is used to access the underlying SQLAlchemy model,
             # this is because RDMRecord api methods expect a PID and not a mex_id.
             record = RDMRecord.model_cls.query.filter(
-                RDMRecord.model_cls.json['custom_fields']['mex:identifier'].as_string() == mex_id,
-                RDMRecord.model_cls.index == version_id
+                RDMRecord.model_cls.json["custom_fields"]["mex:identifier"].as_string()
+                == mex_id,
+                RDMRecord.model_cls.index == version_id,
             ).one_or_none()
 
             if not record:
