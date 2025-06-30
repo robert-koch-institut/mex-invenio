@@ -18,6 +18,7 @@ class MexRecord(MethodView):
     def get(self, mex_id):
         version_id = request.args.get("version_id", None)
 
+        # Establish the version_id as an integer if it is provided
         if version_id:
             try:
                 version_id = int(version_id)
@@ -25,6 +26,9 @@ class MexRecord(MethodView):
                 version_id = None
 
         if version_id:
+            # Try to fetch the record by mex_id and version_id
+            # Note: RDMRecord.model_cls is used to access the underlying SQLAlchemy model,
+            # this is because RDMRecord api methods expect a PID and not a mex_id.
             record = RDMRecord.model_cls.query.filter(
                 RDMRecord.model_cls.json['custom_fields']['mex:identifier'].as_string() == mex_id,
                 RDMRecord.model_cls.index == version_id
@@ -34,7 +38,7 @@ class MexRecord(MethodView):
                 abort(404)
             pid = record.json["id"]
         else:
-
+            # Version_id is not provided, fetch the latest record by mex_id
             try:
                 record = _get_record_by_mex_id(mex_id)
             except PIDDoesNotExistError:
