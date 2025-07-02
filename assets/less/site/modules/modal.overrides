@@ -1,0 +1,31 @@
+// Modal Backdrop
+.ui.modal {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+// Modal Overrides for #card-properties-modal
+.ui.modal.body >  {
+    display: block;
+    background-color: white;
+    position: fixed;
+    top: 25%;
+    left: 25%;
+    z-index: 1050;
+    width: 50%;
+    height: max-content;
+    max-height: 50%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+
+    .content {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+}

@@ -1,0 +1,44 @@
+{% set cards = config.RECORD_CARDS.resource[column] %}
+{% set card = config.RECORD_CARDS.resource[column][card_name] %}
+
+{% set ns = namespace(prop_exist=false, value=none) %}
+{% if linked_records_data and card.is_backwards_linked %}
+    {% set record_data = linked_records_data["backwards_linked"] %}
+    {% for prop in card.properties %}
+        {% if prop in record_data %}
+            {% set ns.value = record_data[prop] %}
+            {% set ns.prop_exist = true %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% set record_data = record.ui.custom_fields %}
+    {% for prop in card.properties %}
+        {% if prop in record.ui.custom_fields %}
+            {% set ns.value = record.ui.custom_fields[prop] %}
+            {% if ns.value %}
+                {% set ns.prop_exist = true %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+            {% for prop in card.properties %}
+                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                {% if value %}
+                    <div class="card-props-p">
+                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <div class="card-prop-value">{{ value }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

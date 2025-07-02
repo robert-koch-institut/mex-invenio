@@ -501,6 +501,10 @@ RECORD_CARDS = {
     }
 }
 
+CARDS_WITH_SPECIAL_TEMPLATES = [
+    "variables"
+]
+
 PROPS_WITHOUT_LABELS = {"resource": ["mex:isPartOf"]}
 
 IS_ACCESS_STATUS_OPEN = {

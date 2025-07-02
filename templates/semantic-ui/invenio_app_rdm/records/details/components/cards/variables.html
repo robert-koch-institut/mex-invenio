@@ -1,0 +1,110 @@
+{% set max_variables = 0 %}
+{% set cards = config.RECORD_CARDS.resource[column] %}
+{% set card = config.RECORD_CARDS.resource[column][card_name] %}
+
+{% set ns = namespace(prop_exist=false, value=none) %}
+{% if linked_records_data and card.is_backwards_linked %}
+    {% set record_data = linked_records_data["backwards_linked"] %}
+    {% for prop in card.properties %}
+        {% if prop in record_data %}
+            {% set ns.value = record_data[prop] %}
+            {% set ns.prop_exist = true %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% set record_data = record.ui.custom_fields %}
+    {% for prop in card.properties %}
+        {% if prop in record.ui.custom_fields %}
+            {% set ns.value = record.ui.custom_fields[prop] %}
+            {% if ns.value %}
+                {% set ns.prop_exist = true %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+            {% for prop in card.properties[:max_variables] %}
+                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                {% if value %}
+                    <div class="card-props-p">
+                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <div class="card-prop-value">{{ value }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {% set variables_count = card.properties | length %}
+            {% if variables_count > max_variables %}
+                <div class="card-props-p">
+                    <a class="card-prop-label" id="see-all-modal-trigger" style="cursor: pointer">
+                        {{ _('See all %(count)s variables', count=variables_count) }}
+                    </a>
+                    <button class="disabled" style="cursor: not-allowed">
+                        {{ _('See all variables in the variables search page') }}
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<div class="ui modal" id="card-properties-modal">
+    <div class="ui modal body">
+        <div class="header">
+            {{ _('All variables') }}
+        </div>
+        <div class="content">
+            <p>{{ _('Here are all the variables for this card:') }}</p>
+            <ul>
+            {% for prop in card.properties %}
+                    {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                    {% if value %}
+                        <div class="card-props-p">
+                            <div class="card-prop-value">{{ value }}</div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="actions">
+            <div class="ui approve button" id="close-variables-modal">{{ _('Close') }}</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const trigger_link = document.getElementById('see-all-modal-trigger')
+    trigger_link.addEventListener('click', e => {
+        e.preventDefault();
+        const modal = document.getElementById('card-properties-modal');
+        const modal_back = document.getElementById('variables-modal-backdrop');
+        if (modal) {
+            modal.style.display = 'block'; // or remove 'hidden' class, depending on your CSS
+        }
+    });
+
+    const modal = document.getElementById('card-properties-modal');
+    const closeBtn = document.getElementById('close-variables-modal');
+
+    if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Close modal if click outside modal-content
+    modal.addEventListener('click', e => {
+        // If click target is the modal itself (background), close it
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    }
+
+</script>
