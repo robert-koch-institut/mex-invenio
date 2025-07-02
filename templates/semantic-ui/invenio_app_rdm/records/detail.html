@@ -273,8 +273,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {%- block javascript %}
 {% if use_theme_basic_template|default(true) %}
 {{ super() }}
-{% else %}
-{% include config.THEME_JAVASCRIPT_TEMPLATE %}
+{{ webpack['support-record.js'] }}
 {% endif %}
 {%- block record_jsonld %}
 {% set jsonld_serialization = record | transform_record('SchemaorgJSONLDSerializer', throws=False) %}
