@@ -55,6 +55,8 @@ class MexRecord(MethodView):
 
         linked_records_data = _get_linked_records_data(record_item, mex_id)
         record = json.loads(record_ui)
+        # for testing: inject some data
+        # record["ui"]["custom_fields"]["mex:temporal"] = "2014-09 bis 2017-04"
 
         return render_template(
             self.template,
