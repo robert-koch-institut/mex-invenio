@@ -55,7 +55,6 @@ class MexRecord(MethodView):
 
         linked_records_data = _get_linked_records_data(record_item, mex_id)
         record = json.loads(record_ui)
-        # for testing: inject some data
 
         return render_template(
             self.template,
