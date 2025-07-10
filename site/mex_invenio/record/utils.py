@@ -35,7 +35,7 @@ def _get_record_by_mex_id(mex_id):
 
 def _get_linked_records(record, field_items):
     records_fields = {}
-    cf = record["custom_fields"]
+    cf = record.data["custom_fields"]
     linked_record_ids = []
 
     for f in field_items:
@@ -54,7 +54,6 @@ def _get_linked_records(record, field_items):
     }
 
     for field, props in field_items:
-        current_app.logger.debug(f"Getting {field}")
         raw_value = record["custom_fields"].get(field)
 
         if not raw_value:
@@ -153,7 +152,7 @@ def _get_records_linked_backwards(mex_id, field_items):
 
 def _get_linked_records_data(record, mex_id) -> dict:
     """Fetch metadata about linked records for a given record."""
-    record_type = record["metadata"]["resource_type"]["id"]
+    record_type = record.data["metadata"]["resource_type"]["id"]
     linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})
     records_linked_backwards = current_app.config.get("RECORDS_LINKED_BACKWARDS", {})
     linked_records_data = {}
