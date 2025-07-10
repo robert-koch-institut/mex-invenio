@@ -1,6 +1,4 @@
-import json
-import os
-from importlib import resources
+from mex.model import ENTITY_JSON_BY_NAME
 
 
 # Custom types definition
@@ -83,23 +81,18 @@ def get_field_type(property):
     return field_type
 
 
-# Main function to process the files
+# Main function to process the entities from mex-model package
 def get_field_types() -> dict:
-    entities_directory = resources.files("mex").joinpath("model/entities")
-
-    if not os.path.isdir(entities_directory):
-        return {}
-
+    """Get field types from Mex model package entities."""
     field_types = {}
 
-    for entity_filename in os.listdir(entities_directory):
+    # Use the pre-loaded entity data from mex-model package
+    for entity_name, entity_data in ENTITY_JSON_BY_NAME.items():
         try:
-            with open(f"{entities_directory}/{entity_filename}") as f:
-                data = json.load(f)
-
-            properties = data.get("properties", {})
-            resource_type = data.get("$id").split("/")[-1].replace("-", "")
-            # Initialize the result for this file
+            properties = entity_data.get("properties", {})
+            resource_type = entity_data.get("$id", "").split("/")[-1].replace("-", "")
+            
+            # Initialize the result for this entity
             field_types[resource_type] = {}
 
             for prop_name, prop_value in properties.items():
@@ -108,7 +101,8 @@ def get_field_types() -> dict:
                     field_types[resource_type]["mex:" + prop_name] = field_type
                 else:
                     field_types[resource_type]["mex:" + prop_name] = "unknown"
-        except Exception:
+        except Exception as e:
+            print(f"Error processing entity {entity_name}: {e}")
             continue
 
     return field_types
