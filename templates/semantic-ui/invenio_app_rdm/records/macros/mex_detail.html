@@ -48,10 +48,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- else -%}
         {%- set items_to_display = items -%}
     {%- endif -%}
-
+    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
     {%- for item in items_to_display -%}
-        {{ item.value }}{% if not loop.last %}</br>{% endif %}
+        {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ item.value }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %}</br>{% endif %}
     {%- endfor -%}
+    {% if field_name in config.TAGS %}</div>{% endif %}
 {% endmacro %}
 
 {% macro render_url(field_name,items) %}
