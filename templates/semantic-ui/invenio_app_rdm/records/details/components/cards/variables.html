@@ -1,4 +1,5 @@
-{% set max_variables = 0 %}
+{% set max_variables = 3 %}
+{% set card_name = "variables" %}
 {% set cards = config.RECORD_CARDS.resource[column] %}
 {% set card = config.RECORD_CARDS.resource[column][card_name] %}
 
@@ -31,7 +32,7 @@
             {{ _(card.title) }}
         </h3>
         <div class="card-props">
-            {% for prop in card.properties[:max_variables] %}
+            {% for prop in card.properties %}
                 {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
                 {% if value %}
                     <div class="card-props-p">
@@ -40,16 +41,14 @@
                     </div>
                 {% endif %}
             {% endfor %}
-            {% set variables_count = card.properties | length %}
+            {% set variables_count = 1 %}
             {% if variables_count > max_variables %}
-                <div class="card-props-p">
                     <a class="card-prop-label" id="see-all-modal-trigger" style="cursor: pointer">
                         {{ _('See all %(count)s variables', count=variables_count) }}
                     </a>
-                    <button class="disabled" style="cursor: not-allowed">
-                        {{ _('See all variables in the variables search page') }}
-                    </button>
-                </div>
+                <button class="disabled" disabled>
+                    {{ _('See all variables in the variables search page') }}
+                </button>
             {% endif %}
         </div>
     </div>

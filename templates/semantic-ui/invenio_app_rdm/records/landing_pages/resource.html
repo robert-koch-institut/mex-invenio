@@ -122,10 +122,8 @@
                 {% block record_sidebar %}
                     {%- for card_name in config.RECORD_CARDS.resource.right %}
                         {% set card = config.RECORD_CARDS.resource.right[card_name] %}
-                        {% if card_name in config.CARDS_WITH_SPECIAL_TEMPLATES %}
-                            {% with card=card_name %}
-                                {%- include "invenio_app_rdm/records/details/components/cards/" ~ card_name ~ ".html" with context %}
-                            {% endwith %}
+                        {% if "template" in card %}
+                                {%- include "invenio_app_rdm/records/details/components/cards/" ~ card["template"] with context %}
                         {% elif card.type == "single" %}
                             {% with card=card_name %}
                                 {%- include "invenio_app_rdm/records/details/components/cards/card.html" with context %}

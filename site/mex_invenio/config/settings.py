@@ -466,14 +466,12 @@ RECORD_CARDS = {
             "contact": {
                 "type": "single",
                 "title": "Contact",
-                "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": ["mex:contact"],
             },
             "access": {
                 "type": "single",
                 "title": "Access & Usage Rights",
-                "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
                     "mex:accessRestriction",
@@ -485,9 +483,8 @@ RECORD_CARDS = {
             "files": {
                 "type": "single",
                 "title": "Files",
-                "template": "files.html",
                 "icon": "distribution.svg",
-                "properties": ["mex:distribution"],
+                "properties": ["mex:distribution"]
             },
             "variables": {
                 "type": "single",
@@ -495,15 +492,11 @@ RECORD_CARDS = {
                 "template": "variables.html",
                 "icon": "variables.svg",
                 "is_backwards_linked": True,
-                "properties": ["mex:usedIn"],
-            },
+                "properties": ["mex:usedIn"]
+            }
         },
     }
 }
-
-CARDS_WITH_SPECIAL_TEMPLATES = [
-    "variables"
-]
 
 PROPS_WITHOUT_LABELS = {"resource": ["mex:isPartOf"]}
 
