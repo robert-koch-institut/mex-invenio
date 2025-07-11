@@ -29,17 +29,11 @@ from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from multiprocessing import Pool, cpu_count
 
-from mex_invenio.config import IMPORT_LOG_FILE, IMPORT_LOG_FORMAT
 from mex_invenio.scripts.utils import compare_dicts, clean_dict, mex_to_invenio_schema
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler(IMPORT_LOG_FILE)
-file_handler.setLevel(logging.INFO)
-formatter = logging.Formatter(IMPORT_LOG_FORMAT)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
 
 
 def process_record(
