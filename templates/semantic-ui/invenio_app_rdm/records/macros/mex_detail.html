@@ -120,9 +120,16 @@ it under the terms of the MIT License; see LICENSE file for more details.
                         {% if "email" in v %}
                             {% for display_value in v["display_value"] %}
                                 <span class="email-container">
-                                  <a href="{{ v.link_id }}">{{ display_value }}</a>
-                                  <a href="mailto:{{ v.email[loop.index0] }}?cc=mex\@rki.de"><i class="envelope icon"></i></a>
-                                  <i class="copy icon copy-email" onclick="navigator.clipboard.writeText('{{ v.email[loop.index0] }}')"></i>
+                                  <a href="{{ v.link_id }}" class="display-text">{{ display_value }}</a>
+                                    <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
+                                    <img class="ui image icon"
+                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
+                                        alt="send email"
+                                    />
+                                    </a>
+                                    {% with emailAddress = v.email[loop.index0] ~ "?cc=mex\@rki.de" %}
+                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                                    {% endwith %}
                                 </span>
                             {% endfor %}
                         {% else %}
