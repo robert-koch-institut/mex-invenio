@@ -1,0 +1,40 @@
+<span class="click-to-copy">
+  <button onclick="copyToClipboard('mex@example.com', this)"
+          aria-label="Copy mex email address">
+    <img class="ui image icon"
+         src="{{ url_for('static', filename='icons/copy.svg') }}"
+         alt="click to copy mex email address"
+         />
+  </button>
+  <span class="copied-msg"
+        role="status"
+        aria-live="polite"
+        style="display: none;">
+    Copied!
+  </span>
+</span>
+
+<script>
+  function copyToClipboard(text, imgElement) {
+    navigator.clipboard.writeText(text).then(() => {
+      const copiedMsg = imgElement.nextElementSibling;
+      copiedMsg.style.display = 'inline';
+
+      // Announce for screen readers
+      copiedMsg.textContent = 'Copied!';
+      
+      // Reset any previously set timers
+      if (imgElement._copyTimeout) {
+        clearTimeout(imgElement._copyTimeout);
+      }
+
+      // Hide message after 2 seconds
+      imgElement._copyTimeout = setTimeout(() => {
+        copiedMsg.style.display = 'none';
+      }, 2000);
+    }).catch(err => {
+      console.error('Copy failed', err);
+    });
+  }
+</script>
+

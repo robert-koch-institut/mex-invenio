@@ -60,6 +60,9 @@
                 margin-right: 0.5rem;
             }
         }
+        .additional_info {
+            margin-bottom: 1rem;
+        }
         .card-props {
             display: grid;
             gap: 1rem;
@@ -301,4 +304,18 @@ span.email-container {
 i.copy-email {
     cursor: pointer;
     color: @core-color-brand-default;
+}
+
+.click-to-copy {
+    display: inline-flex;
+    button {
+        background: none; 
+        border: none; 
+        padding: 0; 
+        cursor: pointer;
+    }
+    .copied-msg {
+        margin-left: 5px; 
+        color: #32008C;
+    }
 }
