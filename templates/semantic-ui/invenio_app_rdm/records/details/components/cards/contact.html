@@ -1,0 +1,43 @@
+{% set card_name = "contact" -%}
+{% set card = config.RECORD_CARDS.resource.right[card_name] %}
+{% set ns = namespace(prop_exist=false, value=none) %}
+
+{% set record_data = record.ui.custom_fields %}
+{% for prop in card.properties %}
+    {% if prop in record.ui.custom_fields %}
+        {% set ns.value = record.ui.custom_fields[prop] %}
+        {% if ns.value %}
+            {% set ns.prop_exist = true %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="additional_info tags">
+            <p>If you wish to get in touch, please make sure to copy (CC) 
+                <span class="tag" style="display: inline-flex; gap: .5rem;">
+                    <a href="mailto:mex@rki.de" title="send email">mex [at] rki.de</a>
+                    {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                </span>
+            </p>
+        </div>
+        <div class="card-props">
+            {% for prop in card.properties %}
+                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                {% if value %}
+                    <div class="card-props-p">
+                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <div class="card-prop-value">{{ value }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
