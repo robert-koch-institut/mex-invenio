@@ -34,6 +34,12 @@ def create_blueprint(app):
         view_func=MexRecord.as_view("mex_view"),
     )
 
+    blueprint.add_url_rule(
+        "/records/mex/<mex_id>/json",
+        view_func=MexRecord.as_view("mex_json_view"),
+        defaults={"as_json": True},
+    )
+
     return blueprint
 
 
