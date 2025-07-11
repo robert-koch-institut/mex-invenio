@@ -173,12 +173,6 @@ msgstr "Variable"
 
 #: Resource Cards Titles and headers
 
-msgid "Language"
-msgstr "Sprache"
-
-msgid "Created"
-msgstr "Erstellt"
-
 msgid "Creators & Contributors"
 msgstr "Verantwortliche & Mitwirkende"
 
@@ -211,9 +205,6 @@ msgstr "Verknüpfte Datenbestände & Datensätze"
 
 msgid "Views"
 msgstr "Aufrufe"
-
-msgid "Contact"
-msgstr "Kontakt"
 
 msgid "Access & Usage Rights"
 msgstr "Zugriff & Nutzungsrechte"
@@ -258,20 +249,11 @@ msgstr "Publikation"
 msgid "Publications"
 msgstr "Publikationen"
 
-msgid "Variable"
-msgstr "Variable"
-
 msgid "Variables"
 msgstr "Variablen"
 
-msgid "Edit this record"
-msgstr "Eintrag editieren"
-
 msgid "About MEx"
 msgstr "Über MEx"
-
-msgid "Contact"
-msgstr "Kontakt"
 
 msgid "Data privacy"
 msgstr "Datenschutzerklärung"
