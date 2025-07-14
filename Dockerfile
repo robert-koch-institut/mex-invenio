@@ -10,6 +10,13 @@
 
 FROM registry.cern.ch/inveniosoftware/almalinux:1
 
+# Update python to 3.11
+RUN dnf -y install python3.11 python3.11-devel python3.11-libs python3.11-pip && \
+    alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    alternatives --set python3 /usr/bin/python3.11
+
+RUN pip install --upgrade pip pipenv
+
 COPY site ./site
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --system
