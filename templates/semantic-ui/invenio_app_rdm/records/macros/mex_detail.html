@@ -14,7 +14,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
     } %}
     {% for date_str in dates %}
-        {%- if date_str is string and date_str|length >= 10 %}
+        {%- if date_str is string and date_str|length == 10 or date_str|length == 20 %}
             {# Format: YYYY-MM-DD or full timestamp #}
             {%- set year = date_str[0:4] %}
             {%- set month = date_str[5:7] %}
@@ -48,10 +48,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- else -%}
         {%- set items_to_display = items -%}
     {%- endif -%}
-
+    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
     {%- for item in items_to_display -%}
-        {{ item.value }}{% if not loop.last %}</br>{% endif %}
+        {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ item.value }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %}</br>{% endif %}
     {%- endfor -%}
+    {% if field_name in config.TAGS %}</div>{% endif %}
 {% endmacro %}
 
 {% macro render_url(field_name,items) %}

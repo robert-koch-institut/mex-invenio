@@ -15,7 +15,7 @@ class MexRecord(MethodView):
     def __init__(self):
         self.template = "invenio_app_rdm/records/detail.html"
 
-    def get(self, mex_id):
+    def get(self, mex_id, as_json=False):
         version_id = request.args.get("version_id", None)
 
         # Establish the version_id as an integer if it is provided
@@ -53,11 +53,16 @@ class MexRecord(MethodView):
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
 
+        # Just return the record as JSON if requested
+        if as_json:
+            return json.loads(record_ui)
+
         linked_records_data = _get_linked_records_data(record_item, mex_id)
+        record = json.loads(record_ui)
 
         return render_template(
             self.template,
-            record=json.loads(record_ui),
+            record=record,
             linked_records_data=linked_records_data,
             is_preview=False,
         )

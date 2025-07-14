@@ -39,16 +39,9 @@ from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import compare_files
 from datetime import datetime, timezone
 
-from mex_invenio.config import S3_LOG_FILE, S3_LOG_FORMAT
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler(S3_LOG_FILE)
-file_handler.setLevel(logging.INFO)
-formatter = logging.Formatter(S3_LOG_FORMAT)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
 
 envvar_prefix = "MEX_IMPORT_"
 
