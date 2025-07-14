@@ -239,15 +239,6 @@ S3_DOWNLOAD_FOLDER = "s3_downloads"
 
 COMMUNITIES_GROUPS_ENABLED = False
 
-# Script log config
-# --------------
-
-IMPORT_LOG_FILE = "logs/import_data.log"
-IMPORT_LOG_FORMAT = "%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s"
-
-S3_LOG_FILE = "logs/s3_manager.log"
-S3_LOG_FORMAT = IMPORT_LOG_FORMAT
-
 # The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
