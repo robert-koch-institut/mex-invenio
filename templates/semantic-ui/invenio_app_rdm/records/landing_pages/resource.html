@@ -1,15 +1,16 @@
 {# record.ui.custom_fields -> values #}
 {% set resource_type = "resource" %}
+
 <div class="edit-btn"><a id="edit-record" class="button edit"
                          href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
-                         target="_blank">{{ _('Edit this record') }}</a></div>
+                         target="_blank">{{ smart_translate('resource_edit_record') }}</a></div>
 <div class="ui container">
     <div class="ui relaxed stackable reversed mobile grid mt-5">
         <div class="two column row top-padded">
             <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
-                <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
+                <section id="record-tags" class="rel-mt-1" aria-label="{{ smart_translate('resource_record_tags') }}">
                     <div class="tags top-tags">
-                        <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
+                        <span class="tag">{{ _(record.metadata.resource_type.title.get('en')) }}</span>
                         {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
                         {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
                         {% if resource_type_general %}
@@ -22,7 +23,7 @@
 
                 <section id="record-title-section">
                     <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
                     </div>
                     {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
@@ -42,10 +43,10 @@
                 {% if language or created %}
                     <section class="detail">
                         {% if language %}
-                            <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
+                            <p class="muted"><b>{{ smart_translate('resource_language') }}:</b> {{ language }}</p>
                         {% endif %}
                         {% if created %}
-                            <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
+                            <p class="muted"><b>{{ smart_translate('resource_created') }}:</b>{{ created }}</p>
                         {% endif %}
                     </section>
                 {% endif %}
@@ -55,6 +56,7 @@
                 {% set icd10val = val("mex:icd10code", record.ui.custom_fields["mex:icd10code"], resource_type) %}
                 {% set loincval = val("mex:loincId", record.ui.custom_fields["mex:loincId"], resource_type) %}
                 {% set meshval = val("mex:meshId", record.ui.custom_fields["mex:meshId"], resource_type) %}
+
                 {% if icd10val or loincval or meshval %}
                     <section id="record-ids" aria-label="{{ _('Record IDs') }}">
                         <div class="id-tags">

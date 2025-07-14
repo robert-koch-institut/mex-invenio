@@ -1,0 +1,944 @@
+# English translations for PROJECT.
+# Copyright (C) 2025 Robert Koch-Institut
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: mex@rki.de\n"
+"POT-Creation-Date: 2025-02-20 13:19+0000\n"
+"PO-Revision-Date: 2025-02-20 13:28+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: de <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.16.0\n"
+
+msgid "frontpage_title"
+msgstr "Search repository"
+
+msgid "searchbar_search_records"
+msgstr "Search records"
+
+msgid "footer_about"
+msgstr "About MEx"
+
+msgid "footer_privacy"
+msgstr "Data privacy"
+
+msgid "footer_accessibility"
+msgstr "Accessibility"
+
+msgid "footer_imprint"
+msgstr "Imprint"
+
+msgid "footer_disclaimer"
+msgstr ""
+"All information is based on information from the original data-storing "
+"systems. No guarantee is given for the accuracy, completeness, or timeliness"
+" of this information."
+
+# Resource landing page:
+# defined in templates/semantic-ui/invenio_app_rdm/records/details/landing_page.html
+
+msgid "resource_edit_record"
+msgstr "Edit this record"
+
+msgid "resource_record_tags"
+msgstr "Record Tags"
+
+msgid "resource_language"
+msgstr "Language"
+
+msgid "resource_created"
+msgstr "Created"
+
+# Header menu in templates/semantic-ui/invenio_app_rdm/header.html
+msgctxt "header_menu"
+msgid "resource"
+msgstr "Data Sources & Datasets"
+
+msgctxt "header_menu"
+msgid "variable"
+msgstr "Variables"
+
+msgctxt "header_menu"
+msgid "activity"
+msgstr "Projects"
+
+msgctxt "header_menu"
+msgid "bibliographicresource"
+msgstr "Publications"
+
+#: Resource Cards Titles and headers
+msgid "card_creators_and_contributors"
+msgstr "Creators & Contributors"
+
+msgid "card_theme_and_keywords"
+msgstr "Theme & Keywords"
+
+msgid "card_data_representation_and_coverage"
+msgstr "Data Representation & Coverage"
+
+msgid "card_legal_basis_and_provenance"
+msgstr "Legal Basis & Data Provenance"
+
+msgid "card_data_collection_and_processing"
+msgstr "Data Collection & Processing"
+
+msgid "card_methodology"
+msgstr "Methodology"
+
+msgid "card_standards_and_quality"
+msgstr "Standards & Quality"
+
+msgid "card_related_projects"
+msgstr "Related Projects"
+
+msgid "card_related_publications"
+msgstr "Related Publications & Further Documentation"
+
+msgid "card_related_resources"
+msgstr "Related Resources"
+
+msgid "card_views"
+msgstr "Views"
+
+msgid "card_access_and_usage_rights"
+msgstr "Access & Usage Rights"
+
+msgid "card_files"
+msgstr "Files"
+
+msgid "card_metadata_version"
+msgstr "Metadata Version"
+
+msgid "card_access_platform"
+msgstr "Access Platform"
+
+msgid "card_metadata_export"
+msgstr "Metadata Export"
+
+msgid "abstract.singular"
+msgstr "Abstract"
+
+msgid "abstract.description"
+msgstr ""
+"Brief description of the project or research context in which the research "
+"data were created"
+
+msgid "accessPlatform.singular"
+msgid_plural "accessPlatform.plural"
+msgstr[0] "Access platform"
+msgstr[1] "Access platforms"
+
+msgid "accessPlatform.description"
+msgstr "Access platform of the research data"
+
+msgid "accessRestriction.singular"
+msgstr "Access restriction"
+
+msgid "accessRestriction.description"
+msgstr "Description of the access restriction."
+
+msgctxt "BibliographicResource"
+msgid "accessRestriction.description"
+msgstr ""
+"Description of whether the publication is accessible to everyone (open) or "
+"has restricted access."
+
+msgctxt "Distribution"
+msgid "accessRestriction.description"
+msgstr ""
+"Description of whether the files are accessible to everyone (open) or have "
+"restricted access."
+
+msgctxt "Resource"
+msgid "accessRestriction.description"
+msgstr ""
+"Description of whether the research data are accessible to everyone (open) "
+"or have restricted access."
+
+msgid "accessService.singular"
+msgid_plural "accessService.plural"
+msgstr[0] "Access service"
+msgstr[1] "Access services"
+
+msgid "accessService.description"
+msgstr "A data service that provides access to the research data."
+
+msgid "accessURL.singular"
+msgid_plural "accessURL.plural"
+msgstr[0] "Access URL"
+msgstr[1] "Access URLs"
+
+msgid "accessURL.description"
+msgstr "A URL that allows access to the research data."
+
+msgid "accrualPeriodicity.singular"
+msgstr "Frequency"
+
+msgid "accrualPeriodicity.description"
+msgstr "The rate/frequency at which new research data is added."
+
+msgid "activityType.singular"
+msgid_plural "activityType.plural"
+msgstr[0] "Type of project"
+msgstr[1] "Types of project"
+
+msgid "activityType.description"
+msgstr ""
+"The type of project indicates whether it is internal or third-party funded."
+
+msgid "alternateIdentifier.singular"
+msgid_plural "alternateIdentifier.plural"
+msgstr[0] "Other identifier"
+msgstr[1] "Other identifiers"
+
+msgctxt "BibliographicResource"
+msgid "alternateIdentifier.description"
+msgstr "Other identifiers for the publication, e.g. from other repositories."
+
+msgid "alternativeTitle.singular"
+msgstr "Alternative title"
+
+msgid "alternativeTitle.description"
+msgstr "Another title"
+
+msgctxt "AccessPlatform"
+msgid "alternativeTitle.description"
+msgstr "Another title for the access platform"
+
+msgctxt "Activity"
+msgid "alternativeTitle.description"
+msgstr "Another title for the project"
+
+msgctxt "BibliographicResource"
+msgid "alternativeTitle.description"
+msgstr "Another title for the publication"
+
+msgctxt "PrimarySource"
+msgid "alternativeTitle.description"
+msgstr "Another title for the primary source"
+
+msgctxt "Resource"
+msgid "alternativeTitle.description"
+msgstr "Another title for the research data"
+
+msgid "anonymizationPseudonymization.singular"
+msgstr "Anonymization/pseudonymization"
+
+msgid "anonymizationPseudonymization.description"
+msgstr ""
+"Indicates whether the research data have been anonymized and/or "
+"pseudonymized"
+
+msgid "belongsTo.singular"
+msgid_plural "belongsTo.plural"
+msgstr[0] "Associated variable group"
+msgstr[1] "Associated variable groups"
+
+msgid "belongsTo.description"
+msgstr ""
+"Grouping of variables based on their organization in the original data "
+"storage."
+
+msgid "bibliographicResourceType.singular"
+msgstr "Publication type"
+
+msgid "bibliographicResourceType.description"
+msgstr "Type of publication"
+
+msgid "codingSystem.singular"
+msgstr "Coding system"
+
+msgid "codingSystem.description"
+msgstr ""
+"A coding system is a standardized system for encoding medical information, "
+"such as diagnoses, treatments, medications, and procedures. These systems "
+"serve to uniformly record, document and bill medical services as well as to "
+"support clinical studies and health research."
+
+msgid "conformsTo.singular"
+msgid_plural "conformsTo.plural"
+msgstr[0] "Standard"
+msgstr[1] "Standards"
+
+msgid "conformsTo.description"
+msgstr "An established standard to which the described data conforms to."
+
+msgid "contact.singular"
+msgid_plural "contact.plural"
+msgstr[0] "Contact"
+msgstr[1] "Contacts"
+
+msgctxt "Activity"
+msgid "contact.description"
+msgstr "Contact for the (research) project."
+
+msgctxt "PrimarySource"
+msgid "contact.description"
+msgstr ""
+"Person or unit that can help with accessing, troubleshooting, or otherwise "
+"resolve issues related to the platform"
+
+msgctxt "Resource"
+msgid "contact.description"
+msgstr ""
+"Person or unit that can help with accessing, troubleshooting, or otherwise "
+"resolve issues related to the research data"
+
+msgid "containedBy.singular"
+msgstr "Related research data"
+
+msgid "containedBy.description"
+msgstr "Research data to which the variable group belongs"
+
+msgid "contributor.singular"
+msgid_plural "contributor.plural"
+msgstr[0] "Contributor"
+msgstr[1] "Contributors"
+
+msgid "contributor.description"
+msgstr "Person(s) contributing to the research data"
+
+msgid "contributingUnit.singular"
+msgid_plural "contributingUnit.plural"
+msgstr[0] "Contributing RKI unit"
+msgstr[1] "Contributing RKI units"
+
+msgid "contributingUnit.description"
+msgstr "RKI unit(s) contributing to the research data"
+
+msgid "created.singular"
+msgstr "Created"
+
+msgctxt "Resource"
+msgid "created.description"
+msgstr ""
+"Date the research data was created; this could refer to a time frame in the "
+"past, a date range, or a single date for a final component, e.g., the "
+"finalized file with all the data."
+
+msgid "creator.singular"
+msgid_plural "creator.plural"
+msgstr[0] "Author"
+msgstr[1] "Authors"
+
+msgid "creator.description"
+msgstr "Author(s) of the publication"
+
+msgid "dataType.singular"
+msgstr "Data type"
+
+msgid "dataType.description"
+msgstr "The defined data type of the variable"
+
+msgid "description.singular"
+msgstr "Description"
+
+msgctxt "Resource"
+msgid "description.description"
+msgstr ""
+"Brief description of the research data, its components, and the context of "
+"how the research data was created"
+
+msgctxt "AccessPlatform"
+msgid "description.description"
+msgstr ""
+"Brief description of the access platform in which the research data is "
+"stored"
+
+msgctxt "PrimarySource"
+msgid "description.description"
+msgstr "Brief description of the primary source"
+
+msgctxt "Variable"
+msgid "description.description"
+msgstr "Brief description of the variable"
+
+msgid "distribution.singular"
+msgid_plural "distribution.plural"
+msgstr[0] "Associated file"
+msgstr[1] "Associated files"
+
+msgid "distribution.description"
+msgstr "Files associated with the research data"
+
+msgid "documentation.singular"
+msgid_plural "documentation.plural"
+msgstr[0] "Documentation"
+msgstr[1] "Documentations"
+
+msgid "documentation.description"
+msgstr "A link to the documentation"
+
+msgid "doi.singular"
+msgstr "DOI"
+
+msgid "doi.description"
+msgstr ""
+"A DOI (Digital Object Identifier) is a unique, stable identifier assigned to"
+" digital objects such as scientific articles, research data, or data "
+"collections. It enables a permanent and reliable link to the object, "
+"regardless of changes to its web address or storage location."
+
+msgid "downloadURL.singular"
+msgid_plural "downloadURL.plural"
+msgstr[0] "Download URL"
+msgstr[1] "Download URLs"
+
+msgid "downloadURL.description"
+msgstr "Link(s) to download the file"
+
+msgid "edition.singular"
+msgstr "Edition"
+
+msgid "edition.description"
+msgstr "The edition of the publication"
+
+msgid "editor.singular"
+msgid_plural "editor.plural"
+msgstr[0] "Editor"
+msgstr[1] "Editors"
+
+msgid "editorOfSeries.singular"
+msgid_plural "editorOfSeries.plural"
+msgstr[0] "Editor of the series"
+msgstr[1] "Editors of the series"
+
+msgid "email.singular"
+msgid_plural "email.plural"
+msgstr[0] "Email address"
+msgstr[1] "Email addresses"
+
+msgid "end.singular"
+msgstr "End"
+
+msgctxt "Activity"
+msgid "end.description"
+msgstr "(Planned) end of a project"
+
+msgid "endpointDescription.singular"
+msgstr "Endpoint description"
+
+msgid "endpointDescription.description"
+msgstr "A description of the interface, e.g. a documentation of the API"
+
+msgid "endpointType.singular"
+msgstr "Endpoint"
+
+msgid "endpointType.description"
+msgstr "Describes the type of endpoint, e.g. REST"
+
+msgid "endpointURL.singular"
+msgstr "Endpoint URL"
+
+msgid "endpointURL.description"
+msgstr "A URL that allows access to the endpoint"
+
+msgid "entityName.singular"
+msgstr "Type"
+
+msgid "externalAssociate.singular"
+msgid_plural "externalAssociate.plural"
+msgstr[0] "External partner"
+msgstr[1] "External partners"
+
+msgid "externalAssociate.description"
+msgstr ""
+"External organizations or institutions involved in the project such as e.g. "
+"research cooperation partners or service providers"
+
+msgid "externalPartner.singular"
+msgid_plural "externalPartner.plural"
+msgstr[0] "External partner"
+msgstr[1] "External partners"
+
+msgid "externalPartner.description"
+msgstr ""
+"External organizations or institutions, which contribute to the project, e. "
+"g. research cooperation partner or service provider"
+
+msgid "familyName.singular"
+msgstr "Last name"
+
+msgid "fundedOrCommissionedBy.singular"
+msgstr "Funder / Commissioner"
+
+msgid "fundedOrCommissionedBy.description"
+msgstr ""
+"Name of the funder (e.g. research funds) or commissioner (e.g. federal "
+"mandate)"
+
+msgid "fundingProgram.singular"
+msgstr "Funding program"
+
+msgid "fundingProgram.description"
+msgstr "The program in which the project is funded, e.g. Horizon Europe"
+
+msgid "givenName.singular"
+msgstr "First name"
+
+msgid "hasPersonalData.singular"
+msgstr "Personal data"
+
+msgid "hasPersonalData.description"
+msgstr ""
+"Indicates whether the research data contains personal data that is directly "
+"or indirectly linked or related to an individual or not."
+
+msgid "hadPrimarySource.singular"
+msgstr "Original data storage"
+
+msgid "hadPrimarySource.description"
+msgstr ""
+"Original data storage (primary system) from which the information "
+"originates."
+
+msgid "icd10code.singular"
+msgstr "ICD-10 Code"
+
+msgid "icd10code.description"
+msgstr ""
+"ICD-10 Codes (International Classification of Diseases, 10th Revision) are "
+"standardized codes used to classify diagnoses and health conditions."
+
+msgid "identifier.singular"
+msgstr "Identifier of the extracted metadata object"
+
+msgid "identifier.description"
+msgstr "All extracted metadata objects are provided with an identifier."
+
+msgid "identifierInPrimarySource.singular"
+msgstr "Identifier of the metadata object in the original data storage"
+
+msgid "identifierInPrimarySource.description"
+msgstr ""
+"Used to identify the metadata object in the original data storage (primary "
+"system)."
+
+msgid "instrumentToolOrApparatus.singular"
+msgid_plural "usedInstrumentToolOrApparatus.plural"
+msgstr[0] "Tool"
+msgstr[1] "Tools"
+
+msgid "instrumentToolOrApparatus.description"
+msgstr ""
+"Tools, that were used for the recording, creation, analysis and/or "
+"observation of the research data"
+
+msgid "involvedPerson.singular"
+msgid_plural "involvedPerson.plural"
+msgstr[0] "Contributor"
+msgstr[1] "Contributors"
+
+msgid "involvedPerson.description"
+msgstr "Person(s) involved in the project"
+
+msgid "involvedUnit.singular"
+msgid_plural "involvedUnit.plural"
+msgstr[0] "Contributing RKI unit"
+msgstr[1] "Contributing RKI units"
+
+msgid "involvedUnit.description"
+msgstr "Contributing RKI unit(s) involved in the project"
+
+msgid "isbnIssn.singular"
+msgstr "ISBN / ISSN"
+
+msgid "isbnIssn.description"
+msgstr ""
+"International Standard Book Number (ISBN) or International Standard Serial "
+"Number for ongoing collections (ISSN) for journals"
+
+msgid "isPartOfActivity.singular"
+msgstr "Higher-level activity (subproject)"
+
+msgid "isPartOfActivity.description"
+msgstr ""
+"This activity is part of a higher-level activity, such as a subproject."
+
+msgid "isPartOf.singular"
+msgstr "Associated research data"
+
+msgid "isPartOf.description"
+msgstr "This research data forms a subset of the associated research data."
+
+msgid "issue.singular"
+msgstr "Issue"
+
+msgid "issue.description"
+msgstr "Issue of the journal"
+
+msgid "issued.singular"
+msgstr "Publication date"
+
+msgid "issued.description"
+msgstr "Date of the publication"
+
+msgid "journal.singular"
+msgstr "Journal"
+
+msgid "journal.description"
+msgstr "The journal in which the scientific article was published."
+
+msgid "keyword.singular"
+msgid_plural "keyword.plural"
+msgstr[0] "Keyword"
+msgstr[1] "Keywords"
+
+msgctxt "BibliographicResource"
+msgid "keyword.description"
+msgstr "Keywords describing the publication"
+
+msgctxt "Resource"
+msgid "keyword.description"
+msgstr "Keywords describing the research data"
+
+msgid "label.singular"
+msgstr "Title"
+
+msgctxt "Variable"
+msgid "label.singular"
+msgstr "Variable"
+
+msgctxt "Variable"
+msgid "label.description"
+msgstr ""
+"Variables are defined for the data-based evaluation of investigations (e.g. "
+"studies). A variable is characterized by its data type (e.g. integer, "
+"string, date) and value range. The variable can be either quantitative or "
+"qualitative, i.e. the range of values ​​can take on numerical or categorical"
+" values."
+
+msgid "landingPage.singular"
+msgstr "Landing page"
+
+msgid "landingPage.description"
+msgstr ""
+"Website that can be accessed in a web browser to get access to the system"
+
+msgid "language.singular"
+msgid_plural "language.plural"
+msgstr[0] "Language"
+msgstr[1] "Languages"
+
+msgid "language.description"
+msgstr "Language used in the research data"
+
+msgid "license.singular"
+msgstr "License"
+
+msgid "license.description"
+msgstr "License describing terms on how the research data can be reused."
+
+msgid "locatedAt.singular"
+msgstr "Location"
+
+msgid "locatedAt.description"
+msgstr "Location of the platform"
+
+msgid "loincId.singular"
+msgstr "Loinc-ID"
+
+msgid "loincId.description"
+msgstr ""
+"Unique identifier for a specific medical test, measurement or observation in"
+" the LOINC system (Logical Observation Identifiers Names and Codes) used "
+"worldwide for standardized identification of health data."
+
+msgid "maxTypicalAge.singular"
+msgstr "Maximum typical age"
+
+msgid "maxTypicalAge.description"
+msgstr "Maximum age of the population in years within the data collection"
+
+msgid "mediaType.singular"
+msgstr "Media type"
+
+msgid "mediaType.description"
+msgstr ""
+"Media type of the published research data, defined by [IANA media "
+"types](https://www.iana.org/assignments/media-types/)"
+
+msgid "meshId.singular"
+msgstr "MeSH ID"
+
+msgid "meshId.description"
+msgstr ""
+"Medical Subject Headings (MeSH) thesaurus is a controlled and "
+"hierarchically-organized vocabulary produced by the National Library of "
+"Medicine."
+
+msgid "method.singular"
+msgstr "Methodology"
+
+msgid "method.description"
+msgstr ""
+"Method(s) used in research, analysis, observation or processing of the "
+"research data"
+
+msgid "methodDescription.singular"
+msgstr "Methodology description"
+
+msgid "methodDescription.description"
+msgstr ""
+"Description of the method(s) used in the research, analysis, observation or "
+"processing of the research data"
+
+msgid "minTypicalAge.singular"
+msgstr "Minimum typical age"
+
+msgid "minTypicalAge.description"
+msgstr "Minimum age of the population in years within the data collection"
+
+msgid "modified.singular"
+msgstr "modified"
+
+msgid "modified.description"
+msgstr "Date on which the research data was last changed"
+
+msgid "orcidId.singular"
+msgstr "ORCID"
+
+msgid "orcidId.description"
+msgstr ""
+"ORCID is a unique, persistent identifier for researchers to reliably assign "
+"scientific work and contributions to a person from the Open Researcher and "
+"Contributor Identification Initiative (ORCID)"
+
+msgid "pages.singular"
+msgstr "Pages"
+
+msgid "pages.description"
+msgstr "Specification of the page(s)"
+
+msgid "publicationPlace.singular"
+msgid_plural "publicationPlace.plural"
+msgstr[0] "Publisher location"
+msgstr[1] "Publisher locations"
+
+msgid "populationCoverage.singular"
+msgstr "Population coverage"
+
+msgid "populationCoverage.description"
+msgstr ""
+"Information about which part or group of the population is the subject of "
+"the data collection, e.g. small children aged 1 to 3 years or patients with "
+"type 2 diabetes"
+
+msgid "publication.singular"
+msgid_plural "publication.plural"
+msgstr[0] "Publication"
+msgstr[1] "Publications"
+
+msgctxt "Activity"
+msgid "publication.description"
+msgstr "Publication created within the scope of a research project"
+
+msgctxt "Resource"
+msgid "publication.description"
+msgstr "Publication created in relation to the research data"
+
+msgid "publicationYear.singular"
+msgstr "Year of publication"
+
+msgid "publisher.singular"
+msgstr "Publisher"
+
+msgid "qualityInformation.singular"
+msgstr "Quality information"
+
+msgid "qualityInformation.description"
+msgstr ""
+"Information on the accuracy, reliability and validity of the research data"
+
+msgid "repositoryURL.singular"
+msgstr "Repository URL"
+
+msgid "repositoryURL.description"
+msgstr ""
+"Handle of the publication in the repository where the publication is stored."
+" Handle refers to a unique identification number or reference identifier to "
+"identify and access a digital object in a repository"
+
+msgid "resourceCreationMethod.singular"
+msgstr "Creation methodology"
+
+msgid "resourceCreationMethod.description"
+msgstr "How the research data was generated"
+
+msgid "resourceTypeGeneral.singular"
+msgstr "General type of research data"
+
+msgid "resourceTypeGeneral.description"
+msgstr "Type(s) of research data, e.g. data set, image or software code"
+
+msgid "resourceTypeSpecific.singular"
+msgstr "Specific type of research data"
+
+msgid "resourceTypeSpecific.description"
+msgstr ""
+"More detailed information about the type of the research data. For example, "
+"for the general research data type 'dataset', the specific information could"
+" describe whether it is health survey data, epidemiological data or registry"
+" data"
+
+msgid "responsibleUnit.singular"
+msgid_plural "responsibleUnit.plural"
+msgstr[0] "Responsible RKI unit"
+msgstr[1] "Responsible RKI units"
+
+msgid "responsibleUnit.description"
+msgstr "RKI unit(s) responsible for the project"
+
+msgid "rights.singular"
+msgstr "Usage information"
+
+msgid "rights.description"
+msgstr "Information on the terms of use of the research data"
+
+msgid "section.singular"
+msgstr "Chapter"
+
+msgid "section.description"
+msgstr "The name of the chapter to which the book section belongs."
+
+msgid "shortName.singular"
+msgstr "Short name"
+
+msgid "shortName.description"
+msgstr "short name, abbreviated title or acronym for the research project"
+
+msgid "sizeOfDataBasis.singular"
+msgstr "Size of data basis"
+
+msgid "sizeOfDataBasis.description"
+msgstr ""
+"Size of the underlying data basis, e.g. in studies: the size of the sample"
+
+msgid "spatial.singular"
+msgstr "Geographical coverage"
+
+msgid "spatial.description"
+msgstr "Geographical coverage of the research data"
+
+msgid "stableTargetId.singular"
+msgstr "stable Identifier"
+
+msgid "stableTargetId.description"
+msgstr ""
+"Each merged metadata object has a stable identifier. Merged metadata objects"
+" consist of individual extracted metadata objects."
+
+msgid "start.singular"
+msgstr "Start"
+
+msgctxt "Activity"
+msgid "start.description"
+msgstr "Start of a project"
+
+msgid "stateOfDataProcessing.singular"
+msgstr "Data processing status"
+
+msgid "stateOfDataProcessing.description"
+msgstr "Processing status of the research data, e.g. raw or aggregated"
+
+msgid "subtitle.singular"
+msgstr "Subtitle"
+
+msgid "subtitle.description"
+msgstr "Subtitle of the publication"
+
+msgid "succeeds.singular"
+msgstr "Succeeds"
+
+msgid "succeeds.description"
+msgstr "Another project that preceded the one described here."
+
+msgid "technicalAccessibility.singular"
+msgstr "Technical accessibility"
+
+msgid "technicalAccessibility.description"
+msgstr "Technical accessibility within RKI or outside of RKI network"
+
+msgid "temporal.singular"
+msgstr "Temporal coverage"
+
+msgid "temporal.description"
+msgstr "Temporal coverage of research data"
+
+msgid "theme.singular"
+msgstr "Theme"
+
+msgctxt "Activity"
+msgid "theme.description"
+msgstr "Refers to the main category or central theme of the project"
+
+msgctxt "Resource"
+msgid "theme.description"
+msgstr ""
+"Refers to the main category or central theme associated with the research "
+"data"
+
+msgid "title.singular"
+msgstr "Title"
+
+msgid "titleOfBook.singular"
+msgstr "Book title"
+
+msgid "titleOfSeries.singular"
+msgstr "Series title"
+
+msgid "unitInCharge.singular"
+msgid_plural "unitInCharge.plural"
+msgstr[0] "Responsible RKI unit"
+msgstr[1] "Responsible RKI units"
+
+msgid "unitInCharge.description"
+msgstr "RKI unit(s) responsible for the research data"
+
+msgid "usedIn.singular"
+msgstr "Related research data"
+
+msgid "usedIn.description"
+msgstr "Research data from which the variable originates."
+
+msgid "valueSet.singular"
+msgstr "Value set"
+
+msgid "valueSet.description"
+msgstr ""
+"Totality of all possible values ​​that a variable can have, i.e. different "
+"characteristic expressions or values ​​that are permitted for this variable"
+
+msgid "version.singular"
+msgstr "Version"
+
+msgid "version.description"
+msgstr "Version of the original data storage (primary system)"
+
+msgid "volume.singular"
+msgstr "Journal volume"
+
+msgid "volume.description"
+msgstr "Volume of the journal"
+
+msgid "wasGeneratedBy.singular"
+msgstr "Associated project"
+
+msgid "wasGeneratedBy.description"
+msgstr "Context in which the research data was created."
+
+msgid "website.singular"
+msgid_plural "website.plural"
+msgstr[0] "Website"
+msgstr[1] "Websites"
+
+msgid "website.description"
+msgstr "Website(s) providing additional information about the project"

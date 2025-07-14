@@ -15,14 +15,14 @@
             {%- block footer_top_left %}
                 <div class="ui grid app-rdm-footer">
                 <div class="rdm-footer five wide tablet two wide computer column">
-                    <p><a href="/">{{ _("About MEx") }}</a></p>
-                    <p><a href="/">{{ _("Contact") }}</a></p>
-                    <p><a href="/">{{ _("Data privacy") }}</a></p>
+                    <p><a href="/">{{ _("footer_about") }}</a></p>
+                    <p><a href="/">{{ ngettext("contact.singular", "contact.plural", 1) }}</a></p>
+                    <p><a href="/">{{ _("footer_privacy") }}</a></p>
 
                 </div>
                 <div class="rdm-footer five wide tablet two wide computer column">
-                    <p><a href="/">{{ _("Accessibility") }}</a></p>
-                    <p><a href="/">{{ _("Imprint") }}</a></p>
+                    <p><a href="/">{{ _("footer_accessibility") }}</a></p>
+                    <p><a href="/">{{ _("footer_imprint") }}</a></p>
                 </div>
 
             {%- endblock footer_top_left %}
@@ -31,7 +31,7 @@
                 {%- endblock footer_top_right %}
             </div>
             <p class="disclaimer muted" style="font-size: 0.8rem">
-                <i style="color: white">{{ _( config.DISCLAIMER ) }}</i>
+                <i style="color: white">{{ _( footer_disclaimer ) }}</i>
             </p>
             </div>
         </div>

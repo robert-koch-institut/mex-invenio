@@ -1,0 +1,121 @@
+# English translations for PROJECT.
+# Copyright (C) 2025 Robert Koch-Institut
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: mex@rki.de\n"
+"POT-Creation-Date: 2025-02-20 13:19+0000\n"
+"PO-Revision-Date: 2025-02-20 13:28+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: de <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.16.0\n"
+
+msgid "frontpage_title"
+msgstr "Search repository"
+
+msgid "searchbar_search_records"
+msgstr "Search records"
+
+msgid "footer_about"
+msgstr "About MEx"
+
+msgid "footer_privacy"
+msgstr "Data privacy"
+
+msgid "footer_accessibility"
+msgstr "Accessibility"
+
+msgid "footer_imprint"
+msgstr "Imprint"
+
+msgid "footer_disclaimer"
+msgstr ""
+"All information is based on information from the original data-storing "
+"systems. No guarantee is given for the accuracy, completeness, or timeliness"
+" of this information."
+
+# Header menu in templates/semantic-ui/invenio_app_rdm/header.html
+msgctxt "header_menu"
+msgid "resource"
+msgstr "Data Sources & Datasets"
+
+msgctxt "header_menu"
+msgid "variable"
+msgstr "Variables"
+
+msgctxt "header_menu"
+msgid "activity"
+msgstr "Projects"
+
+msgctxt "header_menu"
+msgid "bibliographicresource"
+msgstr "Publications"
+
+#: Resource Cards Titles and headers
+msgid "card_creators_and_contributors"
+msgstr "Creators & Contributors"
+
+msgid "card_theme_and_keywords"
+msgstr "Theme & Keywords"
+
+msgid "card_data_representation_and_coverage"
+msgstr "Data Representation & Coverage"
+
+msgid "card_legal_basis_and_provenance"
+msgstr "Legal Basis & Data Provenance"
+
+msgid "card_data_collection_and_processing"
+msgstr "Data Collection & Processing"
+
+msgid "card_methodology"
+msgstr "Methodology"
+
+msgid "card_standards_and_quality"
+msgstr "Standards & Quality"
+
+msgid "card_related_projects"
+msgstr "Related Projects"
+
+msgid "card_related_publications"
+msgstr "Related Publications & Further Documentation"
+
+msgid "card_related_resources"
+msgstr "Related Resources"
+
+msgid "card_views"
+msgstr "Views"
+
+msgid "card_variables"
+msgstr "Variables"
+
+msgid "card_access_and_usage_rights"
+msgstr "Access & Usage Rights"
+
+msgid "card_files"
+msgstr "Files"
+
+msgid "card_metadata_version"
+msgstr "Metadata Version"
+
+msgid "card_access_platform"
+msgstr "Access Platform"
+
+msgid "card_metadata_export"
+msgstr "Metadata Export"
+
+# Resource landing page:
+# defined in templates/semantic-ui/invenio_app_rdm/records/details/landing_page.html
+
+msgid "resource_edit_record"
+msgstr "Edit this record"
+
+msgid "resource_record_tags"
+msgstr "Record Tags"

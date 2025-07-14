@@ -167,3 +167,38 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- endif -%}
     {%- endif -%}
 {%- endmacro %}
+
+{#
+  Smart translation macro that handles both singular and plural forms
+
+  Usage:
+    {{ smart_translate("contact") }}
+    {{ smart_translate("contact", 1) }}
+    {{ smart_translate("contact", 5) }}
+#}
+
+{% macro smart_translate(msgid, count=1) -%}
+  {%- if count == 1 -%}
+    {# Try regular translation first (without .singular) #}
+    {%- set result = _(msgid) -%}
+    {%- if result != msgid -%}
+      {{- result -}}
+    {%- else -%}
+      {# Try with .singular appended #}
+      {%- set singular_id = msgid + ".singular" -%}
+      {%- set result = _(singular_id) -%}
+      {%- if result != singular_id -%}
+        {{- result -}}
+      {%- else -%}
+        {# Fallback to plural handling #}
+        {%- set plural_id = msgid + ".plural" -%}
+        {{- ngettext(singular_id, plural_id, count) -}}
+      {%- endif -%}
+    {%- endif -%}
+  {%- else -%}
+    {# Use plural form for count > 1 #}
+    {%- set singular_id = msgid + ".singular" -%}
+    {%- set plural_id = msgid + ".plural" -%}
+    {{- ngettext(singular_id, plural_id, count) -}}
+  {%- endif -%}
+{%- endmacro %}

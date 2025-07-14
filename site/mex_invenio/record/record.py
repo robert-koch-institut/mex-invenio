@@ -1,5 +1,6 @@
 from flask import render_template, abort, request, g
 from flask.views import MethodView
+from flask_babel import ngettext, _
 
 from invenio_rdm_records.records.api import RDMRecord
 from invenio_rdm_records.resources.serializers import UIJSONSerializer

@@ -370,7 +370,7 @@ RECORD_CARDS = {
         "left": {
             "creators": {
                 "type": "single",
-                "title": "Creators & Contributors",
+                "title": "card_creators_and_contributors",
                 "icon": "creators.svg",
                 "properties": [
                     "mex:creator",
@@ -382,7 +382,7 @@ RECORD_CARDS = {
             },
             "theme": {
                 "type": "single",
-                "title": "Theme & Keywords",
+                "title": "card_theme_and_keywords",
                 "icon": "theme.svg",
                 "properties": [
                     "mex:theme",
@@ -391,7 +391,7 @@ RECORD_CARDS = {
             },
             "coverage": {
                 "type": "single",
-                "title": "Data Representation & Coverage",
+                "title": "card_data_representation_and_coverage",
                 "icon": "coverage.svg",
                 "properties": [
                     "mex:temporal",
@@ -404,13 +404,13 @@ RECORD_CARDS = {
             },
             "legal": {
                 "type": "single",
-                "title": "Legal Basis & Data Provenance",
+                "title": "card_legal_basis_and_provenance",
                 "icon": "legal.svg",
                 "properties": ["mex:hasLegalBasis", "mex:hasPersonalData"],
             },
             "processing": {
                 "type": "single",
-                "title": "Data Collection & Processing",
+                "title": "card_data_collection_and_processing",
                 "icon": "processing.svg",
                 "properties": [
                     "mex:resourceCreationMethod",
@@ -421,31 +421,31 @@ RECORD_CARDS = {
             },
             "quality": {
                 "type": "single",
-                "title": "Standards & Quality",
+                "title": "card_standards_and_quality",
                 "icon": "quality.svg",
                 "properties": ["mex:conformsTo", "mex:qualityInformation"],
             },
             "methodology": {
                 "type": "single",
-                "title": "Methodology",
+                "title": "card_methodology",
                 "icon": "methodology.svg",
                 "properties": ["mex:method", "mex:methodDescription"],
             },
             "publication": {
                 "type": "single",
-                "title": "Related Publications & Further Documentation",
+                "title": "card_related_publications",
                 "icon": "publication.svg",
                 "properties": ["mex:publication", "mex:documentation"],
             },
             "generatedBy": {
                 "type": "single",
-                "title": "Related Projects",
+                "title": "card_related_projects",
                 "icon": "relatedProjects.svg",
                 "properties": ["mex:wasGeneratedBy"],
             },
             "relatedResources": {
                 "type": "container",
-                "title": "Related Resources",
+                "title": "card_related_resources",
                 "icon": "relatedResources.svg",
                 "components": [
                     {
@@ -455,7 +455,7 @@ RECORD_CARDS = {
                     },
                     {
                         "type": "component",
-                        "title": "Includes",
+                        "title": "component_includes",
                         "is_backwards_linked": True,
                         "properties": ["mex:isPartOf"],
                     },
@@ -472,7 +472,7 @@ RECORD_CARDS = {
             },
             "access": {
                 "type": "single",
-                "title": "Access & Usage Rights",
+                "title": "card_access_and_usage_rights",
                 "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
@@ -484,14 +484,14 @@ RECORD_CARDS = {
             },
             "files": {
                 "type": "single",
-                "title": "Files",
+                "title": "card_files",
                 "template": "files.html",
                 "icon": "distribution.svg",
                 "properties": ["mex:distribution"],
             },
             "variables": {
                 "type": "single",
-                "title": "Variables",
+                "title": "card_variables",
                 "template": "variables.html",
                 "icon": "variables.svg",
                 "is_backwards_linked": True,
@@ -544,12 +544,14 @@ ENTITIES = [
     "variable",
 ]
 
-CORE_ENTITIES_LABELS = {
-    "Resource": "Data Source/Dataset",
-    "Activity": "Project",
-    "Variable": "Variable",
-    "BibliographicResource": "Publication",
-}
+# this is used to generate the labels for the entities in the UI
+# templates/semantic-ui/invenio_app_rdm/header.html
+CORE_ENTITIES_LABELS = [
+    "resource",
+    "activity",
+    "variable",
+    "bibliographicresource"
+]
 
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
 

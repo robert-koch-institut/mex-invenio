@@ -27,14 +27,16 @@
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
                  alt=""/>
-            {{ _(card.title) }}
+            {{ smart_translate(card.title) }}
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
                 {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                {% set babel_msg_id = prop|replace('mex:', '') %}
+                {% set babel_description_id = babel_msg_id + ".description" %}
                 {% if value %}
                     <div class="card-props-p">
-                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        <p class="card-prop-label" title="{{ _(babel_description_id) }}">{{ smart_translate(babel_msg_id) }}</p>
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}
