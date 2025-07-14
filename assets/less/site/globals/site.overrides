@@ -61,6 +61,9 @@
                 margin-right: 0.5rem;
             }
         }
+        .additional_info {
+            margin-bottom: 1rem;
+        }
         .card-props {
             display: grid;
             gap: 1rem;
@@ -294,5 +297,31 @@ aside {
                 margin-left: -2.5rem;
             }
         }
+    }
+}
+
+.email-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+
+    .display-value {
+        flex: 1 1 0;
+        min-width: max-content;
+    }
+}
+
+.click-to-copy {
+    display: inline-flex;
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+    .copied-msg {
+        margin-left: 5px;
+        color: #32008C;
     }
 }
