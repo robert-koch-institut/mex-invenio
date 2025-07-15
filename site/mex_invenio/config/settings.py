@@ -484,7 +484,7 @@ RECORD_CARDS = {
                 "type": "single",
                 "title": "Files",
                 "icon": "distribution.svg",
-                "properties": ["mex:distribution"]
+                "properties": ["mex:distribution"],
             },
             "variables": {
                 "type": "single",
@@ -492,8 +492,8 @@ RECORD_CARDS = {
                 "template": "variables.html",
                 "icon": "variables.svg",
                 "is_backwards_linked": True,
-                "properties": ["mex:usedIn"]
-            }
+                "properties": ["mex:usedIn"],
+            },
         },
     }
 }
