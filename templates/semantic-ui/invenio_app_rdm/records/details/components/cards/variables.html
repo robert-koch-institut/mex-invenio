@@ -1,3 +1,4 @@
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import render_3_variables with context %}
 {% set max_variables = 3 %}
 {% set card_name = "variables" %}
 {% set cards = config.RECORD_CARDS.resource[column] %}
@@ -33,47 +34,70 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
+                {% set value = render_3_variables(record_data[prop]) %}
                 {% if value %}
                     <div class="card-props-p">
                         <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}
+                {% set variables_count = record_data[prop] | length %}
+                {% if variables_count > max_variables %}
+                        <a class="card-prop-label" id="see-all-modal-trigger" style="cursor: pointer">
+                            {{ _('See all %(count)s variables', count=variables_count) }}
+                        </a>
+                    <button class="disabled" disabled>
+                        {{ _('See all variables in the variables search page') }}
+                    </button>
+                {% endif %}
             {% endfor %}
-            {% set variables_count = 1 %}
-            {% if variables_count > max_variables %}
-                    <a class="card-prop-label" id="see-all-modal-trigger" style="cursor: pointer">
-                        {{ _('See all %(count)s variables', count=variables_count) }}
-                    </a>
-                <button class="disabled" disabled>
-                    {{ _('See all variables in the variables search page') }}
-                </button>
-            {% endif %}
         </div>
     </div>
 {% endif %}
 
-<div class="ui modal" id="card-properties-modal">
-    <div class="ui modal body">
-        <div class="header">
-            {{ _('All variables') }}
-        </div>
+<style>
+    .modal-wrapper {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(100,100,100,0.5);
+    }
+    
+    .modal-wrapper > .ui.modal {
+        display: block;
+        position: relative;
+        top: 25%;
+        left: 25%;
+        width: 50%;
+        height: 50%;
+        overflow-y: scroll;
+    }
+
+    #card-properties-modal > div.content > ul > div > div > a { padding-bottom: .5rem }
+</style>
+
+<div class="modal-wrapper" id="card-properties-modal">
+    <div class="ui modal card">
+        <div class="header">{{ _('All variables') }}</div>
         <div class="content">
             <p>{{ _('Here are all the variables for this card:') }}</p>
-            <ul>
-            {% for prop in card.properties %}
+            <div class="card-props" style="grid-template-columns: 100%;">
+                {% for prop in card.properties %}
                     {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
                     {% if value %}
-                        <div class="card-props-p">
+                        <div class="card-props-p variables-list" style="display: block">
                             <div class="card-prop-value">{{ value }}</div>
                         </div>
                     {% endif %}
                 {% endfor %}
-            </ul>
+            </div>
         </div>
         <div class="actions">
             <div class="ui approve button" id="close-variables-modal">{{ _('Close') }}</div>
+        </div>
         </div>
     </div>
 </div>
@@ -85,7 +109,7 @@
         const modal = document.getElementById('card-properties-modal');
         const modal_back = document.getElementById('variables-modal-backdrop');
         if (modal) {
-            modal.style.display = 'block'; // or remove 'hidden' class, depending on your CSS
+            modal.style.display = 'block';
         }
     });
 

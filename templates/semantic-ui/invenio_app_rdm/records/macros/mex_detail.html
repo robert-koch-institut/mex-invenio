@@ -6,6 +6,40 @@ Invenio RDM Records is free software; you can redistribute it and/or modify
 it under the terms of the MIT License; see LICENSE file for more details.
 #}
 
+{% macro render_3_variables(values) %}
+    {% if linked_records_data %}
+        {% set value = linked_records_data["backwards_linked"]["mex:usedIn"] %}
+        {% if value %}
+            {%- if value is string or value is mapping -%}
+                {%- set values = [value] -%}
+            {%- else -%}
+                {%- set values = value -%}
+            {%- endif -%}
+            {% set first = values[0]["display_value"][0] %}
+            {% if first is string %}
+                {% for v in values[:3] %}
+                    {% if v["display_value"][0] == config.NO_RECORD_STRING %}
+                        <i class="muted">Record {{ v.link_id }} not found.</i>
+                    {% else %}
+                        <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for v in values[:3] %}
+                    {% if v != config.NO_RECORD_STRING %}
+                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
+                    {% else %}
+                        <i class="muted">Record {{ v.link_id }} not found.</i>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% else %}
+            <i class="muted">[No value]</i>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+
 {# Display date in user-friendly format #}
 {% macro render_date(dates) %}
     {%- set months = {
