@@ -10,6 +10,7 @@ from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringC
 
 RDM_NAMESPACES = {
     "mex": "https://mex.rki.de/",
+    "index": "https://mex.rki.de/index#",
 }
 
 RDM_CUSTOM_FIELDS = [
@@ -61,7 +62,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:hasLegalBasis", multiple=True),
     TextCF(name="mex:hasPersonalData", use_as_filter=True),
     TextCF(name="mex:icd10code", multiple=True),
-    TextCF(name="mex:identifier", field_args={"required": True}),
+    TextCF(name="mex:identifier", field_args={"required": True}, use_as_filter=True),   # technically we just want the keyword mapping
     MultiLanguageTextCF(name="mex:instrumentToolOrApparatus", multiple=True),
     TextCF(name="mex:involvedPerson", multiple=True), # FIXME: index external document
     TextCF(name="mex:involvedUnit", multiple=True),
@@ -128,6 +129,16 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:wasGeneratedBy"),
     LinkCF(name="mex:website", multiple=True),
     TextCF(name="mex:wikidataId", multiple=True),
+
+    ##########################################
+    ## Index fields for search support
+    TextCF(name="index:belongsToLabel", multiple=True, use_as_filter=True),
+    TextCF(name="index:contributors", multiple=True),
+    TextCF(name="index:creators", multiple=True),
+    TextCF(name="index:externalPartners", multiple=True),
+    TextCF(name="index:externalAssociates", multiple=True),
+    TextCF(name="index:deFunderOrCommissioners", multiple=True),
+    TextCF(name="index:enFunderOrCommissioners", multiple=True),
 ]
 
 RDM_CUSTOM_FIELDS_UI = [

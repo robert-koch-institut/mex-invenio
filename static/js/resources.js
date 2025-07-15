@@ -7,27 +7,23 @@ edges.instances.resources.init = function() {
     edges.active["resources"] = edges.mex.makeEdge({
         resourceType: "resources",
         components: [
-            edges.mex.accessRestrictionFacet(),
-            edges.mex.keywordFacet(),
-            edges.mex.themeFacet(),
-            edges.mex.hasPersonalDataFacet(),
-            edges.mex.resourceCreationMethodFacet(),
             edges.mex.fullSearchController({
                 sortOptions: [
-                    {field: "created", "display": "Created Date"},
-                    {field: "metadata.title.keyword", "display": "Title"}
+                    {field: "created", "display": edges.mex._("Created Date")},
+                    {field: "metadata.title.keyword", "display": edges.mex._("Title")}
                 ],
-                searchPlaceholder: "Search resources...",
+                searchPlaceholder: edges.mex._("Search resources..."),
             }),
-            edges.mex.resultsDisplay({
-                noResultsText: "No resources found.",
-                rowDisplay: [
-                    [{field: "metadata.title"}],
-                    [{field: "custom_fields.mex:alternativeTitle.value"}],
-                    [{field: "custom_fields.mex:description.value"}],
-                    [{field: "custom_fields.mex:keyword.value"}]
-                ]
-            })
+            edges.mex.accessRestrictionFacet(),
+            edges.mex.createdFacet(),
+            edges.mex.hasPersonalDataFacet(),
+            edges.mex.keywordFacet(),
+            edges.mex.resourceCreationMethodFacet(),
+            edges.mex.themeFacet(),
+            edges.mex.defaultPager(),
+            edges.mex.resourceDisplay(),
+            edges.mex.resourcePreview(),
+            edges.mex.resourceSelector()
         ]
     })
 }

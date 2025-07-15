@@ -7,27 +7,20 @@ edges.instances.bibliographicResources.init = function() {
     edges.active["bibliographic-resources"] = edges.mex.makeEdge({
         resourceType: "bibliographic-resources",
         components: [
+            edges.mex.fullSearchController({
+                sortOptions: [
+                    {field: "custom_fields.mex:publicationYear.date", "display": edges.mex._("Publication Year")},
+                    {field: "metadata.title.keyword", "display": edges.mex._("Title")}
+                ],
+                searchPlaceholder: edges.mex._("Search bibliographic resources..."),
+            }),
             edges.mex.accessRestrictionFacet(),
             edges.mex.journalFacet(),
             edges.mex.keywordFacet(),
-            edges.mex.fullSearchController({
-                sortOptions: [
-                    {field: "custom_fields.mex:publicationYear.date", "display": "Publication Year"},
-                    {field: "metadata.title.keyword", "display": "Title"}
-                ],
-                searchPlaceholder: "Search bibliographic resources...",
-            }),
-            edges.mex.resultsDisplay({
-                noResultsText: "No bibliographic resources found.",
-                rowDisplay: [
-                    [{field: "metadata.title"}],
-                    [{field: "custom_fields.mex:subtitle.value"}],
-                    [{field: "custom_fields.mex:alternativeTitle.value"}],
-                    [{field: "custom_fields.mex:abstract.value"}],
-                    [{field: "custom_fields.mex:creator"}],
-                    [{field: "custom_fields.mex:publicationYear.date"}]
-                ]
-            })
+            edges.mex.publicationYearFacet(),
+            edges.mex.defaultPager(),
+            edges.mex.bibliographicResourcesDisplay(),
+            edges.mex.bibliographicResourcesPreview(),
         ]
     })
 }

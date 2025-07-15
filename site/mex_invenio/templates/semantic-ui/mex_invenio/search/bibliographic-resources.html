@@ -30,12 +30,16 @@
     <script src="{{ components }}/RefiningANDTermSelector.js"></script>
     <script src="{{ components }}/FullSearchController.js"></script>
     <script src="{{ components }}/ResultsDisplay.js"></script>
-
-    <script src="{{ bs3 }}/RefiningANDTermSelector.js"></script>
-    <script src="{{ bs3 }}/FullSearchController.js"></script>
-    <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
+    <script src="{{ components }}/DateHistogram.js"></script>
+    <script src="{{ components }}/Pager.js"></script>
 
     <script src="{{ static }}/edges.common.js"></script>
+    <script>
+    edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    edges.mex.state.lang = "{{ current_i18n.language }}"
+    </script>
+
+    {%  include "mex_invenio/search/_edges_babel.html" %}
     <script src="{{ static }}/bibliographic-resources.js"></script>
 
 {% endblock %}

@@ -63,6 +63,7 @@ test.db
 
 # Invenio-cli per machine file
 .invenio.private
+celerybeat-schedule
 
 # S3 default bucket location
 data/default/*
@@ -77,3 +78,4 @@ celerybeat-schedule.*
 .env
 .aws/
 payload
+tmp/
