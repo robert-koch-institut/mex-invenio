@@ -64,6 +64,7 @@
         width: 100vw;
         height: 100vh;
         background: rgba(100,100,100,0.5);
+        z-index: 1000;
     }
 
     .modal-wrapper > .ui.modal {
@@ -98,20 +99,22 @@
         <div class="actions">
             <div class="ui approve button" id="close-variables-modal">{{ _('Close') }}</div>
         </div>
-        </div>
     </div>
 </div>
 
 <script>
-    const trigger_link = document.getElementById('see-all-modal-trigger')
-    trigger_link.addEventListener('click', e => {
-        e.preventDefault();
-        const modal = document.getElementById('card-properties-modal');
-        const modal_back = document.getElementById('variables-modal-backdrop');
-        if (modal) {
-            modal.style.display = 'block';
-        }
-    });
+    const trigger_link = document.getElementById('see-all-modal-trigger');
+
+    if(trigger_link) {
+        trigger_link.addEventListener('click', e => {
+            e.preventDefault();
+            const modal = document.getElementById('card-properties-modal');
+            //const modal_back = document.getElementById('variables-modal-backdrop');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        });
+    }
 
     const modal = document.getElementById('card-properties-modal');
     const closeBtn = document.getElementById('close-variables-modal');

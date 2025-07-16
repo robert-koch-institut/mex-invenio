@@ -44,7 +44,6 @@ class FixedEDTFDateStringCF(EDTFDateStringCF):
         dates = record.get(cf_key, {}).pop(self.name, None)
         if dates:
             if self._multiple:
-                print(dates)
                 record[cf_key][self.name] = [d["date"] for d in dates]
             else:
                 record[cf_key][self.name] = dates["date"]
