@@ -3,6 +3,7 @@ from typing import List
 from flask import current_app, g
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_rdm_records.services.results import RDMRecordList
 
 
 def _get_records_by_field(field_id: str, value) -> List:
@@ -15,9 +16,24 @@ def _get_records_by_field(field_id: str, value) -> List:
     else:
         search_query = f"custom_fields.{escaped_field}:{value}"
 
-    results = list(current_rdm_records_service.search(g.identity, q=search_query))
+    results: RDMRecordList = current_rdm_records_service.search(
+        g.identity, q=search_query, size=1000
+    )
 
-    return results
+    all_records = []
+
+    # Add records from first page
+    all_records.extend(list(results))
+
+    # Paginate through remaining pages
+    while results.pagination.has_next:
+        next_page_obj = results.pagination.next_page
+        results = current_rdm_records_service.search(
+            g.identity, q=search_query, page=next_page_obj.page, size=next_page_obj.size
+        )
+        all_records.extend(list(results))
+
+    return all_records
 
 
 def _get_record_by_mex_id(mex_id):
@@ -47,7 +63,11 @@ def _get_linked_records(record, field_items):
             else:
                 linked_record_ids.append(linked_ids)
 
-    linked_records = _get_record_by_mex_id(linked_record_ids)
+    # Remove duplicates and batch fetch all linked records at once
+    unique_linked_ids = list(set(linked_record_ids))
+    linked_records = (
+        _get_record_by_mex_id(unique_linked_ids) if unique_linked_ids else []
+    )
 
     linked_records_map = {
         r["custom_fields"]["mex:identifier"]: r for r in linked_records
