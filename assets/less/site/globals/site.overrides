@@ -305,7 +305,7 @@ aside {
     flex-wrap: wrap;
     gap: .5rem;
     align-items: center;
-    
+
     .display-value {
         flex: 1 1 0;
         min-width: max-content;
@@ -315,13 +315,13 @@ aside {
 .click-to-copy {
     display: inline-flex;
     button {
-        background: none; 
-        border: none; 
-        padding: 0; 
+        background: none;
+        border: none;
+        padding: 0;
         cursor: pointer;
     }
     .copied-msg {
-        margin-left: 5px; 
+        margin-left: 5px;
         color: #32008C;
     }
 }
