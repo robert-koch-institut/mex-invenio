@@ -141,6 +141,9 @@ edges.mex.refiningAndFacet = function(params) {
         valueMap: valueMap,
         valueFunction: valueFunction,
         renderer: new edges.mex.renderers.RefiningANDTermSelector({
+            open : true,
+            controls : false,
+            togglable : false,
             title: params.title,
             countFormat: edges.mex.countFormat,
         })
@@ -166,6 +169,8 @@ edges.mex.dateHistogram = function(params) {
         },
         renderer: new edges.mex.renderers.DateHistogramSelector({
             title: params.title || edges.mex._("Date Histogram"),
+            open : true,
+            togglable : false,
             countFormat: edges.mex.countFormat,
         })
     })
@@ -174,11 +179,12 @@ edges.mex.dateHistogram = function(params) {
 edges.mex.fullSearchController = function(params) {
     return new edges.components.FullSearchController({
         id: params.id || "search_controller",
-        category: params.category || "left",
+        category: params.category || "full",
         sortOptions: params.sortOptions || [],
         fieldOptions: params.fieldOptions || [],
         renderer: new edges.mex.renderers.SidebarSearchController({
             searchButton: true,
+            clearButton : false,
             searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
             searchButtonText: params.searchButtonText || edges.mex._("Search"),
             freetextSubmitDelay: params.freetextSubmitDelay || -1
@@ -191,7 +197,7 @@ edges.mex.pager = function(params) {
         id: params.id || "pager",
         category: params.category || "middle",
         renderer: new edges.mex.renderers.Pager({
-            
+
         })
     })
 }
@@ -498,8 +504,22 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
             }
         }
 
+         //////////////////////////////////
+        // assemble the full side components
+        let full = edge.category("full");
+        let fullClass = edges.util.styleClasses(this.namespace, "full");
+        let fullContainers = "";
+        if (full.length > 0) {
+            for (let i = 0; i < full.length; i++) {
+                fullContainers += `<div class="${fullClass}"><div id="${full[i].id}"></div></div>`;
+            }
+        }
+
         let frag = `
             <div class="ui grid container">
+                <div class="sixteen wide column">
+                    ${fullContainers}
+                </div>
                 <div class="four wide column">
                     ${facetContainers}
                 </div>
@@ -766,6 +786,9 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         // should the clear button be rendered
         this.clearButton = edges.util.getParam(params, "clearButton", true);
 
+        // enable sorting options
+        this.enableSorting = edges.util.getParam(params, "clearButton", false)
+
         // set the placeholder text for the search box
         this.searchPlaceholder = edges.util.getParam(params, "searchPlaceholder", edges.mex._("Search"));
 
@@ -774,7 +797,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
 
         ////////////////////////////////////////
         // state variables
-        
+
         this.namespace = "mex-search-controller";
     }
 
@@ -795,18 +818,28 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 sortOptions += `<option value="${field}">${edges.util.escapeHtml(display)}</option>`;
             }
 
+            // sortFrag = `<div class="ui form">
+            //     <div class="fields">
+            //         <!-- Commenting as of now
+            //         <div class="field">
+            //             <button type="button" class="ui button ${directionClass}" title="" href="#"></button>
+            //         </div>
+            //         -->
+            //         <div class="field">
+            //             <select class="ui fluid dropdown ${sortFieldClass}">
+            //                 <option value="_score">${edges.mex._("Relevance")}</option>
+            //                 ${sortOptions}
+            //             </select>
+            //         </div>
+            //     </div>`;
             sortFrag = `<div class="ui form">
-                <div class="fields">
-                    <div class="field">
-                        <button type="button" class="ui button ${directionClass}" title="" href="#"></button>
-                    </div>
-                    <div class="field">
-                        <select class="ui fluid dropdown ${sortFieldClass}">
-                            <option value="_score">${edges.mex._("Relevance")}</option>
-                            ${sortOptions}
-                        </select>
-                    </div>
-                </div>`;
+                <div class="field">
+                    <select class="ui fluid dropdown ${sortFieldClass}">
+                        <option value="_score">${edges.mex._("Relevance")}</option>
+                        ${sortOptions}
+                    </select>
+                </div>
+            </div>`;
         }
 
         // select box for fields to search on
@@ -853,23 +886,48 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             searchFrag = `<div class="field"><button type="button" class="ui button ${searchClass}">${text}</button></div>`;
         }
 
-        let searchBox = `<div class="fields">
-                    ${clearFrag} 
+        let searchBox = `
+            <div class="ui form" style="display: flex;">
+                ${clearFrag}
+
+                <div class="field">
                     ${field_select}
-                    <div class="field">
-                    <input type="text" id="${textId}" class="${textClass} form-control input-sm" name="q" value="" placeholder="${this.searchPlaceholder}"/>
-                    </div>
-                    ${searchFrag}
-                </div>`;
+                </div>
+
+                <div class="field" style="flex-grow: 1;">
+                    <input type="text" id="${textId}" class="ui input ${textClass}" name="q" placeholder="${this.searchPlaceholder}" style="width: 100%;" />
+                </div>
+            </div>`;
 
         // assemble the final fragment and render it into the component's context
         let containerClass = edges.util.styleClasses(this.namespace, "container", this);
-        let frag = `<div class="${containerClass}">
-                <div class="row">
-                    ${sortFrag}
-                    <div>${searchBox}</div>
-                    </div>
-                    </div>`;
+        // let frag = `
+        //     <div class="${containerClass}">
+        //         <div class="row">
+        //             <div>${searchBox}</div>
+        //             <div>${sortFrag}</div>
+        //             <div>${searchFrag}</div>
+        //         </div>
+        //     </div>`;
+
+        // Upgrading the search UI as per sematic ui
+        let frag = `
+    <div class="ui grid ${containerClass}">
+        <div class="row middle aligned">
+            <div class="search-label">
+                <label><h3>Search</h3></label>
+            </div>
+            <div class="eleven wide column">
+                ${searchBox}
+            </div>
+            <div class="three wide column">
+                ${sortFrag}
+            </div>
+            <div class="one wide column">
+                ${searchFrag}
+            </div>
+        </div>
+    </div>`;
 
         comp.context.html(frag);
 
@@ -926,7 +984,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         }
     }
 
-    //////////////////////////////////////////////////////
+    ///////////////////////////////////////a///////////////
     // functions for setting UI values
 
     setUISortDir() {
@@ -1036,6 +1094,12 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         // formatter for count display
         this.countFormat = edges.util.getParam(params, "countFormat", false);
 
+        // Hides facet when there is no data
+        this.hideIfEmpty = edges.util.getParam(params, "hideIfEmpty", false);
+
+        // Displays checkboxes for facet selection
+        this.useCheckboxes = edges.util.getParam(params, "useCheckboxes", false);
+
         // a short tooltip and a fuller explanation
         this.tooltipText = edges.util.getParam(params, "tooltipText", false);
         this.tooltip = edges.util.getParam(params, "tooltip", false);
@@ -1046,7 +1110,6 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
     }
 
     draw() {
-        // for convenient short references ...
         let ts = this.component;
 
         if (!ts.active && this.hideInactive) {
@@ -1054,11 +1117,9 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
             return;
         }
 
-        // classes where we need both styles and js
         let valClass = edges.util.allClasses(this.namespace, "value", this.component.id);
         let filterRemoveClass = edges.util.allClasses(this.namespace, "filter-remove", this.component.id);
 
-        // sort out all the classes that we're going to be using
         let resultsListClass = edges.util.styleClasses(this.namespace, "results-list", this.component.id);
         let resultClass = edges.util.styleClasses(this.namespace, "result", this.component.id);
         let controlClass = edges.util.styleClasses(this.namespace, "controls", this.component.id);
@@ -1072,91 +1133,111 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         let toggleId = edges.util.htmlID(this.namespace, "toggle", this.component.id);
         let resultsId = edges.util.htmlID(this.namespace, "results", this.component.id);
 
-        // this is what's displayed in the body if there are no results
-        let results = edges.mex._("Loading...");
-        if (ts.values !== false) {
-            results = edges.mex._("No data available");
+        let showFacet = ts.values && ts.values.length > 0;
+        if (!showFacet && this.hideIfEmpty) {
+            ts.context.html("");
+            return;
         }
 
-        // render a list of the values
-        if (ts.values && ts.values.length > 0) {
-            results = "";
+        let results = showFacet ? "" : edges.mex._("No data available");
+        let filterTerms = ts.filters.map(f => f.term.toString());
 
-            // get the terms of the filters that have already been set
-            let filterTerms = [];
-            for (let i = 0; i < ts.filters.length; i++) {
-                filterTerms.push(ts.filters[i].term.toString());
+        if (showFacet) {
+            // Optional checkbox "Select All / Deselect All" buttons
+            if (this.useCheckboxes) {
+                results += `
+                    <div class="ui mini buttons" style="margin-bottom: 10px;">
+                        <button class="ui button" id="select-all-${ts.id}">Select All</button>
+                        <button class="ui button" id="deselect-all-${ts.id}">Deselect All</button>
+                    </div>`;
             }
 
-            // render each value, if it is not also a filter that has been set
-            for (let i = 0; i < ts.values.length; i++) {
-                let val = ts.values[i];
-                if ($.inArray(val.term.toString(), filterTerms) === -1) {   // the toString() helps us normalise other values, such as integers
-                    let count = val.count;
-                    if (this.countFormat) {
-                        count = this.countFormat(count)
-                    }
-                    results += `<div class="${resultClass}"><a href="#" class="${valClass}" data-key="${edges.util.escapeHtml(val.term)}">
-                        ${edges.util.escapeHtml(val.display)}</a> (${count})</div>`;
+            for (let val of ts.values) {
+                if (filterTerms.includes(val.term.toString())) continue;
+
+                let count = this.countFormat ? this.countFormat(val.count) : val.count;
+                let escapedTerm = edges.util.escapeHtml(val.term);
+                let escapedDisplay = edges.util.escapeHtml(val.display);
+
+                if (this.useCheckboxes) {
+                    results += `
+                        <div class="${resultClass}">
+                            <div class="ui checkbox">
+                                <input type="checkbox" class="${valClass}" data-key="${escapedTerm}" />
+                                <label>${escapedDisplay} (${count})</label>
+                            </div>
+                        </div>`;
+                } else {
+                    results += `
+                        <div class="${resultClass}">
+                            <a href="#" class="${valClass}" data-key="${escapedTerm}">${escapedDisplay}</a> (${count})
+                        </div>`;
                 }
             }
         }
 
-        // if there is a tooltip, make the frag
+        // Tooltip
         let tooltipFrag = "";
         if (this.tooltipText) {
-            let tt = this._shortTooltip();
             let tooltipClass = edges.util.styleClasses(this.namespace, "tooltip", this.component.id);
             let tooltipId = edges.util.htmlID(this.namespace, "tooltip", this.component.id);
-            tooltipFrag = `<div id="${tooltipId}" class="${tooltipClass}" style="display:none">
-                <div class="ui grid">
-                    <div class="sixteen wide column">${tt}</div>
-                </div>
-            </div>`;
+            let tt = this._shortTooltip();
+            tooltipFrag = `
+                <div id="${tooltipId}" class="${tooltipClass}" style="display:none">
+                    <div class="ui grid">
+                        <div class="sixteen wide column">${tt}</div>
+                    </div>
+                </div>`;
         }
 
-        // if we want to display the controls, render them
+        // Controls
         let controlFrag = "";
         if (this.controls) {
-            let ordering = `<a href="#" title=""><i class="sort up icon"></i></a>`;
-            controlFrag = `<div class="${controlClass}" style="display:none" id="${controlId}"><div class="ui grid">
+            controlFrag = `
+                <div class="${controlClass}" style="display:none" id="${controlId}">
+                    <div class="ui grid">
                         <div class="sixteen wide column">
                             <div class="ui buttons">
                                 <button type="button" class="ui button mini" id="${sizeId}" title="List Size" href="#">0</button>
                                 <button type="button" class="ui button mini" id="${orderId}" title="List Order" href="#"></button>
                             </div>
                         </div>
-                    </div></div>`;
+                    </div>
+                </div>`;
         }
 
-        // if we want the active filters, render them
+        // Selected filters
         let filterFrag = "";
         if (ts.filters.length > 0 && this.showSelected) {
-            for (let i = 0; i < ts.filters.length; i++) {
-                let filt = ts.filters[i];
-                filterFrag += `<div class="${resultClass}"><strong>${edges.util.escapeHtml(filt.display)}&nbsp;`;
-                filterFrag += `<a href="#" class="${filterRemoveClass}" data-key="${edges.util.escapeHtml(filt.term)}">`;
-                filterFrag += `<i class="delete icon"></i></a>`;
-                filterFrag += `</strong></a></div>`;
+            for (let filt of ts.filters) {
+                filterFrag += `
+                    <div class="${resultClass}">
+                        <strong>${edges.util.escapeHtml(filt.display)}&nbsp;
+                            <a href="#" class="${filterRemoveClass}" data-key="${edges.util.escapeHtml(filt.term)}">
+                                <i class="delete icon"></i>
+                            </a>
+                        </strong>
+                    </div>`;
             }
         }
 
-        // render the toggle capability
-        let tog = this.title;
+        // Header toggle
+        let tog = `<h4> ${this.title} </h4>`;
         if (this.togglable) {
             tog = `<a href="#" id="${toggleId}"><i class="plus icon"></i>&nbsp;${this.title}</a>`;
         }
 
-        // render the overall facet
+        // Final HTML fragment
         let frag = `
-            <div class="ui segment ${facetClass}">
-                <div class="${headerClass}"><div class="ui grid">
-                    <div class="sixteen wide column">
-                        ${tog}
+            <div class="ui ${facetClass}" style="margin-bottom:15px">
+                <div class="${headerClass}">
+                    <div class="ui grid">
+                        <div class="sixteen wide column">${tog}</div>
                     </div>
-                </div></div>
+                </div>
                 ${tooltipFrag}
                 ${controlFrag}
+                <br/>
                 <div class="ui grid" style="display:none" id="${resultsId}">
                     <div class="sixteen wide column">
                         <div class="${selectedClass}">${filterFrag}</div>
@@ -1165,15 +1246,15 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                 </div>
             </div>`;
 
-        // now render it into the page
+        // Render to page
         ts.context.html(frag);
 
-        // trigger all the post-render set-up functions
+        // UI Setup
         this.setUISize();
         this.setUISort();
         this.setUIOpen();
 
-        // sort out the selectors we're going to be needing
+        // Event Bindings
         let valueSelector = edges.util.jsClassSelector(this.namespace, "value", this.component.id);
         let filterRemoveSelector = edges.util.jsClassSelector(this.namespace, "filter-remove", this);
         let toggleSelector = edges.util.idSelector(this.namespace, "toggle", this);
@@ -1181,19 +1262,174 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         let orderSelector = edges.util.idSelector(this.namespace, "order", this.component.id);
         let tooltipSelector = edges.util.idSelector(this.namespace, "tooltip-toggle", this.component.id);
 
-        // for when a value in the facet is selected
         edges.on(valueSelector, "click", this, "termSelected");
-        // for when the open button is clicked
         edges.on(toggleSelector, "click", this, "toggleOpen");
-        // for when a filter remove button is clicked
         edges.on(filterRemoveSelector, "click", this, "removeFilter");
-        // for when a size change request is made
         edges.on(sizeSelector, "click", this, "changeSize");
-        // when a sort order request is made
         edges.on(orderSelector, "click", this, "changeSort");
-        // toggle the full tooltip
         edges.on(tooltipSelector, "click", this, "toggleTooltip");
-    };
+
+        // Checkbox controls
+        if (this.useCheckboxes) {
+            const selector = `#${resultsId} .${valClass.replace(/\s+/g, '.')} input[type=checkbox]`;
+            $(`#select-all-${ts.id}`).on("click", () => {
+                $(selector).prop("checked", true);
+            });
+            $(`#deselect-all-${ts.id}`).on("click", () => {
+                $(selector).prop("checked", false);
+            });
+        }
+    }
+
+    // draw() {
+    //     // for convenient short references ...
+    //     let ts = this.component;
+
+    //     if (!ts.active && this.hideInactive) {
+    //         ts.context.html("");
+    //         return;
+    //     }
+
+    //     // classes where we need both styles and js
+    //     let valClass = edges.util.allClasses(this.namespace, "value", this.component.id);
+    //     let filterRemoveClass = edges.util.allClasses(this.namespace, "filter-remove", this.component.id);
+
+    //     // sort out all the classes that we're going to be using
+    //     let resultsListClass = edges.util.styleClasses(this.namespace, "results-list", this.component.id);
+    //     let resultClass = edges.util.styleClasses(this.namespace, "result", this.component.id);
+    //     let controlClass = edges.util.styleClasses(this.namespace, "controls", this.component.id);
+    //     let facetClass = edges.util.styleClasses(this.namespace, "facet", this.component.id);
+    //     let headerClass = edges.util.styleClasses(this.namespace, "header", this.component.id);
+    //     let selectedClass = edges.util.styleClasses(this.namespace, "selected", this.component.id);
+
+    //     let controlId = edges.util.htmlID(this.namespace, "controls", this.component.id);
+    //     let sizeId = edges.util.htmlID(this.namespace, "size", this.component.id);
+    //     let orderId = edges.util.htmlID(this.namespace, "order", this.component.id);
+    //     let toggleId = edges.util.htmlID(this.namespace, "toggle", this.component.id);
+    //     let resultsId = edges.util.htmlID(this.namespace, "results", this.component.id);
+
+    //     // this is what's displayed in the body if there are no results
+    //     let results = edges.mex._("Loading...");
+    //     if (ts.values !== false) {
+    //         results = edges.mex._("No data available");
+    //     }
+
+    //     // render a list of the values
+    //     if (ts.values && ts.values.length > 0) {
+    //         results = "";
+
+    //         // get the terms of the filters that have already been set
+    //         let filterTerms = [];
+    //         for (let i = 0; i < ts.filters.length; i++) {
+    //             filterTerms.push(ts.filters[i].term.toString());
+    //         }
+
+    //         // render each value, if it is not also a filter that has been set
+    //         for (let i = 0; i < ts.values.length; i++) {
+    //             let val = ts.values[i];
+    //             if ($.inArray(val.term.toString(), filterTerms) === -1) {   // the toString() helps us normalise other values, such as integers
+    //                 let count = val.count;
+    //                 if (this.countFormat) {
+    //                     count = this.countFormat(count)
+    //                 }
+    //                 results += `<div class="${resultClass}"><a href="#" class="${valClass}" data-key="${edges.util.escapeHtml(val.term)}">
+    //                     ${edges.util.escapeHtml(val.display)}</a> (${count})</div>`;
+    //             }
+    //         }
+    //     }
+
+    //     // if there is a tooltip, make the frag
+    //     let tooltipFrag = "";
+    //     if (this.tooltipText) {
+    //         let tt = this._shortTooltip();
+    //         let tooltipClass = edges.util.styleClasses(this.namespace, "tooltip", this.component.id);
+    //         let tooltipId = edges.util.htmlID(this.namespace, "tooltip", this.component.id);
+    //         tooltipFrag = `<div id="${tooltipId}" class="${tooltipClass}" style="display:none">
+    //             <div class="ui grid">
+    //                 <div class="sixteen wide column">${tt}</div>
+    //             </div>
+    //         </div>`;
+    //     }
+
+    //     // if we want to display the controls, render them
+    //     let controlFrag = "";
+    //     if (this.controls) {
+    //         let ordering = `<a href="#" title=""><i class="sort up icon"></i></a>`;
+    //         controlFrag = `<div class="${controlClass}" style="display:none" id="${controlId}"><div class="ui grid">
+    //                     <div class="sixteen wide column">
+    //                         <div class="ui buttons">
+    //                             <button type="button" class="ui button mini" id="${sizeId}" title="List Size" href="#">0</button>
+    //                             <button type="button" class="ui button mini" id="${orderId}" title="List Order" href="#"></button>
+    //                         </div>
+    //                     </div>
+    //                 </div></div>`;
+    //     }
+
+    //     // if we want the active filters, render them
+    //     let filterFrag = "";
+    //     if (ts.filters.length > 0 && this.showSelected) {
+    //         for (let i = 0; i < ts.filters.length; i++) {
+    //             let filt = ts.filters[i];
+    //             filterFrag += `<div class="${resultClass}"><strong>${edges.util.escapeHtml(filt.display)}&nbsp;`;
+    //             filterFrag += `<a href="#" class="${filterRemoveClass}" data-key="${edges.util.escapeHtml(filt.term)}">`;
+    //             filterFrag += `<i class="delete icon"></i></a>`;
+    //             filterFrag += `</strong></a></div>`;
+    //         }
+    //     }
+
+    //     // render the toggle capability
+    //     let tog = this.title;
+    //     if (this.togglable) {
+    //         tog = `<a href="#" id="${toggleId}"><i class="plus icon"></i>&nbsp;${this.title}</a>`;
+    //     }
+
+    //     // render the overall facet
+    //     let frag = `
+    //         <div class="ui segment ${facetClass}">
+    //             <div class="${headerClass}"><div class="ui grid">
+    //                 <div class="sixteen wide column">
+    //                     ${tog}
+    //                 </div>
+    //             </div></div>
+    //             ${tooltipFrag}
+    //             ${controlFrag}
+    //             <div class="ui grid" style="display:none" id="${resultsId}">
+    //                 <div class="sixteen wide column">
+    //                     <div class="${selectedClass}">${filterFrag}</div>
+    //                     <div class="${resultsListClass}">${results}</div>
+    //                 </div>
+    //             </div>
+    //         </div>`;
+
+    //     // now render it into the page
+    //     ts.context.html(frag);
+
+    //     // trigger all the post-render set-up functions
+    //     this.setUISize();
+    //     this.setUISort();
+    //     this.setUIOpen();
+
+    //     // sort out the selectors we're going to be needing
+    //     let valueSelector = edges.util.jsClassSelector(this.namespace, "value", this.component.id);
+    //     let filterRemoveSelector = edges.util.jsClassSelector(this.namespace, "filter-remove", this);
+    //     let toggleSelector = edges.util.idSelector(this.namespace, "toggle", this);
+    //     let sizeSelector = edges.util.idSelector(this.namespace, "size", this.component.id);
+    //     let orderSelector = edges.util.idSelector(this.namespace, "order", this.component.id);
+    //     let tooltipSelector = edges.util.idSelector(this.namespace, "tooltip-toggle", this.component.id);
+
+    //     // for when a value in the facet is selected
+    //     edges.on(valueSelector, "click", this, "termSelected");
+    //     // for when the open button is clicked
+    //     edges.on(toggleSelector, "click", this, "toggleOpen");
+    //     // for when a filter remove button is clicked
+    //     edges.on(filterRemoveSelector, "click", this, "removeFilter");
+    //     // for when a size change request is made
+    //     edges.on(sizeSelector, "click", this, "changeSize");
+    //     // when a sort order request is made
+    //     edges.on(orderSelector, "click", this, "changeSort");
+    //     // toggle the full tooltip
+    //     edges.on(tooltipSelector, "click", this, "toggleTooltip");
+    // };
 
     /////////////////////////////////////////////////////
     // UI behaviour functions
@@ -1350,7 +1586,13 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
         this.tooltipState = "closed";
 
         // whether to suppress display of date range with no values
-        this.hideEmptyDateBin = edges.util.getParam(params, "hideEmptyDateBin", true);
+        this.hideEmptyDateBin = edges.util.getParam(params, "hideEmptyDateBin", true);Date
+
+        // Hides facet when there is no data
+        this.hideIfEmpty = edges.util.getParam(params, "hideIfEmpty", false);
+
+        // Displays checkboxes for facet selection
+        this.useCheckboxes = edges.util.getParam(params, "useCheckboxes", false);
 
         // how many of the values to display initially, with a "show all" option for the rest
         this.shortDisplay = edges.util.getParam(params, "shortDisplay", false);
@@ -1360,7 +1602,6 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
     }
 
     draw() {
-        // for convenient short references ...
         let ts = this.component;
         let namespace = this.namespace;
 
@@ -1369,7 +1610,6 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
             return;
         }
 
-        // sort out all the classes that we're going to be using
         let resultsListClass = edges.util.allClasses(namespace, "results-list", this);
         let resultClass = edges.util.allClasses(namespace, "result", this);
         let valClass = edges.util.allClasses(namespace, "value", this);
@@ -1381,103 +1621,92 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
         let toggleId = edges.util.htmlID(namespace, "toggle", this);
         let resultsId = edges.util.htmlID(namespace, "results", this);
 
-        // this is what's displayed in the body if there are no results
         let results = edges.mex._("Loading...");
         if (ts.values !== false) {
             results = edges.mex._("No data available");
         }
 
-        // render a list of the values
         if (ts.values && ts.values.length > 0) {
             results = "";
 
-            // get the terms of the filters that have already been set
-            let filterTerms = [];
-            for (let i = 0; i < ts.filters.length; i++) {
-                filterTerms.push(ts.filters[i].display);
-            }
-
-            // render each value, if it is not also a filter that has been set
+            let filterTerms = ts.filters.map(f => f.display);
             let longClass = edges.util.allClasses(namespace, "long", this);
             let short = true;
+
             for (let i = 0; i < ts.values.length; i++) {
                 let val = ts.values[i];
-                if ($.inArray(val.display, filterTerms) === -1) {
-                    let myLongClass = "";
-                    let styles = "";
-                    if (this.shortDisplay && this.shortDisplay <= i) {
-                        myLongClass = longClass;
-                        styles = 'style="display:none"';
-                        short = false;
-                    }
+                let checked = filterTerms.includes(val.display) ? "checked" : "";
+                let myLongClass = "";
+                let styles = "";
 
-                    let count = val.count;
-                    if (this.countFormat) {
-                        count = this.countFormat(count)
-                    }
-                    let ltData = "";
-                    if (val.lt) {
-                        ltData = ' data-lt="' + edges.util.escapeHtml(val.lt) + '" ';
-                    }
-                    results += `<div class="${resultClass} ${myLongClass}" ${styles}><a href="#" class="${valClass}" data-gte="${edges.util.escapeHtml(val.gte)}" ${ltData}>
-                                    ${edges.util.escapeHtml(val.display)}</a> (${count})
-                                </div>`;
-
+                if (this.shortDisplay && this.shortDisplay <= i) {
+                    myLongClass = longClass;
+                    styles = 'style="display:none"';
+                    short = false;
                 }
+
+                let count = this.countFormat ? this.countFormat(val.count) : val.count;
+                let ltData = val.lt ? ` data-lt="${edges.util.escapeHtml(val.lt)}"` : "";
+
+                results += `
+                    <div class="${resultClass} ${myLongClass}" ${styles}>
+                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                            <input type="checkbox" class="${valClass}" data-gte="${edges.util.escapeHtml(val.gte)}" ${ltData} ${checked}>
+                            ${edges.util.escapeHtml(val.display)} (${count})
+                        </label>
+                    </div>`;
             }
+
             if (!short) {
                 let showClass = edges.util.allClasses(namespace, "show-link", this);
                 let showId = edges.util.htmlID(namespace, "show-link", this);
                 let slToggleId = edges.util.htmlID(namespace, "sl-toggle", this);
                 results += `<div class="${showClass}" id="${showId}">
-                    <a href="#" id="${slToggleId}"><span class="all">show all</span><span class="less" style="display:none">${edges.mex._("show less")}</span></a>
+                    <a href="#" id="${slToggleId}">
+                        <span class="all">show all</span>
+                        <span class="less" style="display:none">${edges.mex._("show less")}</span>
+                    </a>
                 </div>`;
             }
-
         }
 
-        // if there is a tooltip, make the frag
         let tooltipFrag = "";
         if (this.tooltipText) {
             let tt = this._shortTooltip();
             let tooltipClass = edges.util.allClasses(namespace, "tooltip", this);
             let tooltipId = edges.util.htmlID(namespace, "tooltip", this);
-            tooltipFrag = `<div id="${tooltipId}" class="${tooltipClass}" style="display:none"><div class="row"><div class="col-md-12">${tt}</div></div></div>`;
+            tooltipFrag = `<div id="${tooltipId}" class="${tooltipClass}" style="display:none">
+                <div class="row"><div class="col-md-12">${tt}</div></div>
+            </div>`;
         }
 
-        // if we want the active filters, render them
         let filterFrag = "";
         if (ts.filters.length > 0 && this.showSelected) {
             for (let i = 0; i < ts.filters.length; i++) {
                 let filt = ts.filters[i];
-                let ltData = "";
-                if (filt.lt) {
-                    ltData = ` data-lt="${edges.util.escapeHtml(filt.lt)}" `;
-                }
+                let ltData = filt.lt ? ` data-lt="${edges.util.escapeHtml(filt.lt)}"` : "";
                 filterFrag += `<div class="${resultClass}">
-                            <strong>${edges.util.escapeHtml(filt.display)}&nbsp;
-                                <a href="#" class="${filterRemoveClass}" data-gte="${edges.util.escapeHtml(filt.gte)}" ${ltData}>
-                                <i class="icon delete"></i></a>
-                            </strong></a></div>`;
+                    <strong>${edges.util.escapeHtml(filt.display)}&nbsp;
+                        <a href="#" class="${filterRemoveClass}" data-gte="${edges.util.escapeHtml(filt.gte)}" ${ltData}>
+                            <i class="icon delete"></i>
+                        </a>
+                    </strong>
+                </div>`;
             }
         }
 
-        // render the toggle capability
-        let tog = this.title;
+        let tog = `<h4> ${this.title} </h4>`;
         if (this.togglable) {
             tog = `<a href="#" id="${toggleId}"><i class="icon plus"></i>&nbsp;${tog}</a>`;
         }
 
-        // render the overall facet
-
         let frag = `
-            <div class="ui segment ${facetClass}">
+            <div class="${facetClass}" style="margin-bottom:15px">
                 <div class="${headerClass}"><div class="row">
-                    <div class="col-md-12">
-                        ${tog}
-                    </div>
+                    <div class="col-md-12">${tog}</div>
                 </div></div>
                 ${tooltipFrag}
+                <br/>
                 <div class="row" style="display:none" id="${resultsId}">
                     <div class="col-md-12">
                         <div class="${selectedClass}">${filterFrag}</div>
@@ -1486,30 +1715,186 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 </div>
             </div>`;
 
-        // now render it into the page
         ts.context.html(frag);
 
-        // trigger all the post-render set-up functions
         this.setUIOpen();
 
-        // sort out the selectors we're going to be needing
         let valueSelector = edges.util.jsClassSelector(namespace, "value", this);
         let filterRemoveSelector = edges.util.jsClassSelector(namespace, "filter-remove", this);
         let toggleSelector = edges.util.idSelector(namespace, "toggle", this);
         let tooltipSelector = edges.util.idSelector(namespace, "tooltip-toggle", this);
         let shortLongToggleSelector = edges.util.idSelector(namespace, "sl-toggle", this);
 
-        // for when a value in the facet is selected
-        edges.on(valueSelector, "click", this, "termSelected");
-        // for when the open button is clicked
-        edges.on(toggleSelector, "click", this, "toggleOpen");
-        // for when a filter remove button is clicked
+        edges.on(valueSelector, "change", this, "checkboxSelected");
         edges.on(filterRemoveSelector, "click", this, "removeFilter");
-        // toggle the full tooltip
+        edges.on(toggleSelector, "click", this, "toggleOpen");
         edges.on(tooltipSelector, "click", this, "toggleTooltip");
-        // toggle show/hide full list
         edges.on(shortLongToggleSelector, "click", this, "toggleShortLong");
     }
+
+    checkboxSelected(element) {
+        let gte = $(element).data("gte");
+        let lt = $(element).data("lt");
+        let display = $(element).parent().text().trim();
+        this.component.toggleFilter({
+            gte: gte,
+            lt: lt,
+            display: display
+        });
+    }
+
+
+    // draw() {
+    //     // for convenient short references ...
+    //     let ts = this.component;
+    //     let namespace = this.namespace;
+
+    //     if (!ts.active && this.hideInactive) {
+    //         ts.context.html("");
+    //         return;
+    //     }
+
+    //     // sort out all the classes that we're going to be using
+    //     let resultsListClass = edges.util.allClasses(namespace, "results-list", this);
+    //     let resultClass = edges.util.allClasses(namespace, "result", this);
+    //     let valClass = edges.util.allClasses(namespace, "value", this);
+    //     let filterRemoveClass = edges.util.allClasses(namespace, "filter-remove", this);
+    //     let facetClass = edges.util.allClasses(namespace, "facet", this);
+    //     let headerClass = edges.util.allClasses(namespace, "header", this);
+    //     let selectedClass = edges.util.allClasses(namespace, "selected", this);
+
+    //     let toggleId = edges.util.htmlID(namespace, "toggle", this);
+    //     let resultsId = edges.util.htmlID(namespace, "results", this);
+
+    //     // this is what's displayed in the body if there are no results
+    //     let results = edges.mex._("Loading...");
+    //     if (ts.values !== false) {
+    //         results = edges.mex._("No data available");
+    //     }
+
+    //     // render a list of the values
+    //     if (ts.values && ts.values.length > 0) {
+    //         results = "";
+
+    //         // get the terms of the filters that have already been set
+    //         let filterTerms = [];
+    //         for (let i = 0; i < ts.filters.length; i++) {
+    //             filterTerms.push(ts.filters[i].display);
+    //         }
+
+    //         // render each value, if it is not also a filter that has been set
+    //         let longClass = edges.util.allClasses(namespace, "long", this);
+    //         let short = true;
+    //         for (let i = 0; i < ts.values.length; i++) {
+    //             let val = ts.values[i];
+    //             if ($.inArray(val.display, filterTerms) === -1) {
+    //                 let myLongClass = "";
+    //                 let styles = "";
+    //                 if (this.shortDisplay && this.shortDisplay <= i) {
+    //                     myLongClass = longClass;
+    //                     styles = 'style="display:none"';
+    //                     short = false;
+    //                 }
+
+    //                 let count = val.count;
+    //                 if (this.countFormat) {
+    //                     count = this.countFormat(count)
+    //                 }
+    //                 let ltData = "";
+    //                 if (val.lt) {
+    //                     ltData = ' data-lt="' + edges.util.escapeHtml(val.lt) + '" ';
+    //                 }
+    //                 results += `<div class="${resultClass} ${myLongClass}" ${styles}><a href="#" class="${valClass}" data-gte="${edges.util.escapeHtml(val.gte)}" ${ltData}>
+    //                                 ${edges.util.escapeHtml(val.display)}</a> (${count})
+    //                             </div>`;
+
+    //             }
+    //         }
+    //         if (!short) {
+    //             let showClass = edges.util.allClasses(namespace, "show-link", this);
+    //             let showId = edges.util.htmlID(namespace, "show-link", this);
+    //             let slToggleId = edges.util.htmlID(namespace, "sl-toggle", this);
+    //             results += `<div class="${showClass}" id="${showId}">
+    //                 <a href="#" id="${slToggleId}"><span class="all">show all</span><span class="less" style="display:none">${edges.mex._("show less")}</span></a>
+    //             </div>`;
+    //         }
+
+    //     }
+
+    //     // if there is a tooltip, make the frag
+    //     let tooltipFrag = "";
+    //     if (this.tooltipText) {
+    //         let tt = this._shortTooltip();
+    //         let tooltipClass = edges.util.allClasses(namespace, "tooltip", this);
+    //         let tooltipId = edges.util.htmlID(namespace, "tooltip", this);
+    //         tooltipFrag = `<div id="${tooltipId}" class="${tooltipClass}" style="display:none"><div class="row"><div class="col-md-12">${tt}</div></div></div>`;
+    //     }
+
+    //     // if we want the active filters, render them
+    //     let filterFrag = "";
+    //     if (ts.filters.length > 0 && this.showSelected) {
+    //         for (let i = 0; i < ts.filters.length; i++) {
+    //             let filt = ts.filters[i];
+    //             let ltData = "";
+    //             if (filt.lt) {
+    //                 ltData = ` data-lt="${edges.util.escapeHtml(filt.lt)}" `;
+    //             }
+    //             filterFrag += `<div class="${resultClass}">
+    //                         <strong>${edges.util.escapeHtml(filt.display)}&nbsp;
+    //                             <a href="#" class="${filterRemoveClass}" data-gte="${edges.util.escapeHtml(filt.gte)}" ${ltData}>
+    //                             <i class="icon delete"></i></a>
+    //                         </strong></a></div>`;
+    //         }
+    //     }
+
+    //     // render the toggle capability
+    //     let tog = this.title;
+    //     if (this.togglable) {
+    //         tog = `<a href="#" id="${toggleId}"><i class="icon plus"></i>&nbsp;${tog}</a>`;
+    //     }
+
+    //     // render the overall facet
+
+    //     let frag = `
+    //         <div class="ui segment ${facetClass}">
+    //             <div class="${headerClass}"><div class="row">
+    //                 <div class="col-md-12">
+    //                     ${tog}
+    //                 </div>
+    //             </div></div>
+    //             ${tooltipFrag}
+    //             <div class="row" style="display:none" id="${resultsId}">
+    //                 <div class="col-md-12">
+    //                     <div class="${selectedClass}">${filterFrag}</div>
+    //                     <div class="${resultsListClass}">${results}</div>
+    //                 </div>
+    //             </div>
+    //         </div>`;
+
+    //     // now render it into the page
+    //     ts.context.html(frag);
+
+    //     // trigger all the post-render set-up functions
+    //     this.setUIOpen();
+
+    //     // sort out the selectors we're going to be needing
+    //     let valueSelector = edges.util.jsClassSelector(namespace, "value", this);
+    //     let filterRemoveSelector = edges.util.jsClassSelector(namespace, "filter-remove", this);
+    //     let toggleSelector = edges.util.idSelector(namespace, "toggle", this);
+    //     let tooltipSelector = edges.util.idSelector(namespace, "tooltip-toggle", this);
+    //     let shortLongToggleSelector = edges.util.idSelector(namespace, "sl-toggle", this);
+
+    //     // for when a value in the facet is selected
+    //     edges.on(valueSelector, "click", this, "termSelected");
+    //     // for when the open button is clicked
+    //     edges.on(toggleSelector, "click", this, "toggleOpen");
+    //     // for when a filter remove button is clicked
+    //     edges.on(filterRemoveSelector, "click", this, "removeFilter");
+    //     // toggle the full tooltip
+    //     edges.on(tooltipSelector, "click", this, "toggleTooltip");
+    //     // toggle show/hide full list
+    //     edges.on(shortLongToggleSelector, "click", this, "toggleShortLong");
+    // }
 
     /////////////////////////////////////////////////////
     // UI behaviour functions
@@ -1632,7 +2017,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
         this.namespace = "mex-pager";
     }
-    
+
     draw() {
         if (this.component.total === false || this.component.total === 0) {
             this.component.context.html("");

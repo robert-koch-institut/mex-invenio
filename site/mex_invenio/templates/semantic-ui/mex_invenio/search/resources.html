@@ -1,8 +1,43 @@
 {%- extends "invenio_theme/page.html" %}
 
 {% block page_body %}
+    <style>
+        .banner {
+            background-color: #e9ecf3;
+            padding: 20px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 150px;
+            background-image: url('dna-bg.svg'); /* Replace with your background graphic */
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-size: contain;
+            margin-bottom: 20px;
+        }
+
+        .banner small {
+            text-transform: uppercase;
+            font-size: 12px;
+            color: #333;
+            opacity: 0.7;
+            letter-spacing: 0.05em;
+        }
+
+        .banner h1 {
+            font-size: 28px;
+            color: #320088;
+            margin: 8px 0 0 0;
+        }
+        .search-label {
+            align-content: center;
+        }
+    </style>
     <div id="contact-page" class="ui container">
-        <h1>Resources</h1>
+        <section class="banner">
+            <small>Search our</small>
+            <h1>Data Sources & Datasets</h1>
+        </section>
         {% block root_section %}
             <div id="root-container" class="panel-body">
                 <div id="edge-container"></div>
@@ -41,7 +76,7 @@
 
     <script>
     edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
-    edges.mex.state.lang = "{{ current_i18n.language }}"
+    edges.mex.state.lang = "{{ current_i18n.language }}";
     </script>
 
     {%  include "mex_invenio/search/_edges_babel.html" %}
