@@ -144,6 +144,7 @@ edges.mex.refiningAndFacet = function(params) {
             open : true,
             controls : false,
             togglable : false,
+            hideIfEmpty : true,
             title: params.title,
             countFormat: edges.mex.countFormat,
         })
