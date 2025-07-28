@@ -2295,7 +2295,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
         keywords = keywords.map(k => edges.util.escapeHtml(k)).join(", ");
         if (keywords !== "") {
-            keywords = `<span class="ui label">${keywords}</span>`;
+            keywords = `<span class="tag">${keywords}</span>`;
         }
 
         let selectState = "unselected";
@@ -2308,19 +2308,48 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         let previewClass = edges.util.jsClasses(this.namespace, "preview", this.component.id);
         let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
 
-        let frag = `<div class="ui grid segment">
-                <div class="twelve wide column">
-                    <strong>${title}</strong><br>
-                    <em>${alt}</em><br><br>
-                    <p>${desc}</p>
-                    ${created}<br>
+
+        let frag = `
+            <div class="card">
+                <div class="card-header">
+                    <span class="date">${created}</span>
+                    <span  class="${previewClass} preview" data-id="${res.id}">
+                        👁️ ${edges.mex._("Preview")}
+                    </span>
+                </div>
+
+                <h2 class="title">
+                    ${title}
+                </h2>
+
+                <p class="subtitle">
+                    <strong>${alt}</strong>
+                </p>
+
+                <p class="description">
+                    ${desc}
+                </p>
+
+                <div class="tags">
                     ${keywords}
                 </div>
-                <div class="four wide column">
-                    <a class="ui button ${previewClass}" data-id="${res.id}">${edges.mex._("Preview")}</a>
-                    <a class="ui button ${selectClass}" data-id="${res.id}" data-state="${selectState}">${selectText}</a>
-                </div>
-            </div>`;
+            </div>
+
+
+        `
+        // let frag = `<div class="ui grid segment">
+        //         <div class="twelve wide column">
+        //             <strong>${title}</strong><br>
+        //             <em>${alt}</em><br><br>
+        //             <p>${desc}</p>
+        //             ${created}<br>
+        //             ${keywords}
+        //         </div>
+        //         <div class="four wide column">
+        //             <a class="ui button ${previewClass}" data-id="${res.id}">${edges.mex._("Preview")}</a>
+        //             <a class="ui button ${selectClass}" data-id="${res.id}" data-state="${selectState}">${selectText}</a>
+        //         </div>
+        //     </div>`;
         return frag;
     }
 
