@@ -23,7 +23,7 @@ edges.instances.resources.init = function() {
             edges.mex.defaultPager(),
             edges.mex.resourceDisplay(),
             edges.mex.resourcePreview(),
-            edges.mex.resourceSelector()
+            // edges.mex.resourceSelector()
         ]
     })
 }

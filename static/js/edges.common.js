@@ -198,7 +198,7 @@ edges.mex.pager = function(params) {
         id: params.id || "pager",
         category: params.category || "middle",
         renderer: new edges.mex.renderers.Pager({
-
+            showSizeSelector : false
         })
     })
 }
@@ -2033,6 +2033,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
         let prevClass = edges.util.allClasses(this.namespace, "prev", this);
         let pageClass = edges.util.allClasses(this.namespace, "page", this);
         let nextClass = edges.util.allClasses(this.namespace, "next", this);
+        let lastClass = edges.util.allClasses(this.namespace, "last", this);
         let sizeSelectClass = edges.util.allClasses(this.namespace, "size", this);
 
         // the total number of records found
@@ -2042,7 +2043,13 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
             if (this.numberFormat) {
                 total = this.numberFormat(total);
             }
-            recordCount = `<span class="${totalClass}">${total}</span> ${edges.mex._("results found")}`;
+
+            recordCount = `
+                <div class="result-counter">
+                    <div class="value ${totalClass}"> ${total} </div>
+                    <div class="label">${edges.mex._("results")}</div>
+                </div>
+            `
         }
 
         // the number of records per page
@@ -2077,6 +2084,12 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                     </div>
                 </div>
             </div>`;
+        } else {
+            sizer = `<div class="ui form">
+                <div class="inline fields">
+                    <div class="field">${recordCount}${this.sizePrefix}</div>
+                </div>
+            </div>`
         }
 
         let nav = "";
@@ -2093,6 +2106,11 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                 next = `<span class="${nextClass} disabled">${edges.mex._("Next")}</a>`;
             }
 
+            let last = `<a href="#" class="${lastClass}">${edges.mex._("Last")}</a>`;
+            if (this.component.page === this.component.totalPages) {
+                next = `<span class="${lastClass} disabled">${edges.mex._("Last")}</a>`;
+            }
+
             let pageNum = this.component.page;
             let totalPages = this.component.totalPages;
             if (this.numberFormat) {
@@ -2103,19 +2121,43 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                         <div class="two wide column">${first}</div>
                         <div class="two wide column">${prev}</div>
                         <div class="eight wide column"><span class="${pageClass}">Page ${pageNum} ${edges.mex._("of")} ${totalPages}</span></div>
-                        <div class="four wide column">${next}</div>
+                        <div class="two wide column">${next}</div>
+                        <div class="two wide column">${last}</div>
                    </div>`;
+
+            // nav = `
+            //     <div class="ui menu pagination-bar">
+            //         <a class="item disabled">
+            //             <i class="angle double left icon"></i> First
+            //         </a>
+            //         <a class="item disabled">
+            //             <i class="angle left icon"></i> Previous
+            //         </a>
+
+            //         <div class="item">
+            //             Page ${pageNum} ${edges.mex._("of")} ${totalPages}
+            //         </div>
+
+            //         <a class="item">
+            //             Next <i class="angle right icon"></i>
+            //         </a>
+            //         <a class="item">
+            //             Last <i class="angle double right icon"></i>
+            //         </a>
+            //     </div>
+
+            // `
         }
 
-        let frag = "";
-        if (this.showSizeSelector && !this.showPageNavigation) {
-            frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${sizer}</div></div>`;
-        } else if (!this.showSizeSelector && this.showPageNavigation) {
-            frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${nav}</div></div>`;
-        } else {
-            frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${sizer}</div>
-                        <div class="sixteen wide column">${nav}</div></div>`;
+        let frag = `<div class="ui grid ${containerClass}">`;
+
+        frag += `<div class="sixteen wide column">${sizer}</div>`
+
+        if(this.showPageNavigation) {
+            frag += `<div class="sixteen wide column">${nav}</div>`
         }
+
+        frag += `</div>`
 
         this.component.context.html(frag);
 
@@ -2300,7 +2342,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         let selectState = "unselected";
         let selectText = edges.mex._("Add");
-        if (this.selector.isSelected(res.id)) {
+        if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
             selectText = edges.mex._("Remove");
         }
