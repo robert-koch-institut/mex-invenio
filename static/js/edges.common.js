@@ -144,7 +144,7 @@ edges.mex.refiningAndFacet = function(params) {
             open : true,
             controls : false,
             togglable : false,
-            hideIfEmpty : false,
+            hideIfEmpty : true,
             title: params.title,
             countFormat: edges.mex.countFormat,
         })
@@ -497,10 +497,15 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
         //////////////////////////////////
         // assemble the right side components
         let right = edge.category("right");
+        // Hiding right section and enabling it when any component
+        let rightContainerStyle = "display:none;"
         let rightClass = edges.util.styleClasses(this.namespace, "right");
         let rightContainers = "";
         if (right.length > 0) {
             for (let i = 0; i < right.length; i++) {
+                if(right[i].length > 0) {
+                    rightContainerStyle = 'display:""'
+                }
                 rightContainers += `<div class="${rightClass}"><div id="${right[i].id}"></div></div>`;
             }
         }
@@ -524,10 +529,10 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div class="four wide column">
                     ${facetContainers}
                 </div>
-                <div class="eight wide column">
+                <div class="wide column" style="flex: 1;">
                     ${middleContainers}
                 </div>
-                <div class="four wide column">
+                <div id="right-col" class="four wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
             </div>
@@ -705,10 +710,13 @@ if (!edges.mex.hasOwnProperty("renderers")) { edges.mex.renderers = {}}
 edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
     constructor(params) {
         super(params);
+
+        this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
+
     }
 
     draw() {
-        if (this.component.length === 0) {
+        if (this.component.length === 0 && this.showIfEmpty) {
             this.component.context.html(`<h2>${edges.mex._("Selected Resources")}</h2><p>${edges.mex._("No records selected.")}</p>`);
             return;
         }
@@ -720,9 +728,13 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             recordsFrag += `<li>${title}</li>`
         }
 
-        let frag = `<h2>${edges.mex._("Selected Resources")}</h2>
-                                <ul>${recordsFrag}</ul>
-                            <a class="ui button" href="/search/variables">${edges.mex._("Search Variables")}</a>`;
+        let frag = ""
+        if(recordsFrag) {
+            frag = `
+                <h2>${edges.mex._("Selected Resources")}</h2>
+                    <ul>${recordsFrag}</ul>
+                    <a class="ui button" href="/search/variables">${edges.mex._("Search Variables")}</a>`;
+        }
         this.component.context.html(frag);
     }
 }
@@ -2299,6 +2311,17 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             el.removeClass("selectedResource")
             el.addClass("unselectedResource")
             // el.text(edges.mex._("Add"));
+        }
+
+        // PATCH: to hide the right section on resources, since edges don't have template sync function
+        let doc = document.getElementById("right-col")
+        if(doc) {
+            if(this.selector && this.selector.length > 0) {
+                doc.style.display = ""
+            } else {
+                console.log("else")
+                doc.style.display = "none"
+            }
         }
     }
 
