@@ -144,7 +144,7 @@ edges.mex.refiningAndFacet = function(params) {
             open : true,
             controls : false,
             togglable : false,
-            hideIfEmpty : true,
+            hideIfEmpty : false,
             title: params.title,
             countFormat: edges.mex.countFormat,
         })
@@ -2290,11 +2290,15 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (state === "unselected") {
             this.selector.selectRecord(id)
             el.attr("data-state", "selected");
-            el.text(edges.mex._("Remove"));
+            el.removeClass("unselectedResource")
+            el.addClass("selectedResource")
+            // el.text(edges.mex._("Remove"));
         } else {
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            el.text(edges.mex._("Add"));
+            el.removeClass("selectedResource")
+            el.addClass("unselectedResource")
+            // el.text(edges.mex._("Add"));
         }
     }
 
@@ -2341,10 +2345,13 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
 
         let selectState = "unselected";
-        let selectText = edges.mex._("Add");
+        // let selectText = edges.mex._("Add");
+        let activeClass = "unselectedResource"
+
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
-            selectText = edges.mex._("Remove");
+            activeClass = "selectedResource"
+            // selectText = edges.mex._("Remove");
         }
 
         let previewClass = edges.util.jsClasses(this.namespace, "preview", this.component.id);
@@ -2355,12 +2362,15 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             <div class="card">
                 <div class="card-header">
                     <span class="date">${created}</span>
+                    <!--
                     <span  class="${previewClass} preview" data-id="${res.id}">
                         👁️ ${edges.mex._("Preview")}
                     </span>
+                    -->
                 </div>
 
                 <h2 class="title">
+                    <i class="${activeClass} ${selectClass} bookmark icon" data-id="${res.id}" data-state="${selectState}"></i>
                     ${title}
                 </h2>
 
@@ -2376,22 +2386,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                     ${keywords}
                 </div>
             </div>
-
-
         `
-        // let frag = `<div class="ui grid segment">
-        //         <div class="twelve wide column">
-        //             <strong>${title}</strong><br>
-        //             <em>${alt}</em><br><br>
-        //             <p>${desc}</p>
-        //             ${created}<br>
-        //             ${keywords}
-        //         </div>
-        //         <div class="four wide column">
-        //             <a class="ui button ${previewClass}" data-id="${res.id}">${edges.mex._("Preview")}</a>
-        //             <a class="ui button ${selectClass}" data-id="${res.id}" data-state="${selectState}">${selectText}</a>
-        //         </div>
-        //     </div>`;
         return frag;
     }
 

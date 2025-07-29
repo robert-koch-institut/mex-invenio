@@ -22,8 +22,8 @@ edges.instances.resources.init = function() {
             edges.mex.themeFacet(),
             edges.mex.defaultPager(),
             edges.mex.resourceDisplay(),
-            edges.mex.resourcePreview(),
-            // edges.mex.resourceSelector()
+            // edges.mex.resourcePreview(),
+            edges.mex.resourceSelector()
         ]
     })
 }
