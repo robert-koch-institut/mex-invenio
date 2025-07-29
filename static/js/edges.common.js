@@ -2302,15 +2302,11 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (state === "unselected") {
             this.selector.selectRecord(id)
             el.attr("data-state", "selected");
-            el.removeClass("unselectedResource")
-            el.addClass("selectedResource")
-            // el.text(edges.mex._("Remove"));
+            el.attr("src" , "/static/images/selected.svg")
         } else {
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            el.removeClass("selectedResource")
-            el.addClass("unselectedResource")
-            // el.text(edges.mex._("Add"));
+            el.attr("src" , "/static/images/unselected.svg")
         }
 
         // PATCH: to hide the right section on resources, since edges don't have template sync function
@@ -2368,18 +2364,16 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
 
         let selectState = "unselected";
-        // let selectText = edges.mex._("Add");
-        let activeClass = "unselectedResource"
+        let currentImage = '/static/images/unselected.svg'
 
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
-            activeClass = "selectedResource"
+            currentImage = "/static/images/selected.svg"
             // selectText = edges.mex._("Remove");
         }
 
         let previewClass = edges.util.jsClasses(this.namespace, "preview", this.component.id);
         let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
-
 
         let frag = `
             <div class="card">
@@ -2393,8 +2387,16 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 </div>
 
                 <h2 class="title">
-                    <i class="${activeClass} ${selectClass} bookmark icon" data-id="${res.id}" data-state="${selectState}"></i>
-                    ${title}
+                    <img
+                        class="${selectClass} bookmark icon"
+                        data-id="${res.id}"
+                        data-state="${selectState}"
+                        src="${currentImage}"
+                        alt="${selectState} Icon" width="22" height="24"
+                    />
+                    <span>
+                        ${title}
+                    </span>
                 </h2>
 
                 <p class="subtitle">
