@@ -729,6 +729,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         let recordsFrag = ``;
         let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
+        let hideClass = edges.util.jsClasses(this.namespace, "hide", this.component.id);
 
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
@@ -759,7 +760,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                 <div class="card">
 
                     <div id="control-section">
-                        <img class="controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
+                        <img class="${hideClass} controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
                     </div>
 
                     <div class="divider">
@@ -776,10 +777,24 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                 `;
 
         }
+
+        frag += `
+        <div class="edit-btn"><a id="edit-record" class="button edit"
+                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
+                         target="_blank">{{ _('Edit this record') }}</a></div>`
         this.component.context.html(frag);
 
         let selectSelector = edges.util.jsClassSelector(this.namespace, "select", this.component.id);
+        let hideSelector = edges.util.jsClassSelector(this.namespace, "hide", this.component.id);
         edges.on(selectSelector, "click", this, "selectResource");
+        edges.on(hideSelector, "click", this, "hideSelectedRecords");
+    }
+
+    hideSelectedRecords(){
+        let doc = document.getElementById("right-col")
+        if(doc) {
+            doc.style.display = "none"
+        }
     }
 
 
@@ -953,7 +968,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             if (this.searchButtonText !== false) {
                 text = this.searchButtonText;
             }
-            searchFrag = `<div class="field"><button type="button" class="ui button ${searchClass}">${text}</button></div>`;
+            searchFrag = `<div class="field"><button type="button" class="button ${searchClass} search-button">${text}</button></div>`;
         }
 
         let searchBox = `
