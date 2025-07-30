@@ -57,7 +57,6 @@ edges.mex._jinja_babel = function() {
     for (let r in edges.mex._register) {
         temp += `"${edges.mex._register[r]}": "{{ _("${edges.mex._register[r]}") }}",\n`;
     }
-    console.log(temp);
 }
 
 edges.mex.getLangVal = function(path, res, def) {
@@ -712,7 +711,14 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         super(params);
         this.title = edges.util.getParam(params, "title", "Selected Resources");
         this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
+        this.namespace = "select-records"
 
+        this.resourceComponent = null;
+    }
+
+    init(component) {
+        super.init(component);
+        this.resourceComponent = this.component.edge.getComponent({id: "results"})
     }
 
     draw() {
@@ -722,13 +728,17 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
 
         let recordsFrag = ``;
+        let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
+
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
-            console.log("Record" , record)
+
             let title = edges.mex.getLangVal("custom_fields.mex:title", record, edges.mex._("No title"));
             recordsFrag += `
                 <div class="selected-list">
-                    <img class="controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                    <img
+                        data-id="${id}"
+                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
                     <div>
                         <div class="selected-list-item">
                             ${title}
@@ -740,6 +750,8 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     </div>
                 </div>`
         }
+
+
 
         let frag = ""
         if(recordsFrag) {
@@ -765,6 +777,22 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         }
         this.component.context.html(frag);
+
+        let selectSelector = edges.util.jsClassSelector(this.namespace, "select", this.component.id);
+        edges.on(selectSelector, "click", this, "selectResource");
+    }
+
+
+    selectResource(element) {
+        let el = $(element);
+        let id = el.attr("data-id");
+
+        // Syncing this with resource result component.
+        let doc = document.getElementById(`resource-list-${id}`)
+
+        if(doc && this.resourceComponent && this.resourceComponent.renderer) {
+            this.resourceComponent.renderer.selectResource(doc)
+        }
     }
 }
 
@@ -2344,7 +2372,6 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             if(this.selector && this.selector.length > 0) {
                 doc.style.display = ""
             } else {
-                console.log("else")
                 doc.style.display = "none"
             }
         }
@@ -2418,6 +2445,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 <div class="title ${title ? '' :  'hide'}">
                     <img
                         class="${selectClass} bookmark icon"
+                        id="resource-list-${res.id}"
                         data-id="${res.id}"
                         data-state="${selectState}"
                         src="${currentImage}"
