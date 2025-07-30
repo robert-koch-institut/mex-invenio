@@ -218,7 +218,7 @@ edges.mex.recordSelector = function(params) {
         id: params.id || "selector",
         category: params.category || "right",
         renderer: new edges.mex.renderers.SelectedRecords({
-
+            title : "Variables Query Filters"
         })
     })
 }
@@ -526,13 +526,13 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div class="sixteen wide column">
                     ${fullContainers}
                 </div>
-                <div class="four wide column">
+                <div class="three wide column">
                     ${facetContainers}
                 </div>
                 <div class="wide column" style="flex: 1;">
                     ${middleContainers}
                 </div>
-                <div id="right-col" class="four wide column" style=${rightContainerStyle}>
+                <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
             </div>
@@ -710,14 +710,14 @@ if (!edges.mex.hasOwnProperty("renderers")) { edges.mex.renderers = {}}
 edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
     constructor(params) {
         super(params);
-
+        this.title = edges.util.getParam(params, "title", "Selected Resources");
         this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
 
     }
 
     draw() {
         if (this.component.length === 0 && this.showIfEmpty) {
-            this.component.context.html(`<h2>${edges.mex._("Selected Resources")}</h2><p>${edges.mex._("No records selected.")}</p>`);
+            this.component.context.html(`<h2>${edges.mex._(this.title)}</h2><p>${edges.mex._("No records selected.")}</p>`);
             return;
         }
 
@@ -731,9 +731,13 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let frag = ""
         if(recordsFrag) {
             frag = `
-                <h2>${edges.mex._("Selected Resources")}</h2>
+                <div class="card">
+                    <h4 class="title">${edges.mex._(this.title)}</h4>
                     <ul>${recordsFrag}</ul>
-                    <a class="ui button" href="/search/variables">${edges.mex._("Search Variables")}</a>`;
+                    <a class="ui button" href="/search/variables">${edges.mex._("Search Variables")}</a>
+                </div>
+                `;
+
         }
         this.component.context.html(frag);
     }
@@ -2376,8 +2380,8 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
 
         let frag = `
-            <div class="card">
-                <div class="card-header">
+            <div class="resource-card">
+                <div class="card-header ${created ? '' :  'hide'}">
                     <span class="date">${created}</span>
                     <!--
                     <span  class="${previewClass} preview" data-id="${res.id}">
@@ -2386,7 +2390,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                     -->
                 </div>
 
-                <h2 class="title">
+                <div class="title ${title ? '' :  'hide'}">
                     <img
                         class="${selectClass} bookmark icon"
                         data-id="${res.id}"
@@ -2394,20 +2398,20 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                         src="${currentImage}"
                         alt="${selectState} Icon" width="22" height="24"
                     />
-                    <span>
+                    <span class="ellipsis">
                         ${title}
                     </span>
-                </h2>
+                </div>
 
-                <p class="subtitle">
+                <div class="subtitle ${alt ? '' :  'hide'}">
                     <strong>${alt}</strong>
-                </p>
+                </div>
 
-                <p class="description">
+                <div class="description ${desc ? '' :  'hide'}">
                     ${desc}
-                </p>
+                </div>
 
-                <div class="tags">
+                <div class="tags ${keywords ? '' :  'hide'}">
                     ${keywords}
                 </div>
             </div>

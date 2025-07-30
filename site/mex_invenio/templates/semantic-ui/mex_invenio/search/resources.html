@@ -42,50 +42,105 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        .card-header {
+        .resource-card {
             display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 8px;
+            padding: 15px 10px 10px 10px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 15px;
+            align-self: stretch;
+            border: 1px solid #E0F4FC;
+            background: #FFF;
+            margin:10px 0px;
+            width: clamp(280px, 100%, 600px)
+        }
+
+        .card-header {
+            color: var(--layout-text-muted, #404565);
+            font-family: "Fira Sans";
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 24px; /* 133.333% */
         }
 
         .title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #310091;
-            margin: 0 0 8px 0;
-            line-height: 1.4;
+            color: #32008C;
+            font-family: var(--text-family-default, "Fira Sans");
+            font-size: var(--text-size-heading-medium, 21px);
+            font-style: normal;
+            font-weight: var(--text-weight-semi-bold, 600);
+            line-height: var(--text-line-height-heading-large, 32px); /* 152.381% */
+            letter-spacing: var(--space-none, 0);
+            flex: 1 0 0;
             display: flex;
             align-items: center;
             gap: 8px;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .title img {
+            flex-shrink: 0;
+            max-width: 22px;
+            height: 24px;
+        }
+
+        .ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+            min-width: 0;
+            flex: 1;
         }
 
         .subtitle {
-            font-size: 15px;
-            color: #195aa7;
-            margin-bottom: 12px;
+            color: #5170C1;
+            /* heading/small */
+            font-family: var(--text-family-default, "Fira Sans");
+            font-size: var(--text-size-heading-small, 18px);
+            font-style: normal;
+            font-weight: var(--text-weight-semi-bold, 600);
+            line-height: var(--text-line-height-heading-small, 24px); /* 133.333% */
+            letter-spacing: var(--space-none, 0);
+            align-self: stretch;
         }
-
         .description {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 16px;
-            line-height: 1.6;
+            color: #000;
+
+            /* body/small/regular */
+            font-family: var(--text-family-default, "Fira Sans");
+            font-size: var(--text-size-body-small, 16px);
+            font-style: normal;
+            font-weight: var(--text-weight-regular, 400);
+            line-height: var(--text-line-height-body-small, 20px); /* 125% */
+            letter-spacing: var(--space-none, 0);
+            align-self: stretch;
         }
 
         .tags {
             display: flex;
+            align-items: center;
+            align-content: center;
+            gap: 10px;
+            align-self: stretch;
             flex-wrap: wrap;
-            gap: 8px;
+        }
+
+        .hide{
+            display: none;
         }
 
         .tag {
-            background-color: #e0f2f7;
-            color: #1a3f4e;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 13px;
+            display: flex;
+            padding: 5px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            background: #E0F4FC;
         }
 
         .preview{
@@ -117,6 +172,7 @@
             vertical-align: super;
             align-items: center;
         }
+        .variable-title
     </style>
 
     <div id="contact-page" class="ui container">
