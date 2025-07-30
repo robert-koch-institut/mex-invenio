@@ -2423,7 +2423,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                         src="${currentImage}"
                         alt="${selectState} Icon" width="22" height="24"
                     />
-                    <span class="ellipsis">
+                    <span>
                         ${title}
                     </span>
                 </div>
