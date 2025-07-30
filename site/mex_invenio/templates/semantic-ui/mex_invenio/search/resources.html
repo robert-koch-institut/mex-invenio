@@ -34,12 +34,14 @@
         }
 
         .card {
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: flex;
+            min-width: 416px;
+            padding: 15px 10px 10px 10px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 25px;
+            background: #FFF;
+            box-shadow: 1px 1px 2px 0 rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0 rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0 rgba(199, 217, 217, 0.20), 1px -1px 2px 0 rgba(199, 217, 217, 0.20), -1px -1px 2px 0 rgba(249, 255, 255, 0.90), 1px 1px 3px 0 rgba(199, 217, 217, 0.90);
         }
 
         .resource-card {
@@ -54,6 +56,9 @@
             background: #FFF;
             margin:10px 0px;
             width: clamp(280px, 100%, 600px)
+
+/* Neumorphism Card */
+box-shadow: 1px 1px 2px 0 rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0 rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0 rgba(199, 217, 217, 0.20), 1px -1px 2px 0 rgba(199, 217, 217, 0.20), -1px -1px 2px 0 rgba(249, 255, 255, 0.90), 1px 1px 3px 0 rgba(199, 217, 217, 0.90);
         }
 
         .card-header {
@@ -172,7 +177,39 @@
             vertical-align: super;
             align-items: center;
         }
-        .variable-title
+        body{
+            background-color: #F9FDFE;
+        }
+        .divider{
+            border: 1px solid #A5AAC3;
+            width: 100%;
+            opacity: 0.5;
+        }
+        .selected-list{
+            display: flex;
+            align-items: flex-start;
+            gap: 25px;
+            margin-bottom: 10px;
+        }
+        .selected-list-item{
+            color: #1C1C1C;
+            font-family: var(--text-family-default, "Fira Sans");
+            font-size: var(--text-size-heading-medium, 21px);
+            font-style: normal;
+            font-weight: 400;
+            line-height: var(--text-line-height-heading-large, 32px); /* 152.381% */
+            letter-spacing: var(--space-none, 0);
+            margin-bottom: 10px;
+        }
+        .selected-list-sub-item{
+            color: var(--dark-blue, #32008C);
+            font-family: var(--text-family-default, "Fira Sans");
+            font-size: var(--text-size-heading-medium, 21px);
+            font-style: normal;
+            font-weight: 400;
+            line-height: var(--text-line-height-heading-large, 32px); /* 152.381% */
+            letter-spacing: var(--space-none, 0);
+        }
     </style>
 
     <div id="contact-page" class="ui container">

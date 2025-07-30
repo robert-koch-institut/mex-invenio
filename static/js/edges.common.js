@@ -724,16 +724,39 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let recordsFrag = ``;
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
+            console.log("Record" , record)
             let title = edges.mex.getLangVal("custom_fields.mex:title", record, edges.mex._("No title"));
-            recordsFrag += `<li>${title}</li>`
+            recordsFrag += `
+                <div class="selected-list">
+                    <img class="controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                    <div>
+                        <div class="selected-list-item">
+                            ${title}
+                        </div>
+                        <!-- TODO: Create and entry point -->
+                        <a class="selected-list-sub-item">
+                            26 Variables
+                        </a>
+                    </div>
+                </div>`
         }
 
         let frag = ""
         if(recordsFrag) {
             frag = `
                 <div class="card">
-                    <h4 class="title">${edges.mex._(this.title)}</h4>
-                    <ul>${recordsFrag}</ul>
+
+                    <div id="control-section">
+                        <img class="controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
+                    </div>
+
+                    <div class="divider">
+                    </div>
+
+                    <h4 class="title" style="margin:0px">${edges.mex._(this.title)}</h4>
+                    <div>
+                        ${recordsFrag}
+                    </div>
                     <a class="ui button" href="/search/variables">${edges.mex._("Search Variables")}</a>
                 </div>
                 `;
