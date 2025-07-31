@@ -2202,11 +2202,25 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                 totalPages = this.numberFormat(totalPages);
             }
             nav = `<div class="ui grid ${navClass}">
-                        <div class="two wide column">${first}</div>
-                        <div class="two wide column">${prev}</div>
-                        <div class="eight wide column"><span class="${pageClass}">Page ${pageNum} ${edges.mex._("of")} ${totalPages}</span></div>
-                        <div class="two wide column">${next}</div>
-                        <div class="two wide column">${last}</div>
+                        <div class="three wide column pagination-item">
+                            <i class="angle double left icon pagination-icon"></i>
+                            ${first}
+                        </div>
+                        <div class="three wide column pagination-item">
+                            <i class="angle left icon pagination-icon"></i>
+                            ${prev}
+                        </div>
+                        <div class="four wide column pagination-item" style="display: flex;justify-content: center;">
+                            <span class="${pageClass}">Page ${pageNum} ${edges.mex._("of")} ${totalPages}</span>
+                        </div>
+                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                            ${next}
+                            <i class="angle right icon pagination-icon"></i>
+                        </div>
+                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                            ${last}
+                            <i class="angle double right icon pagination-icon"></i>
+                        </div>
                    </div>`;
 
             // nav = `
