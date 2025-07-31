@@ -2192,7 +2192,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
             let last = `<a href="#" class="${lastClass}">${edges.mex._("Last")}</a>`;
             if (this.component.page === this.component.totalPages) {
-                next = `<span class="${lastClass} disabled">${edges.mex._("Last")}</a>`;
+                last = `<span class="${lastClass} disabled">${edges.mex._("Last")}</a>`;
             }
 
             let pageNum = this.component.page;
@@ -2222,29 +2222,6 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                             <i class="angle double right icon pagination-icon"></i>
                         </div>
                    </div>`;
-
-            // nav = `
-            //     <div class="ui menu pagination-bar">
-            //         <a class="item disabled">
-            //             <i class="angle double left icon"></i> First
-            //         </a>
-            //         <a class="item disabled">
-            //             <i class="angle left icon"></i> Previous
-            //         </a>
-
-            //         <div class="item">
-            //             Page ${pageNum} ${edges.mex._("of")} ${totalPages}
-            //         </div>
-
-            //         <a class="item">
-            //             Next <i class="angle right icon"></i>
-            //         </a>
-            //         <a class="item">
-            //             Last <i class="angle double right icon"></i>
-            //         </a>
-            //     </div>
-
-            // `
         }
 
         let frag = `<div class="ui grid ${containerClass}">`;
@@ -2264,6 +2241,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
             let firstSelector = edges.util.jsClassSelector(this.namespace, "first", this);
             let prevSelector = edges.util.jsClassSelector(this.namespace, "prev", this);
             let nextSelector = edges.util.jsClassSelector(this.namespace, "next", this);
+            let lastSelector = edges.util.jsClassSelector(this.namespace, "last" , this)
 
             // bind the event handlers
             if (this.component.page !== 1) {
@@ -2272,6 +2250,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
             }
             if (this.component.page !== this.component.totalPages) {
                 edges.on(nextSelector, "click", this, "goToNext");
+                edges.on(lastSelector, "click", this, "goToLast");
             }
         }
 
@@ -2306,6 +2285,17 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
             this.doScroll();
         }
         this.component.incrementPage();
+    }
+
+    goToLast(element) {
+        if (this.scroll) {
+            this.doScroll();
+        }
+        const from = (this.component.totalPages - 1) * this.component.pageSize + 1;
+
+        if(from) {
+            this.component.setFrom(from);
+        }
     }
 
     changeSize(element) {
