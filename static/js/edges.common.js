@@ -202,6 +202,21 @@ edges.mex.pager = function(params) {
     })
 }
 
+edges.mex.pagerSelector = function(params) {
+    return new edges.components.Pager({
+        id: params.id || "pager-selector",
+        category: params.category || "middle",
+        renderer: new edges.mex.renderers.Pager({
+            showSizeSelector : true,
+            sizePrefix : "Show",
+            sizeSuffix : "results per page",
+            showPageNavigation : false,
+            showRecordCount : false,
+            customClassForSizeSelector : "page-size-selector"
+        })
+    })
+}
+
 edges.mex.previewer = function(params) {
     return new edges.mex.components.Previewer({
         id: params.id || "previewer",
@@ -428,6 +443,10 @@ edges.mex.resourceCreationMethodFacet = function() {
 
 edges.mex.defaultPager = function() {
     return edges.mex.pager({})
+}
+
+edges.mex.bottomPager = function() {
+    return edges.mex.pagerSelector({})
 }
 
 /////////////////////////////////////////
@@ -2100,6 +2119,8 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
         this.numberFormat = edges.util.getParam(params, "numberFormat", false);
 
+        this.customClassForSizeSelector = edges.util.getParam(params, "customClassForSizeSelector", "");
+
         this.namespace = "mex-pager";
     }
 
@@ -2157,7 +2178,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
             }
 
             let selectName = edges.util.htmlID(this.namespace, "page-size", this.component.id);
-            sizer = `<div class="ui form">
+            sizer = `<div class="ui form ${this.customClassForSizeSelector}">
                 <div class="inline fields">
                     <div class="field">${recordCount}${this.sizePrefix}</div>
                     <div class="field">
@@ -2171,7 +2192,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
         } else {
             sizer = `<div class="ui form">
                 <div class="inline fields">
-                    <div class="field">${recordCount}${this.sizePrefix}</div>
+                    <div class="field">${recordCount}</div>
                 </div>
             </div>`
         }
