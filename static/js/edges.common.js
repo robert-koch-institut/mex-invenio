@@ -776,7 +776,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let frag = ""
         if(recordsFrag) {
             frag = `
-                <div class="card">
+                <div class="card card-shadow">
 
                     <div id="control-section">
                         <img class="${hideClass} controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
@@ -2472,7 +2472,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
 
         let frag = `
-            <div class="resource-card">
+            <div class="resource-card card-shadow">
                 <div class="card-header ${created ? '' :  'hide'}">
                     <span class="date">${created}</span>
                     <!--
