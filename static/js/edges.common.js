@@ -539,6 +539,9 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
             }
         }
 
+
+        let verticalTabClass = edges.util.jsClasses(this.namespace, "verticalTab", "");
+
         let frag = `
             <div class="ui grid container">
                 <div class="sixteen wide column">
@@ -553,9 +556,22 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
+                 <div id="vertical-tab" class="vertical-tab ${verticalTabClass}">
+                </div>
             </div>
         `;
+
         edge.context.html(frag);
+
+        let verticalTabSelector = edges.util.jsClassSelector(this.namespace, "verticalTab", "");
+        edges.on(verticalTabSelector, "click", this, "showTabContent");
+    }
+
+    showTabContent(){
+        let doc = document.getElementById("right-col")
+        if(doc) {
+            doc.style.display = ""
+        }
     }
 }
 
@@ -797,10 +813,12 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         }
 
-        frag += `
-        <div class="edit-btn"><a id="edit-record" class="button edit"
-                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
-                         target="_blank">{{ _('Edit this record') }}</a></div>`
+        let verticalBar = document.getElementById("vertical-tab")
+        if(verticalBar) {
+            const length = this.component.length
+            verticalBar.innerHTML = `<span> Variables Query Filters ${length > 0 ? `(${length})` : ""} </span>`;
+        }
+
         this.component.context.html(frag);
 
         let selectSelector = edges.util.jsClassSelector(this.namespace, "select", this.component.id);

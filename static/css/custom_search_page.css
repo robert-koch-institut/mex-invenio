@@ -247,3 +247,31 @@ body{
     font-weight: 500;
     line-height: 24px;
 }
+
+.vertical-tab {
+    writing-mode: sideways-lr;
+    transform: rotate(180deg);
+    background-color: #f5f9fc;
+    border: 1px solid #dbe5ef;
+    padding: 16px 10px;
+    color: #000;
+    font-family: var(--text-family-default, "Fira Sans");
+    font-size: var(--text-size-body-small, 16px);
+    font-style: normal;
+    font-weight: var(--text-weight-regular, 400);
+    line-height: var(--text-line-height-body-small, 20px);
+    letter-spacing: var(--space-none, 0);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: relative;
+
+    clip-path: polygon(
+        10px 0%,             /* Top-left cut */
+        100% 0%,             /* Top-right */
+        100% 100%,           /* Bottom-right */
+        10px 100%,           /* Bottom cut start */
+        0% calc(100% - 10px),/* Bottom-left cut */
+        0% 10px              /* Top-left cut corner */
+    );
+    cursor: pointer;
+}
