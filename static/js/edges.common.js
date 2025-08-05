@@ -245,6 +245,7 @@ edges.mex.makeEdge = function (params) {
 
     return new edges.Edge({
         selector: selector,
+        openingQuery : new es.Query({size: 50}),
         template: new edges.mex.templates.MainSearchTemplate(),
         searchUrl: search_url,
         components: params.components
