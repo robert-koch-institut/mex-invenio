@@ -2218,22 +2218,21 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
         let nav = "";
         if (this.showPageNavigation) {
-            let first = `<a href="#" class="${firstClass}">${edges.mex._("First")}</a>`;
-            let prev = `<a href="#" class="${prevClass}">${edges.mex._("Prev")}</a>`;
+            let first = `<a href="#" class="${firstClass} cursor-pointer">${edges.mex._("First")}</a>`;
+            let prev = `<a href="#" class="${prevClass} cursor-pointer">${edges.mex._("Prev")}</a>`;
             if (this.component.page === 1) {
-                first = `<span class="${firstClass} disabled">${edges.mex._("First")}</span>`;
-                prev = `<span class="${prevClass} disabled">${edges.mex._("Prev")}</span>`;
+                first = `<span class="${firstClass} disabled cursor-not-allowed">${edges.mex._("First")}</span>`;
+                prev = `<span class="${prevClass} disabled cursor-not-allowed">${edges.mex._("Prev")}</span>`;
             }
 
-            let next = `<a href="#" class="${nextClass}">${edges.mex._("Next")}</a>`;
+            let next = `<a href="#" class="${nextClass} cursor-pointer">${edges.mex._("Next")}</a>`;
+            let last = `<a href="#" class="${lastClass} cursor-pointer">${edges.mex._("Last")}</a>`;
+
             if (this.component.page === this.component.totalPages) {
-                next = `<span class="${nextClass} disabled">${edges.mex._("Next")}</a>`;
+                next = `<span class="${nextClass} disabled cursor-not-allowed">${edges.mex._("Next")}</a>`;
+                last = `<span class="${lastClass} disabled cursor-not-allowed">${edges.mex._("Last")}</a>`;
             }
 
-            let last = `<a href="#" class="${lastClass}">${edges.mex._("Last")}</a>`;
-            if (this.component.page === this.component.totalPages) {
-                last = `<span class="${lastClass} disabled">${edges.mex._("Last")}</a>`;
-            }
 
             let pageNum = this.component.page;
             let totalPages = this.component.totalPages;
