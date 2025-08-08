@@ -23,6 +23,6 @@ class HighlightParamsInterpreter(ParamInterpreter):
         search = search.highlight("custom_fields.mex:description.value", "custom_fields.mex:abstract.value")
 
         # Uncomment this to get a view on the query in development
-        print("#########highlight###############")
-        print(json.dumps(search.to_dict()))
+        # print("#########highlight###############")
+        # print(json.dumps(search.to_dict()))
         return search
