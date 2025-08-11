@@ -339,7 +339,7 @@ edges.mex.createdFacet = function() {
         title: edges.mex._("Created"),
         category: "left",
         interval: "month",
-        useCheckboxes : false,
+        useCheckboxes : true,
         showSelected : false,
     })
 }
