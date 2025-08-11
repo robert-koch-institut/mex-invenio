@@ -212,8 +212,8 @@ edges.mex.pagerSelector = function(params) {
         category: params.category || "middle",
         renderer: new edges.mex.renderers.Pager({
             showSizeSelector : true,
-            sizePrefix : "Show",
-            sizeSuffix : "results per page",
+            sizePrefix : edges.mex._("Show"),
+            sizeSuffix : edges.mex._("results per page"),
             showPageNavigation : false,
             showRecordCount : false,
             customClassForSizeSelector : "page-size-selector"
@@ -236,7 +236,7 @@ edges.mex.recordSelector = function(params) {
         id: params.id || "selector",
         category: params.category || "right",
         renderer: new edges.mex.renderers.SelectedRecords({
-            title : "Variables Query Filters"
+            title :edges.mex._("Variables Query Filters"),
         })
     })
 }
@@ -824,7 +824,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let verticalBar = document.getElementById("vertical-tab")
         if(verticalBar) {
             const length = this.component.length
-            verticalBar.innerHTML = `<span> Variables Query Filters ${length > 0 ? `(${length})` : ""} </span>`;
+            verticalBar.innerHTML = `<span> ${edges.mex._("Variables Query Filters")} ${length > 0 ? `(${length})` : ""} </span>`;
         }
 
         this.component.context.html(frag);
@@ -948,20 +948,6 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 sortOptions += `<option value="${field}">${edges.util.escapeHtml(display)}</option>`;
             }
 
-            // sortFrag = `<div class="ui form">
-            //     <div class="fields">
-            //         <!-- Commenting as of now
-            //         <div class="field">
-            //             <button type="button" class="ui button ${directionClass}" title="" href="#"></button>
-            //         </div>
-            //         -->
-            //         <div class="field">
-            //             <select class="ui fluid dropdown ${sortFieldClass}">
-            //                 <option value="_score">${edges.mex._("Relevance")}</option>
-            //                 ${sortOptions}
-            //             </select>
-            //         </div>
-            //     </div>`;
             sortFrag = `<div class="ui form">
                 <div class="field">
                     <select class="ui fluid dropdown ${sortFieldClass}">
@@ -1956,7 +1942,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                             ${prev}
                         </div>
                         <div class="four wide column pagination-item" style="display: flex;justify-content: center;">
-                            <span class="${pageClass}">Page ${pageNum} ${edges.mex._("of")} ${totalPages}</span>
+                            <span class="${pageClass}">${edges.mex._("Page")} ${pageNum} ${edges.mex._("of")} ${totalPages}</span>
                         </div>
                         <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
                             ${next}
