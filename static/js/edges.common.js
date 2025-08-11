@@ -575,9 +575,10 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
     }
 
     showTabContent(){
-        let doc = document.getElementById("right-col")
-        if(doc) {
-            doc.style.display = ""
+        const doc = document.getElementById("right-col");
+
+        if (doc) {
+            doc.style.display = (doc.style.display === "none") ? "" : "none";
         }
     }
 }
