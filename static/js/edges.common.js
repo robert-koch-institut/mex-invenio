@@ -1286,8 +1286,8 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
 
                 if (this.useCheckboxes) {
                     results += `
-                        <div class="${resultClass}">
-                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                        <div class="${resultClass} checkbox">
+                            <label>
                                 <input type="checkbox" class="${activeClass}" data-key="${escapedTerm}" ${checked}/>
                                 ${edges.util.escapeHtml(escapedDisplay)} (${count})
                             </label>
@@ -1348,9 +1348,11 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         }
 
         // Header toggle
-        let tog = `<h4> ${this.title} </h4>`;
+        let tog = `<h4 class="facet-title"> ${this.title} </h4>`;
         if (this.togglable) {
-            tog = `<a href="#" id="${toggleId}"><i class="plus icon"></i>&nbsp;${this.title}</a>`;
+            tog = `<a href="#" id="${toggleId}"><i class="plus icon"></i>&nbsp;
+                <h4 class="facet-title"> ${this.title} </h4>
+            </a>`;
         }
 
         // Final HTML fragment
@@ -1630,8 +1632,8 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
 
                 if(this.useCheckboxes) {
                     results += `
-                    <div class="${resultClass} ${myLongClass}" ${styles}>
-                        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                    <div class="${resultClass} ${myLongClass} checkbox" ${styles}>
+                        <label>
                             <input type="checkbox" class="${activeClass}" data-gte="${edges.util.escapeHtml(val.gte)}" ${ltData} ${checked}>
                             ${edges.util.escapeHtml(val.display)} (${count})
                         </label>
@@ -1686,7 +1688,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
             }
         }
 
-        let tog = `<h4> ${this.title} </h4>`;
+        let tog = `<h4 class="facet-title"> ${this.title} </h4>`;
         if (this.togglable) {
             tog = `<a href="#" id="${toggleId}"><i class="icon plus"></i>&nbsp;${tog}</a>`;
         }
