@@ -99,12 +99,12 @@ def _normalize_value(value):
 
 def compare_dicts(current_data: dict, new_data: dict) -> dict:
     """Compare two dictionaries and return a dictionary with the differences.
-    
+
     Handles nested structures, type normalization, and whitespace differences
     to provide accurate comparison for record metadata.
     """
     diff = {}
-    
+
     # Normalize both dictionaries for comparison
     normalized_current = _normalize_value(current_data)
     normalized_new = _normalize_value(new_data)
