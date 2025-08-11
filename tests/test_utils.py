@@ -85,3 +85,12 @@ def test_missing_keys_in_current_data():
 
     result = compare_dicts(current_data, new_data)
     assert result == {"b": {"current_data": None, "new_data": "new"}}
+
+
+def test_list_order_normalization():
+    """Test that lists in different order are considered identical."""
+    current_data = {"authors": ["John", "Jane"], "tags": [1, 2, 3]}
+    new_data = {"authors": ["Jane", "John"], "tags": [3, 1, 2]}
+
+    result = compare_dicts(current_data, new_data)
+    assert result == {}

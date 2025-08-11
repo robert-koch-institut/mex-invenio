@@ -91,7 +91,13 @@ def _normalize_value(value):
     elif isinstance(value, (int, float)):
         return str(value)
     elif isinstance(value, list):
-        return [_normalize_value(item) for item in value]
+        normalized_items = [_normalize_value(item) for item in value]
+        # Sort list items for consistent comparison, handling mixed types
+        try:
+            return sorted(normalized_items, key=lambda x: (type(x).__name__, str(x)))
+        except TypeError:
+            # If items can't be sorted (e.g., complex nested structures), keep original order
+            return normalized_items
     elif isinstance(value, dict):
         return {k: _normalize_value(v) for k, v in sorted(value.items())}
     return value
