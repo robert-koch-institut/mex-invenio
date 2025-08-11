@@ -33,52 +33,89 @@ class MexDumper(SearchDumper):
         self._record_cache = {}
 
         log = []
-        log.append("###############MEX Dumper##################")
-        log.append("Record ID:" + record.get("id"))
-        log.append(json.dumps(record.metadata))
+        # log.append("###############MEX Dumper##################")
+        # log.append("Record ID: " + record.get("id"))
+        # log.append(json.dumps(record.get("custom_fields", {})))
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         self._belongs_to(record, dump_data, log)
-        # self._contributors(record, dump_data)
-        # self._creators(record, dump_data)
-        # self._external_partners(record, dump_data)
-        # self._external_associates(record, dump_data)
-        # self._funder_commissioner(record, dump_data)
+        self._contributors(record, dump_data, log)
+        self._creators(record, dump_data, log)
+        self._external_partners(record, dump_data, log)
+        self._external_associates(record, dump_data, log)
+        self._funder_commissioner(record, dump_data, log)
+        self._involved_persons(record, dump_data, log)
+        self._used_in(record, dump_data, log)
+
+        # if "mex:start" in dump_data["custom_fields"]:
+        #     log.append("Removing mex:start field " + str(dump_data["custom_fields"]["mex:start"]))
+        #     #del dump_data["custom_fields"]["mex:start"]
+        # if "mex:end" in dump_data["custom_fields"]:
+        #     log.append("Removing mex:end field " + str(dump_data["custom_fields"]["mex:end"]))
+        #     #del dump_data["custom_fields"]["mex:end"]
+        # if "mex:publicationYear" in dump_data["custom_fields"]:
+        #     log.append("Removing mex:publicationYear field " + str(dump_data["custom_fields"]["mex:publicationYear"]))
+        #     #del dump_data["custom_fields"]["mex:publicationYear"]
 
         self._record_cache = {}
-        log.append("###############//MEX Dumper##################")
-        print("\n".join(log))
+        # log.append("Dumped custom fields:")
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # log.append("###############//MEX Dumper##################")
+        # print("\n".join(log))
         return dump_data
+
+    def _get_custom_field_list(self, record, field_name):
+        """
+        Helper function to retrieve a list of custom field values from a record.
+        """
+        custom_fields = record.get("custom_fields", {})
+        field_value = custom_fields.get(field_name, [])
+        if not isinstance(field_value, list):
+            field_value = [field_value]
+        return field_value
+
+    def _get_person_names(self, record):
+        full_names = self._get_custom_field_list(record.json, "mex:fullName")
+        family_names = self._get_custom_field_list(record.json, "mex:familyName")
+        return full_names + family_names
+
+    def _get_organisation_names(self, record):
+        official_names = self._get_custom_field_list(record.json, "mex:officialName")
+        alternative_names = self._get_custom_field_list(record.json, "mex:alternativeName")
+        short_names = self._get_custom_field_list(record.json, "mex:shortName")
+        return official_names + alternative_names + short_names
+
+    def _get_all_possible_names(self, record):
+        person = self._get_person_names(record)
+        organisation = self._get_organisation_names(record)
+
+        name_complex = person + organisation
+
+        name_simple = []
+        for name in name_complex:
+            if isinstance(name, dict) and "value" in name:
+                name_simple.append(name["value"])
+            elif isinstance(name, str):
+                name_simple.append(name)
+
+        return list(set(name_simple))
 
     def _belongs_to(self, record, dump_data, log):
         belongs_to_labels = []
-        belongs_to_ids = record.get("custom_fields", {}).get("mex:belongsTo", [])
+        belongs_to_ids = self._get_custom_field_list(record, "mex:belongsTo")
 
         if len(belongs_to_ids) == 0:
             return
 
-        # print("###############belongs to##################")
-        # print("Record ID:", record.get("id"))
         log.append("Belongs to IDs:" + str(belongs_to_ids))
 
-        results = self._records_by_mex_identifiers(record, belongs_to_ids)
+        results = self._records_by_mex_identifiers(record, belongs_to_ids, log)
         log.append("Belongs to results:" + str(len(results)))
 
-        # belongs_to_records = select(record.model_cls).where(record.model_cls.json["custom_fields"]["mex:identifier"] == belongs_to_ids[0])
-        # belongs_to_records = record.model_cls.query.filter(
-        #     record.model_cls.json["custom_fields"].op("->>")("mex:identifier") == belongs_to_ids[0],
-        # )
-        # print(belongs_to_records.statement)
-        # belongs_to_records = belongs_to_records.all()
-
         for result in results:
-            log.append(json.dumps(result.json))
-            cfs = result.json.get("custom_fields", {})
-            log.append("Custom fields:" + str(cfs))
-            labels = cfs.get("mex:label", [])
-            log.append("Labels:" + str(labels))
+            labels = result.json.get("custom_fields", {}).get("mex:label", [])
             for label in labels:
                 val = label.get("value", "")
-                log.append("Label value:" + str(val))
                 if val != "" and val not in belongs_to_labels:
                     belongs_to_labels.append(val)
 
@@ -86,117 +123,174 @@ class MexDumper(SearchDumper):
             dump_data["custom_fields"]["index:belongsToLabel"] = belongs_to_labels
             log.append("Belongs to labels:" + str(belongs_to_labels))
 
-    def _contributors(self, record, dump_data):
+    def _contributors(self, record, dump_data, log):
         contributors = []
-        contributor_ids = record.get("custom_fields", {}).get("mex:contributor", [])
-        if not isinstance(contributor_ids, list):
-            contributor_ids = [contributor_ids]
+        contributor_ids = self._get_custom_field_list(record, "mex:contributor")
 
-        for contributor_id in contributor_ids:
-            contributor = self._record_by_mex_identifier(contributor_id)
-            if contributor:
-                full_names = contributor.get("custom_fields", {}).get("mex:fullName", [])
-                family_names = contributor.get("custom_fields", {}).get("mex:familyName", [])
-                contributors += full_names + family_names
+        if len(contributor_ids) == 0:
+            return
 
+        log.append("Contributor IDs:" + str(contributor_ids))
+
+        results = self._records_by_mex_identifiers(record, contributor_ids, log)
+        log.append("Contributor results:" + str(len(results)))
+
+        for contributor in results:
+            contributors = self._get_all_possible_names(contributor)
+
+        log.append("Contributors:" + str(contributors))
         dump_data["custom_fields"]["index:contributors"] = contributors
 
-    def _creators(self, record, dump_data):
+    def _creators(self, record, dump_data, log):
         creators = []
-        creator_ids = record.get("custom_fields", {}).get("mex:creator", [])
-        if not isinstance(creator_ids, list):
-            creator_ids = [creator_ids]
+        creator_ids = self._get_custom_field_list(record, "mex:contributor")
 
-        for creator_id in creator_ids:
-            creator = self._record_by_mex_identifier(creator_id)
-            if creator:
-                full_names = creator.get("custom_fields", {}).get("mex:fullName", [])
-                family_names = creator.get("custom_fields", {}).get("mex:familyName", [])
-                creators += full_names + family_names
+        if len(creator_ids) == 0:
+            return
 
+        log.append("Creator IDs:" + str(creator_ids))
+
+        results = self._records_by_mex_identifiers(record, creator_ids, log)
+        log.append("Creator results:" + str(len(results)))
+
+
+        for creator in results:
+            creators = self._get_all_possible_names(creator)
+
+        log.append("Creators:" + str(creators))
         dump_data["custom_fields"]["index:creators"] = creators
 
-    def _external_partners(self, record, dump_data):
+    def _external_partners(self, record, dump_data, log):
         external_partners = []
-        partner_ids = record.get("custom_fields", {}).get("mex:externalPartner", [])
-        if not isinstance(partner_ids, list):
-            partner_ids = [partner_ids]
+        partner_ids = self._get_custom_field_list(record, "mex:externalPartner")
 
-        for partner_id in partner_ids:
-            partner = self._record_by_mex_identifier(partner_id)
-            if partner:
-                official_names = partner.get("custom_fields", {}).get("mex:officialName", [])
-                alternative_names = partner.get("custom_fields", {}).get("mex:alternativeName", [])
-                short_names = partner.get("custom_fields", {}).get("mex:shortName", [])
-                external_partners += official_names + alternative_names + short_names
+        if len(partner_ids) == 0:
+            return
 
-        external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
+        log.append("External Partner IDs:" + str(partner_ids))
+
+        results = self._records_by_mex_identifiers(record, partner_ids, log)
+        log.append("External Partner results:" + str(len(results)))
+
+        for partner in results:
+            external_partners = self._get_all_possible_names(partner)
+
+        # external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
+        log.append("External Partners:" + str(external_partners))
         dump_data["custom_fields"]["index:externalPartners"] = external_partners
 
-    def _external_associates(self, record, dump_data):
-        external_partners = []
+    def _external_associates(self, record, dump_data, log):
+        external_associates = []
+        associates = self._get_custom_field_list(record, "mex:externalAssociate")
+        if len(associates) == 0:
+            return
 
-        associates = record.get("custom_fields", {}).get("mex:externalAssociate", [])
-        if not isinstance(associates, list):
-            associates = [associates]
+        log.append("External Associate IDs:" + str(associates))
 
-        # print("##############external associates##################")
-        # print("Record ID:", record.get("id"))
-        # print("Associate IDs:", associates)
+        results = self._records_by_mex_identifiers(record, associates, log)
+        log.append("External Associate results:" + str(len(results)))
 
-        for partner_id in associates:
-            partner = self._record_by_mex_identifier(partner_id)
-            if partner:
-                #print("Partner found:", partner.get("id"))
-                official_names = partner.get("custom_fields", {}).get("mex:officialName", [])
-                alternative_names = partner.get("custom_fields", {}).get("mex:alternativeName", [])
-                short_names = partner.get("custom_fields", {}).get("mex:shortName", [])
-                external_partners += official_names + alternative_names + short_names
-            else:
-                pass
-                #print("No partner found for ID:", partner_id)
+        for associate in results:
+            external_associates = self._get_all_possible_names(associate)
 
-        #print("Dereferenced:", external_partners)
+        # external_associates = [ep["value"] for ep in external_associates if isinstance(ep, dict) and "value" in ep]
+        log.append("External Associates:" + str(external_associates))
+        dump_data["custom_fields"]["index:externalAssociates"] = external_associates
 
-        external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
-        #print("Final external partners:", external_partners)
-        dump_data["custom_fields"]["index:externalAssociates"] = external_partners
-
-    def _funder_commissioner(self, record, dump_data):
+    def _funder_commissioner(self, record, dump_data, log):
         funder_commissioners = []
-        funder_ids = record.get("custom_fields", {}).get("mex:funderOrCommissioner", [])
-        if not isinstance(funder_ids, list):
-            funder_ids = [funder_ids]
+        funder_ids = self._get_custom_field_list(record, "mex:funderOrCommissioner")
 
-        # print("##############funder or commissioner##################")
-        # print("Record ID:", record.get("id"))
-        # print("Associate IDs:", funder_ids)
+        if len(funder_ids) == 0:
+            return
 
-        for funder_id in funder_ids:
-            funder = self._record_by_mex_identifier(funder_id)
-            if funder:
-                #print("Funder found:", funder.get("id"))
-                official_names = funder.get("custom_fields", {}).get("mex:officialName", [])
-                funder_commissioners += official_names
-            else:
-                pass
-                #print("No funder found for ID:", funder_id)
+        log.append("Funder or Commissioner IDs:" + str(funder_ids))
 
-        #print("Dereferenced:", funder_commissioners)
+        results = self._records_by_mex_identifiers(record, funder_ids, log)
+        log.append("Funder or Commissioner results:" + str(len(results)))
+
+        for funder in results:
+            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            funder_commissioners += official_names
 
         funder_commissioners_en = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"]
         funder_commissioners_de = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"]
-        #print("Final funder or commissioner (EN):", funder_commissioners_en)
-        #print("Final funder or commissioner (DE):", funder_commissioners_de)
-        dump_data["custom_fields"]["index:deFunderOrCommissioners"] = funder_commissioners_de
-        dump_data["custom_fields"]["index:enFunderOrCommissioners"] = funder_commissioners_en
 
-    def _records_by_mex_identifiers(self, source, mex_ids):
+        log.append("Funder or Commissioner EN:" + str(funder_commissioners_en))
+        log.append("Funder or Commissioner DE:" + str(funder_commissioners_de))
+
+        if len(funder_commissioners_en) == 0:
+            funder_commissioners_en = funder_commissioners_de
+        if len(funder_commissioners_de) == 0:
+            funder_commissioners_de = funder_commissioners_en
+
+        if len(funder_commissioners_de) > 0:
+            dump_data["custom_fields"]["index:deFunderOrCommissioners"] = funder_commissioners_de
+
+        if len(funder_commissioners_en) > 0:
+            dump_data["custom_fields"]["index:enFunderOrCommissioners"] = funder_commissioners_en
+
+    def _involved_persons(self, record, dump_data, log):
+        involved_persons = []
+        person_ids = self._get_custom_field_list(record, "mex:involvedPerson")
+
+        if len(person_ids) == 0:
+            return
+
+        log.append("Involved Person IDs:" + str(person_ids))
+
+        results = self._records_by_mex_identifiers(record, person_ids, log)
+        log.append("Involved Person results:" + str(len(results)))
+
+        for person in results:
+            involved_persons = self._get_all_possible_names(person)
+
+        log.append("Involved Persons:" + str(involved_persons))
+        dump_data["custom_fields"]["index:involvedPersons"] = involved_persons
+
+    def _used_in(self, record, dump_data, log):
+        used_in_en = []
+        used_in_de = []
+        used_in_ids = self._get_custom_field_list(record, "mex:usedIn")
+
+        if len(used_in_ids) == 0:
+            return
+
+        log.append("Used in IDs:" + str(used_in_ids))
+
+        results = self._records_by_mex_identifiers(record, used_in_ids, log)
+        log.append("Used in results:" + str(len(results)))
+
+        for result in results:
+            titles = result.json.get("custom_fields", {}).get("mex:title", [])
+            for title in titles:
+                val = title.get("value", "")
+                if title.get("language", "en") == "en":
+                    used_in_en.append(val)
+                elif title.get("language", "de") == "de":
+                    used_in_de.append(val)
+
+        log.append("Used in EN:" + str(used_in_en))
+        log.append("Used in DE:" + str(used_in_de))
+
+        if len(used_in_en) == 0:
+            used_in_en = used_in_de
+        if len(used_in_de) == 0:
+            used_in_de = used_in_en
+
+        if len(used_in_en) > 0:
+            dump_data["custom_fields"]["index:enUsedInResource"] = used_in_en
+
+        if len(used_in_de) > 0:
+            dump_data["custom_fields"]["index:deUsedInResource"] = used_in_de
+
+    def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
 
         query_for = []
         for mex_id in mex_ids:
             if self._record_cache.get(mex_id):
+                log.append("Cache hit for MEx ID: " + mex_id)
                 results.append(self._record_cache[mex_id])
             else:
                 query_for.append(mex_id)
@@ -204,11 +298,12 @@ class MexDumper(SearchDumper):
         if len(query_for) == 0:
             return results
 
+        log.append("Querying for MEx IDs: " + str(query_for))
         db_query = source.model_cls.query.filter(
             source.model_cls.json["custom_fields"].op("->>")("mex:identifier").in_(query_for),
         )
-        # print(belongs_to_records.statement)
         db_results = db_query.all()
+        log.append("DB results found: " + str(len(db_results)))
 
         for res in db_results:
             mex_id = res.json.get("custom_fields", {}).get("mex:identifier")

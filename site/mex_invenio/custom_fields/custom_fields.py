@@ -95,7 +95,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
-    EDTFDateStringCF(name="mex:publicationYear"),
+    FixedEDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
     LinkCF(name="mex:repositoryURL"),
@@ -137,8 +137,11 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="index:creators", multiple=True),
     TextCF(name="index:externalPartners", multiple=True),
     TextCF(name="index:externalAssociates", multiple=True),
-    TextCF(name="index:deFunderOrCommissioners", multiple=True),
-    TextCF(name="index:enFunderOrCommissioners", multiple=True),
+    TextCF(name="index:deFunderOrCommissioners", multiple=True, use_as_filter=True),
+    TextCF(name="index:enFunderOrCommissioners", multiple=True, use_as_filter=True),
+    TextCF(name="index:involvedPersons", multiple=True),
+    TextCF(name="index:enUsedInResource", multiple=True, use_as_filter=True),
+    TextCF(name="index:deUsedInResource", multiple=True, use_as_filter=True),
 ]
 
 RDM_CUSTOM_FIELDS_UI = [
