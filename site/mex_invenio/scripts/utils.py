@@ -84,21 +84,42 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
     return data
 
 
-def compare_dicts(dict1: dict, dict2: dict) -> dict:
-    """Compare two dictionaries and return a dictionary with the differences."""
+def _normalize_value(value):
+    """Normalize a value for comparison by handling type coercion and whitespace."""
+    if isinstance(value, str):
+        return value.strip()
+    elif isinstance(value, (int, float)):
+        return str(value)
+    elif isinstance(value, list):
+        return [_normalize_value(item) for item in value]
+    elif isinstance(value, dict):
+        return {k: _normalize_value(v) for k, v in sorted(value.items())}
+    return value
+
+
+def compare_dicts(current_data: dict, new_data: dict) -> dict:
+    """Compare two dictionaries and return a dictionary with the differences.
+    
+    Handles nested structures, type normalization, and whitespace differences
+    to provide accurate comparison for record metadata.
+    """
     diff = {}
+    
+    # Normalize both dictionaries for comparison
+    normalized_current = _normalize_value(current_data)
+    normalized_new = _normalize_value(new_data)
 
-    # Check for keys in dict1 that are not in dict2
-    for key in dict1:
-        if key not in dict2:
-            diff[key] = {"dict1": dict1[key], "dict2": None}
-        elif dict1[key] != dict2[key]:
-            diff[key] = {"dict1": dict1[key], "dict2": dict2[key]}
+    # Check for keys in current_data that are not in new_data
+    for key in normalized_current:
+        if key not in normalized_new:
+            diff[key] = {"current_data": current_data[key], "new_data": None}
+        elif normalized_current[key] != normalized_new[key]:
+            diff[key] = {"current_data": current_data[key], "new_data": new_data[key]}
 
-    # Check for keys in dict2 that are not in dict1
-    for key in dict2:
-        if key not in dict1:
-            diff[key] = {"dict1": None, "dict2": dict2[key]}
+    # Check for keys in new_data that are not in current_data
+    for key in normalized_new:
+        if key not in normalized_current:
+            diff[key] = {"current_data": None, "new_data": new_data[key]}
 
     return diff
 
