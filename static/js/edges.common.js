@@ -146,6 +146,7 @@ edges.mex.refiningAndFacet = function(params) {
             title: params.title,
             useCheckboxes : true,
             showSelected : false,
+            togglable : false,
             countFormat: edges.mex.countFormat,
         })
     })
