@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Union, Any, Callable
 
 from flask import current_app
+from marshmallow_utils.html import sanitize_unicode
 
 
 def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable):
@@ -87,7 +88,11 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 def _normalize_value(value):
     """Normalize a value for comparison by handling type coercion and whitespace."""
     if isinstance(value, str):
-        return value.strip()
+        # This is the same sanitation function used in Invenio RDM Records
+        # to ensure consistent handling of unicode and whitespace.
+        # It removes leading/trailing whitespace, normalizes unicode characters and
+        # removes zero-width space "\u200b".
+       return sanitize_unicode(value)
     elif isinstance(value, (int, float)):
         return str(value)
     elif isinstance(value, list):
