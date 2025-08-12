@@ -1,6 +1,7 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
 import filecmp
+import html
 import os
 from datetime import datetime
 from typing import Union, Any, Callable
@@ -88,11 +89,14 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
 def _normalize_value(value):
     """Normalize a value for comparison by handling type coercion and whitespace."""
     if isinstance(value, str):
+        # convert HTML entities to unicode characters
+        unescaped = html.unescape(value)
+
         # This is the same sanitation function used in Invenio RDM Records
         # to ensure consistent handling of unicode and whitespace.
         # It removes leading/trailing whitespace, normalizes unicode characters and
         # removes zero-width space "\u200b".
-       return sanitize_unicode(value)
+        return sanitize_unicode(unescaped)
     elif isinstance(value, (int, float)):
         return str(value)
     elif isinstance(value, list):
