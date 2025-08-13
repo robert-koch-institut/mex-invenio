@@ -100,7 +100,11 @@ def normalize_record_data(value):
     elif isinstance(value, (int, float)):
         return str(value)
     elif isinstance(value, list):
-        normalized_items = [normalize_record_data(item) for item in value if item is not None and item != []]
+        normalized_items = [
+            normalize_record_data(item)
+            for item in value
+            if item is not None and item != []
+        ]
         # Sort list items for consistent comparison, handling mixed types
         try:
             return sorted(normalized_items, key=lambda x: (type(x).__name__, str(x)))
@@ -108,7 +112,11 @@ def normalize_record_data(value):
             # If items can't be sorted (e.g., complex nested structures), keep original order
             return normalized_items
     elif isinstance(value, dict):
-        return {k: normalize_record_data(v) for k, v in sorted(value.items()) if v is not None and v != []}
+        return {
+            k: normalize_record_data(v)
+            for k, v in sorted(value.items())
+            if v is not None and v != []
+        }
     return value
 
 
