@@ -1,11 +1,13 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
 import filecmp
+import html
 import os
 from datetime import datetime
-from typing import Union, Any, Callable
+from typing import Callable
 
 from flask import current_app
+from marshmallow_utils.html import sanitize_unicode
 
 
 def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable):
@@ -84,33 +86,38 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
     return data
 
 
-def compare_dicts(dict1: dict, dict2: dict) -> dict:
-    """Compare two dictionaries and return a dictionary with the differences."""
-    diff = {}
+def normalize_record_data(value):
+    """Normalize a record data for comparison by handling type coercion and whitespace."""
+    if isinstance(value, str):
+        # convert HTML entities to unicode characters
+        unescaped = html.unescape(value)
 
-    # Check for keys in dict1 that are not in dict2
-    for key in dict1:
-        if key not in dict2:
-            diff[key] = {"dict1": dict1[key], "dict2": None}
-        elif dict1[key] != dict2[key]:
-            diff[key] = {"dict1": dict1[key], "dict2": dict2[key]}
-
-    # Check for keys in dict2 that are not in dict1
-    for key in dict2:
-        if key not in dict1:
-            diff[key] = {"dict1": None, "dict2": dict2[key]}
-
-    return diff
-
-
-def clean_dict(d: dict) -> Union[dict[Any, dict], list[dict], dict]:
-    """Recursively remove keys with None or empty list values from a dictionary or list."""
-    if isinstance(d, dict):
-        return {k: clean_dict(v) for k, v in d.items() if v is not None and v != []}
-    elif isinstance(d, list):
-        return [clean_dict(item) for item in d if item is not None and item != []]
-    else:
-        return d
+        # This is the same sanitation function used in Invenio RDM Records
+        # to ensure consistent handling of unicode and whitespace.
+        # It removes leading/trailing whitespace, normalizes unicode characters and
+        # removes zero-width space "\u200b".
+        return sanitize_unicode(unescaped)
+    elif isinstance(value, (int, float)):
+        return str(value)
+    elif isinstance(value, list):
+        normalized_items = [
+            normalize_record_data(item)
+            for item in value
+            if item is not None and item != []
+        ]
+        # Sort list items for consistent comparison, handling mixed types
+        try:
+            return sorted(normalized_items, key=lambda x: (type(x).__name__, str(x)))
+        except TypeError:
+            # If items can't be sorted (e.g., complex nested structures), keep original order
+            return normalized_items
+    elif isinstance(value, dict):
+        return {
+            k: normalize_record_data(v)
+            for k, v in sorted(value.items())
+            if v is not None and v != []
+        }
+    return value
 
 
 def compare_files(existing_file: str, new_file: str) -> bool:
