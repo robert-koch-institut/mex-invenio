@@ -23,13 +23,14 @@ import time
 from typing import Union, Any
 
 import click
+from dictdiffer import diff
 from flask import current_app
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from multiprocessing import Pool, cpu_count
 
-from mex_invenio.scripts.utils import compare_dicts, clean_dict, mex_to_invenio_schema
+from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -64,11 +65,11 @@ def process_record(
 
                 # Check if the record needs to be updated, it's sufficient to compare
                 # the custom_fields as the Datacite metadata is not expected to change
-                metadata_diff = compare_dicts(
-                    results[0]["custom_fields"], mex_data["custom_fields"]
-                )
+                current_data = normalize_record_data(results[0]["custom_fields"])
+                new_data = normalize_record_data(mex_data["custom_fields"])
+                metadata_diff = diff(current_data, new_data)
 
-                if metadata_diff != {}:
+                if any(metadata_diff):
                     new_version = current_rdm_records_service.new_version(
                         id_=record_pid, identity=identity
                     )
@@ -155,11 +156,10 @@ def import_data(
             with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
                 for line in lines:
                     json_data = json.loads(line)
-                    clean_data = clean_dict(json_data)
                     mex_id = json_data["identifier"]
 
                     try:
-                        mex_data = mex_to_invenio_schema(clean_data)
+                        mex_data = mex_to_invenio_schema(json_data)
                     except json.JSONDecodeError:
                         # Log and skip the line if it is not valid JSON
                         logger.error(f"Error decoding JSON: {line}")
