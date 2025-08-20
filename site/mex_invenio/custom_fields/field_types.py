@@ -91,7 +91,7 @@ def get_field_types() -> dict:
         try:
             properties = entity_data.get("properties", {})
             resource_type = entity_data.get("$id", "").split("/")[-1].replace("-", "")
-            
+
             # Initialize the result for this entity
             field_types[resource_type] = {}
 
