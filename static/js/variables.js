@@ -4,55 +4,36 @@ if (!edges.hasOwnProperty("active")) { edges.active = {}}
 
 edges.instances.variables = {};
 edges.instances.variables.init = function() {
-    edges.active["variables"] = edges.mex.makeEdge({
-        resourceType: "variables",
+    edges.active["variables-resources"] = edges.mex.makeEdge({
+        selector: "#resources-container",
+        template: new edges.mex.templates.SingleColumnTemplate(),
+        resourceType: "resources",
         components: [
             edges.mex.fullSearchController({
-                sortOptions: [
-                    {field: "custom_fields.mex:label.value.keyword", "display": "Label"},
-                    {field: "custom_fields.mex:usedIn.keyword", "display": "Used In"},
-                    {field: "custom_fields.index:belongsToLabel.keyword", "display": "Belongs To"},
-                ],
-                searchPlaceholder: "Search variables...",
+                category: "column",
+                searchPlaceholder: edges.mex._("Find resources..."),
             }),
-            edges.mex.resultsDisplay({
-                noResultsText: "No variables found.",
-                rowDisplay: [
-                    [{
-                        pre: "label: ", valueFunction: function (labels, result) {
-                            let values = [];
-                            if (result.custom_fields["mex:label"]) {
-                                for (let l of result.custom_fields["mex:label"]) {
-                                    if (l.value) {
-                                        values.push(l.value);
-                                    }
-                                }
-                            }
-                            return values.join(", ");
-                        }
-                    }],
-                    [{pre: "<strong>used in</strong>: ", field: "custom_fields.mex:usedIn"}],
-                    [{pre: "<strong>belongs to</strong>: ", field: "custom_fields.index:belongsToLabel"}],
-                    [{
-                        pre: "<strong>description</strong>: ", valueFunction: function (labels, result) {
-                            let values = [];
-                            if (result.custom_fields["mex:description"]) {
-                                for (let l of result.custom_fields["mex:description"]) {
-                                    if (l.value) {
-                                        values.push(l.value);
-                                    }
-                                }
-                            }
-                            return values.join(", ");
-                        }
-                    }],
-                    [{pre: "<strong>datatype</strong>: ", field: "custom_fields.mex:dataType"}],
-                    [{pre: "<strong>coding system</strong>: ", field: "custom_fields.mex:codingSystem"}],
-                    [{pre: "<strong>value set</strong>: ", field: "custom_fields.mex:valueSet"}],
-                    [{valueFunction: function(value, result) {return "<br>"}}]
-                ]
+            edges.mex.recordSelector({
+                category: "column",
+            }),
+            edges.mex.resourceDisplay({
+                category: "column"
             })
-        ]
+        ],
+        callbacks: {
+            "edges:pre-render": function() {
+                let sc = edges.active["variables-resources"].getComponent({id: "search_controller"});
+                if (sc.searchString) {
+                    // if a search string is set, show the search results and hide the selector
+                    $("#selector").hide();
+                    $("#results").show();
+                } else {
+                    // if no search string is set, show the selector and hide the results
+                    $("#selector").show();
+                    $("#results").hide();
+                }
+            }
+        }
     })
 }
 

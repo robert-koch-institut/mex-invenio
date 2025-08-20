@@ -221,12 +221,15 @@ edges.mex.makeEdge = function (params) {
     let current_scheme = window.location.protocol;
     let selector = params.selector || "#edge-container";
     let search_url = current_scheme + "//" + current_domain + "/query/api/" + params.resourceType;
+    let template = params.template || new edges.mex.templates.MainSearchTemplate();
+    let callbacks = params.callbacks || {};
 
     return new edges.Edge({
         selector: selector,
-        template: new edges.mex.templates.MainSearchTemplate(),
+        template: template,
         searchUrl: search_url,
-        components: params.components
+        components: params.components,
+        callbacks: callbacks,
     });
 }
 
@@ -508,6 +511,39 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 </div>
                 <div class="four wide column">
                     ${rightContainers}
+                </div>
+            </div>
+        `;
+        edge.context.html(frag);
+    }
+}
+
+edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
+    constructor(params) {
+        super(params);
+
+        this.namespace = "mex-single-column-template";
+    }
+
+    draw(edge) {
+
+        //////////////////////////////////
+        // assemble displayable components
+        let comps = edge.category("column");
+        let compContainers = "";
+        let compClass = edges.util.styleClasses(this.namespace, "component");
+
+        if (comps.length > 0) {
+            for (let i = 0; i < comps.length; i++) {
+                let container = `<div class="${compClass}"><div id="${comps[i].id}"></div></div>`;
+                compContainers += container;
+            }
+        }
+
+        let frag = `
+            <div class="ui grid container">
+                <div class="column">
+                    ${compContainers}
                 </div>
             </div>
         `;
