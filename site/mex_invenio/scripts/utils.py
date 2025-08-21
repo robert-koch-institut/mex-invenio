@@ -105,16 +105,12 @@ def normalize_record_data(value):
             for item in value
             if item is not None and item != []
         ]
-        # Sort list items for consistent comparison, handling mixed types
-        try:
-            return sorted(normalized_items, key=lambda x: (type(x).__name__, str(x)))
-        except TypeError:
-            # If items can't be sorted (e.g., complex nested structures), keep original order
-            return normalized_items
+
+        return normalized_items
     elif isinstance(value, dict):
         return {
             k: normalize_record_data(v)
-            for k, v in sorted(value.items())
+            for k, v in value.items()
             if v is not None and v != []
         }
     return value
