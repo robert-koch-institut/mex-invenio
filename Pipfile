@@ -18,7 +18,8 @@ docker-services-cli = "*"
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}
 mex-invenio = {editable = true, path="./site"}
-mex-model = {git = "https://github.com/robert-koch-institut/mex-model.git@3.6.1"}
+# mex-model version has implications for rendering so breaking changes should be considered carefully
+mex-model = "4.1.0"
 uwsgi = ">=2.0"
 uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"

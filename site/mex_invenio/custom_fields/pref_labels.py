@@ -1,28 +1,19 @@
-from importlib import resources
-import os
-import json
+from mex.model import VOCABULARY_JSON_BY_NAME
 
 
 def get_pref_labels() -> dict:
     """Get pref labels from Mex model package."""
-
-    vocabularies_directory = resources.files("mex").joinpath("model/vocabularies")
-
-    if not os.path.isdir(vocabularies_directory):
-        return {}
-
     pref_labels = {}
 
-    for vocabulary_filename in os.listdir(vocabularies_directory):
+    # Use the pre-loaded vocabulary data from mex-model package
+    for vocabulary_name, vocabularies in VOCABULARY_JSON_BY_NAME.items():
         try:
-            with open(f"{vocabularies_directory}/{vocabulary_filename}", "r") as f:
-                vocabularies = json.load(f)
-
-                for vocabulary in vocabularies:
-                    identifier = vocabulary.get("identifier")
-                    pref_label = vocabulary.get("prefLabel")
+            for vocabulary in vocabularies:
+                identifier = vocabulary.get("identifier")
+                pref_label = vocabulary.get("prefLabel")
+                if identifier and pref_label:
                     pref_labels[identifier] = pref_label
         except Exception as e:
-            print(e)
+            print(f"Error processing vocabulary {vocabulary_name}: {e}")
 
     return pref_labels
