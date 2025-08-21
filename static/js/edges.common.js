@@ -378,6 +378,8 @@ edges.mex.endFacet = function () {
     title: edges.mex._("Activity End"),
     category: "left",
     interval: "year",
+    useCheckboxes: true,
+    showSelected: false,
   });
 };
 
@@ -388,6 +390,8 @@ edges.mex.startFacet = function () {
     title: edges.mex._("Activity Start"),
     category: "left",
     interval: "year",
+    useCheckboxes: true,
+    showSelected: false,
   });
 };
 
@@ -3160,19 +3164,38 @@ edges.mex.renderers.ActivitiesResults = class extends edges.Renderer {
       this.component.id
     );
 
-    let frag = `<div class="ui grid segment">
-                <div class="twelve wide column">
-                    <strong>${title}</strong><br>
-                    <em>${alt}</em><br><br>
-                    <p>${desc}</p>
-                    ${start} ${edges.mex._("to")} ${end}
+    let frag = `
+            <div class="activity-card card-shadow">
+                <div class="title ${title ? "" : "hide"}">
+                    <span>
+                        ${title}
+                    </span>
                 </div>
-                <div class="four wide column">
-                    <a class="ui button ${previewClass}" data-id="${
-      res.id
-    }">${edges.mex._("Preview")}</a>
+
+                <div class="subtitle ${alt ? "" : "hide"}">
+                    <strong>${alt}</strong>
                 </div>
-            </div>`;
+
+                <div class="description ${desc ? "" : "hide"}">
+                    ${desc}
+                </div>
+
+                <div class="description ${start || end ? "" : "hide"}">
+                    <span class="${start ? "" : "hide"}">
+                        ${start}
+                    </span>
+
+                    <span class="${start && end ? "" : "hide"}">
+                        ${edges.mex._("to")}
+                    </span>
+
+                    <span class="${end ? "" : "hide"}">
+                        ${end}
+                    </span>
+                </div>
+            </div>
+        `;
+
     return frag;
   }
 
