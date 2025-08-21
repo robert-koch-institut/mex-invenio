@@ -398,6 +398,8 @@ edges.mex.publicationYearFacet = function () {
     title: edges.mex._("Publication Year"),
     category: "left",
     interval: "year",
+    useCheckboxes: true,
+    showSelected: false,
   });
 };
 
@@ -3329,20 +3331,32 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
       this.component.id
     );
 
-    let frag = `<div class="ui grid segment">
-                <div class="twelve wide column">
-                    <strong>${title}</strong><br>
-                    <em>${alt}</em><br>
-                    <em>${sub}</em><br><br>
-                    <p>${desc}</p>
-                    ${creators}, ${pubYear}
+    let frag = `<div class="biblo-resource-card card-shadow">
+                <div class="title ${title ? "" : "hide"}">
+                     <span>
+                        ${title}
+                    </span>
                 </div>
-                <div class="four wide column">
-                    <a class="ui button ${previewClass}" data-id="${
-      res.id
-    }">${edges.mex._("Preview")}</a>
+
+                <div class="subtitle ${alt ? "" : "hide"}">
+                    <strong>${alt}</strong>
+                </div>
+
+                <div class="description ${sub ? "" : "hide"}">
+                    ${sub}
+                </div>
+
+                <div class="tags ${creators || pubYear ? "" : "hide"}">
+                    <span class="tag ${creators ? "" : "hide"}">
+                        ${creators}
+                    </span>
+
+                    <span class="tag ${pubYear ? "" : "hide"}">
+                        ${pubYear}
+                    </span>
                 </div>
             </div>`;
+
     return frag;
   }
 
