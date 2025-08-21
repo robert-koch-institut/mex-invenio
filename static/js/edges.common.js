@@ -245,7 +245,8 @@ edges.mex.resourceDisplay = function(params) {
         id: params.id || "results",
         category: params.category || "middle",
         renderer: new edges.mex.renderers.ResourcesResults({
-            noResultsText: params.noResultsText || edges.mex._("No resources found.")
+            noResultsText: params.noResultsText || edges.mex._("No resources found."),
+            onSelectToggle: params.onSelectToggle || false
         })
     })
 }
@@ -299,6 +300,21 @@ edges.mex.bibliographicResourcesPreview = function() {
 
 ///////////
 
+// Variables
+edges.mex.variablesDisplay = function(params) {
+    if (!params) {
+        params = {};
+    }
+    return new edges.components.ResultsDisplay({
+        id: params.id || "variables-results",
+        category: params.category || "column",
+        renderer: new edges.mex.renderers.VariablesResults({
+            noResultsText: params.noResultsText || edges.mex._("No variables found.")
+        })
+    })
+}
+
+//////////////
 
 edges.mex.accessRestrictionFacet = function() {
     return edges.mex.refiningAndFacet({
@@ -1834,6 +1850,8 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         // what to display when there are no results
         this.noResultsText = edges.util.getParam(params, "noResultsText", edges.mex._("No results to display"));
 
+        // callback to trigger when resource is selected or unselected
+        this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
 
         this.selector = null; // will be set in init()
 
@@ -1903,6 +1921,10 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
             el.text(edges.mex._("Add"));
+        }
+
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id})
         }
     }
 
@@ -2221,6 +2243,81 @@ edges.mex.renderers.BibliographicResourcesResults = class extends edges.Renderer
                     <a class="ui button ${previewClass}" data-id="${res.id}">${edges.mex._("Preview")}</a>
                 </div>
             </div>`;
+        return frag;
+    }
+
+    _getLangVal(path, res, def) {
+        return edges.mex.getLangVal(path, res, def);
+    }
+
+    _rankedByLang(path, res) {
+        return edges.mex.rankedByLang(path, res);
+    }
+}
+
+edges.mex.renderers.VariablesResults = class extends edges.Renderer {
+    constructor(params) {
+        super(params);
+
+        //////////////////////////////////////////////
+        // parameters that can be passed in
+
+        // what to display when there are no results
+        this.noResultsText = edges.util.getParam(params, "noResultsText", edges.mex._("No results to display"));
+
+        this.namespace = "mex-variables-results";
+    }
+
+    draw() {
+        var frag = this.noResultsText;
+        if (this.component.results === false) {
+            frag = "";
+        }
+
+        var results = this.component.results;
+        if (results && results.length > 0) {
+            // list the css classes we'll require
+            var recordClasses = edges.util.styleClasses(this.namespace, "record", this.component.id);
+
+            // now call the result renderer on each result to build the records
+            frag = "";
+            for (var i = 0; i < results.length; i++) {
+                var rec = this._renderResult(results[i]);
+                frag += `${rec}`;
+            }
+        }
+
+        // finally stick it all together into the table container
+        var containerClasses = edges.util.styleClasses(this.namespace, "container", this.component.id);
+        var container = `<table class="${containerClasses} ui celled table">
+                        <thead>
+                            <tr>
+                                <th>${edges.mex._("Variables")}</th>
+                                <th>${edges.mex._("Data Source")}</th>
+                                <th>${edges.mex._("Variable Group")}</th>
+                                <th>${edges.mex._("Data Type")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${frag}
+                        </tbody>
+                    </table>`;
+        this.component.context.html(container);
+    }
+
+    _renderResult(res) {
+        // FIXME: this is all a bit raw, in reality some of these values have multiple options
+        let label = edges.util.escapeHtml(this._getLangVal("custom_fields.mex:label", res, "No label"));
+        let resource = edges.util.escapeHtml(this._getLangVal("custom_fields.index:enUsedInResource", res));
+        let group = edges.util.escapeHtml(this._getLangVal("custom_fields.index:belongsToLabel", res));
+        let dataType = edges.util.escapeHtml(this._getLangVal("custom_fields.mex:dataType", res, "Unknown"));
+
+        let frag = `<tr>
+            <td>${label}</td>
+            <td>${resource}</td>
+            <td>${group}</td>
+            <td>${dataType}</td>
+        </tr>`;
         return frag;
     }
 
