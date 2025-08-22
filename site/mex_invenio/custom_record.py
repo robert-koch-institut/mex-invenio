@@ -10,7 +10,7 @@ from mex_invenio.custom_search import MexDumper
 from mex_invenio.systemfields import IndexField as MexIndexField
 
 class MexRDMRecord(RDMRecord):
-    #schema = ConstantField("$schema", "local://records/record-v6.0.0.json")
+    schema = ConstantField("$schema", "local://records/record-v7.0.0.json")
 
     index = IndexField(
         "mexrecords-records-record-v8.0.0", search_alias="mexrecords-records"
