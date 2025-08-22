@@ -18,14 +18,11 @@ class IndexField(SystemField):
     #
     def __get__(self, record, owner=None):
         """Get the index data."""
-        print('Hello from IndexField __get__')
         print(record)
         if record is None:
             # returns the field itself.
             return self
-        print("IndexField __get__ called")
-
-        return record.get("index_data", {"index_data": {"belongsToLabel": ["Got nothing"]}})
+        return record.get("index_data", {})
 
     def __set__(self, record, value):
         """Set the index data."""
@@ -34,14 +31,12 @@ class IndexField(SystemField):
 
     def pre_commit(self, record, **kwargs):
         """Called before record is committed."""
-        # Ensure index field exists
-        #if "index" not in record:
-        #    record["index"] = {}
-        record.pop("index_data", None)
+        # Ensure index_data field exists
+        if "index_data" not in record:
+            record["index_data"] = {}
 
     def pre_dump(self, record, data, **kwargs):
         """Called before record is dumped to search engine."""
-        # Make sure index data is included in search dump
-        #if "index" in record:
-        #    data["index"] = record["index"]
-        pass
+        # Make sure index_data is included in search dump
+        if "index_data" in record:
+            data["index_data"] = record["index_data"]

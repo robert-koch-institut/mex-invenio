@@ -30,6 +30,8 @@ class MexDumper(SearchDumper):
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
 
+        print(dump_data)
+
         self._record_cache = {}
 
         log = []
@@ -56,6 +58,14 @@ class MexDumper(SearchDumper):
         # if "mex:publicationYear" in dump_data["custom_fields"]:
         #     log.append("Removing mex:publicationYear field " + str(dump_data["custom_fields"]["mex:publicationYear"]))
         #     #del dump_data["custom_fields"]["mex:publicationYear"]
+
+        if "index_data" not in dump_data:
+            dump_data['index_data'] = {}
+
+        # Test hardcoded value to verify system field works
+        dump_data['index_data']["belongsToLabel"] = ["Test Organization"]
+
+        print(dump_data)
 
         self._record_cache = {}
         # log.append("Dumped custom fields:")
@@ -120,7 +130,7 @@ class MexDumper(SearchDumper):
                     belongs_to_labels.append(val)
 
         if len(belongs_to_labels) > 0:
-            dump_data["custom_fields"]["index:belongsToLabel"] = belongs_to_labels
+            dump_data["index_data"]["belongsToLabel"] = belongs_to_labels
             log.append("Belongs to labels:" + str(belongs_to_labels))
 
     def _contributors(self, record, dump_data, log):
@@ -139,7 +149,7 @@ class MexDumper(SearchDumper):
             contributors = self._get_all_possible_names(contributor)
 
         log.append("Contributors:" + str(contributors))
-        dump_data["custom_fields"]["index:contributors"] = contributors
+        dump_data["index_data"]["contributors"] = contributors
 
     def _creators(self, record, dump_data, log):
         creators = []
@@ -158,7 +168,7 @@ class MexDumper(SearchDumper):
             creators = self._get_all_possible_names(creator)
 
         log.append("Creators:" + str(creators))
-        dump_data["custom_fields"]["index:creators"] = creators
+        dump_data["index_data"]["creators"] = creators
 
     def _external_partners(self, record, dump_data, log):
         external_partners = []
@@ -177,7 +187,7 @@ class MexDumper(SearchDumper):
 
         # external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
         log.append("External Partners:" + str(external_partners))
-        dump_data["custom_fields"]["index:externalPartners"] = external_partners
+        dump_data["index_data"]["externalPartners"] = external_partners
 
     def _external_associates(self, record, dump_data, log):
         external_associates = []
@@ -195,7 +205,7 @@ class MexDumper(SearchDumper):
 
         # external_associates = [ep["value"] for ep in external_associates if isinstance(ep, dict) and "value" in ep]
         log.append("External Associates:" + str(external_associates))
-        dump_data["custom_fields"]["index:externalAssociates"] = external_associates
+        dump_data["index_data"]["externalAssociates"] = external_associates
 
     def _funder_commissioner(self, record, dump_data, log):
         funder_commissioners = []
@@ -225,10 +235,10 @@ class MexDumper(SearchDumper):
             funder_commissioners_de = funder_commissioners_en
 
         if len(funder_commissioners_de) > 0:
-            dump_data["custom_fields"]["index:deFunderOrCommissioners"] = funder_commissioners_de
+            dump_data["index_data"]["deFunderOrCommissioners"] = funder_commissioners_de
 
         if len(funder_commissioners_en) > 0:
-            dump_data["custom_fields"]["index:enFunderOrCommissioners"] = funder_commissioners_en
+            dump_data["index_data"]["enFunderOrCommissioners"] = funder_commissioners_en
 
     def _involved_persons(self, record, dump_data, log):
         involved_persons = []
@@ -246,7 +256,7 @@ class MexDumper(SearchDumper):
             involved_persons = self._get_all_possible_names(person)
 
         log.append("Involved Persons:" + str(involved_persons))
-        dump_data["custom_fields"]["index:involvedPersons"] = involved_persons
+        dump_data["index_data"]["involvedPersons"] = involved_persons
 
     def _used_in(self, record, dump_data, log):
         used_in_en = []
@@ -279,10 +289,10 @@ class MexDumper(SearchDumper):
             used_in_de = used_in_en
 
         if len(used_in_en) > 0:
-            dump_data["custom_fields"]["index:enUsedInResource"] = used_in_en
+            dump_data["index_data"]["enUsedInResource"] = used_in_en
 
         if len(used_in_de) > 0:
-            dump_data["custom_fields"]["index:deUsedInResource"] = used_in_de
+            dump_data["index_data"]["deUsedInResource"] = used_in_de
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
