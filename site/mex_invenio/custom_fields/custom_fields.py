@@ -131,17 +131,17 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:wikidataId", multiple=True),
 
     ##########################################
-    ## Index fields for search support
-    TextCF(name="index:belongsToLabel", multiple=True, use_as_filter=True),
-    TextCF(name="index:contributors", multiple=True),
-    TextCF(name="index:creators", multiple=True),
-    TextCF(name="index:externalPartners", multiple=True),
-    TextCF(name="index:externalAssociates", multiple=True),
-    TextCF(name="index:deFunderOrCommissioners", multiple=True, use_as_filter=True),
-    TextCF(name="index:enFunderOrCommissioners", multiple=True, use_as_filter=True),
-    TextCF(name="index:involvedPersons", multiple=True),
-    TextCF(name="index:enUsedInResource", multiple=True, use_as_filter=True),
-    TextCF(name="index:deUsedInResource", multiple=True, use_as_filter=True),
+    ## Index fields for search support - now handled by IndexField system field
+    # TextCF(name="index:belongsToLabel", multiple=True, use_as_filter=True),
+    # TextCF(name="index:contributors", multiple=True),
+    # TextCF(name="index:creators", multiple=True),
+    # TextCF(name="index:externalPartners", multiple=True),
+    # TextCF(name="index:externalAssociates", multiple=True),
+    # TextCF(name="index:deFunderOrCommissioners", multiple=True, use_as_filter=True),
+    # TextCF(name="index:enFunderOrCommissioners", multiple=True, use_as_filter=True),
+    # TextCF(name="index:involvedPersons", multiple=True),
+    # TextCF(name="index:enUsedInResource", multiple=True, use_as_filter=True),
+    # TextCF(name="index:deUsedInResource", multiple=True, use_as_filter=True),
 ]
 
 RDM_CUSTOM_FIELDS_UI = [
