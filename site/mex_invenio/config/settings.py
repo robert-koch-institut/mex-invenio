@@ -9,6 +9,7 @@ https://inveniordm.docs.cern.ch/reference/configuration/.
 
 from datetime import datetime
 
+import invenio_rdm_records
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
@@ -824,3 +825,16 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
+
+# Configure custom record service with schema
+from mex_invenio.services import MexRDMRecordServiceConfig
+RDM_RECORDS_SERVICE_CONFIG = MexRDMRecordServiceConfig
+
+# This is a hacky way to overwrite the record metadata schema
+record_metadata_schema = (
+    invenio_rdm_records.services.config.RDMRecordServiceConfig.schema
+)
+#record_metadata_schema._declared_fields
+#record_metadata_schema._declared_fields.update(
+#    {"metadata": NestedAttribute(ImperialMetadataSchema)}
+#)
