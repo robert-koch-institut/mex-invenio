@@ -30,11 +30,16 @@ class MexDumper(SearchDumper):
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
 
-        print(dump_data)
+        # Initialize index_data if it doesn't exist
+        if "index_data" not in dump_data:
+            dump_data["index_data"] = {}
 
         self._record_cache = {}
 
         log = []
+        print(f"###############MEX Dumper##################")
+        print(f"Record ID: {record.get('id')}")
+        print(f"Dump data before processing: {list(dump_data.keys())}")
         # log.append("###############MEX Dumper##################")
         # log.append("Record ID: " + record.get("id"))
         # log.append(json.dumps(record.get("custom_fields", {})))
@@ -59,19 +64,15 @@ class MexDumper(SearchDumper):
         #     log.append("Removing mex:publicationYear field " + str(dump_data["custom_fields"]["mex:publicationYear"]))
         #     #del dump_data["custom_fields"]["mex:publicationYear"]
 
-        if "index_data" not in dump_data:
-            dump_data['index_data'] = {}
-
-        # Test hardcoded value to verify system field works
-        dump_data['index_data']["belongsToLabel"] = ["Test Organization"]
-
-        print(dump_data)
-
         self._record_cache = {}
         # log.append("Dumped custom fields:")
         # log.append(json.dumps(dump_data.get("custom_fields", {})))
         # log.append("###############//MEX Dumper##################")
         # print("\n".join(log))
+        print(f"Dump data after processing: {list(dump_data.keys())}")
+        if "index_data" in dump_data:
+            print(f"index_data contents: {list(dump_data['index_data'].keys())}")
+        print("###############//MEX Dumper##################")
         return dump_data
 
     def _get_custom_field_list(self, record, field_name):

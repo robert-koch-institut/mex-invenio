@@ -829,11 +829,57 @@ NO_RECORD_STRING = "No record found"
 # Configure custom record service with schema
 from mex_invenio.services import MexRDMRecordServiceConfig
 RDM_RECORDS_SERVICE_CONFIG = MexRDMRecordServiceConfig
+print('Here is the custom service config:', RDM_RECORDS_SERVICE_CONFIG)
+
+# Patch the service config at import time
+def _patch_rdm_service_config():
+    """Patch the RDM service configuration to use our custom schema."""
+    try:
+        import invenio_rdm_records.services.config as rdm_config
+        print("Successfully imported rdm_config")
+        
+        try:
+            from mex_invenio.custom_schema import MexRDMRecordSchema
+            print("Successfully imported MexRDMRecordSchema")
+        except Exception as e:
+            print(f"Error importing MexRDMRecordSchema: {e}")
+            import traceback
+            traceback.print_exc()
+            return
+            
+        try:
+            from mex_invenio.custom_record import MexRDMRecord
+            print("Successfully imported MexRDMRecord")
+        except Exception as e:
+            print(f"Error importing MexRDMRecord: {e}")
+            import traceback
+            traceback.print_exc()
+            return
+        
+        print("=" * 60)
+        print("PATCHING RDM SERVICE CONFIG!")
+        print(f"Original schema: {rdm_config.RDMRecordServiceConfig.schema}")
+        
+        # Patch the service config class
+        rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+        rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
+        
+        print(f"Patched schema: {rdm_config.RDMRecordServiceConfig.schema}")
+        print("PATCHING COMPLETE!")
+        print("=" * 60)
+        
+    except Exception as e:
+        print(f"Error patching service config: {e}")
+        import traceback
+        traceback.print_exc()
+
+# Apply the patch
+_patch_rdm_service_config()
 
 # This is a hacky way to overwrite the record metadata schema
-record_metadata_schema = (
-    invenio_rdm_records.services.config.RDMRecordServiceConfig.schema
-)
+#record_metadata_schema = (
+#    invenio_rdm_records.services.config.RDMRecordServiceConfig.schema
+#)
 #record_metadata_schema._declared_fields
 #record_metadata_schema._declared_fields.update(
 #    {"metadata": NestedAttribute(ImperialMetadataSchema)}
