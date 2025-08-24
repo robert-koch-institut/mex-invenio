@@ -10,7 +10,7 @@ from invenio_records_resources.records.dumpers import CustomFieldsDumperExt
 from invenio_records_resources.records.systemfields import IndexField
 
 from mex_invenio.services.search import MexDumper
-from mex_invenio.systemfields import IndexField as MexIndexField
+from mex_invenio.fields.systemfields import IndexField as MexIndexField
 
 
 class MexRDMRecord(RDMRecord):
