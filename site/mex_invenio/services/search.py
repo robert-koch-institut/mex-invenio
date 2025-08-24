@@ -5,7 +5,7 @@ from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_records.dumpers import SearchDumper
 import json
 
-from mex_invenio.custom_params import (
+from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
     TypeLimiterParamsInterpreter,
     HighlightParamsInterpreter,

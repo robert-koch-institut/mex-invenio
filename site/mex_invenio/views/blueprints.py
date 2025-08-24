@@ -15,7 +15,7 @@ from flask import (
 from invenio_access.permissions import system_identity
 
 from invenio_rdm_records.proxies import current_rdm_records_service
-from .record.record import MexRecord
+from .record import MexRecord
 
 from invenio_pidstore.resolver import Resolver
 from invenio_pidstore.errors import (
@@ -24,7 +24,7 @@ from invenio_pidstore.errors import (
     PIDUnregistered,
 )
 from invenio_rdm_records.records.api import RDMRecord
-from mex_invenio.custom_search import MexSearchOptions
+from mex_invenio.services.search import MexSearchOptions
 
 
 # Decorator which can be used to wrap a function to return JSONP responses.
