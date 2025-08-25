@@ -55,7 +55,7 @@ def create_blueprint(app):
     blueprint = Blueprint(
         "mex_invenio",
         __name__,
-        template_folder="./templates",
+        template_folder="../templates",
     )
 
     # Ideally we would overwrite /records/<record_id>, however blueprints are loaded
