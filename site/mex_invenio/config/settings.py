@@ -824,3 +824,11 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
+
+import invenio_rdm_records.services.config as rdm_config
+from mex_invenio.custom_schema import MexRDMRecordSchema
+from mex_invenio.custom_record import MexRDMRecord
+
+rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
+
