@@ -558,9 +558,9 @@ RECORD_CARDS = {
                 "icon": "publication.svg",
                 "properties": ["mex:publication", "mex:documentation", "mex:website"],
             },
-            "relatedResources": {
+            "parentResources": {
                 "type": "container",
-                "title": "Related Resources",
+                "title": "Parent Resources",
                 "icon": "relatedResources.svg",
                 "components": [
                     {
@@ -568,6 +568,13 @@ RECORD_CARDS = {
                         "title": "Part Of",
                         "properties": ["mex:isPartOfActivity"],
                     },
+                ],
+            },
+            "relatedResources": {
+                "type": "container",
+                "title": "Related Resources",
+                "icon": "relatedResources.svg",
+                "components": [
                     {
                         "type": "component",
                         "title": "Succeeds",
