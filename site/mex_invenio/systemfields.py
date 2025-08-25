@@ -25,8 +25,10 @@ class IndexField(SystemField):
     #
     def __get__(self, record, owner=None):
         """Get the index data."""
-        print(f"IndexField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}")
-        
+        print(
+            f"IndexField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
+        )
+
         if record is None:
             # returns the field itself.
             return self
@@ -46,12 +48,15 @@ class IndexField(SystemField):
                 params={"_source_includes": "index_data"},
             )
             index_data = res["_source"]["index_data"]
-            print(f"Retrieved index_data from search index with keys: {list(index_data.keys())}")
+            print(
+                f"Retrieved index_data from search index with keys: {list(index_data.keys())}"
+            )
         except Exception as e:
             print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
             print("Fallback: generating index_data using MexDumper...")
             from mex_invenio.custom_search import MexDumper
+
             dumper = MexDumper()
             temp_data = {"index_data": {}}
             dumper.dump(record, temp_data)
@@ -72,7 +77,7 @@ class IndexField(SystemField):
         print(f"IndexField.pre_dump called for record {record.get('id', 'unknown')}")
         print(f"Record has index_data: {'index_data' in record}")
         print(f"Dump enabled: {self._dump}")
-        
+
         # Include index_data in dumps if enabled
         if self._dump and "index_data" in record:
             print(f"Adding index_data to dump: {record['index_data']}")

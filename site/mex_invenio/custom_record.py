@@ -1,12 +1,17 @@
 from invenio_rdm_records.records import RDMRecord
-from invenio_rdm_records.records.dumpers import EDTFDumperExt, EDTFListDumperExt, CombinedSubjectsDumperExt, \
-    StatisticsDumperExt
+from invenio_rdm_records.records.dumpers import (
+    EDTFDumperExt,
+    EDTFListDumperExt,
+    CombinedSubjectsDumperExt,
+    StatisticsDumperExt,
+)
 from invenio_records.dumpers.relations import RelationDumperExt
 from invenio_records_resources.records.dumpers import CustomFieldsDumperExt
 from invenio_records_resources.records.systemfields import IndexField
 
 from mex_invenio.custom_search import MexDumper
 from mex_invenio.systemfields import IndexField as MexIndexField
+
 
 class MexRDMRecord(RDMRecord):
     index = IndexField(

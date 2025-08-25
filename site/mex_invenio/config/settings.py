@@ -21,6 +21,7 @@ from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.custom_record import MexRDMRecord
 
+
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
 
@@ -831,4 +832,3 @@ from mex_invenio.custom_record import MexRDMRecord
 
 rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
 rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
-

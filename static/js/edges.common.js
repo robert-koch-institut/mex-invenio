@@ -191,7 +191,7 @@ edges.mex.pager = function(params) {
         id: params.id || "pager",
         category: params.category || "middle",
         renderer: new edges.mex.renderers.Pager({
-            
+
         })
     })
 }
@@ -826,7 +826,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
 
         ////////////////////////////////////////
         // state variables
-        
+
         this.namespace = "mex-search-controller";
     }
 
@@ -906,7 +906,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         }
 
         let searchBox = `<div class="fields">
-                    ${clearFrag} 
+                    ${clearFrag}
                     ${field_select}
                     <div class="field">
                     <input type="text" id="${textId}" class="${textClass} form-control input-sm" name="q" value="" placeholder="${this.searchPlaceholder}"/>
@@ -1684,7 +1684,7 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
         this.namespace = "mex-pager";
     }
-    
+
     draw() {
         if (this.component.total === false || this.component.total === 0) {
             this.component.context.html("");
