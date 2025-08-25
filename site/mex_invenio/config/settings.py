@@ -12,14 +12,15 @@ from datetime import datetime
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
-from mex_invenio.custom_fields.custom_fields import (
+from mex_invenio.fields.custom_fields import (
     RDM_NAMESPACES,
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
 )
-from mex_invenio.custom_fields.field_types import get_field_types
-from mex_invenio.custom_fields.pref_labels import get_pref_labels
-from mex_invenio.custom_record import MexRDMRecord
+from mex_invenio.fields.field_types import get_field_types
+from mex_invenio.fields.pref_labels import get_pref_labels
+from mex_invenio.records.api import MexRDMRecord
+
 
 def _(x):  # needed to avoid start time failure with lazy strings
     return x
@@ -280,7 +281,7 @@ RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
 # ---
 
 from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
-from mex_invenio.custom_facets import RestrictedTermsFacet
+from mex_invenio.search.facets import RestrictedTermsFacet
 from invenio_vocabularies.services.facets import VocabularyLabels
 
 RDM_FACETS = {
@@ -818,9 +819,16 @@ TAGS = ["mex:keyword"]
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
 
-from mex_invenio.custom_fields import field_types
+from mex_invenio.fields import field_types
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
+
+import invenio_rdm_records.services.config as rdm_config
+from mex_invenio.services.schema import MexRDMRecordSchema
+from mex_invenio.records.api import MexRDMRecord
+
+rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord

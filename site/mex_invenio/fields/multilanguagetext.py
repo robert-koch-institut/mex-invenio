@@ -35,6 +35,6 @@ class MultiLanguageTextCF(BaseListCF):
         return {
             "properties": {
                 "language": {"type": "text"},
-                "value": TextMapping(use_as_filter=self._value_as_filter).to_dict()
+                "value": TextMapping(use_as_filter=self._value_as_filter).to_dict(),
             }
         }

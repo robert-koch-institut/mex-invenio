@@ -186,11 +186,17 @@ def import_data(
 
                         if result is not None:
                             if result["action"] == "create":
-                                report["created"].append((result["id"], result["mex_id"]))
+                                report["created"].append(
+                                    (result["id"], result["mex_id"])
+                                )
                             elif result["action"] == "update":
-                                report["updated"].append((result["id"], result["mex_id"]))
+                                report["updated"].append(
+                                    (result["id"], result["mex_id"])
+                                )
                             elif result["action"] == "skip":
-                                report["skipped"].append((result["id"], result["mex_id"]))
+                                report["skipped"].append(
+                                    (result["id"], result["mex_id"])
+                                )
                     except Exception as e:
                         logger.error(f"Error processing record: {str(e)}")
 

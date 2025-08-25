@@ -1,10 +1,12 @@
 from invenio_records_resources.services.records.params import ParamInterpreter
 import json
 
+
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Apply generic query parameters to the search."""
         return search.from_dict(params["raw"])
+
 
 class TypeLimiterParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
@@ -17,10 +19,13 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         # print(json.dumps(search.to_dict()))
         return search
 
+
 class HighlightParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Specify the highlighter fields"""
-        search = search.highlight("custom_fields.mex:description.value", "custom_fields.mex:abstract.value")
+        search = search.highlight(
+            "custom_fields.mex:description.value", "custom_fields.mex:abstract.value"
+        )
 
         # Uncomment this to get a view on the query in development
         # print("#########highlight###############")
