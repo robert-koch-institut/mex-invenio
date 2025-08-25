@@ -1,46 +1,56 @@
-{%- extends "invenio_theme/page.html" %}
+{%- extends "invenio_theme/page.html" %} {% block css %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/custom_search_page.css') }}"
+/>
+{% endblock %} {% block page_body %}
 
-{% block page_body %}
-    <div id="contact-page" class="ui container">
-        <h1>{{ _("Activities") }}</h1>
-        {% block root_section %}
-            <div id="root-container" class="panel-body">
-                <div id="edge-container"></div>
-            </div>
-        {% endblock %}
-    </div>
-{% endblock %}
+<style>
+  .activity-card {
+    display: flex;
+    padding: 15px 10px 10px 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 15px;
+    align-self: stretch;
+    background: #fff;
+    margin: 10px 0px;
+  }
+</style>
+<div id="contact-page" class="ui container">
+  <h1>{{ _("Activities") }}</h1>
+  {% block root_section %}
+  <div id="root-container" class="panel-body">
+    <div id="edge-container"></div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %} {% block javascript %} {{ super() }} {% set static="/static/js"
+%} {% set edges=static ~ "/edges" %} {% set vendor = edges ~ "/vendor" %} {% set
+src=edges ~ "/src" %} {% set components=src ~ "/components" %} {% set bs3=src ~
+"/renderers/bs3" %}
 
-{% block javascript %}
-    {{ super() }}
+<script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="{{ src }}/datasources/es7x.js"></script>
+<script src="{{ src }}/edges.js"></script>
 
-    {% set static="/static/js" %}
-    {% set edges=static ~ "/edges" %}
-    {% set vendor = edges ~ "/vendor" %}
-    {% set src=edges ~ "/src" %}
-    {% set components=src ~ "/components" %}
-    {% set bs3=src ~ "/renderers/bs3" %}
+<script src="{{ src }}/templates/bs3/Facetview.js"></script>
 
-    <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <script src="{{ src }}/datasources/es7x.js"></script>
-    <script src="{{ src }}/edges.js"></script>
+<script src="{{ components }}/RefiningANDTermSelector.js"></script>
+<script src="{{ components }}/FullSearchController.js"></script>
+<script src="{{ components }}/ResultsDisplay.js"></script>
+<script src="{{ components }}/DateHistogram.js"></script>
+<script src="{{ components }}/Pager.js"></script>
 
-    <script src="{{ src }}/templates/bs3/Facetview.js"></script>
+<script src="{{ static }}/edges.common.js"></script>
+<script>
+  edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+  edges.mex.state.lang = "{{ current_i18n.language }}"
+</script>
 
-    <script src="{{ components }}/RefiningANDTermSelector.js"></script>
-    <script src="{{ components }}/FullSearchController.js"></script>
-    <script src="{{ components }}/ResultsDisplay.js"></script>
-    <script src="{{ components }}/DateHistogram.js"></script>
-    <script src="{{ components }}/Pager.js"></script>
+{% include "mex_invenio/search/_edges_babel.html" %}
 
-    <script src="{{ static }}/edges.common.js"></script>
-    <script>
-    edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
-    edges.mex.state.lang = "{{ current_i18n.language }}"
-    </script>
-
-    {%  include "mex_invenio/search/_edges_babel.html" %}
-
-    <script src="{{ static }}/activities.js"></script>
+<script src="{{ static }}/activities.js"></script>
 
 {% endblock %}
