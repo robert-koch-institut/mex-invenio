@@ -22,9 +22,10 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
     params_interpreters_cls = [
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
-        HighlightParamsInterpreter
+        HighlightParamsInterpreter,
         # Add other interpreters as needed
     ]
+
 
 class MexDumper(SearchDumper):
     def dump(self, record, data):
@@ -92,7 +93,9 @@ class MexDumper(SearchDumper):
 
     def _get_organisation_names(self, record):
         official_names = self._get_custom_field_list(record.json, "mex:officialName")
-        alternative_names = self._get_custom_field_list(record.json, "mex:alternativeName")
+        alternative_names = self._get_custom_field_list(
+            record.json, "mex:alternativeName"
+        )
         short_names = self._get_custom_field_list(record.json, "mex:shortName")
         return official_names + alternative_names + short_names
 
@@ -164,7 +167,6 @@ class MexDumper(SearchDumper):
         results = self._records_by_mex_identifiers(record, creator_ids, log)
         log.append("Creator results:" + str(len(results)))
 
-
         for creator in results:
             creators = self._get_all_possible_names(creator)
 
@@ -221,11 +223,21 @@ class MexDumper(SearchDumper):
         log.append("Funder or Commissioner results:" + str(len(results)))
 
         for funder in results:
-            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            official_names = self._get_custom_field_list(
+                funder.json, "mex:officialName"
+            )
             funder_commissioners += official_names
 
-        funder_commissioners_en = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"]
-        funder_commissioners_de = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"]
+        funder_commissioners_en = [
+            fc["value"]
+            for fc in funder_commissioners
+            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"
+        ]
+        funder_commissioners_de = [
+            fc["value"]
+            for fc in funder_commissioners
+            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"
+        ]
 
         log.append("Funder or Commissioner EN:" + str(funder_commissioners_en))
         log.append("Funder or Commissioner DE:" + str(funder_commissioners_de))
@@ -311,7 +323,9 @@ class MexDumper(SearchDumper):
 
         log.append("Querying for MEx IDs: " + str(query_for))
         db_query = source.model_cls.query.filter(
-            source.model_cls.json["custom_fields"].op("->>")("mex:identifier").in_(query_for),
+            source.model_cls.json["custom_fields"]
+            .op("->>")("mex:identifier")
+            .in_(query_for),
         )
         db_results = db_query.all()
         log.append("DB results found: " + str(len(db_results)))
@@ -322,4 +336,3 @@ class MexDumper(SearchDumper):
             results.append(res)
 
         return results
-

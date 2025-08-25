@@ -28,7 +28,7 @@ from mex_invenio.config import (
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
 )
-from mex_invenio.custom_fields.custom_fields import (
+from mex_invenio.fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
