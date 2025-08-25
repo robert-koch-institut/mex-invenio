@@ -74,26 +74,10 @@
                     </section>
                 {% endif %}
 
+                <!--   -->
+
                 <section id="record-card" class="record-cards">
-                    {% set column = "left" %}
-                    {% for card_name in config.RECORD_CARDS.activity.left %}
-                        {% set card = config.RECORD_CARDS.activity.left[card_name] %}
-                        {% if card.type == "single" %}
-                            {% with card=card_name %}
-                                {%- include "invenio_app_rdm/records/details/components/card.html" with context %}
-                            {% endwith %}
-                        {% elif card.type == "container" %}
-                            {% with card=card_name %}
-                                {%- include "invenio_app_rdm/records/details/components/card_container.html" with context %}
-                            {% endwith %}
-                        {% else %}
-                            <div class="card">
-                                <p><i class="muted">
-                                    {{ _("Card misconfigured: ") }} {{ card_name }}
-                                </i></p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                    {%- include "invenio_app_rdm/records/details/components/card_section_left.html" with context %}
                 </section>
 
             </article>
