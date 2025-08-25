@@ -270,13 +270,17 @@ edges.mex.makeEdge = function (params) {
     current_domain +
     "/query/api/" +
     params.resourceType;
+  let template =
+    params.template || new edges.mex.templates.MainSearchTemplate();
+  let callbacks = params.callbacks || {};
 
   return new edges.Edge({
     selector: selector,
-    openingQuery: new es.Query({ size: 50 }),
-    template: new edges.mex.templates.MainSearchTemplate(),
+    template: template,
     searchUrl: search_url,
+    openingQuery: new es.Query({ size: 50 }),
     components: params.components,
+    callbacks: callbacks,
   });
 };
 
@@ -293,6 +297,7 @@ edges.mex.resourceDisplay = function (params) {
     category: params.category || "middle",
     renderer: new edges.mex.renderers.ResourcesResults({
       noResultsText: params.noResultsText || edges.mex._("No resources found."),
+      onSelectToggle: params.onSelectToggle || false,
     }),
   });
 };
@@ -348,6 +353,22 @@ edges.mex.bibliographicResourcesPreview = function () {
 };
 
 ///////////
+
+// Variables
+edges.mex.variablesDisplay = function (params) {
+  if (!params) {
+    params = {};
+  }
+  return new edges.components.ResultsDisplay({
+    id: params.id || "variables-results",
+    category: params.category || "column",
+    renderer: new edges.mex.renderers.VariablesResults({
+      noResultsText: params.noResultsText || edges.mex._("No variables found."),
+    }),
+  });
+};
+
+//////////////
 
 edges.mex.accessRestrictionFacet = function () {
   return edges.mex.refiningAndFacet({
@@ -598,27 +619,41 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
-                 <div id="vertical-tab" class="vertical-tab ${verticalTabClass}">
+            </div>
+        `;
+    edge.context.html(frag);
+  }
+};
+
+edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
+  constructor(params) {
+    super(params);
+
+    this.namespace = "mex-single-column-template";
+  }
+
+  draw(edge) {
+    //////////////////////////////////
+    // assemble displayable components
+    let comps = edge.category("column");
+    let compContainers = "";
+    let compClass = edges.util.styleClasses(this.namespace, "component");
+
+    if (comps.length > 0) {
+      for (let i = 0; i < comps.length; i++) {
+        let container = `<div class="${compClass}"><div id="${comps[i].id}"></div></div>`;
+        compContainers += container;
+      }
+    }
+
+    let frag = `
+            <div class="ui grid container">
+                <div class="column">
+                    ${compContainers}
                 </div>
             </div>
         `;
-
     edge.context.html(frag);
-
-    let verticalTabSelector = edges.util.jsClassSelector(
-      this.namespace,
-      "verticalTab",
-      ""
-    );
-    edges.on(verticalTabSelector, "click", this, "showTabContent");
-  }
-
-  showTabContent() {
-    const doc = document.getElementById("right-col");
-
-    if (doc) {
-      doc.style.display = doc.style.display === "none" ? "" : "none";
-    }
   }
 };
 
@@ -2824,6 +2859,9 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
       edges.mex._("No results to display")
     );
 
+    // callback to trigger when resource is selected or unselected
+    this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
+
     this.selector = null; // will be set in init()
 
     this.namespace = "mex-resources-results";
@@ -2895,6 +2933,26 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         previewer.showPreview(hit._source);
         break;
       }
+    }
+  }
+
+  selectResource(element) {
+    let el = $(element);
+    let id = el.attr("data-id");
+    let state = el.attr("data-state");
+
+    if (state === "unselected") {
+      this.selector.selectRecord(id);
+      el.attr("data-state", "selected");
+      el.text(edges.mex._("Remove"));
+    } else {
+      this.selector.unselectRecord(id);
+      el.attr("data-state", "unselected");
+      el.text(edges.mex._("Add"));
+    }
+
+    if (this.onSelectToggle) {
+      this.onSelectToggle({ parent: this, id: id });
     }
   }
 
@@ -3379,7 +3437,101 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
                     </span>
                 </div>
             </div>`;
+    return frag;
+  }
 
+  _getLangVal(path, res, def) {
+    return edges.mex.getLangVal(path, res, def);
+  }
+
+  _rankedByLang(path, res) {
+    return edges.mex.rankedByLang(path, res);
+  }
+};
+
+edges.mex.renderers.VariablesResults = class extends edges.Renderer {
+  constructor(params) {
+    super(params);
+
+    //////////////////////////////////////////////
+    // parameters that can be passed in
+
+    // what to display when there are no results
+    this.noResultsText = edges.util.getParam(
+      params,
+      "noResultsText",
+      edges.mex._("No results to display")
+    );
+
+    this.namespace = "mex-variables-results";
+  }
+
+  draw() {
+    var frag = this.noResultsText;
+    if (this.component.results === false) {
+      frag = "";
+    }
+
+    var results = this.component.results;
+    if (results && results.length > 0) {
+      // list the css classes we'll require
+      var recordClasses = edges.util.styleClasses(
+        this.namespace,
+        "record",
+        this.component.id
+      );
+
+      // now call the result renderer on each result to build the records
+      frag = "";
+      for (var i = 0; i < results.length; i++) {
+        var rec = this._renderResult(results[i]);
+        frag += `${rec}`;
+      }
+    }
+
+    // finally stick it all together into the table container
+    var containerClasses = edges.util.styleClasses(
+      this.namespace,
+      "container",
+      this.component.id
+    );
+    var container = `<table class="${containerClasses} ui celled table">
+                        <thead>
+                            <tr>
+                                <th>${edges.mex._("Variables")}</th>
+                                <th>${edges.mex._("Data Source")}</th>
+                                <th>${edges.mex._("Variable Group")}</th>
+                                <th>${edges.mex._("Data Type")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${frag}
+                        </tbody>
+                    </table>`;
+    this.component.context.html(container);
+  }
+
+  _renderResult(res) {
+    // FIXME: this is all a bit raw, in reality some of these values have multiple options
+    let label = edges.util.escapeHtml(
+      this._getLangVal("custom_fields.mex:label", res, "No label")
+    );
+    let resource = edges.util.escapeHtml(
+      this._getLangVal("custom_fields.index:enUsedInResource", res)
+    );
+    let group = edges.util.escapeHtml(
+      this._getLangVal("custom_fields.index:belongsToLabel", res)
+    );
+    let dataType = edges.util.escapeHtml(
+      this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
+    );
+
+    let frag = `<tr>
+            <td>${label}</td>
+            <td>${resource}</td>
+            <td>${group}</td>
+            <td>${dataType}</td>
+        </tr>`;
     return frag;
   }
 

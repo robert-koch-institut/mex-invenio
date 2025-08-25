@@ -63,7 +63,7 @@ def process_record(
                     id_=draft.id, identity=identity
                 )
 
-                return {"action": "create", "id": published.id}
+                return {"action": "create", "id": published.id, "mex_id": mex_id}
             elif len(results) == 1:
                 # Update an existing record
                 record_pid = results[0]["id"]
@@ -85,9 +85,9 @@ def process_record(
                         identity=identity, id_=new_version.id
                     )
 
-                    return {"action": "update", "id": new_record.id}
+                    return {"action": "update", "id": new_record.id, "mex_id": mex_id}
                 else:
-                    return {"action": "skip", "id": record_pid}
+                    return {"action": "skip", "id": record_pid, "mex_id": mex_id}
             elif len(results) > 1:
                 # Log and skip the record if multiple records are found
                 logger.error(f"Multiple records found for MEx id: {mex_id}")
@@ -186,11 +186,11 @@ def import_data(
 
                         if result is not None:
                             if result["action"] == "create":
-                                report["created"].append(result["id"])
+                                report["created"].append((result["id"], result["mex_id"]))
                             elif result["action"] == "update":
-                                report["updated"].append(result["id"])
+                                report["updated"].append((result["id"], result["mex_id"]))
                             elif result["action"] == "skip":
-                                report["skipped"].append(result["id"])
+                                report["skipped"].append((result["id"], result["mex_id"]))
                     except Exception as e:
                         logger.error(f"Error processing record: {str(e)}")
 
@@ -206,7 +206,10 @@ def import_data(
 
         if record_count > 0:
             logger.info(
-                f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
+                f"{action.capitalize()} {record_count} records. Ids: {[x[0] for x in report[action]]}"
+            )
+            logger.info(
+                f"{action.capitalize()} {record_count} records. MEx IDs: {[x[1] for x in report[action]]}"
             )
 
     if minutes:

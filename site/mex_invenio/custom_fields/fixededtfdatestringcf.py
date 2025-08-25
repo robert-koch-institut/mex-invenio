@@ -20,7 +20,15 @@ class FixedEDTFDateStringCF(EDTFDateStringCF):
         This supports the case where a field is based on others, both
         custom and non-custom fields.
         """
+        if self.name in data[cf_key] and not data[cf_key][self.name]:
+            # If the field is empty
+            del data[cf_key][self.name]
+
         dates = data[cf_key].get(self.name)
+        if isinstance(dates, list) and len(dates) == 0:
+            # If the list is empty, we should not store it
+            del data[cf_key][self.name]
+
         if dates:
             try:
                 if self._multiple:
@@ -32,7 +40,7 @@ class FixedEDTFDateStringCF(EDTFDateStringCF):
                     # dates is just one date
                     data[cf_key][self.name] = self._calculate_date_range(dates)
             except EDTFParseException:
-                pass
+                del data[cf_key][self.name]
 
     def load(self, record, cf_key="custom_fields"):
         """Load the custom field.

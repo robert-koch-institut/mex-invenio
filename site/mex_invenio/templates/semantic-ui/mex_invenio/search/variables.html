@@ -4,8 +4,9 @@
     <div id="contact-page" class="ui container">
         <h1>Variables</h1>
         {% block root_section %}
-            <div id="root-container" class="panel-body">
-                <div id="edge-container"></div>
+            <div id="root-container" class="panel-body ui grid container">
+                <div id="resources-container" class="six wide column"></div>
+                <div id="variables-container" class="ten wide column"></div>
             </div>
         {% endblock %}
     </div>
@@ -27,11 +28,9 @@
 
     <script src="{{ src }}/templates/bs3/Facetview.js"></script>
 
-    <script src="{{ components }}/RefiningANDTermSelector.js"></script>
     <script src="{{ components }}/FullSearchController.js"></script>
     <script src="{{ components }}/ResultsDisplay.js"></script>
 
-    <script src="{{ bs3 }}/RefiningANDTermSelector.js"></script>
     <script src="{{ bs3 }}/FullSearchController.js"></script>
     <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
 
