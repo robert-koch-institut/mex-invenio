@@ -188,7 +188,8 @@ aside {
     }
 }
 
-.landing_page.resource {
+.landing_page.resource,
+.landing_page.activity {
     margin-top: -0.5rem;
     background-color: rgba(224, 244, 252, 0.20);
     .edit-btn {
