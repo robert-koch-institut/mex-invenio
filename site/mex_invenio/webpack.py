@@ -9,7 +9,7 @@ theme = WebpackThemeBundle(
     themes={
         "semantic-ui": dict(
             entry={
-                "support-record": "./js/mex_invenio/SupportRecord.js"
+                "support-record": "./js/mex_invenio/SupportRecordContainer.js"
             },
         ),
     },
