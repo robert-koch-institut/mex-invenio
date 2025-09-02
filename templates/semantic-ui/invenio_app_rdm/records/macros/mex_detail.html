@@ -14,7 +14,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
     } %}
     {% for date_str in dates %}
-        {%- if date_str is string and date_str|length >= 10 %}
+        {%- if date_str is string and date_str|length == 10 or date_str|length == 20 %}
             {# Format: YYYY-MM-DD or full timestamp #}
             {%- set year = date_str[0:4] %}
             {%- set month = date_str[5:7] %}
@@ -37,7 +37,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {% endfor %}
 {% endmacro %}
 
-{% macro render_text(field_name,items) %}
+{% macro render_text(field_name, items) %}
     {%- set lang = current_i18n.language -%}
     {%- set first_item = items[0] if items|length > 0 else {} -%}
     {%- set has_language = 'language' in first_item -%}
@@ -48,13 +48,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- else -%}
         {%- set items_to_display = items -%}
     {%- endif -%}
-
+    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
     {%- for item in items_to_display -%}
-        {{ item.value }}{% if not loop.last %}</br>{% endif %}
+        {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ item.value }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %}</br>{% endif %}
     {%- endfor -%}
+    {% if field_name in config.TAGS %}</div>{% endif %}
 {% endmacro %}
 
-{% macro render_url(field_name,items) %}
+{% macro render_url(field_name, items) %}
     {%- for item in items -%}
         <a href="{{ item.url }}">
             {%- if item.title -%}
@@ -96,26 +97,45 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endfor -%}
 {% endmacro %}
 
-{% macro render_identifier(field_name,identifiers,backwards_linked) %}
+{% macro render_identifier(field_name, identifiers, backwards_linked) %}
     {% if linked_records_data %}
         {% if backwards_linked %}
             {% set value = linked_records_data["backwards_linked"][field_name] %}
         {% else %}
             {% set value = linked_records_data[field_name] %}
         {% endif %}
+
         {% if value %}
             {%- if value is string or value is mapping -%}
                 {%- set values = [value] -%}
             {%- else -%}
                 {%- set values = value -%}
             {%- endif -%}
+
             {% set first = values[0]["display_value"][0] %}
             {% if first is string %}
                 {% for v in values %}
                     {% if v["display_value"][0] == config.NO_RECORD_STRING %}
                         <i class="muted">Record {{ v.link_id }} not found.</i>
                     {% else %}
-                        <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                        {% if "email" in v %}
+                            {% for display_value in v["display_value"] %}
+                                <span class="email-container">
+                                  <a href="{{ v.link_id }}" class="display-text">{{ display_value }}</a>
+                                    <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
+                                    <img class="ui image icon"
+                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
+                                        alt="send email"
+                                    />
+                                    </a>
+                                    {% with emailAddress = v.email[loop.index0] ~ "?cc=mex\@rki.de" %}
+                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                                    {% endwith %}
+                                </span>
+                            {% endfor %}
+                        {% else %}
+                            <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             {% else %}
@@ -135,12 +155,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {%- macro val(field_name, field_raw_value, resource_type, backwards_linked=false) -%}
     {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
+
         {# Normalize: wrap single values into a list #}
         {%- if field_raw_value is string or field_raw_value is number or field_raw_value is mapping -%}
             {%- set values = [field_raw_value] -%}
         {%- else -%}
             {%- set values = field_raw_value -%}
         {%- endif -%}
+
         {# Infer type from config #}
         {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
         {%- if type == None -%}

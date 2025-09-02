@@ -42,6 +42,7 @@
         background-color: @whiteBackground;
         border: 1px solid @highlightColor;
         box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+        max-width: 100%;
         &.views {
             display: flex;
             flex-direction: column;
@@ -60,12 +61,15 @@
                 margin-right: 0.5rem;
             }
         }
+        .additional_info {
+            margin-bottom: 1rem;
+        }
         .card-props {
             display: grid;
             gap: 1rem;
             .card-props-p {
                 display: grid;
-                grid-template-columns: 30% auto;
+                grid-template-columns: 30% 1fr;
                 gap: 1rem;
                 align-items: start;
                 .card-prop-label {
@@ -84,6 +88,8 @@
                     display: flex;
                     flex-direction: column;
                     gap: .5rem;
+                    min-width: 0;
+                    max-width: 100%;
                 }
             }
         }
@@ -218,12 +224,16 @@ aside {
         display: flex;
         align-items: flex-start;
         gap: 0.625rem;
+        flex-wrap: wrap;
 
         .tag {
-            display: flex;
             background-color: @highlightBackground;
             padding: 0.3rem 0.5rem;
-            justify-content: center;
+            max-width: 100%;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             &.success {
                 background-color: @successBackgroundColor;
             }
@@ -287,5 +297,31 @@ aside {
                 margin-left: -2.5rem;
             }
         }
+    }
+}
+
+.email-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+
+    .display-value {
+        flex: 1 1 0;
+        min-width: max-content;
+    }
+}
+
+.click-to-copy {
+    display: inline-flex;
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+    .copied-msg {
+        margin-left: 5px;
+        color: #32008C;
     }
 }
