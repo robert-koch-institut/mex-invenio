@@ -239,15 +239,6 @@ S3_DOWNLOAD_FOLDER = "s3_downloads"
 
 COMMUNITIES_GROUPS_ENABLED = False
 
-# Script log config
-# --------------
-
-IMPORT_LOG_FILE = "logs/import_data.log"
-IMPORT_LOG_FORMAT = "%(asctime)s - %(levelname)s - (line: %(lineno)d) - %(message)s"
-
-S3_LOG_FILE = "logs/s3_manager.log"
-S3_LOG_FORMAT = IMPORT_LOG_FORMAT
-
 # The value for the Datacite creator property in imported records
 RECORD_METADATA_CREATOR = {
     "person_or_org": {
@@ -497,7 +488,6 @@ RECORD_CARDS = {
             "access": {
                 "type": "single",
                 "title": "Access & Usage Rights",
-                "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
                     "mex:accessRestriction",
@@ -509,14 +499,12 @@ RECORD_CARDS = {
             "files": {
                 "type": "single",
                 "title": "Files",
-                "template": "files.html",
                 "icon": "distribution.svg",
                 "properties": ["mex:distribution"],
             },
             "variables": {
                 "type": "single",
                 "title": "Variables",
-                "template": "variables.html",
                 "icon": "variables.svg",
                 "is_backwards_linked": True,
                 "properties": ["mex:usedIn"],

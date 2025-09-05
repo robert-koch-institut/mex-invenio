@@ -1,6 +1,5 @@
 from invenio_records_resources.services.custom_fields import (
     TextCF,
-    EDTFDateStringCF,
     IntegerCF,
 )
 
@@ -94,10 +93,10 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
-    EDTFDateStringCF(name="mex:publicationYear"),
+    FixedEDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
-    LinkCF(name="mex:repositoryURL"),
+    LinkCF(name="mex:repositoryURL", multiple=True),
     TextCF(name="mex:resourceCreationMethod", multiple=True),
     TextCF(name="mex:resourceTypeGeneral", multiple=True),
     MultiLanguageTextCF(name="mex:resourceTypeSpecific", multiple=True),
