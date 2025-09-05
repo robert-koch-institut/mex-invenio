@@ -51,6 +51,7 @@
                                     <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
                                 {% endif %}
                                 <div class="card-prop-value">{{ value }}</div>
+                                <div class="card-prop-value" style="color: red">{{ data[prop] }}</div>
                             </div>
                         {% endif %}
                     {% endfor %}
