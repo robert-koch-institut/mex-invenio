@@ -30,7 +30,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    &.vertical {
+    &.vertical, &.forced-vertical {
         .card {
             flex: 0 0 100%;
         }
@@ -75,7 +75,7 @@
                 .card-prop-label {
                     font-weight: 600;
                 }
-                &.vertical {
+                &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
                     .card-prop-label {
                         white-space: nowrap;
