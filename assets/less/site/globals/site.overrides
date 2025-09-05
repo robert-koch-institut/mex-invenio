@@ -90,6 +90,17 @@
                     gap: .5rem;
                     min-width: 0;
                     max-width: 100%;
+                    a.single-word,span.single-word {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    a.multi-word,span.multi-word {
+                        overflow-wrap: break-word;
+                        word-break: break-word;
+                        white-space: normal;
+                        hyphens: auto; 
+                    }
                 }
             }
         }
