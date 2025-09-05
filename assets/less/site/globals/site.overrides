@@ -99,7 +99,7 @@
                         overflow-wrap: break-word;
                         word-break: break-word;
                         white-space: normal;
-                        hyphens: auto; 
+                        hyphens: auto;
                     }
                 }
             }
