@@ -712,7 +712,11 @@ RECORD_CARDS = {
     },
 }
 
-PROPS_WITHOUT_LABELS = {"resource": ["mex:isPartOf"]}
+PROPS_WITHOUT_LABELS = {
+    "resource": ["mex:isPartOf"],
+    "activity": ["mex:isPartOfActivity", "mex:resourceGeneratedBy", "mex:succeeds"],
+    "bibliographicresource": ["mex:isPartOf", "mex:isPartOfActivity"],
+}
 
 IS_ACCESS_STATUS_OPEN = {
     "https://mex.rki.de/item/access-restriction-1": True,
