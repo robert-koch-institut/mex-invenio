@@ -287,3 +287,6 @@ msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originals
 
 msgid "Jump up"
 msgstr "Nach oben"
+
+msgid "If you wish to get in touch, please make sure to copy (CC)"
+msgstr "Sollten Sie Kontakt aufnehmen, achten Sie bitte darauf, general@example.com in Kopie (CC) zu setzen."
