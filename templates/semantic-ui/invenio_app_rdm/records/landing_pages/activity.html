@@ -13,15 +13,19 @@
                     <div class="tags top-tags">
                         <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
 
+
                         <!-- {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
                         <span class="tag" title="Activity type">{{activity_type}}</span> -->
 
                         {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE],resource_type) %}
                         {% set activity_list = activity_type.split(',') %}
 
+                        {% if activity_type_general %}
                         {% for item in activity_list %}
                             <span class="tag" title="Activity type">{{ item.strip() }}</span>
                         {% endfor %}
+                         {% endif %}
+
                     </div>
                 </section>
 
