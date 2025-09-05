@@ -385,6 +385,8 @@ FIELD_LABELS_UI = {
     "mex:editorOfSeries": "Editor of series",
     "mex:alternateIdentifier": "Alternate Identifier",
     "mex:repositoryURL": "Repository URL",
+    "mex:start": "Duration",
+    "mex:website": "Website",
 }
 
 RECORD_CARDS = {
