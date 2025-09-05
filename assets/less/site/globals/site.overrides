@@ -30,7 +30,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    &.vertical {
+    &.vertical, &.forced-vertical {
         .card {
             flex: 0 0 100%;
         }
@@ -62,7 +62,7 @@
             }
         }
         .additional_info {
-            margin-bottom: 1rem;
+            margin-top: 1rem;
         }
         .card-props {
             display: grid;
@@ -75,7 +75,7 @@
                 .card-prop-label {
                     font-weight: 600;
                 }
-                &.vertical {
+                &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
                     .card-prop-label {
                         white-space: nowrap;
@@ -90,6 +90,17 @@
                     gap: .5rem;
                     min-width: 0;
                     max-width: 100%;
+                    a.single-word,span.single-word {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    a.multi-word,span.multi-word {
+                        overflow-wrap: break-word;
+                        word-break: break-word;
+                        white-space: normal;
+                        hyphens: auto;
+                    }
                 }
             }
         }

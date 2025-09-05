@@ -1,0 +1,39 @@
+{% set card_name = "theme" -%}
+{% set card = config.RECORD_CARDS[resource_type].left[card_name] %}
+
+{% set theme_field = "mex:theme" %}
+{% set keyword_field = "mex:keyword" %}
+
+{% set theme_raw = record.ui.custom_fields[theme_field] %}
+{% set keywords_raw = record.ui.custom_fields[keyword_field] %}
+{% if theme_raw and keywords_raw %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+            {% set theme = val(theme_field, theme_raw, resource_type, card.is_backwards_linked) %}
+            {% if theme %}
+                <div class="card-props-p forced-vertical">
+                    <div class="card-prop-value">
+                        {{ theme }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="card-props-p forced-vertical">
+                <div class="card-prop-value">
+                    <div class="tags">
+                        {% for keyword in keywords_raw %}
+                            <div class="tag"><span>{{ keyword.value }}</span></div>
+                        {%- endfor -%}
+                        </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endif %}

@@ -19,16 +19,6 @@
                  alt=""/>
             {{ _(card.title) }}
         </h3>
-        <div class="additional_info tags">
-            <p>If you wish to get in touch, please make sure to copy (CC)
-                <span class="tag" style="display: inline-flex; gap: .5rem;">
-                    <a href="mailto:mex@rki.de" title="send email">mex [at] rki.de</a>
-                    {% with emailAddress = "mex@rki.de" %}
-                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
-                    {% endwith %}
-                </span>
-            </p>
-        </div>
         <div class="card-props">
             {% for prop in card.properties %}
                 {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
@@ -39,6 +29,16 @@
                     </div>
                 {% endif %}
             {% endfor %}
+        </div>
+        <div class="additional_info tags">
+            <p>{{_("If you wish to get in touch, please make sure to copy (CC)") }}
+                <span class="tag" style="display: inline-flex; gap: .5rem;">
+                    <a href="mailto:mex@rki.de" title="send email">mex [at] rki.de</a>
+                    {% with emailAddress = "mex@rki.de" %}
+                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                    {% endwith %}
+                </span>
+            </p>
         </div>
     </div>
 {% endif %}
