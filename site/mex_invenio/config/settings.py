@@ -585,34 +585,7 @@ RECORD_CARDS = {
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": ["mex:contact"],
-            },
-            "access": {
-                "type": "single",
-                "title": "Access & Usage Rights",
-                "template": "access.html",
-                "icon": "access.svg",
-                "properties": [
-                    "mex:accessRestriction",
-                    "mex:doi",
-                    "mex:license",
-                    "mex:rights",
-                ],
-            },
-            "files": {
-                "type": "single",
-                "title": "Files",
-                "template": "files.html",
-                "icon": "distribution.svg",
-                "properties": ["mex:distribution"],
-            },
-            "variables": {
-                "type": "single",
-                "title": "Variables",
-                "template": "variables.html",
-                "icon": "variables.svg",
-                "is_backwards_linked": True,
-                "properties": ["mex:usedIn"],
-            },
+            }
         },
     },
     "bibliographicresource": {
