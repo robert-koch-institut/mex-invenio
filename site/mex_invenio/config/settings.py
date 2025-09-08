@@ -529,14 +529,14 @@ RECORD_CARDS = {
                 "title": "Description",
                 "icon": "description.svg",
                 "properties": [
-                    "mex:start",  # TODO: May need help in order to understand to how to add duration in this format
+                    "mex:start",
                     "mex:theme",
                 ],
             },
             "partners": {
                 "type": "single",
                 "title": "Partners & Funding",
-                "icon": "description.svg",
+                "icon": "funding.svg",
                 "properties": [
                     "mex:externalAssociate",
                     "mex:funderOrCommissioner",
@@ -608,7 +608,7 @@ RECORD_CARDS = {
             "titleProper": {
                 "type": "single",
                 "title": "Title Proper",
-                "icon": "",
+                "icon": "titleProper.svg",
                 "properties": [
                     "mex:journal",
                     "mex:issue",
@@ -623,7 +623,7 @@ RECORD_CARDS = {
             "imprint": {
                 "type": "single",
                 "title": "Imprint",
-                "icon": "",
+                "icon": "imprint.svg",
                 "properties": [
                     "mex:publisher",
                     "mex:publicationPlace",
