@@ -736,7 +736,7 @@ CORE_ENTITIES_LABELS = {
     "Resource": "Data Source/Dataset",
     "Activity": "Project",
     "Variable": "Variable",
-    "BibliographicResource": "Publication",
+    "Bibliographic resource": "Publication",
 }
 
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
