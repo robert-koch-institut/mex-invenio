@@ -1,7 +1,9 @@
 {% set column = "left" %}
 {% for card_name in config.RECORD_CARDS[resource_type].left %}
     {% set card = config.RECORD_CARDS[resource_type].left[card_name] %}
-    {% if card.type == "single" %}
+    {% if card.template %}
+        {%- include "invenio_app_rdm/records/details/components/cards/" ~ card.template with context -%}
+    {% elif card.type == "single" %}
         {% with card=card_name %}
             {%- include "invenio_app_rdm/records/details/components/card.html" with context %}
         {% endwith %}
