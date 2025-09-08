@@ -664,7 +664,6 @@ RECORD_CARDS = {
             "access": {
                 "type": "single",
                 "title": "Access & Usage Rights",
-                "template": "access.html",
                 "icon": "access.svg",
                 "properties": [
                     "mex:accessRestriction",
@@ -678,7 +677,6 @@ RECORD_CARDS = {
             "files": {
                 "type": "single",
                 "title": "Files",
-                "template": "files.html",
                 "icon": "distribution.svg",
                 "properties": ["mex:distribution"],
             },

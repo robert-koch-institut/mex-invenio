@@ -66,7 +66,6 @@
         }
         .card-props {
             display: grid;
-            gap: 1rem;
             .card-props-p {
                 display: grid;
                 grid-template-columns: 30% 1fr;
