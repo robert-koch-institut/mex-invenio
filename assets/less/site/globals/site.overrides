@@ -76,6 +76,8 @@
                 }
                 &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
+                    gap: 0;
+                    margin-bottom: 1rem;
                     .card-prop-label {
                         white-space: nowrap;
                         overflow: hidden;

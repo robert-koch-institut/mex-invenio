@@ -290,3 +290,87 @@ msgstr "Nach oben"
 
 msgid "If you wish to get in touch, please make sure to copy (CC)"
 msgstr "Sollten Sie Kontakt aufnehmen, achten Sie bitte darauf, general@example.com in Kopie (CC) zu setzen."
+
+msgid "Issued"
+msgstr "Ausgegeben"
+
+msgid "Creators"
+msgstr "Urheber"
+
+msgid "Title Proper"
+msgstr "Haupttitel"
+
+msgid "Journal"
+msgstr "Zeitschrift"
+
+msgid "Issue"
+msgstr "Heft"
+
+msgid "Volume"
+msgstr "Band"
+
+msgid "Title of book"
+msgstr "Buchtitel"
+
+msgid "Subtitle"
+msgstr "Untertitel"
+
+msgid "Volume of series"
+msgstr "Reihenband"
+
+msgid "Section"
+msgstr "Abschnitt"
+
+msgid "Publication Place"
+msgstr "Erscheinungsort"
+
+msgid "Publication Year"
+msgstr "Erscheinungsjahr"
+
+msgid "Pages"
+msgstr "Seiten"
+
+msgid "Editor"
+msgstr "Herausgeber"
+
+msgid "Editor of series"
+msgstr "Reihenherausgeber"
+
+msgid "Alternate Identifier"
+msgstr "Alternative Kennung"
+
+msgid "Involved Person"
+msgstr "Beteiligte Person"
+
+msgid "Responsible Unit"
+msgstr "Verantwortliche Einheit"
+
+msgid "Start"
+msgstr "Beginn"
+
+msgid "End"
+msgstr "Ende"
+
+msgid "Thema"
+msgstr "Thema"
+
+msgid "Partners & Funding"
+msgstr "Partner & Förderung"
+
+msgid "External Associate"
+msgstr "Externer Mitarbeiter"
+
+msgid "Funder or Commissioner"
+msgstr "Förderer oder Auftraggeber"
+
+msgid "Funding Program"
+msgstr "Förderprogramm"
+
+msgid "Website"
+msgstr "Webseite"
+
+msgid "Parent Resources"
+msgstr "Übergeordnete Ressourcen"
+
+msgid "Succeeds"
+msgstr "Nachfolger"
