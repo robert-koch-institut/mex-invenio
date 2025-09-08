@@ -23,12 +23,12 @@
                 <section id="record-title-section">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">new: {{ data["mex:title"] }}</h2>
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">{{ display_values(data["mex:title"]) }}</h2>
                     </div>
                     {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">old: {{ alttitle }}</h2>
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">new: {{ data[config.RECORD_SPECIAL_FIELDS.ALT_TITLE] }}</h2>
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ALT_TITLE]) }}</h2>
                     {% endif %}
                 </section>
 
@@ -36,6 +36,7 @@
                 {% if description %}
                     <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
                         <p>{{ description }}</p>
+                        <p>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.DESCRIPTION]) }}</p>
                     </section>
                 {% endif %}
 
@@ -45,11 +46,11 @@
                     <section class="detail">
                         {% if language %}
                             <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
-                            <p class="muted" style="color: red"><b>{{ _('Language') }}:</b> {{ data[config.RECORD_SPECIAL_FIELDS.LANGUAGE] }}</p>
+                            <p class="muted" style="color: red"><b>{{ _('Language') }}:</b> {{ display_values(data[config.RECORD_SPECIAL_FIELDS.LANGUAGE]) }}</p>
                         {% endif %}
                         {% if created %}
                             <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
-                            <p class="muted" style="color: red"><b>{{ _('Created') }}:</b>{{ data[config.RECORD_SPECIAL_FIELDS.CREATED] }}</p>
+                            <p class="muted" style="color: red"><b>{{ _('Created') }}:</b>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.CREATED]) }}</p>
                         {% endif %}
                     </section>
                 {% endif %}
@@ -69,7 +70,7 @@
                                         <p class="text">ICD-10</p>
                                     </div>
                                     {{ icd10val }}
-                                    <span style="color: red">{{ data["mex:icd10code"] }}</span>
+                                    <span style="color: red">{{ display_values(data["mex:icd10code"]) }}</span>
                                 </div>
                             {% endif %}
                             {% if meshval %}
@@ -77,7 +78,7 @@
                                     <div class="label">
                                         <div class="circle"></div>
                                         <p class="text" style="margin-left: -3rem">MESH ID</p>
-                                        <span style="color: red">{{ data["mex:meshId"] }}</span>
+                                        <span style="color: red">{{ display_values(data["mex:meshId"]) }}</span>
                                     </div>
                                     {{ meshval }}
                                 </div>
@@ -89,7 +90,7 @@
                                         <p class="text">LOINC</p>
                                     </div>
                                     {{ loincval }}
-                                    <span style="color: red">{{ data["mex:loincId"] }}</span>
+                                    <span style="color: red">{{ display_values(data["mex:loincId"]) }}</span>
                                 </div>
                             {% endif %}
                         </div>

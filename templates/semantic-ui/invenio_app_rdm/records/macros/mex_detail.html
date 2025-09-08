@@ -1,5 +1,30 @@
-{% macro display_values() %}
+{% macro display_values(values) %}
+    {%- for v in values -%}
+        {{ display_value(v) }}
+    {%- endfor -%}
+{% endmacro %}
 
+{% macro display_value(v) %}
+    {% set ns = namespace(display_text="") %}
+    {%- set lang = current_i18n.language -%}
+    {%- set has_language = 'language' in v -%}
+    {%- set is_link = "url" in v -%}
+    {%- if "language" in v -%}
+        {%- if v["language"] == lang -%}
+            {%- set ns.display_text = v["display_value"] -%}
+        {%- endif %-}
+    {%- else -%}
+        {%- set ns.display_text = v["display_value"] -%}
+    {%- endif -%}
+    {%- if ns.display_text -%}
+        {%- if is_link %-}
+            <a href="{{ v.url }}" title="{{ ns.display_text }}">{{ ns.display_text }}</a>
+        {%- else -%}
+            <span>{{ ns.display_text }}</span>
+        {%- endif -%}
+    {%- endif -%}
+
+    {% endif %}
 {% endmacro %}
 
 {#
