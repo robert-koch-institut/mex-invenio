@@ -26,6 +26,10 @@
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
                     </div>
+                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
+                    {% if alttitle %}
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
+                    {% endif %}
                 </section>
 
                 {% set abstract = val(config.RECORD_SPECIAL_FIELDS.ABSTRACT, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ABSTRACT], resource_type) %}
