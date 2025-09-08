@@ -637,7 +637,7 @@ RECORD_CARDS = {
             "editor": {
                 "type": "single",
                 "title": "Editor",
-                "icon": "",
+                "icon": "editor.svg",
                 "properties": [
                     "mex:editor",
                     "mex:editorOfSeries",

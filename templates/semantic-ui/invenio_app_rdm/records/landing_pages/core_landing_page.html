@@ -6,12 +6,9 @@
     <div class="ui relaxed stackable reversed mobile grid mt-5">
         <div class="two column row top-padded">
             <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
-                <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
-                    <div class="tags top-tags">
-                        {%- block toptags -%}
-                        {%- endblock -%}
-                    </div>
-                </section>
+                
+                {%- block toptags -%}
+                {%- endblock -%}
 
                 {%- block title -%}
                 <section id="record-title-section">

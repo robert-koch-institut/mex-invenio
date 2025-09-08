@@ -1,78 +1,21 @@
-{# record.ui.custom_fields -> values #}
+{% extends "invenio_app_rdm/records/landing_pages/core_landing_page.html" -%}
 {% set resource_type = "activity" %}
-<div class="edit-btn">
-    <a id="edit-record" class="button edit" href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"target="_blank">
-        {{ _('Edit this record') }}
-    </a>
-</div>
-<div class="ui container">
-    <div class="ui relaxed stackable reversed mobile grid mt-5">
-        <div class="two column row top-padded">
-            <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
-                <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
-                    <div class="tags top-tags">
-                        <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
+    {%- block toptags -%}
+        <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}"></section>
+            <div class="tags top-tags">
+                <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
 
-                        {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
-                        <span class="tags">{{ activity_type }}</span>
-                    </div>
-                </section>
-
-                <section id="record-title-section">
-                    <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
-                    </div>
-                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
-                    {% if alttitle %}
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
-                    {% endif %}
-                </section>
-
-                {% set abstract = val(config.RECORD_SPECIAL_FIELDS.ABSTRACT, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ABSTRACT], resource_type) %}
-                {% if abstract %}
-                    <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
-                        <p>{{ abstract }}</p>
-                    </section>
-                {% endif %}
-
-                <div class="ui divider"></div>
-
-
-                <section id="record-card" class="record-cards">
-                    {%- set column = "left" -%}
-                    {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
-                </section>
-
-            </article>
-
-            <aside class="five wide tablet five wide computer column sixteen wide mobile sidebar record-cards vertical"
-                   aria-label="{{ _('Record details') }}">
-                {%- set column = "right" -%}
-                {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
-                {% block record_sidebar %}
-                    {%- include "invenio_app_rdm/records/details/side_bar.html" %}
-                {% endblock record_sidebar %}
-            </aside>
-        </div>
-    </div>
-
-    <div class="ui container">
-        <div class="ui relaxed grid">
-            <div class="two column row">
-                <div class="sixteen wide tablet eleven wide computer column">
-                    {%- block jump -%}
-                        <div class="ui grid">
-                            <div class="centered row rel-mt-1">
-                                <button id="jump-btn" class="jump-to-top ui button labeled icon"
-                                        aria-label="{{ _('Jump to top of page') }}">
-                                    <i class="arrow alternate circle up outline icon"></i>
-                                    {{ _("Jump up") }}
-                                </button>
-                            </div>
-                        </div>
-                    {%- endblock jump -%}
-                </div>
+                {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
+                <span class="tags">{{ activity_type }}</span>
             </div>
-        </div>
-    </div>
-</div>
+        </section>
+    {%- endblock -%}
+
+    {%- block description -%}
+        {% set abstract = val(config.RECORD_SPECIAL_FIELDS.ABSTRACT, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ABSTRACT], resource_type) %}
+        {% if abstract %}
+            <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
+                <p>{{ abstract }}</p>
+            </section>
+        {% endif %}
+    {%- endblock -%}
