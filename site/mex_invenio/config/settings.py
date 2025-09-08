@@ -399,6 +399,7 @@ RECORD_CARDS = {
                 "type": "single",
                 "title": "Theme & Keywords",
                 "icon": "theme.svg",
+                "template": "theme_keywords.html",
                 "properties": [
                     "mex:theme",
                     "mex:keyword",
