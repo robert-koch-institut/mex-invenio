@@ -85,16 +85,18 @@ it under the terms of the MIT License; see LICENSE file for more details.
     {%- endfor -%}
 {% endmacro %}
 
-{% macro render_label(values) %}
+{% macro render_label(field_name, values) %}
     {%- set lang = current_i18n.language -%}
     {% set default = {"en": "Invalid label", "de": "Invalid label"} %}
+    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
     {%- for val in values -%}
         {% if config.PREF_LABELS %}
-            {{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if not loop.last %}, {% endif %}
+            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
         {% else %}
-            {{ val }}{% if not loop.last %}, {% endif %}
+            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ val }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
         {% endif %}
     {%- endfor -%}
+     {% if field_name in config.TAGS %}</div>{% endif %}
 {% endmacro %}
 
 {% macro render_identifier(field_name, identifiers, backwards_linked) %}
@@ -181,7 +183,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {%- elif type == "date" -%}
             {{ render_date(values) }}
         {%- elif type == "label" -%}
-            {{ render_label(values) }}
+            {{ render_label(field_name, values) }}
         {%- elif type == "identifier" -%}
             {{ render_identifier(field_name, values, backwards_linked) }}
         {%- else -%}

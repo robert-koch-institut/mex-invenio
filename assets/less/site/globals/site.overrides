@@ -265,7 +265,7 @@ aside {
         h2.alttitle {
             color: #5170C1;
             font-size: 1.125rem;
-            margin-top: 0 !important;
+            margin-top: 1rem;
             font-weight: 600;
             line-height: 1.5rem;
         }

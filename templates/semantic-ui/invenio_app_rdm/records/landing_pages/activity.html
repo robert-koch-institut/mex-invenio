@@ -17,15 +17,8 @@
                         <!-- {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
                         <span class="tag" title="Activity type">{{activity_type}}</span> -->
 
-                        {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE],resource_type) %}
-                        {% set activity_list = activity_type.split(',') %}
-
-                        {% if activity_type_general %}
-                        {% for item in activity_list %}
-                            <span class="tag" title="Activity type">{{ item.strip() }}</span>
-                        {% endfor %}
-                         {% endif %}
-
+                        {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
+                        <span class="tags">{{ activity_type }}</span>
                     </div>
                 </section>
 

@@ -1001,7 +1001,7 @@ EXTIDS = {
     "mex:icd10code": {},
 }
 
-TAGS = ["mex:keyword"]
+TAGS = ["mex:keyword", "mex:activityType"]
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
