@@ -13,10 +13,6 @@
                     <div class="tags top-tags">
                         <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
 
-
-                        <!-- {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
-                        <span class="tag" title="Activity type">{{activity_type}}</span> -->
-
                         {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
                         <span class="tags">{{ activity_type }}</span>
                     </div>
@@ -41,44 +37,6 @@
 
                 <div class="ui divider"></div>
 
-                {% set icd10val = val("mex:icd10code", record.ui.custom_fields["mex:icd10code"], resource_type) %}
-                {% set loincval = val("mex:loincId", record.ui.custom_fields["mex:loincId"], resource_type) %}
-                {% set meshval = val("mex:meshId", record.ui.custom_fields["mex:meshId"], resource_type) %}
-                {% if icd10val or loincval or meshval %}
-                    <section id="record-ids" aria-label="{{ _('Record IDs') }}">
-                        <div class="id-tags">
-                            {% if icd10val %}
-                                <div class="id-tag icd10">
-                                    <div class="label">
-                                        <div class="circle"></div>
-                                        <p class="text">ICD-10</p>
-                                    </div>
-                                    {{ icd10val }}
-                                </div>
-                            {% endif %}
-                            {% if meshval %}
-                                <div class="id-tag mesh">
-                                    <div class="label">
-                                        <div class="circle"></div>
-                                        <p class="text" style="margin-left: -3rem">MESH ID</p>
-                                    </div>
-                                    {{ meshval }}
-                                </div>
-                            {% endif %}
-                            {% if loincval %}
-                                <div class="id-tag loinc">
-                                    <div class="label">
-                                        <div class="circle"></div>
-                                        <p class="text">LOINC</p>
-                                    </div>
-                                    {{ loincval }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </section>
-                {% endif %}
-
-                <!--   -->
 
                 <section id="record-card" class="record-cards">
                     {%- set column = "left" -%}
