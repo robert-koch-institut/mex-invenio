@@ -1,4 +1,3 @@
-{# record.ui.custom_fields -> values #}
 {% set resource_type = "bibliographicresource" %}
 <div class="edit-btn">
     <a id="edit-record" class="button edit" href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"target="_blank">
@@ -13,8 +12,7 @@
                     <div class="tags top-tags">
                         <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
 
-                        {% set bibliographicresource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
-                        {% set bibliographicresource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
+                        {% set bibliographicresource_type_general = val(config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE], resource_type) %}
                         {% if bibliographicresource_type_general %}
                             <span class="tag" title="Resource type">{{bibliographicresource_type_general}}{%- if bibliographicresource_type_specific -%}/{{bibliographicresource_type_specific}}{%- endif -%}</span>
                         {% endif %}
