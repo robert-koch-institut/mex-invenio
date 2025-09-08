@@ -90,12 +90,20 @@
                 {% endif %}
 
                 <section id="record-card" class="record-cards">
-                    {%- include "invenio_app_rdm/records/details/components/card_section_left.html" with context %}
+                    {%- set column = "left" -%}
+                    {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
                 </section>
 
             </article>
 
-            {%- include "invenio_app_rdm/records/details/components/card_section_right.html" with context %}
+            <aside class="five wide tablet five wide computer column sixteen wide mobile sidebar record-cards vertical"
+                   aria-label="{{ _('Record details') }}">
+                {%- set column = "right" -%}
+                {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
+                {% block record_sidebar %}
+                    {%- include "invenio_app_rdm/records/details/side_bar.html" %}
+                {% endblock record_sidebar %}
+            </aside>
         </div>
     </div>
 
