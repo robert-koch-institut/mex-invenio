@@ -22,7 +22,7 @@ concurrency:
 jobs:
   containerize:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
