@@ -66,7 +66,6 @@
         }
         .card-props {
             display: grid;
-            gap: 1rem;
             .card-props-p {
                 display: grid;
                 grid-template-columns: 30% 1fr;
@@ -77,6 +76,8 @@
                 }
                 &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
+                    gap: 0;
+                    margin-bottom: 1rem;
                     .card-prop-label {
                         white-space: nowrap;
                         overflow: hidden;
@@ -205,7 +206,8 @@ aside {
     }
 }
 
-.landing_page.resource {
+.landing_page.resource,
+.landing_page.activity {
     margin-top: -0.5rem;
     background-color: rgba(224, 244, 252, 0.20);
     .edit-btn {
@@ -275,7 +277,7 @@ aside {
         h2.alttitle {
             color: #5170C1;
             font-size: 1.125rem;
-            margin-top: 0 !important;
+            margin-top: 1rem;
             font-weight: 600;
             line-height: 1.5rem;
         }

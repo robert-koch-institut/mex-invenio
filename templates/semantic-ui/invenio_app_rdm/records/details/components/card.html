@@ -1,5 +1,5 @@
-{% set cards = config.RECORD_CARDS.resource[column] %}
-{% set card = config.RECORD_CARDS.resource[column][card_name] %}
+{% set cards = config.RECORD_CARDS[resource_type][column] %}
+{% set card = config.RECORD_CARDS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, value=none) %}
 {% if linked_records_data and card.is_backwards_linked %}
@@ -21,6 +21,7 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+
 {% if ns.prop_exist %}
     <div class="card">
         <h3>

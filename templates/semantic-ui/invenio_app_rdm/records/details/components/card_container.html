@@ -1,4 +1,4 @@
-{% set card_container = config.RECORD_CARDS.resource[column][card_name] %}
+{% set card_container = config.RECORD_CARDS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, cards_exist={}, show_container=false) %}
 {% for card in card_container.components %}

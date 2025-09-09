@@ -47,7 +47,8 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 
 {%- block page_body %}
-<div class="record landing_page {%- if resource_type == 'resource' %} resource {%- endif -%}">
+{% set resource_types = ['resource', 'activity' , 'bibliographicresource'] %}
+<div class="record landing_page{% if resource_type in resource_types %} resource {% endif %}">
     <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
         {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
         <div class="ui warning flashed bottom attached manage message">
@@ -70,7 +71,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {% endif %}
     </section>
     {% if resource_type == "resource" %}
-        {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
+    {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
+    {% elif resource_type == "activity" %}
+    {% include "invenio_app_rdm/records/landing_pages/activity.html" %}
+    {% elif resource_type == "bibliographicresource" %}
+    {% include "invenio_app_rdm/records/landing_pages/bibliographicresource.html" %}
     {% else %}
     <div class="ui container">
         <div class="ui relaxed grid mt-5">

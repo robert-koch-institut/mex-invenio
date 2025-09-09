@@ -1,0 +1,21 @@
+{% extends "invenio_app_rdm/records/landing_pages/core_landing_page.html" -%}
+{% set resource_type = "activity" %}
+    {%- block toptags -%}
+        <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}"></section>
+            <div class="tags top-tags">
+                <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
+
+                {% set activity_type = val(config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE], resource_type) %}
+                <span class="tags">{{ activity_type }}</span>
+            </div>
+        </section>
+    {%- endblock -%}
+
+    {%- block description -%}
+        {% set abstract = val(config.RECORD_SPECIAL_FIELDS.ABSTRACT, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ABSTRACT], resource_type) %}
+        {% if abstract %}
+            <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
+                <p>{{ abstract }}</p>
+            </section>
+        {% endif %}
+    {%- endblock -%}
