@@ -5,6 +5,9 @@ msgstr ""
 msgid "Search repository"
 msgstr "Repository durchsuchen"
 
+msgid "Access"
+msgstr "Zugriff"
+
 msgid "Access platform"
 msgstr "Zugriffsplattform"
 
@@ -38,6 +41,9 @@ msgstr "Erstellt"
 
 msgid "Creator"
 msgstr "Autor*in"
+
+msgid "Creators"
+msgstr "Autor*innen"
 
 msgid "Description"
 msgstr "Beschreibung"
@@ -85,6 +91,9 @@ msgstr "Übergeordnete Ressourcen"
 
 msgid "Keyword"
 msgstr "Stichwort"
+
+msgid "Keywords"
+msgstr "Stichworte"
 
 msgid "Language"
 msgstr "Sprache"
@@ -187,10 +196,10 @@ msgid "Related Projects"
 msgstr "Verknüpfte Projekte"
 
 msgid "Related Publications & Further Documentation"
-msgstr "Publikationen & Dokumentation"
+msgstr "Veröffentlichungen & Dokumentation"
 
 msgid "Related Resources"
-msgstr "Verknüpfte Datenbestände & Datensätze"
+msgstr "Verknüpfte Ressourcen"
 
 msgid "Views"
 msgstr "Aufrufe"
@@ -268,7 +277,7 @@ msgid "Creators"
 msgstr "Urheber"
 
 msgid "Title Proper"
-msgstr "Haupttitel"
+msgstr "Gesamttitelangabe"
 
 msgid "Journal"
 msgstr "Zeitschrift"
@@ -308,7 +317,7 @@ msgid "Editor"
 msgstr "Herausgeber"
 
 msgid "Editor of series"
-msgstr "Reihenherausgeber"
+msgstr "Herausgebende"
 
 msgid "Alternate Identifier"
 msgstr "Alternative Kennung"
@@ -331,7 +340,7 @@ msgid "Thema"
 msgstr "Thema"
 
 msgid "Partners & Funding"
-msgstr "Partner & Förderung"
+msgstr "Partner & Fördermittelgebende"
 
 msgid "External Associate"
 msgstr "Externer Mitarbeiter"
