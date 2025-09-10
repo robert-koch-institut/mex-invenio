@@ -4,9 +4,9 @@ from invenio_records_resources.services.custom_fields import (
     IntegerCF,
 )
 
-from mex_invenio.custom_fields.link import LinkCF
-from mex_invenio.custom_fields.multilanguagetext import MultiLanguageTextCF
-from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringCF
+from mex_invenio.fields.link import LinkCF
+from mex_invenio.fields.multilanguagetext import MultiLanguageTextCF
+from mex_invenio.fields.fixededtfdatestringcf import FixedEDTFDateStringCF
 
 RDM_NAMESPACES = {
     "mex": "https://mex.rki.de/",
@@ -26,14 +26,16 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:alternativeName", multiple=True),
     MultiLanguageTextCF(name="mex:alternativeTitle", multiple=True),
     TextCF(name="mex:anonymizationPseudonymization", multiple=True),
-    TextCF(name="mex:belongsTo", multiple=True, use_as_filter=True),   # FIXME: index external document
+    TextCF(
+        name="mex:belongsTo", multiple=True, use_as_filter=True
+    ),  # FIXME: index external document
     TextCF(name="mex:bibliographicResourceType", multiple=True),
     TextCF(name="mex:codingSystem"),
     TextCF(name="mex:conformsTo", multiple=True),
     TextCF(name="mex:contact", multiple=True),
     TextCF(name="mex:containedBy", multiple=True),
     TextCF(name="mex:contributingUnit", multiple=True),
-    TextCF(name="mex:contributor", multiple=True), # FIXME: index external document
+    TextCF(name="mex:contributor", multiple=True),  # FIXME: index external document
     TextCF(name="mex:created"),
     TextCF(name="mex:creator", multiple=True),
     TextCF(name="mex:dataType"),
@@ -50,11 +52,15 @@ RDM_CUSTOM_FIELDS = [
     LinkCF(name="mex:endpointDescription"),
     TextCF(name="mex:endpointType"),
     LinkCF(name="mex:endpointURL"),
-    TextCF(name="mex:externalAssociate", multiple=True), # FIXME: index external document
+    TextCF(
+        name="mex:externalAssociate", multiple=True
+    ),  # FIXME: index external document
     TextCF(name="mex:externalPartner", multiple=True),
     TextCF(name="mex:familyName", multiple=True),
     TextCF(name="mex:fullName", multiple=True),
-    TextCF(name="mex:funderOrCommissioner", multiple=True, use_as_filter=True), # FIXME: index external document
+    TextCF(
+        name="mex:funderOrCommissioner", multiple=True, use_as_filter=True
+    ),  # FIXME: index external document
     TextCF(name="mex:fundingProgram", multiple=True),
     TextCF(name="mex:geprisId", multiple=True),
     TextCF(name="mex:givenName", multiple=True),
@@ -62,9 +68,11 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:hasLegalBasis", multiple=True),
     TextCF(name="mex:hasPersonalData", use_as_filter=True),
     TextCF(name="mex:icd10code", multiple=True),
-    TextCF(name="mex:identifier", field_args={"required": True}, use_as_filter=True),   # technically we just want the keyword mapping
+    TextCF(
+        name="mex:identifier", field_args={"required": True}, use_as_filter=True
+    ),  # technically we just want the keyword mapping
     MultiLanguageTextCF(name="mex:instrumentToolOrApparatus", multiple=True),
-    TextCF(name="mex:involvedPerson", multiple=True), # FIXME: index external document
+    TextCF(name="mex:involvedPerson", multiple=True),  # FIXME: index external document
     TextCF(name="mex:involvedUnit", multiple=True),
     TextCF(name="mex:isPartOf", multiple=True),
     TextCF(name="mex:isPartOfActivity", multiple=True),
@@ -121,7 +129,9 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:titleOfSeries", multiple=True),
     TextCF(name="mex:unitInCharge", multiple=True),
     TextCF(name="mex:unitOf", multiple=True),
-    TextCF(name="mex:usedIn", multiple=True, use_as_filter=True),  # FIXME: index external document
+    TextCF(
+        name="mex:usedIn", multiple=True, use_as_filter=True
+    ),  # FIXME: index external document
     TextCF(name="mex:valueSet", multiple=True),
     TextCF(name="mex:viafId", multiple=True),
     TextCF(name="mex:volume"),
@@ -129,19 +139,6 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:wasGeneratedBy"),
     LinkCF(name="mex:website", multiple=True),
     TextCF(name="mex:wikidataId", multiple=True),
-
-    ##########################################
-    ## Index fields for search support
-    TextCF(name="index:belongsToLabel", multiple=True, use_as_filter=True),
-    TextCF(name="index:contributors", multiple=True),
-    TextCF(name="index:creators", multiple=True),
-    TextCF(name="index:externalPartners", multiple=True),
-    TextCF(name="index:externalAssociates", multiple=True),
-    TextCF(name="index:deFunderOrCommissioners", multiple=True, use_as_filter=True),
-    TextCF(name="index:enFunderOrCommissioners", multiple=True, use_as_filter=True),
-    TextCF(name="index:involvedPersons", multiple=True),
-    TextCF(name="index:enUsedInResource", multiple=True, use_as_filter=True),
-    TextCF(name="index:deUsedInResource", multiple=True, use_as_filter=True),
 ]
 
 RDM_CUSTOM_FIELDS_UI = [

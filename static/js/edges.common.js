@@ -207,6 +207,7 @@ edges.mex.fullSearchController = function (params) {
     category: params.category || "full",
     sortOptions: params.sortOptions || [],
     fieldOptions: params.fieldOptions || [],
+    defaultField: params.defaultField || "*",
     renderer: new edges.mex.renderers.SidebarSearchController({
       searchButton: true,
       clearButton: false,

@@ -7,7 +7,7 @@ from invenio_pidstore.errors import PIDDoesNotExistError
 
 import json
 
-from mex_invenio.record.utils import _get_linked_records_data, _get_record_by_mex_id
+from .utils import _get_linked_records_data, _get_record_by_mex_id
 
 
 class MexRecord(MethodView):

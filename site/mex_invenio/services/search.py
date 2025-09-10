@@ -5,7 +5,7 @@ from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_records.dumpers import SearchDumper
 import json
 
-from mex_invenio.custom_params import (
+from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
     TypeLimiterParamsInterpreter,
     HighlightParamsInterpreter,
@@ -22,17 +22,25 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
     params_interpreters_cls = [
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
-        HighlightParamsInterpreter
+        HighlightParamsInterpreter,
         # Add other interpreters as needed
     ]
+
 
 class MexDumper(SearchDumper):
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
 
+        # Initialize index_data if it doesn't exist
+        if "index_data" not in dump_data:
+            dump_data["index_data"] = {}
+
         self._record_cache = {}
 
         log = []
+        print(f"###############MEX Dumper##################")
+        print(f"Record ID: {record.get('id')}")
+        print(f"Dump data before processing: {list(dump_data.keys())}")
         # log.append("###############MEX Dumper##################")
         # log.append("Record ID: " + record.get("id"))
         # log.append(json.dumps(record.get("custom_fields", {})))
@@ -62,6 +70,10 @@ class MexDumper(SearchDumper):
         # log.append(json.dumps(dump_data.get("custom_fields", {})))
         # log.append("###############//MEX Dumper##################")
         # print("\n".join(log))
+        print(f"Dump data after processing: {list(dump_data.keys())}")
+        if "index_data" in dump_data:
+            print(f"index_data contents: {list(dump_data['index_data'].keys())}")
+        print("###############//MEX Dumper##################")
         return dump_data
 
     def _get_custom_field_list(self, record, field_name):
@@ -81,7 +93,9 @@ class MexDumper(SearchDumper):
 
     def _get_organisation_names(self, record):
         official_names = self._get_custom_field_list(record.json, "mex:officialName")
-        alternative_names = self._get_custom_field_list(record.json, "mex:alternativeName")
+        alternative_names = self._get_custom_field_list(
+            record.json, "mex:alternativeName"
+        )
         short_names = self._get_custom_field_list(record.json, "mex:shortName")
         return official_names + alternative_names + short_names
 
@@ -120,7 +134,7 @@ class MexDumper(SearchDumper):
                     belongs_to_labels.append(val)
 
         if len(belongs_to_labels) > 0:
-            dump_data["custom_fields"]["index:belongsToLabel"] = belongs_to_labels
+            dump_data["index_data"]["belongsToLabel"] = belongs_to_labels
             log.append("Belongs to labels:" + str(belongs_to_labels))
 
     def _contributors(self, record, dump_data, log):
@@ -139,7 +153,7 @@ class MexDumper(SearchDumper):
             contributors = self._get_all_possible_names(contributor)
 
         log.append("Contributors:" + str(contributors))
-        dump_data["custom_fields"]["index:contributors"] = contributors
+        dump_data["index_data"]["contributors"] = contributors
 
     def _creators(self, record, dump_data, log):
         creators = []
@@ -153,12 +167,11 @@ class MexDumper(SearchDumper):
         results = self._records_by_mex_identifiers(record, creator_ids, log)
         log.append("Creator results:" + str(len(results)))
 
-
         for creator in results:
             creators = self._get_all_possible_names(creator)
 
         log.append("Creators:" + str(creators))
-        dump_data["custom_fields"]["index:creators"] = creators
+        dump_data["index_data"]["creators"] = creators
 
     def _external_partners(self, record, dump_data, log):
         external_partners = []
@@ -177,7 +190,7 @@ class MexDumper(SearchDumper):
 
         # external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
         log.append("External Partners:" + str(external_partners))
-        dump_data["custom_fields"]["index:externalPartners"] = external_partners
+        dump_data["index_data"]["externalPartners"] = external_partners
 
     def _external_associates(self, record, dump_data, log):
         external_associates = []
@@ -195,7 +208,7 @@ class MexDumper(SearchDumper):
 
         # external_associates = [ep["value"] for ep in external_associates if isinstance(ep, dict) and "value" in ep]
         log.append("External Associates:" + str(external_associates))
-        dump_data["custom_fields"]["index:externalAssociates"] = external_associates
+        dump_data["index_data"]["externalAssociates"] = external_associates
 
     def _funder_commissioner(self, record, dump_data, log):
         funder_commissioners = []
@@ -210,11 +223,21 @@ class MexDumper(SearchDumper):
         log.append("Funder or Commissioner results:" + str(len(results)))
 
         for funder in results:
-            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            official_names = self._get_custom_field_list(
+                funder.json, "mex:officialName"
+            )
             funder_commissioners += official_names
 
-        funder_commissioners_en = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"]
-        funder_commissioners_de = [fc["value"] for fc in funder_commissioners if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"]
+        funder_commissioners_en = [
+            fc["value"]
+            for fc in funder_commissioners
+            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"
+        ]
+        funder_commissioners_de = [
+            fc["value"]
+            for fc in funder_commissioners
+            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"
+        ]
 
         log.append("Funder or Commissioner EN:" + str(funder_commissioners_en))
         log.append("Funder or Commissioner DE:" + str(funder_commissioners_de))
@@ -225,10 +248,10 @@ class MexDumper(SearchDumper):
             funder_commissioners_de = funder_commissioners_en
 
         if len(funder_commissioners_de) > 0:
-            dump_data["custom_fields"]["index:deFunderOrCommissioners"] = funder_commissioners_de
+            dump_data["index_data"]["deFunderOrCommissioners"] = funder_commissioners_de
 
         if len(funder_commissioners_en) > 0:
-            dump_data["custom_fields"]["index:enFunderOrCommissioners"] = funder_commissioners_en
+            dump_data["index_data"]["enFunderOrCommissioners"] = funder_commissioners_en
 
     def _involved_persons(self, record, dump_data, log):
         involved_persons = []
@@ -246,7 +269,7 @@ class MexDumper(SearchDumper):
             involved_persons = self._get_all_possible_names(person)
 
         log.append("Involved Persons:" + str(involved_persons))
-        dump_data["custom_fields"]["index:involvedPersons"] = involved_persons
+        dump_data["index_data"]["involvedPersons"] = involved_persons
 
     def _used_in(self, record, dump_data, log):
         used_in_en = []
@@ -279,10 +302,10 @@ class MexDumper(SearchDumper):
             used_in_de = used_in_en
 
         if len(used_in_en) > 0:
-            dump_data["custom_fields"]["index:enUsedInResource"] = used_in_en
+            dump_data["index_data"]["enUsedInResource"] = used_in_en
 
         if len(used_in_de) > 0:
-            dump_data["custom_fields"]["index:deUsedInResource"] = used_in_de
+            dump_data["index_data"]["deUsedInResource"] = used_in_de
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
@@ -300,7 +323,9 @@ class MexDumper(SearchDumper):
 
         log.append("Querying for MEx IDs: " + str(query_for))
         db_query = source.model_cls.query.filter(
-            source.model_cls.json["custom_fields"].op("->>")("mex:identifier").in_(query_for),
+            source.model_cls.json["custom_fields"]
+            .op("->>")("mex:identifier")
+            .in_(query_for),
         )
         db_results = db_query.all()
         log.append("DB results found: " + str(len(db_results)))
@@ -311,4 +336,3 @@ class MexDumper(SearchDumper):
             results.append(res)
 
         return results
-
