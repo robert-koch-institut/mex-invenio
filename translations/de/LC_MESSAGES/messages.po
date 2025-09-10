@@ -269,7 +269,7 @@ msgid "Jump up"
 msgstr "Nach oben"
 
 msgid "Issued"
-msgstr "Ausgegeben"
+msgstr "Veröffentlichungsdatum"
 
 msgid "Creators"
 msgstr "Urheber"
@@ -324,7 +324,7 @@ msgid "Involved Person"
 msgstr "Beteiligte Person"
 
 msgid "Responsible unit"
-msgstr "Verantwortliche Einheit"
+msgstr "Verantwortliche Fachgebiet"
 
 #.  AUTO-UPDATED
 msgid "Start"
