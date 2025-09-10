@@ -271,9 +271,6 @@ msgstr "Nach oben"
 msgid "Issued"
 msgstr "Veröffentlichungsdatum"
 
-msgid "Creators"
-msgstr "Urheber"
-
 msgid "Title Proper"
 msgstr "Gesamttitelangabe"
 
