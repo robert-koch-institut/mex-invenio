@@ -379,7 +379,7 @@ FIELD_LABELS_UI = {
     "mex:start": "Start",
     "mex:end": "End",
     "mex:website": "Website",
-    "mex:succeeds": "Succeeds"
+    "mex:succeeds": "Succeeds",
 }
 
 RECORD_CARDS = {
@@ -690,8 +690,13 @@ RECORD_CARDS = {
 
 PROPS_WITHOUT_LABELS = {
     "resource": ["mex:isPartOf", "mex:contact"],
-    "activity": ["mex:isPartOfActivity", "mex:wasGeneratedBy", "mex:succeeds", "mex:contact"],
-    "bibliographicresource": ["mex:isPartOf", "mex:isPartOfActivity", "mex:contact"]
+    "activity": [
+        "mex:isPartOfActivity",
+        "mex:wasGeneratedBy",
+        "mex:succeeds",
+        "mex:contact",
+    ],
+    "bibliographicresource": ["mex:isPartOf", "mex:isPartOfActivity", "mex:contact"],
 }
 
 IS_ACCESS_STATUS_OPEN = {
@@ -974,12 +979,8 @@ RECORDS_LINKED_BACKWARDS = {
         "mex:usedIn": ["mex:label"],
         "mex:isPartOf": ["mex:title"],
     },
-    "activity": {
-        "mex:wasGeneratedBy": ["mex:title"]
-    },
-    "bibliographicresource": {
-        "mex:publication": ["mex:title"]
-    }
+    "activity": {"mex:wasGeneratedBy": ["mex:title"]},
+    "bibliographicresource": {"mex:publication": ["mex:title"]},
 }
 
 RECORD_SPECIAL_FIELDS = {
