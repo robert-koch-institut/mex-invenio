@@ -62,6 +62,13 @@ edges.instances.variables.init = function () {
           e.cycle();
         },
       }),
+
+      // TODO: add pager component
+      edges.mex.pagerSelector({
+        category: "column",
+        id:"resource-pager",
+        showPageNavigation: true,
+      }),
     ],
     callbacks: {
       "edges:pre-render": function () {
@@ -90,7 +97,6 @@ edges.instances.variables.init = function () {
     template: new edges.mex.templates.SingleColumnTemplate(),
     resourceType: "variables",
     components: [
-      // TODO: add text search filter component
       edges.mex.pager({
         category: "left",
         showPageNavigation: false,
