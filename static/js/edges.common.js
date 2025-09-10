@@ -207,12 +207,14 @@ edges.mex.fullSearchController = function (params) {
     category: params.category || "full",
     sortOptions: params.sortOptions || [],
     fieldOptions: params.fieldOptions || [],
+    defaultField: params.defaultField || "*",
     renderer: new edges.mex.renderers.SidebarSearchController({
       searchButton: true,
       clearButton: false,
       searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
       searchButtonText: params.searchButtonText || edges.mex._("Search"),
       freetextSubmitDelay: params.freetextSubmitDelay || -1,
+      searchTitle: params.searchTitle || edges.mex._("Search"),
     }),
   });
 };
@@ -223,6 +225,7 @@ edges.mex.pager = function (params) {
     category: params.category || "middle",
     renderer: new edges.mex.renderers.Pager({
       showSizeSelector: false,
+      showPageNavigation: params.showPageNavigation ?? true,
     }),
   });
 };
@@ -235,7 +238,7 @@ edges.mex.pagerSelector = function (params) {
       showSizeSelector: true,
       sizePrefix: edges.mex._("Show"),
       sizeSuffix: edges.mex._("results per page"),
-      showPageNavigation: false,
+      showPageNavigation: params.showPageNavigation ?? false,
       showRecordCount: false,
       customClassForSizeSelector: "page-size-selector",
     }),
@@ -646,9 +649,56 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
       }
     }
 
+    // Left category
+    let leftComps = edge.category("left");
+    let leftContainers = "";
+    let leftClass = edges.util.styleClasses(this.namespace, "left-component");
+
+    if (leftComps.length > 0) {
+      for (let i = 0; i < leftComps.length; i++) {
+        let container = `<div class="${leftClass}"><div id="${leftComps[i].id}"></div></div>`;
+        leftContainers += container;
+      }
+    }
+
+    // Middle category
+    let middleComps = edge.category("middle");
+    let middleContainers = "";
+    let middleClass = edges.util.styleClasses(
+      this.namespace,
+      "middle-component"
+    );
+
+    if (middleComps.length > 0) {
+      for (let i = 0; i < middleComps.length; i++) {
+        let container = `<div class="${middleClass}"><div id="${middleComps[i].id}"></div></div>`;
+        middleContainers += container;
+      }
+    }
+
+    // Right category - Added for future
+    let rightComps = edge.category("right");
+    let rightContainers = "";
+    let rightClass = edges.util.styleClasses(this.namespace, "right-component");
+
+    if (rightComps.length > 0) {
+      for (let i = 0; i < rightComps.length; i++) {
+        let container = `<div class="${rightClass}"><div id="${rightComps[i].id}"></div></div>`;
+        rightContainers += container;
+      }
+    }
+
     let frag = `
             <div class="ui grid container">
-                <div class="column">
+                <div class="ui grid container column-split">
+                  <div class="three wide column">
+                    ${leftContainers}
+                  </div>
+                  <div class="wide column" style="flex: 1;">
+                      ${middleContainers}
+                  </div>
+                </div>
+                <div class="sixteen wide column">
                     ${compContainers}
                 </div>
             </div>
@@ -1348,6 +1398,8 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       500
     );
 
+    this.searchTitle = edges.util.getParam(params, "searchTitle", "Search");
+
     ////////////////////////////////////////
     // state variables
 
@@ -1467,22 +1519,28 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       this
     );
 
+    let sortColumn = sortFrag
+      ? `<div class="three wide column">${sortFrag}</div>`
+      : "";
+
+    let searchColumn = searchFrag
+      ? `<div class="one wide column">${searchFrag}</div>`
+      : "";
+
     // Upgrading the search UI as per sematic ui
     let frag = `
     <div class="ui grid ${containerClass}">
         <div class="row middle aligned">
             <div class="search-label">
-                <label><h3>Search</h3></label>
+                <label><h3>
+                  ${this.searchTitle}
+                </h3></label>
             </div>
             <div class="eleven wide column">
                 ${searchBox}
             </div>
-            <div class="three wide column">
-                ${sortFrag}
-            </div>
-            <div class="one wide column">
-                ${searchFrag}
-            </div>
+             ${sortColumn}
+            ${searchColumn}
         </div>
     </div>`;
 
@@ -2744,11 +2802,11 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
     let frag = `<div class="ui grid ${containerClass}">`;
 
-    frag += `<div class="sixteen wide column">${sizer}</div>`;
-
     if (this.showPageNavigation) {
       frag += `<div class="sixteen wide column">${nav}</div>`;
     }
+
+    frag += `<div class="sixteen wide column">${sizer}</div>`;
 
     frag += `</div>`;
 
@@ -3466,74 +3524,283 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     this.namespace = "mex-variables-results";
   }
 
+  // draw() {
+  //   var frag = this.noResultsText;
+  //   if (this.component.results === false) {
+  //     frag = "";
+  //   }
+
+  //   var results = this.component.results;
+  //   if (results && results.length > 0) {
+  //     // list the css classes we'll require
+  //     var recordClasses = edges.util.styleClasses(
+  //       this.namespace,
+  //       "record",
+  //       this.component.id
+  //     );
+
+  //     // now call the result renderer on each result to build the records
+  //     frag = "";
+  //     for (var i = 0; i < results.length; i++) {
+  //       var rec = this._renderResult(results[i]);
+  //       frag += `${rec}`;
+  //     }
+  //   }
+
+  //   // finally stick it all together into the table container
+  //   var containerClasses = edges.util.styleClasses(
+  //     this.namespace,
+  //     "container",
+  //     this.component.id
+  //   );
+  //   var container = `<table class="${containerClasses} ui celled table">
+  //                       <thead>
+  //                           <tr>
+  //                               <th>${edges.mex._("Variables")}</th>
+  //                               <th>${edges.mex._("Data Source")}</th>
+  //                               <th>${edges.mex._("Variable Group")}</th>
+  //                               <th>${edges.mex._("Data Type")}</th>
+  //                           </tr>
+  //                       </thead>
+  //                       <tbody>
+  //                           ${frag}
+  //                       </tbody>
+  //                   </table>
+  //                   <br/><br/>`;
+
+  //   this.component.context.html(container);
+
+  //   let selectSelector = edges.util.jsClassSelector(
+  //     this.namespace,
+  //     "select",
+  //     this.component.id
+  //   );
+
+  //   edges.on(selectSelector, "click", this, "toggleRow");
+  // }
+
+  // _renderResult(res) {
+  //   // FIXME: this is all a bit raw, in reality some of these values have multiple options
+  //   let label = edges.util.escapeHtml(
+  //     this._getLangVal("custom_fields.mex:label", res, "No label")
+  //   );
+  //   let resource = edges.util.escapeHtml(
+  //     this._getLangVal("custom_fields.index:enUsedInResource", res)
+  //   );
+  //   let group = edges.util.escapeHtml(
+  //     this._getLangVal("custom_fields.index:belongsToLabel", res)
+  //   );
+  //   let dataType = edges.util.escapeHtml(
+  //     this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
+  //   );
+
+  //   let selectClass = edges.util.jsClasses(
+  //     this.namespace,
+  //     "select",
+  //     this.component.id
+  //   );
+
+  //   // let frag = `<tr>
+  //   //         <td>${label}</td>
+  //   //         <td>${resource}</td>
+  //   //         <td>${group}</td>
+  //   //         <td>${dataType}</td>
+  //   //     </tr>`;
+  //   // return frag;
+
+  //   // each row will have a "summary row" and a hidden "details row"
+  //   let frag = `
+  //     <tr class="${selectClass}'>
+  //       <span class="variable-summary" >
+  //          <td>${label}</td>
+  //       <td>${resource}</td>
+  //       <td>${group}</td>
+  //       <td>${dataType}</td>
+  //       </span>
+  //       <span class="variable-details">
+  //       <td colspan="4">
+  //           <div class="details-card">
+  //               <h4>${label}</h4>
+  //               <p><strong>Data Source:</strong> ${resource}</p>
+  //               <p><strong>Variable Group:</strong> ${group}</p>
+  //               <p><strong>Data type:</strong> ${dataType}</p>
+
+  //           </div>
+  //       </td>
+  //   </span>
+  //     </tr>
+  // `;
+  //   return frag;
+  // }
+
+
   draw() {
-    var frag = this.noResultsText;
-    if (this.component.results === false) {
-      frag = "";
-    }
-
-    var results = this.component.results;
-    if (results && results.length > 0) {
-      // list the css classes we'll require
-      var recordClasses = edges.util.styleClasses(
-        this.namespace,
-        "record",
-        this.component.id
-      );
-
-      // now call the result renderer on each result to build the records
-      frag = "";
-      for (var i = 0; i < results.length; i++) {
-        var rec = this._renderResult(results[i]);
-        frag += `${rec}`;
-      }
-    }
-
-    // finally stick it all together into the table container
-    var containerClasses = edges.util.styleClasses(
-      this.namespace,
-      "container",
-      this.component.id
-    );
-    var container = `<table class="${containerClasses} ui celled table">
-                        <thead>
-                            <tr>
-                                <th>${edges.mex._("Variables")}</th>
-                                <th>${edges.mex._("Data Source")}</th>
-                                <th>${edges.mex._("Variable Group")}</th>
-                                <th>${edges.mex._("Data Type")}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${frag}
-                        </tbody>
-                    </table>`;
-    this.component.context.html(container);
+  var frag = this.noResultsText;
+  if (this.component.results === false) {
+    frag = "";
   }
 
-  _renderResult(res) {
-    // FIXME: this is all a bit raw, in reality some of these values have multiple options
-    let label = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:label", res, "No label")
-    );
-    let resource = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.index:enUsedInResource", res)
-    );
-    let group = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.index:belongsToLabel", res)
-    );
-    let dataType = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
-    );
-
-    let frag = `<tr>
-            <td>${label}</td>
-            <td>${resource}</td>
-            <td>${group}</td>
-            <td>${dataType}</td>
-        </tr>`;
-    return frag;
+  var results = this.component.results;
+  if (results && results.length > 0) {
+    frag = "";
+    for (var i = 0; i < results.length; i++) {
+      frag += this._renderResult(results[i]);
+    }
   }
+
+  var containerClasses = edges.util.styleClasses(
+    this.namespace,
+    "container",
+    this.component.id
+  );
+  var containerClassSelector = "." + containerClasses.trim().split(/\s+/).join(".");
+
+  // --- Expand/Collapse All button ---
+  var expandAllBtn = `
+    <div class="expand-toggle">
+      <button class="ui button expand-all" data-state="collapsed">
+        ${edges.mex._("Expand all")}
+      </button>
+    </div>
+  `;
+
+  var container = `
+    ${expandAllBtn}
+    <table class="${containerClasses} ui celled table">
+      <thead>
+        <tr>
+          <th>${edges.mex._("Variables")}</th>
+          <th>${edges.mex._("Data Source")}</th>
+          <th>${edges.mex._("Variable Group")}</th>
+          <th>${edges.mex._("Data Type")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${frag}
+      </tbody>
+    </table>
+    <br/><br/>
+  `;
+
+  this.component.context.html(container);
+
+  var $ctx = this.component.context;
+  var $table = $ctx.find(containerClassSelector);
+
+  // row toggle
+  $table.off("click", "tr.variable-summary");
+  $table.on("click", "tr.variable-summary", function () {
+    var $row = $(this);
+    var $details = $row.next("tr.variable-details");
+    var willOpen = !$details.is(":visible");
+
+    $details.slideToggle(140);
+    $row.toggleClass("expanded", willOpen);
+  });
+
+  // expand/collapse all toggle
+  var $expandBtn = $ctx.find(".expand-all");
+  $expandBtn.off("click").on("click", function () {
+    var state = $(this).attr("data-state");
+
+    if (state === "collapsed") {
+      // expand all
+      $table.find("tr.variable-details").slideDown(140);
+      $table.find("tr.variable-summary").addClass("expanded");
+      $(this).attr("data-state", "expanded").text(edges.mex._("Collapse all"));
+    } else {
+      // collapse all
+      $table.find("tr.variable-details").slideUp(140);
+      $table.find("tr.variable-summary").removeClass("expanded");
+      $(this).attr("data-state", "collapsed").text(edges.mex._("Expand all"));
+    }
+  });
+}
+
+_renderResult(res) {
+  // values (escaped)
+  let label = edges.util.escapeHtml(
+    this._getLangVal("custom_fields.mex:label", res, "No label")
+  );
+  let resource = edges.util.escapeHtml(
+    this._getLangVal("custom_fields.index:enUsedInResource", res, "")
+  );
+  let group = edges.util.escapeHtml(
+    this._getLangVal("custom_fields.index:belongsToLabel", res, "")
+  );
+  let dataType = edges.util.escapeHtml(
+    this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
+  );
+
+  // helper js-class (keeps existing edges/js-class behaviour)
+  let selectClass = edges.util.jsClasses(
+    this.namespace,
+    "select",
+    this.component.id
+  );
+
+  // summary row + hidden details row (valid table HTML)
+  let frag = `
+    <tr class="${selectClass} variable-summary" role="button" aria-expanded="false">
+      <td>${label}</td>
+      <td>${resource}</td>
+      <td>${group}</td>
+      <td>${dataType}</td>
+    </tr>
+    <tr class="variable-details" style="display:none;">
+      <td colspan="4">
+        <div class="details-card" aria-hidden="true">
+          <div class="details-grid">
+            <div class="details-left">
+              <h4 class="details-title">${label}</h4>
+              <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
+            </div>
+            <div class="details-right">
+              <p><strong>Data Source</strong><br/>${resource}</p>
+              <p><strong>Variable Group</strong><br/>${group}</p>
+              <p><strong>Data type</strong><br/>${dataType}</p>
+            </div>
+          </div>
+
+          <!-- example coding system block; adapt or remove if not available -->
+          <div class="coding-system">
+            <div class="coding-system-title"><strong>Coding System</strong></div>
+            <div class="coding-values">
+              <div><span class="code">0</span> <span class="label">Female</span></div>
+              <div><span class="code">1</span> <span class="label">Male</span></div>
+            </div>
+          </div>
+
+        </div>
+      </td>
+    </tr>
+  `;
+  return frag;
+}
+
+toggleRow(evOrEl) {
+  // tolerant toggleRow: supports being called with an event (edges.on) or an element/jQuery
+  var $row = null;
+  try {
+    if (!evOrEl) return;
+    if (evOrEl.currentTarget) { // called as event handler
+      $row = $(evOrEl.currentTarget).closest("tr.variable-summary");
+    } else if (evOrEl.target) { // event-like
+      $row = $(evOrEl.target).closest("tr.variable-summary");
+    } else {
+      $row = $(evOrEl);
+    }
+  } catch (e) {
+    return;
+  }
+  if (!$row || $row.length === 0) return;
+
+  var $details = $row.next("tr.variable-details");
+  var willOpen = !$details.is(":visible");
+  $details.toggle();
+  $row.toggleClass("expanded", willOpen);
+}
+
 
   _getLangVal(path, res, def) {
     return edges.mex.getLangVal(path, res, def);

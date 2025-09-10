@@ -1,40 +1,83 @@
-{%- extends "invenio_theme/page.html" %}
+{%- extends "invenio_theme/page.html" %} {% block css %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/custom_search_page.css') }}"
+/>
+{% endblock %} {% block page_body %}
+<style>
+  .variable-details {
+    display: none;
+  }
+  .variable-details.open {
+    display: table-row;
+  }
+  .details-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 6px;
+  }
+  .variable-summary {
+    cursor: pointer;
+  }
+  .variable-summary:hover {
+    background: #f0f0f0;
+  }
 
-{% block page_body %}
-    <div id="contact-page" class="ui container">
-        <h1>Variables</h1>
-        {% block root_section %}
-            <div id="root-container" class="panel-body ui grid container">
-                <div id="resources-container" class="six wide column"></div>
-                <div id="variables-container" class="ten wide column"></div>
-            </div>
-        {% endblock %}
-    </div>
-{% endblock %}
+  /* details card look */
+.details-card {
+  background: #ffffff;
+  border: 1px solid #e6eef5;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(12,20,30,0.04);
+  margin: 8px 0;
+}
+.details-grid { display:flex; gap:24px; align-items:flex-start; }
+.details-left { flex: 1 1 60%; }
+.details-right { flex: 1 1 40%; color:#333; }
+.details-title { margin:0 0 8px 0; font-weight:700; }
+.coding-system { margin-top:12px; border-top:1px solid #f0f6fb; padding-top:10px; }
+.variable-summary.expanded { background:#f8fdff; }
+.code { font-weight:700; margin-right:6px; }
+.expand-toggle {
+  margin: 0 0 10px 0;
+  text-align: right;
+}
 
-{% block javascript %}
-    {{ super() }}
+</style>
 
-    {% set static="/static/js" %}
-    {% set edges=static ~ "/edges" %}
-    {% set vendor = edges ~ "/vendor" %}
-    {% set src=edges ~ "/src" %}
-    {% set components=src ~ "/components" %}
-    {% set bs3=src ~ "/renderers/bs3" %}
+<div id="contact-page" class="ui container">
+  <section class="banner">
+    <small>Search our</small>
+    <h1>Variables</h1>
+  </section>
+  {% block root_section %}
+  <div id="root-container" class="panel-body ui grid container">
+    <div id="resources-container" class="four wide column"></div>
+    <div id="variables-container" class="twelve wide column"></div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %} {% block javascript %} {{ super() }} {% set static="/static/js"
+%} {% set edges=static ~ "/edges" %} {% set vendor = edges ~ "/vendor" %} {% set
+src=edges ~ "/src" %} {% set components=src ~ "/components" %} {% set bs3=src ~
+"/renderers/bs3" %}
 
-    <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <script src="{{ src }}/datasources/es7x.js"></script>
-    <script src="{{ src }}/edges.js"></script>
+<script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="{{ src }}/datasources/es7x.js"></script>
+<script src="{{ src }}/edges.js"></script>
 
-    <script src="{{ src }}/templates/bs3/Facetview.js"></script>
+<script src="{{ src }}/templates/bs3/Facetview.js"></script>
 
-    <script src="{{ components }}/FullSearchController.js"></script>
-    <script src="{{ components }}/ResultsDisplay.js"></script>
+<script src="{{ components }}/FullSearchController.js"></script>
+<script src="{{ components }}/ResultsDisplay.js"></script>
+<script src="{{ components }}/Pager.js"></script>
 
-    <script src="{{ bs3 }}/FullSearchController.js"></script>
-    <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
+<script src="{{ bs3 }}/FullSearchController.js"></script>
+<script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
 
-    <script src="{{ static }}/edges.common.js"></script>
-    <script src="{{ static }}/variables.js"></script>
+<script src="{{ static }}/edges.common.js"></script>
+<script src="{{ static }}/variables.js"></script>
 
 {% endblock %}
