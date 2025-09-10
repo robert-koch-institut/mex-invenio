@@ -55,7 +55,7 @@ class IndexField(SystemField):
             print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
             print("Fallback: generating index_data using MexDumper...")
-            from mex_invenio.custom_search import MexDumper
+            from mex_invenio.services.search import MexDumper
 
             dumper = MexDumper()
             temp_data = {"index_data": {}}
