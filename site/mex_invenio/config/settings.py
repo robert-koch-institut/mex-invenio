@@ -553,7 +553,7 @@ RECORD_CARDS = {
             },
             "parentResources": {
                 "type": "container",
-                "title": "Parent Resources",
+                "title": "Related Resources",
                 "icon": "relatedResources.svg",
                 "components": [
                     {
@@ -602,7 +602,7 @@ RECORD_CARDS = {
             "keywords": {
                 "type": "single",
                 "title": "Keywords",
-                "icon": "keyword.svg",
+                "icon": "theme.svg",
                 "properties": [
                     "mex:keyword",
                 ],
