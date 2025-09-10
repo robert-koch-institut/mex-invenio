@@ -1,37 +1,22 @@
-# German translations for PROJECT.
-# Copyright (C) 2025 Robert Koch-Institut
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: mex@rki.de\n"
-"POT-Creation-Date: 2025-02-20 13:19+0000\n"
-"PO-Revision-Date: 2025-02-20 13:28+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: de\n"
-"Language-Team: de <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.16.0\n"
 
 msgid "Search repository"
 msgstr "Repository durchsuchen"
 
-msgid "Access Platform"
+msgid "Access platform"
 msgstr "Zugriffsplattform"
 
-msgid "Access Restriction"
-msgstr "Zugriffsbeschränkung"
+msgid "Access restriction"
+msgstr "Zugriffsplattform"
 
 msgid "Accrual Periodicity"
 msgstr "Frequenz"
 
-msgid "Alternative Title"
-msgstr "Alternativer Titel"
+#. AUTO-ADDED from canonical id alternativeTitle.singular
+msgid "Alternative title"
+msgstr "Alternativtitel"
 
 msgid "Anonymization Pseudonymization"
 msgstr "Anonymisierung/Pseudonymisierung"
@@ -42,7 +27,7 @@ msgstr "Standard"
 msgid "Contact"
 msgstr "Kontakt"
 
-msgid "Contributing Unit"
+msgid "Contributing unit"
 msgstr "Mitwirkendes Fachgebiet"
 
 msgid "Contributor"
@@ -66,7 +51,8 @@ msgstr "Dokumentation"
 msgid "Doi"
 msgstr "DOI"
 
-msgid "External Partner"
+#. AUTO-ADDED from canonical id externalPartner.singular
+msgid "External partner"
 msgstr "Weitere Beteiligte"
 
 msgid "Had Primary Source"
@@ -84,8 +70,9 @@ msgstr "ICD-10-Code"
 msgid "Identifier"
 msgstr "Identifier des extrahierten Metadatenobjekts"
 
-msgid "Identifier In Primary Source"
-msgstr "Identifier des Metadatenobjekts im Originaldatenspeicher"
+#. AUTO-ADDED from canonical id identifierInPrimarySource.singular
+msgid "Identifier in primary source"
+msgstr "Identifikator im Primärsystem"
 
 msgid "Includes"
 msgstr "Untergeordnete Ressourcen"
@@ -117,7 +104,8 @@ msgstr "Mesh-ID"
 msgid "Method"
 msgstr "Methode"
 
-msgid "Method Description"
+#. AUTO-ADDED from canonical id methodDescription.singular
+msgid "Method description"
 msgstr "Methodenbeschreibung"
 
 msgid "Min Typical Age"
@@ -126,7 +114,8 @@ msgstr "Minimales typisches Alter"
 msgid "Modified"
 msgstr "Letzte Änderung"
 
-msgid "Population Coverage"
+#. AUTO-ADDED from canonical id populationCoverage.singular
+msgid "Population coverage"
 msgstr "Bevölkerungsabdeckung"
 
 msgid "Publication"
@@ -135,7 +124,8 @@ msgstr "Publikation"
 msgid "Publisher"
 msgstr "Herausgeber"
 
-msgid "Quality Information"
+#. AUTO-ADDED from canonical id qualityInformation.singular
+msgid "Quality information"
 msgstr "Qualitätsinformationen"
 
 msgid "Resource Creation Method"
@@ -144,7 +134,8 @@ msgstr "Methodik"
 msgid "Rights"
 msgstr "Nutzungsbedingungen"
 
-msgid "Size Of Data Basis"
+#. AUTO-ADDED from canonical id sizeOfDataBasis.singular
+msgid "Size of data basis"
 msgstr "Datenbasis"
 
 msgid "Spatial"
@@ -170,14 +161,6 @@ msgstr "Zugehöriges Projekt"
 
 msgid "Variable"
 msgstr "Variable"
-
-#: Resource Cards Titles and headers
-
-msgid "Language"
-msgstr "Sprache"
-
-msgid "Created"
-msgstr "Erstellt"
 
 msgid "Creators & Contributors"
 msgstr "Verantwortliche & Mitwirkende"
@@ -212,9 +195,6 @@ msgstr "Verknüpfte Datenbestände & Datensätze"
 msgid "Views"
 msgstr "Aufrufe"
 
-msgid "Contact"
-msgstr "Kontakt"
-
 msgid "Access & Usage Rights"
 msgstr "Zugriff & Nutzungsrechte"
 
@@ -223,9 +203,6 @@ msgstr "Dateien"
 
 msgid "Metadata Version"
 msgstr "Metadaten-Version"
-
-msgid "Access Platform"
-msgstr "Zugriffsplattform"
 
 msgid "Variables"
 msgstr "Variablen"
@@ -252,26 +229,11 @@ msgstr "Projekt"
 msgid "Projects"
 msgstr "Projekte"
 
-msgid "Publication"
-msgstr "Publikation"
-
 msgid "Publications"
 msgstr "Publikationen"
 
-msgid "Variable"
-msgstr "Variable"
-
-msgid "Variables"
-msgstr "Variablen"
-
-msgid "Edit this record"
-msgstr "Eintrag editieren"
-
 msgid "About MEx"
 msgstr "Über MEx"
-
-msgid "Contact"
-msgstr "Kontakt"
 
 msgid "Data privacy"
 msgstr "Datenschutzerklärung"
@@ -282,14 +244,22 @@ msgstr "Barrierefreiheit"
 msgid "Imprint"
 msgstr "Impressum"
 
-msgid "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
-msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
+msgid ""
+"All information is based on information from the original data-storing "
+"systems. No guarantee is given for the accuracy, completeness, or timeliness"
+" of this information."
+msgstr ""
+"Alle Angaben basieren auf Informationen aus den datenhaltenden "
+"Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit "
+"und Aktualität dieser Informationen."
 
 msgid "Jump up"
 msgstr "Nach oben"
 
 msgid "If you wish to get in touch, please make sure to copy (CC)"
-msgstr "Sollten Sie Kontakt aufnehmen, achten Sie bitte darauf, general@example.com in Kopie (CC) zu setzen."
+msgstr ""
+"Sollten Sie Kontakt aufnehmen, achten Sie bitte darauf, general@example.com "
+"in Kopie (CC) zu setzen."
 
 msgid "Issued"
 msgstr "Ausgegeben"
@@ -303,11 +273,13 @@ msgstr "Haupttitel"
 msgid "Journal"
 msgstr "Zeitschrift"
 
+#.  AUTO-UPDATED
 msgid "Issue"
-msgstr "Heft"
+msgstr "Ausgabe"
 
+#.  AUTO-UPDATED
 msgid "Volume"
-msgstr "Band"
+msgstr "Zeitschriftenband"
 
 msgid "Title of book"
 msgstr "Buchtitel"
@@ -318,14 +290,16 @@ msgstr "Untertitel"
 msgid "Volume of series"
 msgstr "Reihenband"
 
+#.  AUTO-UPDATED
 msgid "Section"
-msgstr "Abschnitt"
+msgstr "Kapitel"
 
-msgid "Publication Place"
-msgstr "Erscheinungsort"
+msgid "Publication place"
+msgstr "Verlagsort"
 
-msgid "Publication Year"
-msgstr "Erscheinungsjahr"
+#. AUTO-ADDED from canonical id publicationYear.singular
+msgid "Publication year"
+msgstr "Veröffentlichungsjahr"
 
 msgid "Pages"
 msgstr "Seiten"
@@ -345,11 +319,13 @@ msgstr "Beteiligte Person"
 msgid "Responsible Unit"
 msgstr "Verantwortliche Einheit"
 
+#.  AUTO-UPDATED
 msgid "Start"
-msgstr "Beginn"
+msgstr "Laufzeitbeginn"
 
+#.  AUTO-UPDATED
 msgid "End"
-msgstr "Ende"
+msgstr "Laufzeitende"
 
 msgid "Thema"
 msgstr "Thema"
@@ -363,7 +339,8 @@ msgstr "Externer Mitarbeiter"
 msgid "Funder or Commissioner"
 msgstr "Förderer oder Auftraggeber"
 
-msgid "Funding Program"
+#. AUTO-ADDED from canonical id fundingProgram.singular
+msgid "Funding program"
 msgstr "Förderprogramm"
 
 msgid "Website"
@@ -374,3 +351,111 @@ msgstr "Übergeordnete Ressourcen"
 
 msgid "Succeeds"
 msgstr "Nachfolger"
+
+#. AUTO-ADDED from canonical id accrualPeriodicity.singular
+msgid "Update frequency"
+msgstr "Aktualisierungsfrequenz"
+
+#. AUTO-ADDED from canonical id anonymizationPseudonymization.singular
+msgid "Anonymization/pseudonymization"
+msgstr "Anonymisierung/Pseudonymisierung"
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Author"
+msgstr "Autor*in"
+
+#. AUTO-ADDED from canonical id hadPrimarySource.singular
+msgid "Primary Source"
+msgstr "Primärsystem"
+
+#. AUTO-ADDED from canonical id hasLegalBasis.singular
+msgid "Legal basis"
+msgstr "Rechtliche Grundlage"
+
+#. AUTO-ADDED from canonical id hasPersonalData.singular
+msgid "Personal data"
+msgstr "Personenbezogene Daten"
+
+#. AUTO-ADDED from canonical id icd10code.singular
+msgid "ICD-10"
+msgstr "ICD-10"
+
+msgid "Tool"
+msgstr "Tool"
+
+#. AUTO-ADDED from canonical id isPartOf.singular
+msgid "Superordinate data source/data set"
+msgstr "Übergeordneter Datenbestand/Datensatz"
+
+msgid "LoincId"
+msgstr "LOINC"
+
+msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+#. AUTO-ADDED from canonical id meshId.singular
+msgid "MeSH"
+msgstr "MeSH"
+
+#. AUTO-ADDED from canonical id minTypicalAge.singular
+msgid "Min. typical age"
+msgstr "Minimales typisches Alter"
+
+#. AUTO-ADDED from canonical id resourceCreationMethod.singular
+msgid "Creation method"
+msgstr "Methodik"
+
+#. AUTO-ADDED from canonical id resourceTypeGeneral.singular
+msgid "General type"
+msgstr "Allgemeine Datenart"
+
+#. AUTO-ADDED from canonical id resourceTypeSpecific.singular
+msgid "Specific type"
+msgstr "Spezifische Datenart"
+
+#. AUTO-ADDED from canonical id stableTargetId.singular
+msgid "Stable target id"
+msgstr "Stabiler Identifikator"
+
+#. AUTO-ADDED from canonical id stateOfDataProcessing.singular
+msgid "Data processing state"
+msgstr "Verarbeitungszustand"
+
+#. AUTO-ADDED from canonical id temporal.singular
+msgid "Temporal coverage"
+msgstr "Zeitlicher Bezug"
+
+msgid "Related project/endeavor"
+msgstr "Zugehöriges Projekt"
+
+msgid "Related data"
+msgstr "Zugehörige Daten"
+
+#. AUTO-ADDED from canonical id funderOrCommissioner.singular
+msgid "Funded / commissioned by"
+msgstr "Gefördert / in Auftrag gegeben durch"
+
+#. AUTO-ADDED from canonical id titleOfBook.singular
+msgid "Book title"
+msgstr "Buchtitel"
+
+#. AUTO-ADDED from canonical id titleOfSeries.singular
+msgid "Title of series"
+msgstr "Serientitel"
+
+#. AUTO-ADDED from canonical id isbnIssn.singular
+msgid "ISBN / ISSN"
+msgstr "ISBN / ISSN"
+
+#. AUTO-ADDED from canonical id editorOfSeries.description
+msgid "Editor of the series"
+msgstr "Herausgebende der Reihe"
+
+msgid "Other identifier"
+msgstr "Anderer Identifikator"
+
+#. AUTO-ADDED from canonical id repositoryURL.singular
+msgid "Repository URL"
+msgstr "Repository-URL"
