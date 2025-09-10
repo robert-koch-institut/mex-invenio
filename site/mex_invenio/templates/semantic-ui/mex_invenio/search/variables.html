@@ -1,40 +1,61 @@
-{%- extends "invenio_theme/page.html" %}
+{%- extends "invenio_theme/page.html" %} {% block css %} {{ super() }}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/custom_search_page.css') }}"
+/>
+{% endblock %} {% block page_body %}
+<style>
+  .variable-details {
+    display: none;
+  }
+  .variable-details.open {
+    display: table-row;
+  }
+  .details-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 6px;
+  }
+  .variable-summary {
+    cursor: pointer;
+  }
+  .variable-summary:hover {
+    background: #f0f0f0;
+  }
+</style>
 
-{% block page_body %}
-    <div id="contact-page" class="ui container">
-        <h1>Variables</h1>
-        {% block root_section %}
-            <div id="root-container" class="panel-body ui grid container">
-                <div id="resources-container" class="six wide column"></div>
-                <div id="variables-container" class="ten wide column"></div>
-            </div>
-        {% endblock %}
-    </div>
-{% endblock %}
+<div id="contact-page" class="ui container">
+  <section class="banner">
+    <small>Search our</small>
+    <h1>Variables</h1>
+  </section>
+  {% block root_section %}
+  <div id="root-container" class="panel-body ui grid container">
+    <div id="resources-container" class="four wide column"></div>
+    <div id="variables-container" class="twelve wide column"></div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %} {% block javascript %} {{ super() }} {% set static="/static/js"
+%} {% set edges=static ~ "/edges" %} {% set vendor = edges ~ "/vendor" %} {% set
+src=edges ~ "/src" %} {% set components=src ~ "/components" %} {% set bs3=src ~
+"/renderers/bs3" %}
 
-{% block javascript %}
-    {{ super() }}
+<script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="{{ src }}/datasources/es7x.js"></script>
+<script src="{{ src }}/edges.js"></script>
 
-    {% set static="/static/js" %}
-    {% set edges=static ~ "/edges" %}
-    {% set vendor = edges ~ "/vendor" %}
-    {% set src=edges ~ "/src" %}
-    {% set components=src ~ "/components" %}
-    {% set bs3=src ~ "/renderers/bs3" %}
+<script src="{{ src }}/templates/bs3/Facetview.js"></script>
 
-    <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <script src="{{ src }}/datasources/es7x.js"></script>
-    <script src="{{ src }}/edges.js"></script>
+<script src="{{ components }}/FullSearchController.js"></script>
+<script src="{{ components }}/ResultsDisplay.js"></script>
+<script src="{{ components }}/Pager.js"></script>
 
-    <script src="{{ src }}/templates/bs3/Facetview.js"></script>
+<script src="{{ bs3 }}/FullSearchController.js"></script>
+<script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
 
-    <script src="{{ components }}/FullSearchController.js"></script>
-    <script src="{{ components }}/ResultsDisplay.js"></script>
-
-    <script src="{{ bs3 }}/FullSearchController.js"></script>
-    <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
-
-    <script src="{{ static }}/edges.common.js"></script>
-    <script src="{{ static }}/variables.js"></script>
+<script src="{{ static }}/edges.common.js"></script>
+<script src="{{ static }}/variables.js"></script>
 
 {% endblock %}

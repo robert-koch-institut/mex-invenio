@@ -213,6 +213,7 @@ edges.mex.fullSearchController = function (params) {
       searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
       searchButtonText: params.searchButtonText || edges.mex._("Search"),
       freetextSubmitDelay: params.freetextSubmitDelay || -1,
+      searchTitle: params.searchTitle || edges.mex._("Search"),
     }),
   });
 };
@@ -223,6 +224,7 @@ edges.mex.pager = function (params) {
     category: params.category || "middle",
     renderer: new edges.mex.renderers.Pager({
       showSizeSelector: false,
+      showPageNavigation: params.showPageNavigation ?? true,
     }),
   });
 };
@@ -235,7 +237,7 @@ edges.mex.pagerSelector = function (params) {
       showSizeSelector: true,
       sizePrefix: edges.mex._("Show"),
       sizeSuffix: edges.mex._("results per page"),
-      showPageNavigation: false,
+      showPageNavigation: params.showPageNavigation ?? false,
       showRecordCount: false,
       customClassForSizeSelector: "page-size-selector",
     }),
@@ -646,9 +648,56 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
       }
     }
 
+    // Left category
+    let leftComps = edge.category("left");
+    let leftContainers = "";
+    let leftClass = edges.util.styleClasses(this.namespace, "left-component");
+
+    if (leftComps.length > 0) {
+      for (let i = 0; i < leftComps.length; i++) {
+        let container = `<div class="${leftClass}"><div id="${leftComps[i].id}"></div></div>`;
+        leftContainers += container;
+      }
+    }
+
+    // Middle category
+    let middleComps = edge.category("middle");
+    let middleContainers = "";
+    let middleClass = edges.util.styleClasses(
+      this.namespace,
+      "middle-component"
+    );
+
+    if (middleComps.length > 0) {
+      for (let i = 0; i < middleComps.length; i++) {
+        let container = `<div class="${middleClass}"><div id="${middleComps[i].id}"></div></div>`;
+        middleContainers += container;
+      }
+    }
+
+    // Right category - Added for future
+    let rightComps = edge.category("right");
+    let rightContainers = "";
+    let rightClass = edges.util.styleClasses(this.namespace, "right-component");
+
+    if (rightComps.length > 0) {
+      for (let i = 0; i < rightComps.length; i++) {
+        let container = `<div class="${rightClass}"><div id="${rightComps[i].id}"></div></div>`;
+        rightContainers += container;
+      }
+    }
+
     let frag = `
             <div class="ui grid container">
-                <div class="column">
+                <div class="ui grid container column-split">
+                  <div class="three wide column">
+                    ${leftContainers}
+                  </div>
+                  <div class="wide column" style="flex: 1;">
+                      ${middleContainers}
+                  </div>
+                </div>
+                <div class="sixteen wide column">
                     ${compContainers}
                 </div>
             </div>
@@ -1348,6 +1397,8 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       500
     );
 
+    this.searchTitle = edges.util.getParam(params, "searchTitle", "Search");
+
     ////////////////////////////////////////
     // state variables
 
@@ -1467,22 +1518,28 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       this
     );
 
+    let sortColumn = sortFrag
+      ? `<div class="three wide column">${sortFrag}</div>`
+      : "";
+
+    let searchColumn = searchFrag
+      ? `<div class="one wide column">${searchFrag}</div>`
+      : "";
+
     // Upgrading the search UI as per sematic ui
     let frag = `
     <div class="ui grid ${containerClass}">
         <div class="row middle aligned">
             <div class="search-label">
-                <label><h3>Search</h3></label>
+                <label><h3>
+                  ${this.searchTitle}
+                </h3></label>
             </div>
             <div class="eleven wide column">
                 ${searchBox}
             </div>
-            <div class="three wide column">
-                ${sortFrag}
-            </div>
-            <div class="one wide column">
-                ${searchFrag}
-            </div>
+             ${sortColumn}
+            ${searchColumn}
         </div>
     </div>`;
 
@@ -2744,11 +2801,11 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
 
     let frag = `<div class="ui grid ${containerClass}">`;
 
-    frag += `<div class="sixteen wide column">${sizer}</div>`;
-
     if (this.showPageNavigation) {
       frag += `<div class="sixteen wide column">${nav}</div>`;
     }
+
+    frag += `<div class="sixteen wide column">${sizer}</div>`;
 
     frag += `</div>`;
 
@@ -3507,8 +3564,22 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
                         <tbody>
                             ${frag}
                         </tbody>
-                    </table>`;
+                    </table>
+                    <br/><br/>`;
+
     this.component.context.html(container);
+
+    let selectSelector = edges.util.jsClassSelector(
+      this.namespace,
+      "select",
+      this.component.id
+    );
+
+    edges.on(selectSelector, "click", this, "toggleRow");
+  }
+
+  toggleRow(el) {
+    console.log("El", el);
   }
 
   _renderResult(res) {
@@ -3526,12 +3597,42 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
       this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
     );
 
-    let frag = `<tr>
-            <td>${label}</td>
-            <td>${resource}</td>
-            <td>${group}</td>
-            <td>${dataType}</td>
-        </tr>`;
+    let selectClass = edges.util.jsClasses(
+      this.namespace,
+      "select",
+      this.component.id
+    );
+
+    // let frag = `<tr>
+    //         <td>${label}</td>
+    //         <td>${resource}</td>
+    //         <td>${group}</td>
+    //         <td>${dataType}</td>
+    //     </tr>`;
+    // return frag;
+
+    // each row will have a "summary row" and a hidden "details row"
+    let frag = `
+      <tr class="${selectClass}'>
+        <span class="variable-summary" >
+           <td>${label}</td>
+        <td>${resource}</td>
+        <td>${group}</td>
+        <td>${dataType}</td>
+        </span>
+        <span class="variable-details">
+        <td colspan="4">
+            <div class="details-card">
+                <h4>${label}</h4>
+                <p><strong>Data Source:</strong> ${resource}</p>
+                <p><strong>Variable Group:</strong> ${group}</p>
+                <p><strong>Data type:</strong> ${dataType}</p>
+
+            </div>
+        </td>
+    </span>
+      </tr>
+  `;
     return frag;
   }
 
