@@ -285,7 +285,7 @@ aside {
 }
 
 .id-tags {
-    margin: 2rem 0.5rem;
+    margin: 2rem 1rem;
     .id-tag {
         display: inline-flex;
         align-items: center;
