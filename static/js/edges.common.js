@@ -3632,8 +3632,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
   //   return frag;
   // }
 
-
-  draw() {
+draw() {
   var frag = this.noResultsText;
   if (this.component.results === false) {
     frag = "";
@@ -3654,7 +3653,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
   );
   var containerClassSelector = "." + containerClasses.trim().split(/\s+/).join(".");
 
-  // --- Expand/Collapse All button ---
+  // Expand/Collapse all button
   var expandAllBtn = `
     <div class="expand-toggle">
       <button class="ui button expand-all" data-state="collapsed">
@@ -3681,43 +3680,125 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     <br/><br/>
   `;
 
+  // render
   this.component.context.html(container);
 
+  // cache jQuery nodes
   var $ctx = this.component.context;
   var $table = $ctx.find(containerClassSelector);
+  var $expandBtn = $ctx.find(".expand-all");
 
-  // row toggle
-  $table.off("click", "tr.variable-summary");
-  $table.on("click", "tr.variable-summary", function () {
-    var $row = $(this);
-    var $details = $row.next("tr.variable-details");
-    var willOpen = !$details.is(":visible");
+  // helper to update expand-all button state text based on rows state
+  function updateExpandAllState() {
+    var total = $table.find("tr.variable-row").length;
+    var expandedCount = $table.find("tr.variable-row.expanded").length;
+    if (total > 0 && expandedCount === total) {
+      $expandBtn.attr("data-state", "expanded").text(edges.mex._("Collapse all"));
+    } else {
+      $expandBtn.attr("data-state", "collapsed").text(edges.mex._("Expand all"));
+    }
+  }
 
-    $details.slideToggle(140);
-    $row.toggleClass("expanded", willOpen);
+  // helper to update which summary column is visually 'active' inside the expanded card
+  function setActiveColumn($row, colIndex) {
+    // remove any previous active classes
+    $row.removeClass("active-col-1 active-col-2 active-col-3 active-col-4");
+    if (!colIndex) return;
+    $row.addClass("active-col-" + colIndex);
+    $row.data("activeCol", colIndex);
+  }
+
+  // per-cell click: expand/collapse a single row and set active column
+  $table.off("click", "td.collapsed-view");
+  $table.on("click", "td.collapsed-view", function (e) {
+    e.stopPropagation();
+    var $td = $(this);
+    var $row = $td.closest("tr.variable-row");
+
+    // compute column index among the collapsed-view tds (1..4)
+    var colIndex = $row.find("td.collapsed-view").index($td) + 1;
+
+    var $collapsed = $row.find("td.collapsed-view");
+    var $expanded = $row.find("td.expanded-view");
+
+    var isOpen = $expanded.is(":visible");
+
+    if (isOpen) {
+      // if already open and clicked same col -> collapse, else change highlight
+      var current = $row.data("activeCol");
+      if (current === colIndex) {
+        // collapse
+        $expanded.hide();
+        $collapsed.show();
+        $row.removeClass("expanded");
+        $row.removeData("activeCol");
+        setActiveColumn($row, null);
+      } else {
+        // keep expanded but change highlighted column
+        setActiveColumn($row, colIndex);
+      }
+    } else {
+      // expand this row and highlight clicked column
+      $collapsed.hide();
+      $expanded.show();
+      $row.addClass("expanded");
+      setActiveColumn($row, colIndex);
+    }
+
+    // update the Expand-all button state (if some rows now mixed)
+    updateExpandAllState();
   });
 
-  // expand/collapse all toggle
-  var $expandBtn = $ctx.find(".expand-all");
-  $expandBtn.off("click").on("click", function () {
-    var state = $(this).attr("data-state");
+  // allow clicking whole summary row (outside specific td) to toggle without column highlight
+  $table.off("click", "tr.variable-row");
+  $table.on("click", "tr.variable-row", function (e) {
+    // if user clicked inside expanded area, ignore (only target collapsed rows)
+    var $row = $(this);
+    if ($row.find("td.expanded-view").is(":visible")) {
+      // collapse it
+      $row.find("td.expanded-view").hide();
+      $row.find("td.collapsed-view").show();
+      $row.removeClass("expanded").removeData("activeCol");
+      setActiveColumn($row, null);
+      updateExpandAllState();
+    }
+  });
 
+  // Expand / Collapse All
+  $expandBtn.off("click").on("click", function (e) {
+    e.preventDefault();
+    var state = $(this).attr("data-state") || "collapsed";
     if (state === "collapsed") {
-      // expand all
-      $table.find("tr.variable-details").slideDown(140);
-      $table.find("tr.variable-summary").addClass("expanded");
+      // expand every row (no particular column highlighted)
+      $table.find("tr.variable-row").each(function () {
+        var $r = $(this);
+        $r.find("td.collapsed-view").hide();
+        $r.find("td.expanded-view").show();
+        $r.addClass("expanded");
+        $r.removeData("activeCol");
+        setActiveColumn($r, null);
+      });
       $(this).attr("data-state", "expanded").text(edges.mex._("Collapse all"));
     } else {
-      // collapse all
-      $table.find("tr.variable-details").slideUp(140);
-      $table.find("tr.variable-summary").removeClass("expanded");
+      // collapse every row
+      $table.find("tr.variable-row").each(function () {
+        var $r = $(this);
+        $r.find("td.expanded-view").hide();
+        $r.find("td.collapsed-view").show();
+        $r.removeClass("expanded");
+        $r.removeData("activeCol");
+        setActiveColumn($r, null);
+      });
       $(this).attr("data-state", "collapsed").text(edges.mex._("Expand all"));
     }
   });
+
+  // ensure initial button state
+  updateExpandAllState();
 }
 
 _renderResult(res) {
-  // values (escaped)
+  // get fields (escaped)
   let label = edges.util.escapeHtml(
     this._getLangVal("custom_fields.mex:label", res, "No label")
   );
@@ -3731,51 +3812,61 @@ _renderResult(res) {
     this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
   );
 
-  // helper js-class (keeps existing edges/js-class behaviour)
   let selectClass = edges.util.jsClasses(
     this.namespace,
     "select",
     this.component.id
   );
 
-  // summary row + hidden details row (valid table HTML)
+  // one table row: 4 collapsed cells + a single expanded cell (colspan=4)
   let frag = `
-    <tr class="${selectClass} variable-summary" role="button" aria-expanded="false">
-      <td>${label}</td>
-      <td>${resource}</td>
-      <td>${group}</td>
-      <td>${dataType}</td>
-    </tr>
-    <tr class="variable-details" style="display:none;">
-      <td colspan="4">
-        <div class="details-card" aria-hidden="true">
-          <div class="details-grid">
-            <div class="details-left">
-              <h4 class="details-title">${label}</h4>
-              <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
+    <tr class="${selectClass} variable-row" data-label="${label}" role="row">
+      <!-- collapsed (default visible) -->
+      <td class="collapsed-view">${label}</td>
+      <td class="collapsed-view">${resource}</td>
+      <td class="collapsed-view">${group}</td>
+      <td class="collapsed-view">${dataType}</td>
+
+      <!-- expanded view: hidden by default; spans the full row when shown -->
+      <td class="expanded-view" colspan="4" style="display:none;">
+        <div class="details-card" role="region" aria-hidden="true">
+          <div class="summary-grid" role="list">
+            <div class="summary-item" data-col="1">
+              <div class="summary-label">${edges.mex._("Variables")}</div>
+              <div class="summary-value">${label}</div>
             </div>
-            <div class="details-right">
-              <p><strong>Data Source</strong><br/>${resource}</p>
-              <p><strong>Variable Group</strong><br/>${group}</p>
-              <p><strong>Data type</strong><br/>${dataType}</p>
+            <div class="summary-item" data-col="2">
+              <div class="summary-label">${edges.mex._("Data Source")}</div>
+              <div class="summary-value">${resource}</div>
+            </div>
+            <div class="summary-item" data-col="3">
+              <div class="summary-label">${edges.mex._("Variable Group")}</div>
+              <div class="summary-value">${group}</div>
+            </div>
+            <div class="summary-item" data-col="4">
+              <div class="summary-label">${edges.mex._("Data Type")}</div>
+              <div class="summary-value">${dataType}</div>
             </div>
           </div>
 
-          <!-- example coding system block; adapt or remove if not available -->
-          <div class="coding-system">
-            <div class="coding-system-title"><strong>Coding System</strong></div>
-            <div class="coding-values">
-              <div><span class="code">0</span> <span class="label">Female</span></div>
-              <div><span class="code">1</span> <span class="label">Male</span></div>
+          <div class="details-extra">
+            <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
+
+            <div class="coding-system">
+              <div class="coding-title"><strong>${edges.mex._("Coding System")}</strong></div>
+              <div class="coding-values">
+                <div><span class="code">0</span> <span class="label">${edges.mex._("Female")}</span></div>
+                <div><span class="code">1</span> <span class="label">${edges.mex._("Male")}</span></div>
+              </div>
             </div>
           </div>
-
         </div>
       </td>
     </tr>
   `;
   return frag;
 }
+
 
 toggleRow(evOrEl) {
   // tolerant toggleRow: supports being called with an event (edges.on) or an element/jQuery
