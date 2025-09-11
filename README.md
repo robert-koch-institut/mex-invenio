@@ -80,17 +80,5 @@ pipenv install -d
 To run the tests, execute the following command:
 
 ```bash
-pipenv run pytest
-```
-
-with the option -W ignore to suppress warnings:
-
-```bash
-pipenv run pytest -W ignore
-```
-
-with the option -s to show stdout from the app:
-
-```bash
-pipenv run pytest -W ignore -s
+./run-tests.sh
 ```
