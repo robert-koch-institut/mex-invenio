@@ -658,15 +658,9 @@ RECORD_CARDS = {
                 "components": [
                     {
                         "type": "component",
-                        "title": "Activity Publication",
-                        "properties": ["mex:isPartOfActivity"],
-                    },
-                    {
-                        "type": "component",
-                        "title": "Resource Publication",
                         "is_backwards_linked": True,
-                        "properties": ["mex:isPartOf"],
-                    },
+                        "properties": ["mex:publication"],
+                    }
                 ],
             },
         },
@@ -703,8 +697,7 @@ PROPS_WITHOUT_LABELS = {
         "mex:contact",
     ],
     "bibliographicresource": [
-        "mex:isPartOf",
-        "mex:isPartOfActivity",
+        "mex:publication",
         "mex:contact",
         "mex:keyword",
     ],
