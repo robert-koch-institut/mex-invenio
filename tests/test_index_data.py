@@ -61,8 +61,6 @@ def test_index_data_creator_contributor(
 
     # The search results already contain index_data populated by the indexing process
     index_data = resource_record.get("index_data", {})
-
-    print("=== DEBUG: Expected both contributors ===")
     expected_contributors = resource_data["contributor"]
 
     # Verify both contributors should be present
