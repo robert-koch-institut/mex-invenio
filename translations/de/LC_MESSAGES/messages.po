@@ -469,4 +469,3 @@ msgstr "Modifiziert"
 
 msgid "Purpose of data processing"
 msgstr "Zweck der Datenverarbeitung"
-
