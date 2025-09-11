@@ -120,8 +120,8 @@ msgstr "Methodenbeschreibung"
 msgid "Min Typical Age"
 msgstr "Minimales typisches Alter"
 
-msgid "Modified"
-msgstr "Letzte Änderung"
+# msgid "Modified"
+# msgstr "Letzte Änderung"
 
 #. AUTO-ADDED from canonical id populationCoverage.singular
 msgid "Population coverage"
@@ -463,3 +463,9 @@ msgstr "Anderer Identifikator"
 #. AUTO-ADDED from canonical id repositoryURL.singular
 msgid "Repository URL"
 msgstr "Repository-URL"
+
+msgid "Modified"
+msgstr "Letzte Änderung"
+
+msgid "Purpose of data processing"
+msgstr "Zweck der Datenverarbeitung"

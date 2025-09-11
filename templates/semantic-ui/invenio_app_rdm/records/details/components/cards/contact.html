@@ -23,8 +23,7 @@
             {% for prop in card.properties %}
                 {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
                 {% if value %}
-                    <div class="card-props-p">
-                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                    <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}
