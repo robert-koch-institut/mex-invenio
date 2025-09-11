@@ -465,7 +465,7 @@ msgid "Repository URL"
 msgstr "Repository-URL"
 
 msgid "Modified"
-msgstr "Modifiziert"
+msgstr "Letzte Änderung"
 
 msgid "Purpose of data processing"
 msgstr "Zweck der Datenverarbeitung"

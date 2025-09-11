@@ -426,14 +426,13 @@ RECORD_CARDS = {
                 "type": "single",
                 "title": "Legal Basis & Data Provenance",
                 "icon": "legal.svg",
-                "properties": ["mex:hasLegalBasis", "mex:hasPersonalData"],
+                "properties": ["mex:hasLegalBasis", "mex:hasPurpose", "mex:hasPersonalData"],
             },
             "processing": {
                 "type": "single",
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
-                    "mex:hasPurpose",
                     "mex:resourceCreationMethod",
                     "mex:accrualPeriodicity",
                     "mex:anonymizationPseudonymization",
