@@ -3,7 +3,6 @@
 
 import json
 import logging
-import os
 import re
 from unittest.mock import patch, MagicMock
 
@@ -102,10 +101,7 @@ def resource_type_type(app):
 @pytest.fixture(scope="module")
 def resource_type_v(app, resource_type_type):
     """Resource type vocabulary record."""
-    Vocabulary.index.create(ignore=400)
-    vocab = vocabulary_service.create(
-        system_identity,
-        {
+    vocabs = [{
             "id": "contactpoint",
             "icon": "code",
             "props": {"type": "contactpoint"},
@@ -113,10 +109,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "organizationalunit",
             "icon": "code",
@@ -125,10 +117,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "resource",
             "icon": "code",
@@ -137,10 +125,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "person",
             "icon": "code",
@@ -149,7 +133,22 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
+        {
+            "id": "accessplatform",
+            "icon": "code",
+            "props": {"type": "accessplatform"},
+            "title": {"en": "Access platform"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
+    ]
+
+    Vocabulary.index.create(ignore=400)
+
+    for vocab in vocabs:
+        vocabulary_service.create(
+            system_identity, vocab
+        )
 
     """vocab = vocabulary_service.create(
         system_identity,
