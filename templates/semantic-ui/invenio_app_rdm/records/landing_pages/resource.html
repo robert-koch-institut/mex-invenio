@@ -27,13 +27,17 @@
     {%- block lang_and_date -%}
         {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
         {% set created = val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) %}
-        {% if language or created %}
+        {% set modified = val(config.RECORD_SPECIAL_FIELDS.MODIFIED, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.MODIFIED], resource_type) %}
+        {% if language or created or modified %}
             <section class="detail">
                 {% if language %}
                     <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
                 {% endif %}
                 {% if created %}
                     <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
+                {% endif %}
+                {% if modified %}
+                    <p class="muted"><b>{{ _('Modified') }}:</b>{{ modified }}</p>
                 {% endif %}
             </section>
         {% endif %}

@@ -380,6 +380,8 @@ FIELD_LABELS_UI = {
     "mex:end": "End",
     "mex:website": "Website",
     "mex:succeeds": "Succeeds",
+    "mex:modified": "Modified",
+    "mex:hasPurpose": "Purpose of data processing"
 }
 
 RECORD_CARDS = {
@@ -431,6 +433,7 @@ RECORD_CARDS = {
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
+                    "mex:hasPurpose",
                     "mex:resourceCreationMethod",
                     "mex:accrualPeriodicity",
                     "mex:anonymizationPseudonymization",
@@ -689,14 +692,14 @@ RECORD_CARDS = {
 }
 
 PROPS_WITHOUT_LABELS = {
-    "resource": ["mex:isPartOf", "mex:contact"],
+    "resource": ["mex:isPartOf", "mex:contact", "mex:distribution", "mex:usedIn"],
     "activity": [
         "mex:isPartOfActivity",
         "mex:wasGeneratedBy",
         "mex:succeeds",
         "mex:contact",
     ],
-    "bibliographicresource": ["mex:isPartOf", "mex:isPartOfActivity", "mex:contact"],
+    "bibliographicresource": ["mex:isPartOf", "mex:isPartOfActivity", "mex:contact", "mex:keyword"],
 }
 
 IS_ACCESS_STATUS_OPEN = {
@@ -995,6 +998,7 @@ RECORD_SPECIAL_FIELDS = {
     "ABSTRACT": "mex:abstract",
     "BIBLIOGRAPHICRESOURCE_TYPE": "mex:bibliographicResourceType",
     "ISSUED": "mex:issued",
+    "MODIFIED": "mex:modified"
 }
 
 EXTIDS = {
