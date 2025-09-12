@@ -12,7 +12,7 @@ msgid "Access platform"
 msgstr "Zugriffsplattform"
 
 msgid "Access restriction"
-msgstr "Zugriffsplattform"
+msgstr "Zugriffsbeschränkung"
 
 msgid "Accrual Periodicity"
 msgstr "Frequenz"
@@ -120,8 +120,8 @@ msgstr "Methodenbeschreibung"
 msgid "Min Typical Age"
 msgstr "Minimales typisches Alter"
 
-# msgid "Modified"
-# msgstr "Letzte Änderung"
+msgid "Modified"
+msgstr "Letzte Änderung"
 
 #. AUTO-ADDED from canonical id populationCoverage.singular
 msgid "Population coverage"
@@ -196,13 +196,13 @@ msgid "Standards & Quality"
 msgstr "Standards & Qualität"
 
 msgid "Related Projects"
-msgstr "Verknüpfte Projekte"
+msgstr "Zugehörige Projekte"
 
 msgid "Related Publications & Further Documentation"
 msgstr "Veröffentlichungen & Dokumentation"
 
 msgid "Related Resources"
-msgstr "Verknüpfte Ressourcen"
+msgstr "Zugehörige Ressourcen"
 
 msgid "Views"
 msgstr "Aufrufe"
@@ -321,7 +321,7 @@ msgid "Involved Person"
 msgstr "Beteiligte Person"
 
 msgid "Responsible unit"
-msgstr "Verantwortliche Fachgebiet"
+msgstr "Verantwortliches Fachgebiet"
 
 #.  AUTO-UPDATED
 msgid "Start"
@@ -354,11 +354,11 @@ msgid "Parent Resources"
 msgstr "Übergeordnete Ressourcen"
 
 msgid "Succeeds"
-msgstr "Nachfolger"
+msgstr "Nachfolger zu"
 
 #. AUTO-ADDED from canonical id accrualPeriodicity.singular
 msgid "Update frequency"
-msgstr "Aktualisierungsfrequenz"
+msgstr "Frequenz"
 
 #. AUTO-ADDED from canonical id anonymizationPseudonymization.singular
 msgid "Anonymization/pseudonymization"
