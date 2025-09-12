@@ -28,14 +28,13 @@ edges.instances.variables.init = function () {
         searchPlaceholder: edges.mex._("Find resources..."),
         searchTitle: edges.mex._("Search Resources By Title"),
       }),
-      edges.mex.recordSelector({
-        view: "compact",
+      edges.mex.recordSelectorCompact({
         category: "column",
       }),
       edges.mex.resourceDisplay({
         category: "column",
         onSelectToggle: function (params) {
-          let selector = edges.mex.active["variables-resources"].getComponent({
+          let selector = edges.active["variables-resources"].getComponent({
             id: "selector",
           });
           let ids = selector.ids();
@@ -52,12 +51,15 @@ edges.instances.variables.init = function () {
           nq.removeMust(
             new es.TermsFilter({ field: "custom_fields.mex:usedIn.keyword" })
           );
-          nq.addMust(
-            new es.TermsFilter({
-              field: "custom_fields.mex:usedIn.keyword",
-              values: mexids,
-            })
-          );
+
+          if (mexids.length > 0) {
+            nq.addMust(
+                new es.TermsFilter({
+                  field: "custom_fields.mex:usedIn.keyword",
+                  values: mexids,
+                })
+            );
+          }
 
           e.pushQuery(nq);
           e.cycle();
@@ -110,11 +112,7 @@ edges.instances.variables.init = function () {
         searchPlaceholder: edges.mex._("Find variables..."),
         searchTitle: "Search Variable By Name",
       }),
-
-      // TODO: I've done a basic variables display as a table, it will need a full work-up instead
       edges.mex.variablesDisplay(),
-
-      // TODO: add pager component
       edges.mex.pagerSelector({
         category: "column",
         showPageNavigation: true,

@@ -258,23 +258,27 @@ edges.mex.recordSelector = function (params) {
     if (!params) {
         params = {};
     }
-    if (params.view && params.view === "compact") {
-        return new edges.mex.components.Selector({
-            id: params.id || "selector",
-            category: params.category || "right",
-            renderer: new edges.mex.renderers.CompactSelectedRecords({
-                title: edges.mex._("Variables Query Filters"),
-            }),
-        });
-    } else {
-        return new edges.mex.components.Selector({
-            id: params.id || "selector",
-            category: params.category || "right",
-            renderer: new edges.mex.renderers.SelectedRecords({
-                title: edges.mex._("Variables Query Filters"),
-            }),
-        });
+    return new edges.mex.components.Selector({
+        id: params.id || "selector",
+        category: params.category || "right",
+        renderer: new edges.mex.renderers.SelectedRecords({
+            title: edges.mex._("Variables Query Filters"),
+        }),
+    });
+};
+
+edges.mex.recordSelectorCompact = function (params) {
+    if (!params) {
+        params = {};
     }
+    return new edges.mex.components.Selector({
+        id: params.id || "selector",
+        category: params.category || "right",
+        renderer: new edges.mex.renderers.CompactSelectedRecords({
+            showIfEmpty: true,
+            title: edges.mex._("Variables Query Filters"),
+        }),
+    });
 };
 
 edges.mex.makeEdge = function (params) {
@@ -1351,11 +1355,18 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
 
     draw() {
         if (this.component.length === 0 && this.showIfEmpty) {
-            this.component.context.html(
-                `<h2>${edges.mex._(this.title)}</h2><p>${edges.mex._(
-                    "No records selected."
-                )}</p>`
-            );
+            let frag = `<div class="card card-shadow">
+                <div class="divider"></div>
+
+                <h4 class="title" style="margin:0px">${this.title}</h4>
+                <div>
+                    <p>${edges.mex._(
+                        `Search for resources here.  Selecting a resource will limit the variables displayed to
+                        those associated with the selected resources.`
+                    )}</p>
+                </div>
+            </div>`
+            this.component.context.html(frag);
             return;
         }
 
@@ -1411,13 +1422,13 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 `;
         }
 
-        let verticalBar = document.getElementById("vertical-tab");
-        if (verticalBar) {
-            const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${edges.mex._(
-                "Variables Query Filters"
-            )} ${length > 0 ? `(${length})` : ""} </span>`;
-        }
+        // let verticalBar = document.getElementById("vertical-tab");
+        // if (verticalBar) {
+        //     const length = this.component.length;
+        //     verticalBar.innerHTML = `<span> ${edges.mex._(
+        //         "Variables Query Filters"
+        //     )} ${length > 0 ? `(${length})` : ""} </span>`;
+        // }
 
         this.component.context.html(frag);
 
@@ -4018,30 +4029,30 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
         // Expand/Collapse all button
         var expandAllBtn = `
-    <div class="expand-toggle">
-      <button class="ui button expand-all" data-state="collapsed">
-        ${edges.mex._("Expand all")}
-      </button>
-    </div>
-  `;
+            <div class="expand-toggle">
+              <button class="ui button expand-all" data-state="collapsed">
+                ${edges.mex._("Expand all")}
+              </button>
+            </div>
+          `;
 
         var container = `
-    ${expandAllBtn}
-    <table class="${containerClasses} ui celled table">
-      <thead>
-        <tr>
-          <th>${edges.mex._("Variables")}</th>
-          <th>${edges.mex._("Data Source")}</th>
-          <th>${edges.mex._("Variable Group")}</th>
-          <th>${edges.mex._("Data Type")}</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${frag}
-      </tbody>
-    </table>
-    <br/><br/>
-  `;
+            ${expandAllBtn}
+            <table class="${containerClasses} ui celled table">
+              <thead>
+                <tr>
+                  <th>${edges.mex._("Variables")}</th>
+                  <th>${edges.mex._("Data Source")}</th>
+                  <th>${edges.mex._("Variable Group")}</th>
+                  <th>${edges.mex._("Data Type")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${frag}
+              </tbody>
+            </table>
+            <br/><br/>
+          `;
 
         // render
         this.component.context.html(container);
@@ -4171,10 +4182,10 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             edges.util.pathValue(`index_data.${langPrefix}UsedInResource`, res, "")
         );
         let group = edges.util.escapeHtml(
-            edges.util.pathValue(`index_data.${langPrefix}UsedInResource`, res, "")
+            edges.util.pathValue(`index_data.belongsToLabel`, res, "")
         );
         let dataType = edges.util.escapeHtml(
-            this._getLangVal("custom_fields.mex:dataType", res, "Unknown")
+            edges.util.pathValue('custom_fields.mex:dataType', res, edges.mex._("Unknown"))
         );
 
         let selectClass = edges.util.jsClasses(
