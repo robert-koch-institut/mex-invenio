@@ -150,14 +150,14 @@ class MexDumper(SearchDumper):
         log.append("Contributor results:" + str(len(results)))
 
         for contributor in results:
-            contributors = self._get_all_possible_names(contributor)
+            contributors.extend(self._get_all_possible_names(contributor))
 
         log.append("Contributors:" + str(contributors))
         dump_data["index_data"]["contributors"] = contributors
 
     def _creators(self, record, dump_data, log):
         creators = []
-        creator_ids = self._get_custom_field_list(record, "mex:contributor")
+        creator_ids = self._get_custom_field_list(record, "mex:creator")
 
         if len(creator_ids) == 0:
             return
@@ -168,7 +168,7 @@ class MexDumper(SearchDumper):
         log.append("Creator results:" + str(len(results)))
 
         for creator in results:
-            creators = self._get_all_possible_names(creator)
+            creators.extend(self._get_all_possible_names(creator))
 
         log.append("Creators:" + str(creators))
         dump_data["index_data"]["creators"] = creators
@@ -186,7 +186,7 @@ class MexDumper(SearchDumper):
         log.append("External Partner results:" + str(len(results)))
 
         for partner in results:
-            external_partners = self._get_all_possible_names(partner)
+            external_partners.extend(self._get_all_possible_names(partner))
 
         # external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
         log.append("External Partners:" + str(external_partners))
@@ -204,7 +204,7 @@ class MexDumper(SearchDumper):
         log.append("External Associate results:" + str(len(results)))
 
         for associate in results:
-            external_associates = self._get_all_possible_names(associate)
+            external_associates.extend(self._get_all_possible_names(associate))
 
         # external_associates = [ep["value"] for ep in external_associates if isinstance(ep, dict) and "value" in ep]
         log.append("External Associates:" + str(external_associates))
@@ -266,7 +266,7 @@ class MexDumper(SearchDumper):
         log.append("Involved Person results:" + str(len(results)))
 
         for person in results:
-            involved_persons = self._get_all_possible_names(person)
+            involved_persons.extend(self._get_all_possible_names(person))
 
         log.append("Involved Persons:" + str(involved_persons))
         dump_data["index_data"]["involvedPersons"] = involved_persons
