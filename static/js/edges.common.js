@@ -671,10 +671,19 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
     constructor(params) {
         super(params);
 
+        this.preamble = edges.util.getParam(params, "preamble", null);
+
         this.namespace = "mex-single-column-template";
     }
 
     draw(edge) {
+
+        let preambleFrag = "";
+        if (this.preamble) {
+            let preambleClass = edges.util.styleClasses(this.namespace, "preamble");
+            preambleFrag = `<div class="${preambleClass}">${this.preamble}</div>`;
+        }
+
         //////////////////////////////////
         // assemble displayable components
         let comps = edge.category("column");
@@ -688,56 +697,10 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
             }
         }
 
-        // Left category
-        let leftComps = edge.category("left");
-        let leftContainers = "";
-        let leftClass = edges.util.styleClasses(this.namespace, "left-component");
-
-        if (leftComps.length > 0) {
-            for (let i = 0; i < leftComps.length; i++) {
-                let container = `<div class="${leftClass}"><div id="${leftComps[i].id}"></div></div>`;
-                leftContainers += container;
-            }
-        }
-
-        // Middle category
-        let middleComps = edge.category("middle");
-        let middleContainers = "";
-        let middleClass = edges.util.styleClasses(
-            this.namespace,
-            "middle-component"
-        );
-
-        if (middleComps.length > 0) {
-            for (let i = 0; i < middleComps.length; i++) {
-                let container = `<div class="${middleClass}"><div id="${middleComps[i].id}"></div></div>`;
-                middleContainers += container;
-            }
-        }
-
-        // Right category - Added for future
-        let rightComps = edge.category("right");
-        let rightContainers = "";
-        let rightClass = edges.util.styleClasses(this.namespace, "right-component");
-
-        if (rightComps.length > 0) {
-            for (let i = 0; i < rightComps.length; i++) {
-                let container = `<div class="${rightClass}"><div id="${rightComps[i].id}"></div></div>`;
-                rightContainers += container;
-            }
-        }
-
         let frag = `
             <div class="ui grid container">
-                <div class="ui grid container column-split">
-                  <div class="three wide column">
-                    ${leftContainers}
-                  </div>
-                  <div class="wide column" style="flex: 1;">
-                      ${middleContainers}
-                  </div>
-                </div>
                 <div class="sixteen wide column">
+                    ${preambleFrag}
                     ${compContainers}
                 </div>
             </div>

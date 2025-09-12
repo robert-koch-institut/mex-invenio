@@ -20,10 +20,12 @@ edges.instances.variables.init = function () {
   // can be done easily enough with an ES query with the identifiers provided), and put them into local store.
   //      - In this case, what happens if there is data in the local store and data in the URL?  Do we prefer
   //        the local store or the URL?
-  
+
   edges.active["variables-resources"] = edges.mex.makeEdge({
     selector: "#resources-container",
-    template: new edges.mex.templates.SingleColumnTemplate(),
+    template: new edges.mex.templates.SingleColumnTemplate({
+      preamble: `<a href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
+    }),
     resourceType: "resources",
     components: [
       edges.mex.fullSearchController({
