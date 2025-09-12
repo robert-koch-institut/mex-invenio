@@ -10,14 +10,17 @@ if (!edges.hasOwnProperty("active")) {
 
 edges.instances.variables = {};
 edges.instances.variables.init = function () {
-  // TODO: we will need to load the appropriate resources for pre-selection
-  // * They may be in local store.  If this is the case, then we can use them directly
-  // * They may be in the URL.  In which case we need to read them, fetch the details of the resources (which
+
+  // There are two main ways that the page needs to load for the variables search
+  // * There may be selected resources in the local store.  If this is the case, then we can use them directly
+  // * There may be no resources selected, in which case we start from an empty search
+
+  // A case which has not been addressed, and which is not clear if a need exists is:
+  // * They may be mexIds in in the URL.  In which case we need to read them, fetch the details of the resources (which
   // can be done easily enough with an ES query with the identifiers provided), and put them into local store.
   //      - In this case, what happens if there is data in the local store and data in the URL?  Do we prefer
   //        the local store or the URL?
-  // * There may be no resources anywhere, in which case we start from an empty search
-
+  
   edges.active["variables-resources"] = edges.mex.makeEdge({
     selector: "#resources-container",
     template: new edges.mex.templates.SingleColumnTemplate(),
@@ -31,7 +34,7 @@ edges.instances.variables.init = function () {
       edges.mex.recordSelectorCompact({
         category: "column",
       }),
-      edges.mex.resourceDisplay({
+      edges.mex.resourceDisplayCompact({
         category: "column",
         onSelectToggle: function (params) {
           let selector = edges.active["variables-resources"].getComponent({
@@ -97,10 +100,25 @@ edges.instances.variables.init = function () {
     },
   });
 
+  // to prepare the initial variables search, we need to see if anything has been
+  // selected already, and set the opening query
+  let selectedMexIds = edges.instances.variables.getSelectedMexIds();
+  let openingQuery = null;
+  if (selectedMexIds.length > 0) {
+      openingQuery = new es.Query();
+      openingQuery.addMust(
+          new es.TermsFilter({
+            field: "custom_fields.mex:usedIn.keyword",
+            values: selectedMexIds,
+          })
+      );
+  }
+
   edges.active["variables"] = edges.mex.makeEdge({
     selector: "#variables-container",
     template: new edges.mex.templates.SingleColumnTemplate(),
     resourceType: "variables",
+    openingQuery: openingQuery,
     components: [
       edges.mex.pager({
         category: "left",
@@ -120,6 +138,20 @@ edges.instances.variables.init = function () {
     ],
   });
 };
+
+edges.instances.variables.getSelectedMexIds = function() {
+  let selector = edges.active["variables-resources"].getComponent({
+    id: "selector",
+  });
+  let ids = selector.ids();
+  let mexids = [];
+  for (let id of ids) {
+    let resource = selector.get(id);
+    let mex_id = resource.custom_fields["mex:identifier"];
+    mexids.push(mex_id);
+  }
+  return mexids;
+}
 
 jQuery(document).ready(function ($) {
   edges.instances.variables.init();
