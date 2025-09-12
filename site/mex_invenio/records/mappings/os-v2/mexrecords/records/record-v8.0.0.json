@@ -234,6 +234,15 @@
                         },
                         "type": "text"
                     },
+                    "deVariableGroups": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    },
                     "enFunderOrCommissioners": {
                         "fields": {
                             "keyword": {
@@ -244,6 +253,15 @@
                         "type": "text"
                     },
                     "enUsedInResource": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    },
+                    "enVariableGroups": {
                         "fields": {
                             "keyword": {
                                 "ignore_above": 256,

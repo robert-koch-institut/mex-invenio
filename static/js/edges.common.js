@@ -1363,6 +1363,22 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 truncated = truncated.substring(0, 47) + '...';
             }
 
+            let lang = edges.mex.state.lang;
+            let vgField = "index_data." + lang + "VariableGroups";
+            let vgs = edges.util.pathValue(vgField, record, []);
+
+            let vgFrag = "No variable groups";
+            if (vgs.length > 0) {
+                vgFrag = `${edges.mex._("Variable Groups")}:<br>`;
+                for (let vg of vgs) {
+                    let vgshort = vg;
+                    if (vgshort.length > 30) {
+                        vgshort = vgshort.substring(0, 27) + '...';
+                    }
+                    vgFrag += `<input type="checkbox" id=""/> <label for="" title="${vg}">${vgshort}</label><br>`;
+                }
+            }
+
             recordsFrag += `
                 <div class="selected-list">
                     <img
@@ -1372,10 +1388,9 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                         <div class="selected-list-item">
                             <span title="${title}">${truncated}</span>
                         </div>
-                        <!-- TODO: Create and entry point -->
-                        <a class="selected-list-sub-item">
-                            26 Variables
-                        </a>
+                        <div class="selected-list-sub-item">
+                            ${vgFrag}
+                        </div>
                     </div>
                 </div>`;
         }
