@@ -26,9 +26,10 @@ edges.instances.variables.init = function () {
       edges.mex.fullSearchController({
         category: "column",
         searchPlaceholder: edges.mex._("Find resources..."),
-        searchTitle: "Search Resources By Title",
+        searchTitle: edges.mex._("Search Resources By Title"),
       }),
       edges.mex.recordSelector({
+        view: "compact",
         category: "column",
       }),
       edges.mex.resourceDisplay({
@@ -83,10 +84,12 @@ edges.instances.variables.init = function () {
           // if a search string is set, show the search results and hide the selector
           $("#selector").hide();
           $("#results").show();
+          $("#resource-pager").show();
         } else {
           // if no search string is set, show the selector and hide the results
           $("#selector").show();
           $("#results").hide();
+          $("#resource-pager").hide();
         }
       },
     },

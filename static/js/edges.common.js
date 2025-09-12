@@ -255,13 +255,26 @@ edges.mex.previewer = function (params) {
 };
 
 edges.mex.recordSelector = function (params) {
-    return new edges.mex.components.Selector({
-        id: params.id || "selector",
-        category: params.category || "right",
-        renderer: new edges.mex.renderers.SelectedRecords({
-            title: edges.mex._("Variables Query Filters"),
-        }),
-    });
+    if (!params) {
+        params = {};
+    }
+    if (params.view && params.view === "compact") {
+        return new edges.mex.components.Selector({
+            id: params.id || "selector",
+            category: params.category || "right",
+            renderer: new edges.mex.renderers.CompactSelectedRecords({
+                title: edges.mex._("Variables Query Filters"),
+            }),
+        });
+    } else {
+        return new edges.mex.components.Selector({
+            id: params.id || "selector",
+            category: params.category || "right",
+            renderer: new edges.mex.renderers.SelectedRecords({
+                title: edges.mex._("Variables Query Filters"),
+            }),
+        });
+    }
 };
 
 edges.mex.makeEdge = function (params) {
@@ -293,6 +306,20 @@ edges.mex.makeEdge = function (params) {
 
 // Resources
 edges.mex.resourceDisplay = function (params) {
+    if (!params) {
+        params = {};
+    }
+    return new edges.components.ResultsDisplay({
+        id: params.id || "results",
+        category: params.category || "middle",
+        renderer: new edges.mex.renderers.ResourcesResults({
+            noResultsText: params.noResultsText || edges.mex._("No resources found."),
+            onSelectToggle: params.onSelectToggle || false,
+        }),
+    });
+};
+
+edges.mex.resourceDisplayCompact = function (params) {
     if (!params) {
         params = {};
     }
@@ -1296,6 +1323,120 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         if (doc) {
             doc.style.display = "none";
         }
+    }
+
+    selectResource(element) {
+        let el = $(element);
+        let id = el.attr("data-id");
+
+        // Syncing this with resource result component.
+        let doc = document.getElementById(`resource-list-${id}`);
+
+        if (doc && this.resourceComponent && this.resourceComponent.renderer) {
+            this.resourceComponent.renderer.selectResource(doc);
+        } else {
+            this.component.unselectRecord(id);
+            this.resourceComponent.renderer.draw();
+        }
+    }
+};
+
+edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.SelectedRecords {
+    constructor(params) {
+        super(params);
+
+        // FIXME: may want to change the namespace
+        this.namespace = "select-records";
+    }
+
+    draw() {
+        if (this.component.length === 0 && this.showIfEmpty) {
+            this.component.context.html(
+                `<h2>${edges.mex._(this.title)}</h2><p>${edges.mex._(
+                    "No records selected."
+                )}</p>`
+            );
+            return;
+        }
+
+        let recordsFrag = ``;
+        let selectClass = edges.util.jsClasses(
+            this.namespace,
+            "select",
+            this.component.id
+        );
+
+        for (let id of this.component.ids()) {
+            let record = this.component.get(id);
+
+            let title = edges.mex.getLangVal(
+                "custom_fields.mex:title",
+                record,
+                edges.mex._("No title")
+            );
+
+            let truncated = title;
+            if (truncated.length > 50) {
+                truncated = truncated.substring(0, 47) + '...';
+            }
+
+            recordsFrag += `
+                <div class="selected-list">
+                    <img
+                        data-id="${id}"
+                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                    <div>
+                        <div class="selected-list-item">
+                            <span title="${title}">${truncated}</span>
+                        </div>
+                        <!-- TODO: Create and entry point -->
+                        <a class="selected-list-sub-item">
+                            26 Variables
+                        </a>
+                    </div>
+                </div>`;
+        }
+
+        let frag = "";
+        if (recordsFrag) {
+            frag = `
+                <div class="card card-shadow">
+                    <div class="divider"></div>
+
+                    <h4 class="title" style="margin:0px">${this.title}</h4>
+                    <div>
+                        ${recordsFrag}
+                    </div>
+                </div>
+                `;
+        }
+
+        let verticalBar = document.getElementById("vertical-tab");
+        if (verticalBar) {
+            const length = this.component.length;
+            verticalBar.innerHTML = `<span> ${edges.mex._(
+                "Variables Query Filters"
+            )} ${length > 0 ? `(${length})` : ""} </span>`;
+        }
+
+        this.component.context.html(frag);
+
+        let selectSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "select",
+            this.component.id
+        );
+        let hideSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "hide",
+            this.component.id
+        );
+        edges.on(selectSelector, "click", this, "selectResource");
+        edges.on(hideSelector, "click", this, "hideSelectedRecords");
+    }
+
+    hideSelectedRecords() {
+        // Do nothing, as this is a compact view
     }
 
     selectResource(element) {
@@ -3003,17 +3144,247 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (state === "unselected") {
             this.selector.selectRecord(id);
             el.attr("data-state", "selected");
-            el.text(edges.mex._("Remove"));
+            el.attr("src", "/static/images/selected.svg");
         } else {
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            el.text(edges.mex._("Add"));
+            el.attr("src", "/static/images/unselected.svg");
         }
 
         if (this.onSelectToggle) {
             this.onSelectToggle({parent: this, id: id});
         }
+
+        this.checkSidebarStatus();
     }
+
+    checkSidebarStatus() {
+        // PATCH: to hide the right section on resources, since edges don't have template sync function
+        let doc = document.getElementById("right-col");
+        if (doc) {
+            if (this.selector && this.selector.length > 0) {
+                doc.style.display = "";
+            } else {
+                doc.style.display = "none";
+            }
+        }
+    }
+
+    _renderResult(res) {
+        let title = edges.util.escapeHtml(
+            this._getLangVal("custom_fields.mex:title", res, edges.mex._("No title"))
+        );
+
+        let truncated = title;
+        if (truncated.length > 50) {
+            truncated = truncated.substring(0, 47) + '...';
+        }
+
+        // let alt = this._getLangVal("custom_fields.mex:alternativeTitle", res);
+        // if (alt) {
+        //     alt = edges.util.escapeHtml(alt);
+        // } else {
+        //     alt = "";
+        // }
+        //
+        // let desc = this._getLangVal("custom_fields.mex:description", res, "");
+        // if (desc.length > 300) {
+        //     desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
+        // }
+
+        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
+        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
+        // great, and will slow down large result sets
+        // let hits = this.component.edge.result.data.hits.hits;
+        // for (let hit of hits) {
+        //     if (res.uuid === hit._id) {
+        //         if (
+        //             hit.highlight &&
+        //             hit.highlight["custom_fields.mex:description.value"]
+        //         ) {
+        //             desc = hit.highlight["custom_fields.mex:description.value"][0];
+        //             desc = desc.replace(/<em>/g, "<code>");
+        //             desc = desc.replace(/<\/em>/g, "</code>");
+        //         }
+        //     }
+        // }
+
+        let created = edges.util.escapeHtml(
+            edges.util.pathValue("created", res, "")
+        );
+        // let createdDate = new Date(created);
+        created = edges.mex.fullDateFormatter(created);
+
+        // let keywords = this._rankedByLang("custom_fields.mex:keyword", res);
+        // if (keywords.length > 5) {
+        //     keywords = keywords.slice(0, 5);
+        // }
+        // keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
+        // if (keywords !== "") {
+        //     keywords = `<span class="tag">${keywords}</span>`;
+        // }
+
+        let selectState = "unselected";
+        let currentImage = "/static/images/unselected.svg";
+
+        if (this.selector && this.selector.isSelected(res.id)) {
+            selectState = "selected";
+            currentImage = "/static/images/selected.svg";
+            // selectText = edges.mex._("Remove");
+        }
+
+        let previewClass = edges.util.jsClasses(
+            this.namespace,
+            "preview",
+            this.component.id
+        );
+        let selectClass = edges.util.jsClasses(
+            this.namespace,
+            "select",
+            this.component.id
+        );
+
+        let frag = `
+            <div class="resource-card card-shadow">
+                <div class="card-header ${created ? "" : "hide"}">
+                    <span class="date">${created}</span>
+                    <!--
+                    <span  class="${previewClass} preview" data-id="${res.id}">
+                        👁️ ${edges.mex._("Preview")}
+                    </span>
+                    -->
+                </div>
+
+                <div class="title ${title ? "" : "hide"}">
+                    <img
+                        class="${selectClass} bookmark icon"
+                        id="resource-list-${res.id}"
+                        data-id="${res.id}"
+                        data-state="${selectState}"
+                        src="${currentImage}"
+                        alt="${selectState} Icon" width="22" height="24"
+                    />
+                    <span title="${title}">
+                        ${truncated}
+                    </span>
+                </div>
+            </div>
+        `;
+
+        // <div className="subtitle ${alt ? "" : " hide"}">
+        //     <strong>${alt}</strong>
+        // </div>
+        //
+        // <div className="description ${desc ? "" : " hide"}">
+        //     ${desc}
+        // </div>
+        //
+        // <div className="tags ${keywords ? "" : " hide"}">
+        //     ${keywords}
+        // </div>
+
+        return frag;
+    }
+
+    _getLangVal(path, res, def) {
+        return edges.mex.getLangVal(path, res, def);
+    }
+
+    _rankedByLang(path, res) {
+        return edges.mex.rankedByLang(path, res);
+    }
+};
+
+edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.ResourcesResults {
+    constructor(params) {
+        super(params);
+
+        //////////////////////////////////////////////
+        // parameters that can be passed in
+
+        // what to display when there are no results
+        this.noResultsText = edges.util.getParam(
+            params,
+            "noResultsText",
+            edges.mex._("No results to display")
+        );
+
+        // callback to trigger when resource is selected or unselected
+        this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
+
+        this.selector = null; // will be set in init()
+
+        this.namespace = "mex-resources-results";
+    }
+
+    init(component) {
+        super.init(component);
+        this.selector = this.component.edge.getComponent({id: "selector"});
+    }
+
+    draw() {
+        var frag = this.noResultsText;
+        if (this.component.results === false) {
+            frag = "";
+        }
+
+        var results = this.component.results;
+        if (results && results.length > 0) {
+            // list the css classes we'll require
+            var recordClasses = edges.util.styleClasses(
+                this.namespace,
+                "record",
+                this.component.id
+            );
+
+            // now call the result renderer on each result to build the records
+            frag = "";
+            for (var i = 0; i < results.length; i++) {
+                var rec = this._renderResult(results[i]);
+                frag += `<div class="${recordClasses}">${rec}</div>`;
+            }
+        }
+
+        // finally stick it all together into the container
+        var containerClasses = edges.util.styleClasses(
+            this.namespace,
+            "container",
+            this.component.id
+        );
+        var container = `<div class="${containerClasses}">${frag}</div>`;
+        this.component.context.html(container);
+
+        let previewSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "preview",
+            this.component.id
+        );
+        edges.on(previewSelector, "click", this, "previewResource");
+
+        let selectSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "select",
+            this.component.id
+        );
+
+        // Checking sidebar status
+        this.checkSidebarStatus();
+        edges.on(selectSelector, "click", this, "selectResource");
+    }
+
+    // previewResource(element) {
+    //     let id = $(element).attr("data-id");
+    //     let previewer = this.component.edge.getComponent({id: "previewer"});
+    //
+    //     // FIXME: poor abstraction, works fine, but feels wrong
+    //     let hits = this.component.edge.result.data.hits.hits;
+    //     for (let hit of hits) {
+    //         if (hit._source.id === id) {
+    //             previewer.showPreview(hit._source);
+    //             break;
+    //         }
+    //     }
+    // }
 
     selectResource(element) {
         let el = $(element);
@@ -3030,18 +3401,8 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             el.attr("src", "/static/images/unselected.svg");
         }
 
-        this.checkSidebarStatus();
-    }
-
-    checkSidebarStatus() {
-        // PATCH: to hide the right section on resources, since edges don't have template sync function
-        let doc = document.getElementById("right-col");
-        if (doc) {
-            if (this.selector && this.selector.length > 0) {
-                doc.style.display = "";
-            } else {
-                doc.style.display = "none";
-            }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id});
         }
     }
 
