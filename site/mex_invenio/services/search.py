@@ -38,13 +38,13 @@ class MexDumper(SearchDumper):
         self._record_cache = {}
 
         log = []
-        print(f"###############MEX Dumper##################")
-        print(f"Record ID: {record.get('id')}")
-        print(f"Dump data before processing: {list(dump_data.keys())}")
-        # log.append("###############MEX Dumper##################")
-        # log.append("Record ID: " + record.get("id"))
-        # log.append(json.dumps(record.get("custom_fields", {})))
-        # log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # print(f"###############MEX Dumper##################")
+        # print(f"Record ID: {record.get('id')}")
+        # print(f"Dump data before processing: {list(dump_data.keys())}")
+        log.append("###############MEX Dumper##################")
+        log.append("Record ID: " + record.get("id"))
+        log.append(json.dumps(record.get("custom_fields", {})))
+        log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         self._belongs_to(record, dump_data, log)
         self._contributors(record, dump_data, log)
@@ -54,6 +54,7 @@ class MexDumper(SearchDumper):
         self._funder_commissioner(record, dump_data, log)
         self._involved_persons(record, dump_data, log)
         self._used_in(record, dump_data, log)
+        self._resource_variables_groups(record, dump_data, log)
 
         # if "mex:start" in dump_data["custom_fields"]:
         #     log.append("Removing mex:start field " + str(dump_data["custom_fields"]["mex:start"]))
@@ -66,14 +67,14 @@ class MexDumper(SearchDumper):
         #     #del dump_data["custom_fields"]["mex:publicationYear"]
 
         self._record_cache = {}
-        # log.append("Dumped custom fields:")
-        # log.append(json.dumps(dump_data.get("custom_fields", {})))
-        # log.append("###############//MEX Dumper##################")
-        # print("\n".join(log))
-        print(f"Dump data after processing: {list(dump_data.keys())}")
-        if "index_data" in dump_data:
-            print(f"index_data contents: {list(dump_data['index_data'].keys())}")
-        print("###############//MEX Dumper##################")
+        log.append("Dumped custom fields:")
+        log.append(json.dumps(dump_data.get("custom_fields", {})))
+        log.append("###############//MEX Dumper##################")
+        print("\n".join(log))
+        # print(f"Dump data after processing: {list(dump_data.keys())}")
+        # if "index_data" in dump_data:
+        #     print(f"index_data contents: {list(dump_data['index_data'].keys())}")
+        # print("###############//MEX Dumper##################")
         return dump_data
 
     def _get_custom_field_list(self, record, field_name):
@@ -114,6 +115,47 @@ class MexDumper(SearchDumper):
 
         return list(set(name_simple))
 
+    def _resource_variables_groups(self, record, dump_data, log):
+        if record.get("metadata", {}).get("resource_type", {}).get("id") != "resource":
+            log.append("Not a resource type, skipping resource variable groups")
+            return
+
+        mex_id = record.get("custom_fields", {}).get("mex:identifier", None)
+        if not mex_id:
+            log.append("No mex:identifier found, skipping resource variable groups")
+            return
+
+        groups = self._records_by_custom_field(record, "mex:containedBy", mex_id, log)
+        log.append("Resource Variables Groups found: " + str(len(groups)))
+
+        enGroups = []
+        deGroups = []
+
+        for group in groups:
+            labels = group.json.get("custom_fields", {}).get("mex:label", [])
+            en = ""
+            de = ""
+            for label in labels:
+                val = label.get("value", "")
+                lang = label.get("language", "en")
+                if lang == "en":
+                    en = val
+                elif lang == "de":
+                    de = val
+
+            if en != "":
+                enGroups.append(en)
+            if de != "":
+                deGroups.append(de)
+
+        if len(enGroups) > 0:
+            dump_data["index_data"]["enVariableGroups"] = enGroups
+            log.append("Resource Variables Groups EN:" + str(enGroups))
+
+        if len(deGroups) > 0:
+            dump_data["index_data"]["deVariableGroups"] = deGroups
+            log.append("Resource Variables Groups DE:" + str(deGroups))
+
     def _belongs_to(self, record, dump_data, log):
         belongs_to_labels = []
         belongs_to_ids = self._get_custom_field_list(record, "mex:belongsTo")
@@ -150,14 +192,14 @@ class MexDumper(SearchDumper):
         log.append("Contributor results:" + str(len(results)))
 
         for contributor in results:
-            contributors = self._get_all_possible_names(contributor)
+            contributors.extend(self._get_all_possible_names(contributor))
 
         log.append("Contributors:" + str(contributors))
         dump_data["index_data"]["contributors"] = contributors
 
     def _creators(self, record, dump_data, log):
         creators = []
-        creator_ids = self._get_custom_field_list(record, "mex:contributor")
+        creator_ids = self._get_custom_field_list(record, "mex:creator")
 
         if len(creator_ids) == 0:
             return
@@ -168,7 +210,7 @@ class MexDumper(SearchDumper):
         log.append("Creator results:" + str(len(results)))
 
         for creator in results:
-            creators = self._get_all_possible_names(creator)
+            creators.extend(self._get_all_possible_names(creator))
 
         log.append("Creators:" + str(creators))
         dump_data["index_data"]["creators"] = creators
@@ -186,7 +228,7 @@ class MexDumper(SearchDumper):
         log.append("External Partner results:" + str(len(results)))
 
         for partner in results:
-            external_partners = self._get_all_possible_names(partner)
+            external_partners.extend(self._get_all_possible_names(partner))
 
         # external_partners = [ep["value"] for ep in external_partners if isinstance(ep, dict) and "value" in ep]
         log.append("External Partners:" + str(external_partners))
@@ -204,7 +246,7 @@ class MexDumper(SearchDumper):
         log.append("External Associate results:" + str(len(results)))
 
         for associate in results:
-            external_associates = self._get_all_possible_names(associate)
+            external_associates.extend(self._get_all_possible_names(associate))
 
         # external_associates = [ep["value"] for ep in external_associates if isinstance(ep, dict) and "value" in ep]
         log.append("External Associates:" + str(external_associates))
@@ -266,7 +308,7 @@ class MexDumper(SearchDumper):
         log.append("Involved Person results:" + str(len(results)))
 
         for person in results:
-            involved_persons = self._get_all_possible_names(person)
+            involved_persons.extend(self._get_all_possible_names(person))
 
         log.append("Involved Persons:" + str(involved_persons))
         dump_data["index_data"]["involvedPersons"] = involved_persons
@@ -336,3 +378,51 @@ class MexDumper(SearchDumper):
             results.append(res)
 
         return results
+
+    def _records_by_custom_field(self, source, name, value, log):
+        # from sqlalchemy import select, func, or_
+        # db_query = select(source.model_cls).where(
+        #     or_(
+        #         source.model_cls.json["custom_fields"].op("->>")(name) == value,
+        #         func.exists(
+        #             select(1).where(
+        #                 func.jsonb_array_elements_text(
+        #                     source.model_cls.json["custom_fields"][name]
+        #                 ) == value
+        #             )
+        #         )
+        #     )
+        # )
+
+        # from sqlalchemy import or_, func, select
+        # db_query = source.model_cls.query.filter(
+        #     or_(
+        #         source.model_cls.json["custom_fields"].op("->>")(name) == value,
+        #         source.model_cls.json["custom_fields"][name].contains(value)
+        #     )
+        # )
+
+        from sqlalchemy import or_, func, select
+
+        db_query = source.model_cls.query.filter(
+            source.model_cls.json["custom_fields"][name].op("?")(value)
+        )
+
+        from sqlalchemy.dialects import postgresql
+
+        log.append(
+            str(
+                db_query.statement.compile(
+                    dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+                )
+            )
+        )
+        # db_query = source.model_cls.query.filter(
+        #     source.model_cls.json["custom_fields"]
+        #     .op("->>")(name)
+        #     .in_([value]),
+        # )
+        db_results = db_query.all()
+        log.append("DB results found: " + str(len(db_results)))
+
+        return db_results
