@@ -403,12 +403,20 @@ class MexDumper(SearchDumper):
         # )
 
         from sqlalchemy import or_, func, select
+
         db_query = source.model_cls.query.filter(
             source.model_cls.json["custom_fields"][name].op("?")(value)
         )
 
         from sqlalchemy.dialects import postgresql
-        log.append(str(db_query.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})))
+
+        log.append(
+            str(
+                db_query.statement.compile(
+                    dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+                )
+            )
+        )
         # db_query = source.model_cls.query.filter(
         #     source.model_cls.json["custom_fields"]
         #     .op("->>")(name)
