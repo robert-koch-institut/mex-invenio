@@ -36,7 +36,7 @@
                 {% if description %}
                     <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
                         <p>{{ description }}</p>
-                        <p>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.DESCRIPTION]) }}</p>
+                        <p style="color: red">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.DESCRIPTION]) }}</p>
                     </section>
                 {% endif %}
 
