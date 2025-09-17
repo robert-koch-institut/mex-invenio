@@ -12,19 +12,17 @@
     {%- if "language" in v -%}
         {%- if v["language"] == lang -%}
             {%- set ns.display_text = v["display_value"] -%}
-        {%- endif %-}
+        {%- endif -%}
     {%- else -%}
         {%- set ns.display_text = v["display_value"] -%}
     {%- endif -%}
     {%- if ns.display_text -%}
-        {%- if is_link %-}
+        {%- if is_link -%}
             <a href="{{ v.url }}" title="{{ ns.display_text }}">{{ ns.display_text }}</a>
         {%- else -%}
             <span>{{ ns.display_text }}</span>
         {%- endif -%}
     {%- endif -%}
-
-    {% endif %}
 {% endmacro %}
 
 {#
