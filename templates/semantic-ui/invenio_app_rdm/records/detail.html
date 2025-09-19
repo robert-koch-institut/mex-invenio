@@ -72,11 +72,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {% endif %}
     </section>
     {% if resource_type == "resource" %}
-    {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
     {% elif resource_type == "activity" %}
-    {% include "invenio_app_rdm/records/landing_pages/activity.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/activity.html" %}
     {% elif resource_type == "bibliographicresource" %}
-    {% include "invenio_app_rdm/records/landing_pages/bibliographicresource.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/bibliographicresource.html" %}
     {% else %}
     <div class="ui container">
         <div class="ui relaxed grid mt-5">

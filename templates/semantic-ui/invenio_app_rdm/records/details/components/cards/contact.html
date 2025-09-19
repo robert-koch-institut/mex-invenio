@@ -25,7 +25,22 @@
                 {% if value %}
                     <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">{{ value }}</div>
-                        <div class="card-prop-value" style="color: red">{{ data[prop] }}</div>
+                        <div class="card-prop-value">
+                            {% for value in data[prop] %}
+                                <span class="email-container">
+                                  <a href="{{ value.link_id }}" class="display-text" style="color: red; text-decoration: dotted;">{{ value.display_value }}</a>
+                                    <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
+                                    <img class="ui image icon"
+                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
+                                        alt="send email"
+                                    />
+                                    </a>
+                                    {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
+                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                                    {% endwith %}
+                                </span>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endif %}
             {% endfor %}

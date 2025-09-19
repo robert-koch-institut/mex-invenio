@@ -20,6 +20,7 @@
                 <div class="card-props-p forced-vertical">
                     <div class="card-prop-value">
                         {{ theme }}
+                        <p style="color: red">{{ display_values(data[theme_field]) }}</p>
                     </div>
                 </div>
                 <br />
@@ -30,6 +31,11 @@
                     <div class="tags">
                         {% for keyword in keywords_raw %}
                             <div class="tag"><span>{{ keyword.value }}</span></div>
+                        {%- endfor -%}
+                        {% for keyword in data[keyword_field] -%}
+                            {%- if keyword.display_value -%}
+                                <div class="tag"><span style="color: red">{{ keyword.display_value }}</span></div>
+                            {%- endif -%}
                         {%- endfor -%}
                         </div>
                 </div>

@@ -1,27 +1,27 @@
 {% macro display_values(values) %}
-    {%- for v in values -%}
+    {%- set lang = current_i18n.language -%}
+    {%- if values[0].language -%}
+        {%- set correct_lang = values | selectattr("language", "equalto", lang) | list -%}
+        {%- if correct_lang | length > 0 -%}
+            {%- set empty_lang = values | selectattr("language", "equalto", "") | list -%}
+            {%- set selected = correct_lang  + empty_lang -%}
+        {%- else -%}
+            {%- set selected = values -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set selected = values -%}
+    {%- endif -%}
+    
+    {%- for v in selected -%}
         {{ display_value(v) }}
     {%- endfor -%}
 {% endmacro %}
 
 {% macro display_value(v) %}
-    {% set ns = namespace(display_text="") %}
-    {%- set lang = current_i18n.language -%}
-    {%- set has_language = 'language' in v -%}
-    {%- set is_link = "url" in v -%}
-    {%- if "language" in v -%}
-        {%- if v["language"] == lang -%}
-            {%- set ns.display_text = v["display_value"] -%}
-        {%- endif -%}
+    {%- if v.url -%}
+        <a href="{{ v.url }}" title="{{ v.display_value }}" style="color: red; text-decoration: dotted;">{{ v.display_value }}</a>
     {%- else -%}
-        {%- set ns.display_text = v["display_value"] -%}
-    {%- endif -%}
-    {%- if ns.display_text -%}
-        {%- if is_link -%}
-            <a href="{{ v.url }}" title="{{ ns.display_text }}">{{ ns.display_text }}</a>
-        {%- else -%}
-            <span>{{ ns.display_text }}</span>
-        {%- endif -%}
+        <p style="color: red">{{ v.display_value }}</p>
     {%- endif -%}
 {% endmacro %}
 
@@ -141,14 +141,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
                 {%- set values = value -%}
             {%- endif -%}
 
-            {% set first = values[0]["display_value"][0] %}
+            {% set first = values[0]["title"][0] %}
             {% if first is string %}
                 {% for v in values %}
-                    {% if v["display_value"][0] == config.NO_RECORD_STRING %}
+                    {% if v["title"][0] == config.NO_RECORD_STRING %}
                         <i class="muted">Record {{ v.link_id }} not found.</i>
                     {% else %}
                         {% if "email" in v %}
-                            {% for display_value in v["display_value"] %}
+                            {% for display_value in v["title"] %}
                                 <span class="email-container">
                                   <a href="{{ v.link_id }}" class="display-text">{{ display_value }}</a>
                                     <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
@@ -163,14 +163,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
                                 </span>
                             {% endfor %}
                         {% else %}
-                            <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                            <a href="{{ v.link_id }}">{{ v["title"] | join(", ")}}</a>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
             {% else %}
                 {% for v in values %}
                     {% if v != config.NO_RECORD_STRING %}
-                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
+                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.title) }} {% else %} {{ v.link_id }} {% endif %}</a>
                     {% else %}
                         <i class="muted">Record {{ v.link_id }} not found.</i>
                     {% endif %}

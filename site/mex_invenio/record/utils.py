@@ -104,9 +104,9 @@ def _get_linked_records(record, field_items):
                 ]
 
             field_value = {
-                "display_value": display_value[0] # dumb test data fallback
+                "title": display_value 
                 if isinstance(display_value, list)
-                else display_value,
+                else [display_value],
                 "link_id": linked_record_id,
             }
 
@@ -150,7 +150,7 @@ def _get_records_linked_backwards(mex_id, field_items):
                     field_values.append(
                         {
                             "link_id": r["custom_fields"]["mex:identifier"],
-                            "display_value": display_value
+                            "title": display_value
                             if isinstance(display_value, list)
                             else [display_value],
                         }
@@ -161,7 +161,7 @@ def _get_records_linked_backwards(mex_id, field_items):
                 field_values.append(
                     {
                         "link_id": r["custom_fields"]["mex:identifier"],
-                        "display_value": [r["custom_fields"]["mex:identifier"]],
+                        "title": [r["custom_fields"]["mex:identifier"]],
                     }
                 )
 

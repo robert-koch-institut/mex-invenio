@@ -1,105 +1,104 @@
 {% extends "invenio_app_rdm/records/landing_pages/core_landing_page.html" -%}
 {% set resource_type = "resource" %}
-<div class="edit-btn"><a id="edit-record" class="button edit"
-                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
-                         target="_blank">{{ _('Edit this record') }}</a></div>
-<div class="ui container">
-    <div class="ui relaxed stackable reversed mobile grid mt-5">
-        <div class="two column row top-padded">
-            <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
-                <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
-                    <div class="tags top-tags">
-                        <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
-                        {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
-                        {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
-                        {% if resource_type_general %}
-                            <span class="tag" title="Resource type">{{resource_type_general}}{%- if resource_type_specific -%}/{{resource_type_specific}}{%- endif -%}</span>
-                        {% endif %}
-                        {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
-                        <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
+{%- block toptags -%}
+    <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
+        <div class="tags top-tags">
+            <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
+            {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC,
+            record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
+            {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL,
+            record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
+            {% if resource_type_general %}
+            <span class="tag" title="Resource type">{{resource_type_general}}{%- if resource_type_specific
+                -%}/{{resource_type_specific}}{%- endif -%}</span>
+            <span class="tag" title="Resource type">{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL])}}{%- if resource_type_specific -%}/{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC])}}{%- endif -%}</span>
+            {% endif %}
+            {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION,
+            record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
+            <span
+                class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{
+                status }}</span>
+            <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]) }}</span>
+        </div>
+    </section>
+{%- endblock -%}
+
+{%- block description -%}
+    {% set description = val(config.RECORD_SPECIAL_FIELDS.DESCRIPTION,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.DESCRIPTION], resource_type) %}
+    {% if description %}
+        <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
+            <p>{{ description }}</p>
+            <p>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.DESCRIPTION]) }}</p>
+        </section>
+    {% endif %}
+{%- endblock -%}
+
+{%- block lang_and_date -%}
+    {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
+    {% set created = val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED],resource_type) %}
+    {% set modified = val(config.RECORD_SPECIAL_FIELDS.MODIFIED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.MODIFIED], resource_type) %}
+    
+    {% if language or created or modified %}
+        <section class="detail">
+            {% if language %}
+            <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
+            <p class="muted" ><b>{{ _('Language') }}:</b> {{
+                display_values(data[config.RECORD_SPECIAL_FIELDS.LANGUAGE]) }}</p>
+            {% endif %}
+            {% if created %}
+            <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
+            <p class="muted" ><b>{{ _('Created') }}:</b>{{
+                display_values(data[config.RECORD_SPECIAL_FIELDS.CREATED]) }}</p>
+            {% endif %}
+            {% if modified %}
+            <p class="muted"><b>{{ _('Modified') }}:</b>{{ modified }}</p>
+            {% endif %}
+        </section>
+    {% endif %}
+{%- endblock -%}
+
+
+{%- block extids -%}
+    {% set icd10val = val("mex:icd10code", record.ui.custom_fields["mex:icd10code"], resource_type) %}
+    {% set loincval = val("mex:loincId", record.ui.custom_fields["mex:loincId"], resource_type) %}
+    {% set meshval = val("mex:meshId", record.ui.custom_fields["mex:meshId"], resource_type) %}
+
+    {% set icd10val_exists = data["mex:icd10code"] | length > 0 %}
+    {% set loincval_exists = data["mex:loincId"] | length > 0 %}
+    {% set meshval_exists = data["mex:meshId"] | length > 0 %}
+    
+    {% if icd10val or loincval or meshval %}
+        <p >icd10code: {{ icd10val_exists }} | loincId: {{ loincval_exists }} | meshId: {{ meshval_exists }}</p>
+        <section id="record-ids" aria-label="{{ _('Record IDs') }}">
+            <div class="id-tags">
+                {% if icd10val %}
+                    <div class="id-tag icd10">
+                        <div class="label">
+                            <div class="circle"></div>
+                            <p class="text">ICD-10</p>
+                        </div>
+                        <span >{{ display_value(data["mex:icd10code"]) }}</span>
                     </div>
-                </section>
-
-                <section id="record-title-section">
-                    <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}</h1>
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">{{ display_values(data["mex:title"]) }}</h2>
+                {% endif %}
+                {% if meshval %}
+                    <div class="id-tag mesh">
+                        <div class="label">
+                            <div class="circle"></div>
+                            <p class="text" style="margin-left: -3rem">MESH ID</p>
+                            <span >{{ display_values(data["mex:meshId"]) }}</span>
+                        </div>
                     </div>
-                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
-                    {% if alttitle %}
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">old: {{ alttitle }}</h2>
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text" style="color:red">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ALT_TITLE]) }}</h2>
-                    {% endif %}
-                </section>
-
-                {% set description = val(config.RECORD_SPECIAL_FIELDS.DESCRIPTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.DESCRIPTION], resource_type) %}
-                {% if description %}
-                    <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
-                        <p>{{ description }}</p>
-                        <p style="color: red">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.DESCRIPTION]) }}</p>
-                    </section>
                 {% endif %}
-
-    {%- block lang_and_date -%}
-        {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
-        {% set created = val(config.RECORD_SPECIAL_FIELDS.CREATED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED], resource_type) %}
-        {% set modified = val(config.RECORD_SPECIAL_FIELDS.MODIFIED, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.MODIFIED], resource_type) %}
-        {% if language or created or modified %}
-            <section class="detail">
-                {% if language %}
-                    <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
-                            <p class="muted" style="color: red"><b>{{ _('Language') }}:</b> {{ display_values(data[config.RECORD_SPECIAL_FIELDS.LANGUAGE]) }}</p>
-                {% endif %}
-                {% if created %}
-                    <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
-                            <p class="muted" style="color: red"><b>{{ _('Created') }}:</b>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.CREATED]) }}</p>
-                {% endif %}
-                {% if modified %}
-                    <p class="muted"><b>{{ _('Modified') }}:</b>{{ modified }}</p>
-                {% endif %}
-            </section>
-        {% endif %}
-    {%- endblock -%}
-
-
-    {%- block extids -%}
-        {% set icd10val = val("mex:icd10code", record.ui.custom_fields["mex:icd10code"], resource_type) %}
-        {% set loincval = val("mex:loincId", record.ui.custom_fields["mex:loincId"], resource_type) %}
-        {% set meshval = val("mex:meshId", record.ui.custom_fields["mex:meshId"], resource_type) %}
-        {% if icd10val or loincval or meshval %}
-            <section id="record-ids" aria-label="{{ _('Record IDs') }}">
-                <div class="id-tags">
-                    {% if icd10val %}
-                        <div class="id-tag icd10">
-                            <div class="label">
-                                <div class="circle"></div>
-                                <p class="text">ICD-10</p>
-                            </div>
-                            {{ icd10val }}
-                                    <span style="color: red">{{ display_values(data["mex:icd10code"]) }}</span>
+                {% if loincval %}
+                    <div class="id-tag loinc">
+                        <div class="label">
+                            <div class="circle"></div>
+                            <p class="text">LOINC</p>
                         </div>
-                    {% endif %}
-                    {% if meshval %}
-                        <div class="id-tag mesh">
-                            <div class="label">
-                                <div class="circle"></div>
-                                <p class="text" style="margin-left: -3rem">MESH ID</p>
-                                        <span style="color: red">{{ display_values(data["mex:meshId"]) }}</span>
-                            </div>
-                            {{ meshval }}
-                        </div>
-                    {% endif %}
-                    {% if loincval %}
-                        <div class="id-tag loinc">
-                            <div class="label">
-                                <div class="circle"></div>
-                                <p class="text">LOINC</p>
-                            </div>
-                            {{ loincval }}
-                                    <span style="color: red">{{ display_values(data["mex:loincId"]) }}</span>
-                        </div>
-                    {% endif %}
-                </div>
-            </section>
-        {% endif %}
-    {%- endblock -%}
+                        <span >{{ display_values(data["mex:loincId"]) }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+{%- endblock -%}
