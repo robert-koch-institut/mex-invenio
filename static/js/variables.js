@@ -25,8 +25,23 @@ edges.instances.variables.init = function () {
         selector: "#resources-container",
         template: new edges.mex.templates.SingleColumnTemplate({
             preamble: `<a href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
+            hideComponentsInitially: ["selector", "selected-filtered", "results", "resource-pager"],
         }),
         resourceType: "resources",
+        secondaryQueries: {
+            "selected-filter": function(edge) {
+                let selectedMexIds = edges.instances.variables.getSelectedMexIds();
+
+                let sq = edge.cloneQuery();
+                sq.addMust(
+                    new es.TermsFilter({
+                        field: "custom_fields.mex:identifier.keyword",
+                        values: selectedMexIds["resources"],
+                    })
+                );
+                return sq;
+            }
+        },
         components: [
             edges.mex.fullSearchController({
                 category: "column",
@@ -37,6 +52,15 @@ edges.instances.variables.init = function () {
             }),
             edges.mex.recordSelectorCompact({
                 category: "column",
+                onSelectToggle: function (params) {
+                    edges.instances.variables.propagateSelection();
+                }
+            }),
+            edges.mex.resourceDisplayCompact({
+                id: "selected-filtered",
+                category: "column",
+                secondaryResults: "selected-filter",
+                title: edges.mex._("Filtered Selected Resources"),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
@@ -68,13 +92,15 @@ edges.instances.variables.init = function () {
                 if (sc.searchString) {
                     // if a search string is set, show the search results and hide the selector
                     $("#selector").hide();
+                    $("#selected-filtered").show();
                     $("#results").show();
                     $("#resource-pager").show();
                 } else {
                     // if no search string is set, show the selector and hide the results
-                    $("#selector").show();
+                    $("#selected-filtered").hide();
                     $("#results").hide();
                     $("#resource-pager").hide();
+                    $("#selector").show();
                 }
             },
         },

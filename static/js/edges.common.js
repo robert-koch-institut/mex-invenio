@@ -274,9 +274,10 @@ edges.mex.recordSelectorCompact = function (params) {
     return new edges.mex.components.Selector({
         id: params.id || "selector",
         category: params.category || "right",
+        secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactSelectedRecords({
             showIfEmpty: true,
-            title: edges.mex._("Selected Records"),
+            title: edges.mex._("Selected Resources"),
             onSelectToggle: params.onSelectToggle || false
         }),
     });
@@ -309,6 +310,7 @@ edges.mex.makeEdge = function (params) {
         searchUrl: search_url,
         openingQuery: oq,
         components: params.components,
+        secondaryQueries: params.secondaryQueries || false,
         callbacks: callbacks,
     });
 };
@@ -338,6 +340,7 @@ edges.mex.resourceDisplayCompact = function (params) {
     return new edges.components.ResultsDisplay({
         id: params.id || "results",
         category: params.category || "middle",
+        secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactResourcesResults({
             title: params.title || edges.mex._("Resources"),
             noResultsText: params.noResultsText || edges.mex._("No resources found."),
@@ -674,6 +677,7 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
         super(params);
 
         this.preamble = edges.util.getParam(params, "preamble", null);
+        this.hideComponentsInitially = edges.util.getParam(params, "hideComponentsInitially", false);
 
         this.namespace = "mex-single-column-template";
     }
@@ -694,7 +698,12 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
 
         if (comps.length > 0) {
             for (let i = 0; i < comps.length; i++) {
-                let container = `<div class="${compClass}"><div id="${comps[i].id}"></div></div>`;
+                let style = "";
+                if (this.hideComponentsInitially !== false && this.hideComponentsInitially.includes(comps[i].id)) {
+                    style=" style='display:none;' ";
+                }
+
+                let container = `<div class="${compClass}"><div id="${comps[i].id}"${style}></div></div>`;
                 compContainers += container;
             }
         }
@@ -1150,11 +1159,14 @@ edges.mex.components.Selector = class extends edges.Component {
     }
 
     clearAll() {
-        for (let id in this._resources) {
-            window.localStorage.removeItem(id);
-        }
+        // for (let id in this._resources) {
+        //     window.localStorage.removeItem(id);
+        // }
+        // this._resources = {};
+        // window.localStorage.removeItem("selection");
         this._resources = {};
-        window.localStorage.removeItem("selection");
+        this._variable_groups = {};
+        window.localStorage.clear();
     }
 
     ids() {
@@ -1190,6 +1202,17 @@ edges.mex.components.Selector = class extends edges.Component {
     }
 
     unselectRecord(id) {
+        let record = this.get(id);
+        let en = edges.util.pathValue("index_data.enVariableGroups", record, []);
+        for (let group of en) {
+            this.removeVariableGroup(group.mex_id, true);
+        }
+
+        let de = edges.util.pathValue("index_data.deVariableGroups", record, []);
+        for (let group of de) {
+            this.removeVariableGroup(group.mex_id, true);
+        }
+
         this.delete(id);
         this.draw();
     }
@@ -1201,6 +1224,16 @@ edges.mex.components.Selector = class extends edges.Component {
 
         this._variable_groups[id] = defaultSelection;
         window.localStorage.setItem(id, defaultSelection ? "t" : "f");
+        window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
+    }
+
+    removeVariableGroup(id) {
+        if (!this._variable_groups.hasOwnProperty(id)) {
+            return;
+        }
+
+        delete this._variable_groups[id];
+        window.localStorage.removeItem(id);
         window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
     }
 
