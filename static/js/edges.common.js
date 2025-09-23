@@ -4147,12 +4147,12 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     // }
 
     draw() {
-        var frag = this.noResultsText;
+        let frag = `<tr><td colspan="4">${this.noResultsText}</td></tr>`;
         if (this.component.results === false) {
-            frag = "";
+            frag = `<tr><td colspan="4">${edges.mex._("Loading...")}</td></tr>`;
         }
 
-        var results = this.component.results;
+        let results = this.component.results;
         if (results && results.length > 0) {
             frag = "";
             for (var i = 0; i < results.length; i++) {
@@ -4166,13 +4166,19 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let containerClassSelector = edges.util.jsClassSelector(this.namespace, "container", this.component.id);
-
+        let expandAllClass = edges.util.jsClasses(
+            this.namespace,
+            "expand-all",
+            this.component.id
+        );
 
         // Expand/Collapse all button
         var expandAllBtn = `
             <div class="expand-toggle">
-              <button class="ui button expand-all" data-state="collapsed">
+              <button class="ui button ${expandAllClass}" data-action="collapse">
+                ${edges.mex._("Collapse all")}
+              </button>
+              <button class="ui button ${expandAllClass}" data-action="expand">
                 ${edges.mex._("Expand all")}
               </button>
             </div>
@@ -4180,13 +4186,13 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
         var container = `
             ${expandAllBtn}
-            <table class="${containerClasses} ui celled table">
+            <table class="${containerClasses} ui celled table" style="border: none;">
               <thead>
                 <tr>
-                  <th>${edges.mex._("Variable")}</th>
-                  <th>${edges.mex._("Data Source(s)")}</th>
-                  <th>${edges.mex._("Variable Group(s)")}</th>
-                  <th>${edges.mex._("Data Type")}</th>
+                  <th style="border-left: 0; border-right: 0">${edges.mex._("Variable")}</th>
+                  <th style="border-left: 0; border-right: 0">${edges.mex._("Data Source(s)")}</th>
+                  <th style="border-left: 0; border-right: 0">${edges.mex._("Variable Group(s)")}</th>
+                  <th style="border-left: 0; border-right: 0">${edges.mex._("Data Type")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -4199,121 +4205,15 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         // render
         this.component.context.html(container);
 
-        // cache jQuery nodes
-        var $ctx = this.component.context;
-        var $table = $ctx.find(containerClassSelector);
-        var $expandBtn = $ctx.find(".expand-all");
 
-        // helper to update expand-all button state text based on rows state
-        function updateExpandAllState() {
-            var total = $table.find("tr.variable-row").length;
-            var expandedCount = $table.find("tr.variable-row.expanded").length;
-            if (total > 0 && expandedCount === total) {
-                $expandBtn.attr("data-state", "expanded").text(edges.mex._("Collapse all"));
-            } else {
-                $expandBtn.attr("data-state", "collapsed").text(edges.mex._("Expand all"));
-            }
-        }
-
-        // helper to update which summary column is visually 'active' inside the expanded card
-        function setActiveColumn($row, colIndex) {
-            // remove any previous active classes
-            $row.removeClass("active-col-1 active-col-2 active-col-3 active-col-4");
-            if (!colIndex) return;
-            $row.addClass("active-col-" + colIndex);
-            $row.data("activeCol", colIndex);
-        }
-
-        // per-cell click: expand/collapse a single row and set active column
         let collapsedViewSelector = edges.util.jsClassSelector(this.namespace, "collapsed-view", this.component.id);
-        edges.on(collapsedViewSelector, "click", this, "toggleView");
+        edges.on(collapsedViewSelector, "click", this, "showExpanded");
 
-        $table.off("click", "td.collapsed-view");
-        $table.on("click", "td.collapsed-view", function (e) {
-            e.stopPropagation();
-            var $td = $(this);
-            var $row = $td.closest("tr.variable-row");
+        let expandedViewSelector = edges.util.jsClassSelector(this.namespace, "expanded-view", this.component.id);
+        edges.on(expandedViewSelector, "click", this, "hideExpanded");
 
-            // compute column index among the collapsed-view tds (1..4)
-            var colIndex = $row.find("td.collapsed-view").index($td) + 1;
-
-            var $collapsed = $row.find("td.collapsed-view");
-            var $expanded = $row.find(".expanded-view");
-
-            var isOpen = $expanded.is(":visible");
-
-            if (isOpen) {
-                // if already open and clicked same col -> collapse, else change highlight
-                var current = $row.data("activeCol");
-                if (current === colIndex) {
-                    // collapse
-                    $expanded.hide();
-                    $collapsed.show();
-                    $row.removeClass("expanded");
-                    $row.removeData("activeCol");
-                    setActiveColumn($row, null);
-                } else {
-                    // keep expanded but change highlighted column
-                    setActiveColumn($row, colIndex);
-                }
-            } else {
-                // expand this row and highlight clicked column
-                $collapsed.hide();
-                $expanded.show();
-                $row.addClass("expanded");
-                setActiveColumn($row, colIndex);
-            }
-
-            // update the Expand-all button state (if some rows now mixed)
-            updateExpandAllState();
-        });
-
-        // allow clicking whole summary row (outside specific td) to toggle without column highlight
-        $table.off("click", "tr.variable-row");
-        $table.on("click", "tr.variable-row", function (e) {
-            // if user clicked inside expanded area, ignore (only target collapsed rows)
-            var $row = $(this);
-            if ($row.find("td.expanded-view").is(":visible")) {
-                // collapse it
-                $row.find("td.expanded-view").hide();
-                $row.find("td.collapsed-view").show();
-                $row.removeClass("expanded").removeData("activeCol");
-                setActiveColumn($row, null);
-                updateExpandAllState();
-            }
-        });
-
-        // Expand / Collapse All
-        $expandBtn.off("click").on("click", function (e) {
-            e.preventDefault();
-            var state = $(this).attr("data-state") || "collapsed";
-            if (state === "collapsed") {
-                // expand every row (no particular column highlighted)
-                $table.find("tr.variable-row").each(function () {
-                    var $r = $(this);
-                    $r.find("td.collapsed-view").hide();
-                    $r.find("td.expanded-view").show();
-                    $r.addClass("expanded");
-                    $r.removeData("activeCol");
-                    setActiveColumn($r, null);
-                });
-                $(this).attr("data-state", "expanded").text(edges.mex._("Collapse all"));
-            } else {
-                // collapse every row
-                $table.find("tr.variable-row").each(function () {
-                    var $r = $(this);
-                    $r.find("td.expanded-view").hide();
-                    $r.find("td.collapsed-view").show();
-                    $r.removeClass("expanded");
-                    $r.removeData("activeCol");
-                    setActiveColumn($r, null);
-                });
-                $(this).attr("data-state", "collapsed").text(edges.mex._("Expand all"));
-            }
-        });
-
-        // ensure initial button state
-        updateExpandAllState();
+        let expandAllSelector = edges.util.jsClassSelector(this.namespace, "expand-all", this.component.id);
+        edges.on(expandAllSelector, "click", this, "toggleExpandAll");
     }
 
     _renderResult(res) {
@@ -4340,11 +4240,24 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             edges.util.pathValue('custom_fields.mex:dataType', res, edges.mex._("Unknown"))
         );
 
-        let selectClass = edges.util.jsClasses(
-            this.namespace,
-            "select",
-            this.component.id
+        let desc = edges.util.escapeHtml(
+            this._getLangVal("custom_fields.mex:description", res, "")
         );
+
+        let codingSystem = edges.util.pathValue("custom_fields.mex:codingSystem", res, []);
+        if (!Array.isArray(codingSystem)) {
+            codingSystem = [codingSystem];
+        }
+        let codingFrag = "";
+        if (codingSystem.length > 0) {
+            codingFrag = `<ul><li>` + codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>") + '</li></ul>';
+        }
+
+        // let selectClass = edges.util.jsClasses(
+        //     this.namespace,
+        //     "select",
+        //     this.component.id
+        // );
 
         let collapsedClass = edges.util.jsClasses(
             this.namespace,
@@ -4354,39 +4267,68 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
         let expandedClass = edges.util.jsClasses(
             this.namespace,
-            "expanded-view-" + res.id,
+            "expanded-view",
             this.component.id
         );
 
-        // one table row: 4 collapsed cells + a single expanded cell (colspan=4)
+        let collapsedRowIdClass = edges.util.jsClasses(
+            this.namespace,
+            "collapsed-row-" + res.id,
+            this.component.id
+        );
+
+        let expandedRowIdClass = edges.util.jsClasses(
+            this.namespace,
+            "expanded-row-" + res.id,
+            this.component.id
+        );
+
+        let collapsedRowClass = edges.util.jsClasses(
+            this.namespace,
+            "collapsed-row",
+            this.component.id
+        );
+
+        let expandedRowClass = edges.util.jsClasses(
+            this.namespace,
+            "expanded-row",
+            this.component.id
+        );
+
+        let detailFrag = edges.mex._("No additional details");
+        if (desc || codingFrag) {
+            let descFrag = `<p class="details-desc">${desc}</p>`;
+            if (codingFrag) {
+                codingFrag = `<div class="coding-system">
+                      <div class="coding-title"><strong>${edges.mex._("Coding System")}</strong></div>
+                      ${codingFrag}
+                    </div>`
+            }
+
+            detailFrag = `<div class="details-extra">
+                    ${descFrag}
+                    ${codingFrag}
+                  </div>`
+        }
+
         let frag = `
-            <tr class="${selectClass} variable-row" data-label="${label}" role="row" data-id="${res.id}">
-              <!-- collapsed (default visible) -->
-              <td class="${collapsedClass} collapsed-view">${label}</td>
-              <td class="${collapsedClass} collapsed-view">${resourceFrag}</td>
-              <td class="${collapsedClass} collapsed-view">${groupFrag}</td>
-              <td class="${collapsedClass} collapsed-view">${dataType}</td>
-              
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${label}</strong></td>
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${resourceFrag}</strong></td>
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${groupFrag}</strong></td>
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${dataType}</strong></td>
+            <tr class="${collapsedRowIdClass} ${collapsedRowClass} variable-row" data-label="${label}" role="row" data-id="${res.id}">
+              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${label}</td>
+              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${resourceFrag}</td>
+              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${groupFrag}</td>
+              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${dataType}</td>
             </tr>
             
-            <tr class="${selectClass} ${expandedClass} expanded-view variable-row" role="row" style="display:none;">
-            <!-- expanded view: hidden by default; spans the full row when shown -->
-              <td colspan="4">
-                  <div class="details-extra">
-                    <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
-        
-                    <div class="coding-system">
-                      <div class="coding-title"><strong>${edges.mex._("Coding System")}</strong></div>
-                      <div class="coding-values">
-                        <div><span class="code">0</span> <span class="label">${edges.mex._("Female")}</span></div>
-                        <div><span class="code">1</span> <span class="label">${edges.mex._("Male")}</span></div>
-                      </div>
-                    </div>
-                  </div>
+            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
+                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${label}</strong></td>
+                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${resourceFrag}</strong></td>
+                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${groupFrag}</strong></td>
+                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${dataType}</strong></td>
+            </tr>
+            
+            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row" role="row" style="display:none; border-top: 0">
+              <td colspan="4" class="${expandedClass}" style="border-left: 0; border-right: 0; border-top: 0">
+                  ${detailFrag}
                 </div>
               </td>
             </tr>
@@ -4394,18 +4336,71 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         return frag;
     }
 
-    toggleView(e) {
-        let cell = e.currentTarget;
+    showExpanded(cell) {
+        // let cell = e.currentTarget;
         let tr = $(cell).parents("tr");
         let id = tr.attr("data-id");
 
-        let selector = edges.util.jsClassSelector(
+        let toExpand = edges.util.jsClassSelector(
             this.namespace,
-            "expanded-view-" + id,
+            "expanded-row-" + id,
             this.component.id
         );
 
-        $(selector).toggle();
+        let toCollapse = edges.util.jsClassSelector(
+            this.namespace,
+            "collapsed-row-" + id,
+            this.component.id
+        );
+
+        $(toCollapse).hide();
+        $(toExpand).show();
+    }
+
+    hideExpanded(cell) {
+        // let cell = e.currentTarget;
+        let tr = $(cell).parents("tr");
+        let id = tr.attr("data-id");
+
+        let toExpand = edges.util.jsClassSelector(
+            this.namespace,
+            "expanded-row-" + id,
+            this.component.id
+        );
+
+        let toCollapse = edges.util.jsClassSelector(
+            this.namespace,
+            "collapsed-row-" + id,
+            this.component.id
+        );
+
+        $(toCollapse).show();
+        $(toExpand).hide();
+    }
+
+    toggleExpandAll(element) {
+        let action = $(element).attr("data-action");
+        let $ctx = this.component.context;
+
+        let collapsedSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "collapsed-row",
+            this.component.id
+        );
+
+        let expandedSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "expanded-row",
+            this.component.id
+        );
+
+        if (action === "expand") {
+            $ctx.find(collapsedSelector).hide();
+            $ctx.find(expandedSelector).show();
+        } else {
+            $ctx.find(collapsedSelector).show();
+            $ctx.find(expandedSelector).hide();
+        }
     }
 
     toggleRow(evOrEl) {
