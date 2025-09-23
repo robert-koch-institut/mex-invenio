@@ -43,6 +43,7 @@ edges.instances.variables.init = function () {
             }),
             edges.mex.resourceDisplayCompact({
                 category: "column",
+                title: edges.mex._("All Resources"),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }

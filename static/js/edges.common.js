@@ -339,6 +339,7 @@ edges.mex.resourceDisplayCompact = function (params) {
         id: params.id || "results",
         category: params.category || "middle",
         renderer: new edges.mex.renderers.CompactResourcesResults({
+            title: params.title || edges.mex._("Resources"),
             noResultsText: params.noResultsText || edges.mex._("No resources found."),
             onSelectToggle: params.onSelectToggle || false,
         }),
@@ -1203,6 +1204,10 @@ edges.mex.components.Selector = class extends edges.Component {
         window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
     }
 
+    variableGroupRecorded(id) {
+        return this._variable_groups.hasOwnProperty(id);
+    }
+
     selectVariableGroup(id) {
         this._variable_groups[id] = true;
         window.localStorage.setItem(id, "t");
@@ -1572,7 +1577,6 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
         if (this.onSelectToggle) {
             this.onSelectToggle({parent: this, id: id});
         }
-        // this.draw();
     }
 };
 
@@ -3225,13 +3229,6 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         var container = `<div class="${containerClasses}">${frag}</div>`;
         this.component.context.html(container);
 
-        // let previewSelector = edges.util.jsClassSelector(
-        //     this.namespace,
-        //     "preview",
-        //     this.component.id
-        // );
-        // edges.on(previewSelector, "click", this, "previewResource");
-
         let selectSelector = edges.util.jsClassSelector(
             this.namespace,
             "select",
@@ -3242,20 +3239,6 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         this.checkSidebarStatus();
         edges.on(selectSelector, "click", this, "selectResource");
     }
-
-    // previewResource(element) {
-    //     let id = $(element).attr("data-id");
-    //     let previewer = this.component.edge.getComponent({id: "previewer"});
-    //
-    //     // FIXME: poor abstraction, works fine, but feels wrong
-    //     let hits = this.component.edge.result.data.hits.hits;
-    //     for (let hit of hits) {
-    //         if (hit._source.id === id) {
-    //             previewer.showPreview(hit._source);
-    //             break;
-    //         }
-    //     }
-    // }
 
     selectResource(element) {
         let el = $(element);
@@ -3414,48 +3397,47 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
     constructor(params) {
         super(params);
 
+        this.title = edges.util.getParam(params, "title", edges.mex._("Resources"));
+
         // FIXME: may want to override namespace
         this.namespace = "mex-resources-results";
     }
 
     draw() {
-        var frag = this.noResultsText;
-        if (this.component.results === false) {
-            frag = "";
+        if (this.component.results === false || this.component.results.length === 0) {
+            let frag = `<div class="card card-shadow">
+                <div class="divider"></div>
+
+                <h4 class="title" style="margin:0px">${this.title}</h4>
+                <div>
+                    <p>${this.noResultsText}</p>
+                </div>
+            </div>`
+            this.component.context.html(frag);
+            return;
         }
 
-        var results = this.component.results;
-        if (results && results.length > 0) {
-            // list the css classes we'll require
-            var recordClasses = edges.util.styleClasses(
-                this.namespace,
-                "record",
-                this.component.id
-            );
+        let results = this.component.results;
 
-            // now call the result renderer on each result to build the records
-            frag = "";
-            for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i]);
-                frag += `<div class="${recordClasses}">${rec}</div>`;
-            }
+        // now call the result renderer on each result to build the records
+        let resultsFrag = "";
+        for (let i = 0; i < results.length; i++) {
+            let rec = this._renderResult(results[i]);
+            resultsFrag += `${rec}`;
         }
 
-        // finally stick it all together into the container
-        var containerClasses = edges.util.styleClasses(
-            this.namespace,
-            "container",
-            this.component.id
-        );
-        var container = `<div class="${containerClasses}">${frag}</div>`;
-        this.component.context.html(container);
+        let frag = `
+            <div class="card card-shadow">
+                <div class="divider"></div>
 
-        // let previewSelector = edges.util.jsClassSelector(
-        //     this.namespace,
-        //     "preview",
-        //     this.component.id
-        // );
-        // edges.on(previewSelector, "click", this, "previewResource");
+                <h4 class="title" style="margin:0px">${this.title}</h4>
+                <div>
+                    ${resultsFrag}
+                </div>
+            </div>
+        `;
+
+        this.component.context.html(frag);
 
         let selectSelector = edges.util.jsClassSelector(
             this.namespace,
@@ -3465,35 +3447,46 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
 
         // Checking sidebar status
         edges.on(selectSelector, "click", this, "selectResource");
-    }
 
-    // previewResource(element) {
-    //     let id = $(element).attr("data-id");
-    //     let previewer = this.component.edge.getComponent({id: "previewer"});
-    //
-    //     // FIXME: poor abstraction, works fine, but feels wrong
-    //     let hits = this.component.edge.result.data.hits.hits;
-    //     for (let hit of hits) {
-    //         if (hit._source.id === id) {
-    //             previewer.showPreview(hit._source);
-    //             break;
-    //         }
-    //     }
-    // }
+        let toggleSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "variable-toggle",
+            this.component.id
+        );
+        edges.on(toggleSelector, "click", this, "toggleVariableGroups");
+
+        let vgSelectSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "group-select",
+            this.component.id
+        );
+        edges.on(vgSelectSelector, "change", this, "toggleVariableGroupSelection");
+    }
 
     selectResource(element) {
         let el = $(element);
         let id = el.attr("data-id");
         let state = el.attr("data-state");
 
+        let vgsSelector = edges.util.idSelector(this.namespace, "vgs-" + edges.util.safeId(id), this.component.id);
+
         if (state === "unselected") {
+            // we are selecting the resource
             this.selector.selectRecord(id);
             el.attr("data-state", "selected");
-            el.attr("src", "/static/images/selected.svg");
+            let selectButtonText = edges.mex._("Unselect");
+            el.html(selectButtonText);
+
+            $(vgsSelector).find("input[type='checkbox']").prop("disabled", false);
+
         } else {
+            // we are unselecting the resource
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            el.attr("src", "/static/images/unselected.svg");
+            let selectButtonText = edges.mex._("Select");
+            el.html(selectButtonText);
+
+            $(vgsSelector).find("input[type='checkbox']").prop("disabled", true);
         }
 
         if (this.onSelectToggle) {
@@ -3501,9 +3494,40 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
         }
     }
 
-    _renderResult(res) {
-        let title = edges.util.escapeHtml(
-            this._getLangVal("custom_fields.mex:title", res, edges.mex._("No title"))
+    toggleVariableGroups(element) {
+        let el = $(element);
+        let dir = el.find("span.dir");
+        if (dir.text() === "▾") {
+            dir.text("▴");
+        } else {
+            dir.text("▾");
+        }
+        el.next().toggle();
+    }
+
+    toggleVariableGroupSelection(element) {
+        // FIXME: this only works within the current component, but there could be multiple
+        // components showing the variable groups, and they could all do with being updated
+        let el = $(element);
+        let id = el.attr("data-id");
+        if (el.is(":checked")) {
+            this.selector.selectVariableGroup(id);
+            this.component.context.find("input[data-id='" + id + "']").prop("checked", true);
+        } else {
+            this.selector.unselectVariableGroup(id);
+            this.component.context.find("input[data-id='" + id + "']").prop("checked", false);
+        }
+
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id});
+        }
+    }
+
+    _renderResult(record) {
+        let title = edges.mex.getLangVal(
+            "custom_fields.mex:title",
+            record,
+            edges.mex._("No title")
         );
 
         let truncated = title;
@@ -3511,64 +3535,76 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             truncated = truncated.substring(0, 47) + '...';
         }
 
-        // let alt = this._getLangVal("custom_fields.mex:alternativeTitle", res);
-        // if (alt) {
-        //     alt = edges.util.escapeHtml(alt);
-        // } else {
-        //     alt = "";
-        // }
-        //
-        // let desc = this._getLangVal("custom_fields.mex:description", res, "");
-        // if (desc.length > 300) {
-        //     desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
-        // }
-
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        // let hits = this.component.edge.result.data.hits.hits;
-        // for (let hit of hits) {
-        //     if (res.uuid === hit._id) {
-        //         if (
-        //             hit.highlight &&
-        //             hit.highlight["custom_fields.mex:description.value"]
-        //         ) {
-        //             desc = hit.highlight["custom_fields.mex:description.value"][0];
-        //             desc = desc.replace(/<em>/g, "<code>");
-        //             desc = desc.replace(/<\/em>/g, "</code>");
-        //         }
-        //     }
-        // }
-
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
-        // let createdDate = new Date(created);
-        created = edges.mex.fullDateFormatter(created);
-
-        // let keywords = this._rankedByLang("custom_fields.mex:keyword", res);
-        // if (keywords.length > 5) {
-        //     keywords = keywords.slice(0, 5);
-        // }
-        // keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-        // if (keywords !== "") {
-        //     keywords = `<span class="tag">${keywords}</span>`;
-        // }
-
         let selectState = "unselected";
-        let currentImage = "/static/images/unselected.svg";
-
-        if (this.selector && this.selector.isSelected(res.id)) {
+        let selectButtonText = edges.mex._("Select");
+        if (this.selector && this.selector.isSelected(record.id)) {
             selectState = "selected";
-            currentImage = "/static/images/selected.svg";
-            // selectText = edges.mex._("Remove");
+            selectButtonText = edges.mex._("Unselect");
         }
 
-        let previewClass = edges.util.jsClasses(
+        // Variable groups
+        let lang = edges.mex.state.lang;
+        let vgField = "index_data." + lang + "VariableGroups";
+        let vgs = edges.util.pathValue(vgField, record, []);
+
+        let vgFrag = "No variable groups";
+        let variableToggleClass = edges.util.jsClasses(
             this.namespace,
-            "preview",
+            "variable-toggle",
             this.component.id
         );
+
+        let vgSelectClass = edges.util.jsClasses(
+            this.namespace,
+            "group-select",
+            this.component.id
+        );
+        let variableGroupsId = edges.util.htmlID(
+            this.namespace,
+            "vgs-" + edges.util.safeId(record.id),
+            this.component.id
+        );
+        if (vgs.length > 0) {
+            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._("Variable Groups")} 
+                            <span class="dir">▾</span></a>
+                      <div id="${variableGroupsId}" style="display:none;">`;
+            for (let vg of vgs) {
+                let vgshort = vg.value;
+                if (vgshort.length > 30) {
+                    vgshort = vgshort.substring(0, 27) + '...';
+                }
+
+                let selectedFrag = "";
+                let disabledFrag = "";
+                if (selectState === "unselected") {
+                    // If a record has not been selected, then we are going to check all the variable groups,
+                    // AND disable them (so you cannot interact with them while the record is unselected).
+                    // THEN if the variable group is known to the selector (e.g. by some other resource with the same
+                    // group) AND it has been unchecked elsewhere, then uncheck it here too.
+                    disabledFrag = 'disabled';
+                    selectedFrag = 'checked="checked"';
+                    let isKnown = this.selector.variableGroupRecorded(vg.mex_id);
+                    if (isKnown) {
+                        let selected = this.selector.variableGroupSelected(vg.mex_id)
+                        if (!selected) {
+                            selectedFrag = '';
+                        }
+                    }
+                } else {
+                    // If a record has been selected, then we should show all the variable groups according
+                    // to their current state in the selector, and allow interaction.
+                    let selected = this.selector.variableGroupSelected(vg.mex_id)
+                    if (selected) {
+                        selectedFrag = 'checked="checked"';
+                    }
+                }
+
+                vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag} ${disabledFrag}/> 
+                            <label for="" title="${vg}">${vgshort}</label><br>`;
+            }
+            vgFrag += `</div>`;
+        }
+
         let selectClass = edges.util.jsClasses(
             this.namespace,
             "select",
@@ -3576,43 +3612,24 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
         );
 
         let frag = `
-            <div class="resource-card card-shadow">
-                <div class="card-header ${created ? "" : "hide"}">
-                    <span class="date">${created}</span>
-                    <!--
-                    <span  class="${previewClass} preview" data-id="${res.id}">
-                        👁️ ${edges.mex._("Preview")}
-                    </span>
-                    -->
-                </div>
-
-                <div class="title ${title ? "" : "hide"}">
-                    <img
-                        class="${selectClass} bookmark icon"
-                        id="resource-list-${res.id}"
-                        data-id="${res.id}"
-                        data-state="${selectState}"
-                        src="${currentImage}"
-                        alt="${selectState} Icon" width="22" height="24"
-                    />
-                    <span title="${title}">
-                        ${truncated}
-                    </span>
+            <div class="selected-list">
+                <div>
+                    <div class="selected-list-item">
+                        <button class="${selectClass} ui button mini"
+                            id="resource-list-${record.id}"
+                            data-id="${record.id}"
+                            data-state="${selectState}"
+                            >${selectButtonText}</button>
+                        <span title="${title}">
+                            ${truncated}
+                        </span>
+                    </div>
+                    <div class="selected-list-sub-item">
+                        ${vgFrag}
+                    </div>
                 </div>
             </div>
         `;
-
-        // <div className="subtitle ${alt ? "" : " hide"}">
-        //     <strong>${alt}</strong>
-        // </div>
-        //
-        // <div className="description ${desc ? "" : " hide"}">
-        //     ${desc}
-        // </div>
-        //
-        // <div className="tags ${keywords ? "" : " hide"}">
-        //     ${keywords}
-        // </div>
 
         return frag;
     }
