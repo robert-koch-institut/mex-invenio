@@ -32,6 +32,8 @@ edges.instances.variables.init = function () {
         category: "column",
         searchPlaceholder: edges.mex._("Find resources..."),
         searchTitle: edges.mex._("Search Resources By Title"),
+        defaultField: "custom_fields.mex:title.value",
+        clearButton: true
       }),
       edges.mex.recordSelectorCompact({
         category: "column",

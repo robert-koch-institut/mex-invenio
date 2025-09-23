@@ -211,7 +211,7 @@ edges.mex.fullSearchController = function (params) {
         defaultField: params.defaultField || "*",
         renderer: new edges.mex.renderers.SidebarSearchController({
             searchButton: true,
-            clearButton: false,
+            clearButton: params.clearButton || false,
             searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
             searchButtonText: params.searchButtonText || edges.mex._("Search"),
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
@@ -3987,12 +3987,14 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             }
         }
 
-        var containerClasses = edges.util.styleClasses(
+        let containerClasses = edges.util.allClasses(
             this.namespace,
             "container",
             this.component.id
         );
-        var containerClassSelector = "." + containerClasses.trim().split(/\s+/).join(".");
+
+        let containerClassSelector = edges.util.jsClassSelector(this.namespace, "container", this.component.id);
+
 
         // Expand/Collapse all button
         var expandAllBtn = `
@@ -4050,6 +4052,9 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         // per-cell click: expand/collapse a single row and set active column
+        let collapsedViewSelector = edges.util.jsClassSelector(this.namespace, "collapsed-view", this.component.id);
+        edges.on(collapsedViewSelector, "click", this, "toggleView");
+
         $table.off("click", "td.collapsed-view");
         $table.on("click", "td.collapsed-view", function (e) {
             e.stopPropagation();
@@ -4060,7 +4065,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             var colIndex = $row.find("td.collapsed-view").index($td) + 1;
 
             var $collapsed = $row.find("td.collapsed-view");
-            var $expanded = $row.find("td.expanded-view");
+            var $expanded = $row.find(".expanded-view");
 
             var isOpen = $expanded.is(":visible");
 
@@ -4161,55 +4166,67 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             this.component.id
         );
 
+        let collapsedClass = edges.util.jsClasses(
+            this.namespace,
+            "collapsed-view",
+            this.component.id
+        );
+
+        let expandedClass = edges.util.jsClasses(
+            this.namespace,
+            "expanded-view-" + res.id,
+            this.component.id
+        );
+
         // one table row: 4 collapsed cells + a single expanded cell (colspan=4)
         let frag = `
-    <tr class="${selectClass} variable-row" data-label="${label}" role="row">
-      <!-- collapsed (default visible) -->
-      <td class="collapsed-view">${label}</td>
-      <td class="collapsed-view">${resource}</td>
-      <td class="collapsed-view">${group}</td>
-      <td class="collapsed-view">${dataType}</td>
-
-      <!-- expanded view: hidden by default; spans the full row when shown -->
-      <td class="expanded-view" colspan="4" style="display:none;">
-        <div class="details-card" role="region" aria-hidden="true">
-          <div class="summary-grid" role="list">
-            <div class="summary-item" data-col="1">
-              <div class="summary-label">${edges.mex._("Variables")}</div>
-              <div class="summary-value">${label}</div>
-            </div>
-            <div class="summary-item" data-col="2">
-              <div class="summary-label">${edges.mex._("Data Source")}</div>
-              <div class="summary-value">${resource}</div>
-            </div>
-            <div class="summary-item" data-col="3">
-              <div class="summary-label">${edges.mex._("Variable Group")}</div>
-              <div class="summary-value">${group}</div>
-            </div>
-            <div class="summary-item" data-col="4">
-              <div class="summary-label">${edges.mex._("Data Type")}</div>
-              <div class="summary-value">${dataType}</div>
-            </div>
-          </div>
-
-          <div class="details-extra">
-            <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
-
-            <div class="coding-system">
-              <div class="coding-title"><strong>${edges.mex._("Coding System")}</strong></div>
-              <div class="coding-values">
-                <div><span class="code">0</span> <span class="label">${edges.mex._("Female")}</span></div>
-                <div><span class="code">1</span> <span class="label">${edges.mex._("Male")}</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </td>
-    </tr>
-  `;
+            <tr class="${selectClass} variable-row" data-label="${label}" role="row" data-id="${res.id}">
+              <!-- collapsed (default visible) -->
+              <td class="${collapsedClass} collapsed-view">${label}</td>
+              <td class="${collapsedClass} collapsed-view">${resource}</td>
+              <td class="${collapsedClass} collapsed-view">${group}</td>
+              <td class="${collapsedClass} collapsed-view">${dataType}</td>
+              
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${label}</strong></td>
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${resource}</strong></td>
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${group}</strong></td>
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${dataType}</strong></td>
+            </tr>
+            
+            <tr class="${selectClass} ${expandedClass} expanded-view variable-row" role="row" style="display:none;">
+            <!-- expanded view: hidden by default; spans the full row when shown -->
+              <td colspan="4">
+                  <div class="details-extra">
+                    <p class="details-desc">${edges.mex._("The patient's gender gathered by observation")}</p>
+        
+                    <div class="coding-system">
+                      <div class="coding-title"><strong>${edges.mex._("Coding System")}</strong></div>
+                      <div class="coding-values">
+                        <div><span class="code">0</span> <span class="label">${edges.mex._("Female")}</span></div>
+                        <div><span class="code">1</span> <span class="label">${edges.mex._("Male")}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          `;
         return frag;
     }
 
+    toggleView(e) {
+        let cell = e.currentTarget;
+        let tr = $(cell).parents("tr");
+        let id = tr.attr("data-id");
+
+        let selector = edges.util.jsClassSelector(
+            this.namespace,
+            "expanded-view-" + id,
+            this.component.id
+        );
+
+        $(selector).toggle();
+    }
 
     toggleRow(evOrEl) {
         // tolerant toggleRow: supports being called with an event (edges.on) or an element/jQuery
