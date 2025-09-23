@@ -276,7 +276,8 @@ edges.mex.recordSelectorCompact = function (params) {
         category: params.category || "right",
         renderer: new edges.mex.renderers.CompactSelectedRecords({
             showIfEmpty: true,
-            title: edges.mex._("Variables Query Filters"),
+            title: edges.mex._("Selected Records"),
+            onSelectToggle: params.onSelectToggle || false
         }),
     });
 };
@@ -1099,7 +1100,8 @@ edges.mex.components.Selector = class extends edges.Component {
     constructor(params) {
         super(params);
 
-        this._selection = {};
+        this._resources = {};
+        this._variable_groups = {};
 
         let ids = window.localStorage.getItem("selection");
         ids = JSON.parse(ids);
@@ -1108,8 +1110,17 @@ edges.mex.components.Selector = class extends edges.Component {
                 let object = window.localStorage.getItem(id);
                 if (object) {
                     object = JSON.parse(object);
-                    this._selection[id] = object;
+                    this._resources[id] = object;
                 }
+            }
+        }
+
+        let vgs = window.localStorage.getItem("variable_groups");
+        vgs = JSON.parse(vgs);
+        if (vgs) {
+            for (let vg of vgs) {
+                let sel = window.localStorage.getItem(vg);
+                this._variable_groups[vg] = sel === "t";
             }
         }
     }
@@ -1122,35 +1133,35 @@ edges.mex.components.Selector = class extends edges.Component {
     }
 
     get(id) {
-        return this._selection[id];
+        return this._resources[id];
     }
 
     set(id, data) {
-        this._selection[id] = data;
+        this._resources[id] = data;
         window.localStorage.setItem(id, JSON.stringify(data));
         window.localStorage.setItem("selection", JSON.stringify(this.ids()));
     }
 
     delete(id) {
-        delete this._selection[id];
+        delete this._resources[id];
         window.localStorage.removeItem(id);
         window.localStorage.setItem("selection", JSON.stringify(this.ids()));
     }
 
     clearAll() {
-        for (let id in this._selection) {
+        for (let id in this._resources) {
             window.localStorage.removeItem(id);
         }
-        this._selection = {};
+        this._resources = {};
         window.localStorage.removeItem("selection");
     }
 
     ids() {
-        return Object.keys(this._selection);
+        return Object.keys(this._resources);
     }
 
     isSelected(id) {
-        return this._selection.hasOwnProperty(id);
+        return this._resources.hasOwnProperty(id);
     }
 
     //////////////////////////////////////
@@ -1160,6 +1171,17 @@ edges.mex.components.Selector = class extends edges.Component {
         for (let hit of this.edge.result.data.hits.hits) {
             if (id === hit._source.id) {
                 this.set(id, hit._source);
+
+                let en = edges.util.pathValue("index_data.enVariableGroups", hit._source, []);
+                for (let group of en) {
+                    this.recordVariableGroup(group.mex_id, true);
+                }
+
+                let de = edges.util.pathValue("index_data.deVariableGroups", hit._source, []);
+                for (let group of de) {
+                    this.recordVariableGroup(group.mex_id, true);
+                }
+
                 break;
             }
         }
@@ -1169,6 +1191,50 @@ edges.mex.components.Selector = class extends edges.Component {
     unselectRecord(id) {
         this.delete(id);
         this.draw();
+    }
+
+    recordVariableGroup(id, defaultSelection) {
+        if (this._variable_groups.hasOwnProperty(id)) {
+            return;
+        }
+
+        this._variable_groups[id] = defaultSelection;
+        window.localStorage.setItem(id, defaultSelection ? "t" : "f");
+        window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
+    }
+
+    selectVariableGroup(id) {
+        this._variable_groups[id] = true;
+        window.localStorage.setItem(id, "t");
+        window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
+    }
+
+    unselectVariableGroup(id) {
+        this._variable_groups[id] = false;
+        window.localStorage.setItem(id, "f");
+        window.localStorage.setItem("variable_groups", JSON.stringify(Object.keys(this._variable_groups)));
+    }
+
+    variableGroupSelected(id) {
+        if (this._variable_groups.hasOwnProperty(id)) {
+            return this._variable_groups[id];
+        }
+        return false;
+    }
+
+    selectedVariableGroups() {
+        let all = window.localStorage.getItem("variable_groups");
+        all = JSON.parse(all);
+        let selected = [];
+        if (all) {
+            for (let id of all) {
+                let sel = window.localStorage.getItem(id);
+                if (sel === "t") {
+                    selected.push(id);
+                }
+            }
+        }
+        return selected;
     }
 };
 
@@ -1321,6 +1387,8 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
     constructor(params) {
         super(params);
 
+        this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
+
         // FIXME: may want to change the namespace
         this.namespace = "select-records";
     }
@@ -1368,29 +1436,52 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
             let vgs = edges.util.pathValue(vgField, record, []);
 
             let vgFrag = "No variable groups";
+            let variableToggleClass = edges.util.jsClasses(
+                this.namespace,
+                "variable-toggle",
+                this.component.id
+            );
+
+            let vgSelectClass = edges.util.jsClasses(
+                this.namespace,
+                "group-select",
+                this.component.id
+            );
             if (vgs.length > 0) {
-                vgFrag = `${edges.mex._("Variable Groups")}:<br>`;
+                vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._("Variable Groups")} 
+                                <span class="dir">▾</span></a>
+                          <div style="display:none;">`;
                 for (let vg of vgs) {
-                    let vgshort = vg;
+                    let vgshort = vg.value;
                     if (vgshort.length > 30) {
                         vgshort = vgshort.substring(0, 27) + '...';
                     }
-                    vgFrag += `<input type="checkbox" id=""/> <label for="" title="${vg}">${vgshort}</label><br>`;
+
+                    let selected = this.component.variableGroupSelected(vg.mex_id)
+                    let selectedFrag = "";
+                    if (selected) {
+                        selectedFrag = 'checked="checked"';
+                    }
+                    vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/> 
+                                <label for="" title="${vg}">${vgshort}</label><br>`;
                 }
+                vgFrag += `</div>`;
             }
 
             recordsFrag += `
                 <div class="selected-list">
-                    <img
+                    <!-- <img
                         data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/> -->
                     <div>
                         <div class="selected-list-item">
+                            <button data-id="${id}" class="${selectClass} ui button mini">Unselect</button>
                             <span title="${title}">${truncated}</span>
                         </div>
                         <div class="selected-list-sub-item">
                             ${vgFrag}
                         </div>
+                        
                     </div>
                 </div>`;
         }
@@ -1409,14 +1500,6 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 `;
         }
 
-        // let verticalBar = document.getElementById("vertical-tab");
-        // if (verticalBar) {
-        //     const length = this.component.length;
-        //     verticalBar.innerHTML = `<span> ${edges.mex._(
-        //         "Variables Query Filters"
-        //     )} ${length > 0 ? `(${length})` : ""} </span>`;
-        // }
-
         this.component.context.html(frag);
 
         let selectSelector = edges.util.jsClassSelector(
@@ -1424,13 +1507,21 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
             "select",
             this.component.id
         );
-        let hideSelector = edges.util.jsClassSelector(
+        edges.on(selectSelector, "click", this, "selectResource");
+
+        let toggleSelector = edges.util.jsClassSelector(
             this.namespace,
-            "hide",
+            "variable-toggle",
             this.component.id
         );
-        edges.on(selectSelector, "click", this, "selectResource");
-        edges.on(hideSelector, "click", this, "hideSelectedRecords");
+        edges.on(toggleSelector, "click", this, "toggleVariableGroups");
+
+        let vgSelectSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "group-select",
+            this.component.id
+        );
+        edges.on(vgSelectSelector, "change", this, "toggleVariableGroupSelection");
     }
 
     hideSelectedRecords() {
@@ -1450,6 +1541,38 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
             this.component.unselectRecord(id);
             this.resourceComponent.renderer.draw();
         }
+
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id});
+        }
+    }
+
+    toggleVariableGroups(element) {
+        let el = $(element);
+        let dir = el.find("span.dir");
+        if (dir.text() === "▾") {
+            dir.text("▴");
+        } else {
+            dir.text("▾");
+        }
+        el.next().toggle();
+    }
+
+    toggleVariableGroupSelection(element) {
+        let el = $(element);
+        let id = el.attr("data-id");
+        if (el.is(":checked")) {
+            this.component.selectVariableGroup(id);
+            this.component.context.find("input[data-id='" + id + "']").prop("checked", true);
+        } else {
+            this.component.unselectVariableGroup(id);
+            this.component.context.find("input[data-id='" + id + "']").prop("checked", false);
+        }
+
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id});
+        }
+        // this.draw();
     }
 };
 
@@ -4010,9 +4133,9 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             <table class="${containerClasses} ui celled table">
               <thead>
                 <tr>
-                  <th>${edges.mex._("Variables")}</th>
-                  <th>${edges.mex._("Data Source")}</th>
-                  <th>${edges.mex._("Variable Group")}</th>
+                  <th>${edges.mex._("Variable")}</th>
+                  <th>${edges.mex._("Data Source(s)")}</th>
+                  <th>${edges.mex._("Variable Group(s)")}</th>
                   <th>${edges.mex._("Data Type")}</th>
                 </tr>
               </thead>
@@ -4150,12 +4273,19 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         );
 
         let langPrefix = edges.mex.state.lang;
-        let resource = edges.util.escapeHtml(
-            edges.util.pathValue(`index_data.${langPrefix}UsedInResource`, res, "")
-        );
-        let group = edges.util.escapeHtml(
-            edges.util.pathValue(`index_data.belongsToLabel`, res, "")
-        );
+
+        let resources = edges.util.pathValue(`index_data.${langPrefix}UsedInResource`, res, []);
+        let resourceFrag = "";
+        if (resources.length > 1) {
+            resourceFrag = '<ul><li>' + resources.map((r) => edges.util.escapeHtml(r)).join("</li><li>") + '</li></ul>';
+        }
+
+        let groups = edges.util.pathValue(`index_data.belongsToLabel`, res, []);
+        let groupFrag = "";
+        if (groups.length > 1) {
+            groupFrag = '<ul><li>' + groups.map((g) => edges.util.escapeHtml(g)).join("</li><li>") + '</li></ul>';
+        }
+
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue('custom_fields.mex:dataType', res, edges.mex._("Unknown"))
         );
@@ -4183,13 +4313,13 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             <tr class="${selectClass} variable-row" data-label="${label}" role="row" data-id="${res.id}">
               <!-- collapsed (default visible) -->
               <td class="${collapsedClass} collapsed-view">${label}</td>
-              <td class="${collapsedClass} collapsed-view">${resource}</td>
-              <td class="${collapsedClass} collapsed-view">${group}</td>
+              <td class="${collapsedClass} collapsed-view">${resourceFrag}</td>
+              <td class="${collapsedClass} collapsed-view">${groupFrag}</td>
               <td class="${collapsedClass} collapsed-view">${dataType}</td>
               
               <td class="${expandedClass} expanded-view" style="display:none;"><strong>${label}</strong></td>
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${resource}</strong></td>
-              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${group}</strong></td>
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${resourceFrag}</strong></td>
+              <td class="${expandedClass} expanded-view" style="display:none;"><strong>${groupFrag}</strong></td>
               <td class="${expandedClass} expanded-view" style="display:none;"><strong>${dataType}</strong></td>
             </tr>
             

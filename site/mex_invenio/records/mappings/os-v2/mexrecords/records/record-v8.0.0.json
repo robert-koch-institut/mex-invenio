@@ -235,13 +235,27 @@
                         "type": "text"
                     },
                     "deVariableGroups": {
-                        "fields": {
-                            "keyword": {
-                                "ignore_above": 256,
-                                "type": "keyword"
+                        "type": "object",
+                        "properties": {
+                            "mex_id": {
+                                "fields": {
+                                    "keyword": {
+                                        "ignore_above": 256,
+                                        "type": "keyword"
+                                    }
+                                },
+                                "type": "text"
+                            },
+                            "value": {
+                                "fields": {
+                                    "keyword": {
+                                        "ignore_above": 256,
+                                        "type": "keyword"
+                                    }
+                                },
+                                "type": "text"
                             }
-                        },
-                        "type": "text"
+                        }
                     },
                     "enFunderOrCommissioners": {
                         "fields": {
@@ -262,13 +276,27 @@
                         "type": "text"
                     },
                     "enVariableGroups": {
-                        "fields": {
-                            "keyword": {
-                                "ignore_above": 256,
-                                "type": "keyword"
+                        "type": "object",
+                        "properties": {
+                            "mex_id": {
+                                "fields": {
+                                    "keyword": {
+                                        "ignore_above": 256,
+                                        "type": "keyword"
+                                    }
+                                },
+                                "type": "text"
+                            },
+                            "value": {
+                                "fields": {
+                                    "keyword": {
+                                        "ignore_above": 256,
+                                        "type": "keyword"
+                                    }
+                                },
+                                "type": "text"
                             }
-                        },
-                        "type": "text"
+                        }
                     },
                     "externalAssociates": {
                         "fields": {

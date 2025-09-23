@@ -132,6 +132,7 @@ class MexDumper(SearchDumper):
         deGroups = []
 
         for group in groups:
+            vg_id = group.json.get("custom_fields", {}).get("mex:identifier", None)
             labels = group.json.get("custom_fields", {}).get("mex:label", [])
             en = ""
             de = ""
@@ -144,9 +145,9 @@ class MexDumper(SearchDumper):
                     de = val
 
             if en != "":
-                enGroups.append(en)
+                enGroups.append({"mex_id": vg_id, "value": en})
             if de != "":
-                deGroups.append(de)
+                deGroups.append({"mex_id": vg_id, "value": de})
 
         if len(enGroups) > 0:
             dump_data["index_data"]["enVariableGroups"] = enGroups
