@@ -19,6 +19,7 @@ from mex_invenio.custom_fields.custom_fields import (
 )
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
+from mex_invenio.records.api import MexRDMRecord
 
 
 def _(x):  # needed to avoid start time failure with lazy strings
@@ -83,6 +84,10 @@ APP_DEFAULT_SECURE_HEADERS = {
     "strict_transport_security_max_age": 31556926,  # One year in seconds
     "strict_transport_security_preload": False,
 }
+
+# Custom RDM Record Class which implements the additional features required
+# by the Mex model (especially record indexing)
+RDM_RECORD_CLS = MexRDMRecord
 
 # Flask-Babel
 # ===========
@@ -1027,3 +1032,9 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
+
+import invenio_rdm_records.services.config as rdm_config
+from mex_invenio.services.schema import MexRDMRecordSchema
+
+rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
