@@ -9,7 +9,7 @@ from invenio_stats import current_stats
 
 import json
 
-from mex_invenio.record.utils import _get_linked_records_data, _get_record_by_mex_id
+from mex_invenio.record.utils import _get_record_by_mex_id
 
 
 class MexRecord(MethodView):
@@ -64,8 +64,10 @@ class MexRecord(MethodView):
         if as_json:
             return json.loads(record_ui)
 
-        linked_records_data = _get_linked_records_data(record_item, mex_id)
         record = json.loads(record_ui)
+        
+        # Get linked_records_data from the indexed display_data instead of computing it
+        linked_records_data = record.get("display_data", {}).get("linked_records", {})
 
         return render_template(
             self.template,

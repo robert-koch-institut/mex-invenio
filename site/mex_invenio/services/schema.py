@@ -6,16 +6,7 @@ from marshmallow_utils.fields import NestedAttribute, SanitizedUnicode
 class DisplayDataSchema(Schema):
     """Schema for display data fields."""
 
-    belongsToLabel = fields.List(SanitizedUnicode(), dump_only=True)
-    contributors = fields.List(SanitizedUnicode(), dump_only=True)
-    creators = fields.List(SanitizedUnicode(), dump_only=True)
-    externalPartners = fields.List(SanitizedUnicode(), dump_only=True)
-    externalAssociates = fields.List(SanitizedUnicode(), dump_only=True)
-    deFunderOrCommissioners = fields.List(SanitizedUnicode(), dump_only=True)
-    enFunderOrCommissioners = fields.List(SanitizedUnicode(), dump_only=True)
-    involvedPersons = fields.List(SanitizedUnicode(), dump_only=True)
-    enUsedInResource = fields.List(SanitizedUnicode(), dump_only=True)
-    deUsedInResource = fields.List(SanitizedUnicode(), dump_only=True)
+    linked_records = fields.Raw(dump_only=True)
 
 
 class MexRDMRecordSchema(RDMRecordSchema):
