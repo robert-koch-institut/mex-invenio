@@ -138,7 +138,7 @@ class MexDumper(SearchDumper):
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
         if mex_id and record_type in records_linked_backwards:
             field_items = records_linked_backwards[record_type].items()
-            backwards_linked = self._get_records_linked_backwards_for_dump(mex_id, field_items, log)
+            backwards_linked = self._get_records_linked_backwards_for_dump(record, mex_id, field_items, log)
             linked_records_data["backwards_linked"] = backwards_linked
             
         # Add the linked records data to display_data
@@ -224,7 +224,7 @@ class MexDumper(SearchDumper):
 
         return records_fields
 
-    def _get_records_linked_backwards_for_dump(self, mex_id, field_items, log):
+    def _get_records_linked_backwards_for_dump(self, record, mex_id, field_items, log):
         """Get backward-linked records for a record during dumping."""
         records_fields = {}
         
