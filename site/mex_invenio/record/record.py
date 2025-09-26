@@ -65,13 +65,9 @@ class MexRecord(MethodView):
             return json.loads(record_ui)
 
         record = json.loads(record_ui)
-        
-        # Get linked_records_data from the indexed display_data instead of computing it
-        linked_records_data = record.get("display_data", {}).get("linked_records", {})
 
         return render_template(
             self.template,
             record=record,
-            linked_records_data=linked_records_data,
             is_preview=False,
         )

@@ -4,8 +4,8 @@
 {% set card = config.RECORD_CARDS.resource[column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, value=none) %}
-{% if linked_records_data and card.is_backwards_linked %}
-    {% set record_data = linked_records_data["backwards_linked"] %}
+{% if record.display_data and record.display_data.linked_records and card.is_backwards_linked %}
+    {% set record_data = record.display_data.linked_records["backwards_linked"] %}
     {% for prop in card.properties %}
         {% if prop in record_data %}
             {% set ns.value = record_data[prop] %}
