@@ -98,6 +98,8 @@ APP_DEFAULT_SECURE_HEADERS = {
 # Custom RDM Record Class which implements the additional features required
 # by the Mex model (especially record indexing)
 RDM_RECORD_CLS = MexRDMRecord
+rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
 
 # Flask-Babel
 # ===========
@@ -1035,5 +1037,3 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
 
-rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
-rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
