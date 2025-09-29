@@ -57,7 +57,7 @@ resource_data = {
     "conformsTo": ["voll kennen \u00fcber"],
     "contributingUnit": [],
     "contributor": ["gwjehcvTCGBH4CTyDWTiXY", "ddTKOu0dKtmUsy6SoGjxBC"],
-    "creator": [],
+    "creator": ["gwjehcvTCGBH4CTyDWTiXY", "ddTKOu0dKtmUsy6SoGjxBC"],
     "description": [
         {
             "value": "Monate m\u00f6glich hin geh\u00f6ren Mutter Blume.",

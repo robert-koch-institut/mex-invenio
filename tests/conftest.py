@@ -27,6 +27,8 @@ from mex_invenio.config import (
     RECORD_METADATA_CREATOR,
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
+    LINKED_RECORDS_FIELDS,
+    RECORDS_LINKED_BACKWARDS,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
@@ -82,6 +84,10 @@ def app_config(app_config, module_tmp_path):
     # add oai
     app_config["OAISERVER_ID_PREFIX"] = OAISERVER_ID_PREFIX
     app_config["OAISERVER_RELATIONS"] = OAISERVER_RELATIONS
+
+    # add linked records configurations
+    app_config["LINKED_RECORDS_FIELDS"] = LINKED_RECORDS_FIELDS
+    app_config["RECORDS_LINKED_BACKWARDS"] = RECORDS_LINKED_BACKWARDS
 
     # add S3
     app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path
