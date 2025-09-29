@@ -1,9 +1,5 @@
 from flask import current_app
 
-from invenio_rdm_records.services.config import SearchOptions
-from invenio_records_resources.services.base.config import SearchOptionsMixin
-from invenio_search import RecordsSearchV2
-from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_records.dumpers import SearchDumper
 import json
 
@@ -42,20 +38,6 @@ def normalize_display_value(display_value):
             normalized_values.append({"language": "en", "value": str(item)})
     
     return normalized_values
-
-
-class MexSearchOptions(SearchOptions, SearchOptionsMixin):
-    search_cls = RecordsSearchV2
-    query_parser_cls = QueryParser
-    suggest_parser_cls = None
-    sort_options = {}
-    facets = {}
-    params_interpreters_cls = [
-        GenericQueryParamsInterpreter,
-        TypeLimiterParamsInterpreter,
-        HighlightParamsInterpreter,
-        # Add other interpreters as needed
-    ]
 
 
 class MexDumper(SearchDumper):
