@@ -1,6 +1,6 @@
 from invenio_rdm_records.services.schemas import RDMRecordSchema
 from marshmallow import Schema, fields
-from marshmallow_utils.fields import NestedAttribute, SanitizedUnicode
+from marshmallow_utils.fields import NestedAttribute
 
 
 class DisplayDataSchema(Schema):
@@ -12,4 +12,4 @@ class DisplayDataSchema(Schema):
 class MexRDMRecordSchema(RDMRecordSchema):
     """MEX RDM record schema with custom display_data field."""
 
-    display_data = NestedAttribute(DisplayDataSchema)
+    display_data = NestedAttribute(DisplayDataSchema, dump_only=True)
