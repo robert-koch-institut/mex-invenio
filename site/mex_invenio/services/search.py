@@ -3,13 +3,6 @@ from flask import current_app
 from invenio_records.dumpers import SearchDumper
 import json
 
-from mex_invenio.search.params import (
-    GenericQueryParamsInterpreter,
-    TypeLimiterParamsInterpreter,
-    HighlightParamsInterpreter,
-)
-
-
 def normalize_display_value(display_value):
     """Normalize display_value to ensure consistent object structure.
     
