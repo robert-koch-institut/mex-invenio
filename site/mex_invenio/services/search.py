@@ -1,3 +1,5 @@
+from flask import current_app
+
 from invenio_rdm_records.services.config import SearchOptions
 from invenio_records_resources.services.base.config import SearchOptionsMixin
 from invenio_search import RecordsSearchV2
@@ -10,6 +12,36 @@ from mex_invenio.search.params import (
     TypeLimiterParamsInterpreter,
     HighlightParamsInterpreter,
 )
+
+
+def normalize_display_value(display_value):
+    """Normalize display_value to ensure consistent object structure.
+    
+    Args:
+        display_value: Can be a string, dict, or list of strings/dicts
+        
+    Returns:
+        List of dicts with 'language' and 'value' keys
+    """
+    if display_value is None:
+        return []
+    
+    if not isinstance(display_value, list):
+        display_value = [display_value]
+    
+    normalized_values = []
+    for item in display_value:
+        if isinstance(item, dict) and "value" in item:
+            # Already in correct format
+            normalized_values.append(item)
+        elif isinstance(item, str):
+            # Convert string to object format
+            normalized_values.append({"language": "en", "value": item})
+        else:
+            # Fallback for other types
+            normalized_values.append({"language": "en", "value": str(item)})
+    
+    return normalized_values
 
 
 class MexSearchOptions(SearchOptions, SearchOptionsMixin):
@@ -56,7 +88,6 @@ class MexDumper(SearchDumper):
         log.append("###############//MEX Dumper##################")
         print("\n".join(log))
         return dump_data
-
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
@@ -111,36 +142,35 @@ class MexDumper(SearchDumper):
 
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""
-        from flask import current_app
-        
+
         # Get the record type to determine which fields to process
         record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
         if not record_type:
             log.append("No resource type found, skipping linked records data")
             return
-            
+
         linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})
         records_linked_backwards = current_app.config.get("RECORDS_LINKED_BACKWARDS", {})
-        
+
         if not linked_records_fields and not records_linked_backwards:
             log.append("No linked records configuration found")
             return
-            
+
         linked_records_data = {}
-        
+
         # Process forward-linked records
         if record_type in linked_records_fields:
             field_items = linked_records_fields[record_type].items()
             linked_records = self._get_linked_records_for_dump(record, field_items, log)
             linked_records_data.update(linked_records)
-            
+
         # Process backward-linked records
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
         if mex_id and record_type in records_linked_backwards:
             field_items = records_linked_backwards[record_type].items()
             backwards_linked = self._get_records_linked_backwards_for_dump(record, mex_id, field_items, log)
             linked_records_data["backwards_linked"] = backwards_linked
-            
+
         # Add the linked records data to display_data
         if linked_records_data:
             dump_data["display_data"]["linked_records"] = linked_records_data
@@ -169,7 +199,7 @@ class MexDumper(SearchDumper):
         unique_linked_ids = list(set(linked_record_ids))
         if not unique_linked_ids:
             return records_fields
-            
+
         linked_records = self._records_by_mex_identifiers(record, unique_linked_ids, log)
         linked_records_map = {}
         for r in linked_records:
@@ -200,14 +230,14 @@ class MexDumper(SearchDumper):
                         if display_value:
                             break
                     if not display_value:
-                        display_value = [linked_record_id]
+                        display_value = [{'language': 'en', 'value': linked_record_id}]
                 else:
-                    from flask import current_app
-                    display_value = [current_app.config.get("NO_RECORD_STRING", "No record found")]
+                    display_value = [
+                        {'language': 'en', 'value': current_app.config.get("NO_RECORD_STRING", "No record found")}]
 
                 field_value = {
-                    "display_value": display_value if isinstance(display_value, list) else [display_value],
                     "link_id": linked_record_id,
+                    "display_value": normalize_display_value(display_value)
                 }
 
                 # Handle email for contact fields
@@ -227,11 +257,11 @@ class MexDumper(SearchDumper):
     def _get_records_linked_backwards_for_dump(self, record, mex_id, field_items, log):
         """Get backward-linked records for a record during dumping."""
         records_fields = {}
-        
+
         for field, props in field_items:
             # Find records that reference this mex_id in the given field
             linked_records = self._records_by_custom_field(record, field, mex_id, log)
-            
+
             if not linked_records:
                 continue
 
@@ -239,13 +269,13 @@ class MexDumper(SearchDumper):
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, 'json') else r
-                
+
                 for f in props:
                     display_value = record_json.get("custom_fields", {}).get(f, None)
                     if display_value:
                         field_values.append({
                             "link_id": record_json.get("custom_fields", {}).get("mex:identifier"),
-                            "display_value": display_value if isinstance(display_value, list) else [display_value],
+                            "display_value": normalize_display_value(display_value),
                         })
                         break
 
@@ -253,7 +283,7 @@ class MexDumper(SearchDumper):
                     identifier = record_json.get("custom_fields", {}).get("mex:identifier")
                     field_values.append({
                         "link_id": identifier,
-                        "display_value": [identifier] if identifier else ["Unknown"],
+                        "display_value": [{'language': 'en', 'value': identifier}] if identifier else [{'language': 'en', 'value': "Unknown"}],
                     })
 
             records_fields[field] = field_values
