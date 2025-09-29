@@ -3,21 +3,22 @@ from flask import current_app
 from invenio_records.dumpers import SearchDumper
 import json
 
+
 def normalize_display_value(display_value):
     """Normalize display_value to ensure consistent object structure.
-    
+
     Args:
         display_value: Can be a string, dict, or list of strings/dicts
-        
+
     Returns:
         List of dicts with 'language' and 'value' keys
     """
     if display_value is None:
         return []
-    
+
     if not isinstance(display_value, list):
         display_value = [display_value]
-    
+
     normalized_values = []
     for item in display_value:
         if isinstance(item, dict) and "value" in item:
@@ -29,7 +30,7 @@ def normalize_display_value(display_value):
         else:
             # Fallback for other types
             normalized_values.append({"language": "en", "value": str(item)})
-    
+
     return normalized_values
 
 
@@ -125,7 +126,9 @@ class MexDumper(SearchDumper):
             return
 
         linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})
-        records_linked_backwards = current_app.config.get("RECORDS_LINKED_BACKWARDS", {})
+        records_linked_backwards = current_app.config.get(
+            "RECORDS_LINKED_BACKWARDS", {}
+        )
 
         if not linked_records_fields and not records_linked_backwards:
             log.append("No linked records configuration found")
@@ -143,7 +146,9 @@ class MexDumper(SearchDumper):
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
         if mex_id and record_type in records_linked_backwards:
             field_items = records_linked_backwards[record_type].items()
-            backwards_linked = self._get_records_linked_backwards_for_dump(record, mex_id, field_items, log)
+            backwards_linked = self._get_records_linked_backwards_for_dump(
+                record, mex_id, field_items, log
+            )
             linked_records_data["backwards_linked"] = backwards_linked
 
         # Add the linked records data to display_data
@@ -175,7 +180,9 @@ class MexDumper(SearchDumper):
         if not unique_linked_ids:
             return records_fields
 
-        linked_records = self._records_by_mex_identifiers(record, unique_linked_ids, log)
+        linked_records = self._records_by_mex_identifiers(
+            record, unique_linked_ids, log
+        )
         linked_records_map = {}
         for r in linked_records:
             mex_id = r.json.get("custom_fields", {}).get("mex:identifier")
@@ -188,7 +195,9 @@ class MexDumper(SearchDumper):
             if not raw_value:
                 continue
 
-            linked_record_ids = raw_value if isinstance(raw_value, list) else [raw_value]
+            linked_record_ids = (
+                raw_value if isinstance(raw_value, list) else [raw_value]
+            )
             field_values = []
 
             for linked_record_id in linked_record_ids:
@@ -200,26 +209,36 @@ class MexDumper(SearchDumper):
                     for p in props:
                         for title_field in props[p]:
                             if title_field in linked_record.get("custom_fields", {}):
-                                display_value = linked_record["custom_fields"][title_field]
+                                display_value = linked_record["custom_fields"][
+                                    title_field
+                                ]
                                 break
                         if display_value:
                             break
                     if not display_value:
-                        display_value = [{'language': 'en', 'value': linked_record_id}]
+                        display_value = [{"language": "en", "value": linked_record_id}]
                 else:
                     display_value = [
-                        {'language': 'en', 'value': current_app.config.get("NO_RECORD_STRING", "No record found")}]
+                        {
+                            "language": "en",
+                            "value": current_app.config.get(
+                                "NO_RECORD_STRING", "No record found"
+                            ),
+                        }
+                    ]
 
                 field_value = {
                     "link_id": linked_record_id,
-                    "display_value": normalize_display_value(display_value)
+                    "display_value": normalize_display_value(display_value),
                 }
 
                 # Handle email for contact fields
                 if linked_record and field == "mex:contact":
                     flattened = [item for items in props.values() for item in items]
                     if "mex:email" in flattened:
-                        email = linked_record.get("custom_fields", {}).get("mex:email", "")
+                        email = linked_record.get("custom_fields", {}).get(
+                            "mex:email", ""
+                        )
                         if email:
                             field_value["email"] = email
 
@@ -243,23 +262,33 @@ class MexDumper(SearchDumper):
             field_values = []
             for r in linked_records:
                 display_value = None
-                record_json = r.json if hasattr(r, 'json') else r
+                record_json = r.json if hasattr(r, "json") else r
 
                 for f in props:
                     display_value = record_json.get("custom_fields", {}).get(f, None)
                     if display_value:
-                        field_values.append({
-                            "link_id": record_json.get("custom_fields", {}).get("mex:identifier"),
-                            "display_value": normalize_display_value(display_value),
-                        })
+                        field_values.append(
+                            {
+                                "link_id": record_json.get("custom_fields", {}).get(
+                                    "mex:identifier"
+                                ),
+                                "display_value": normalize_display_value(display_value),
+                            }
+                        )
                         break
 
                 if display_value is None:
-                    identifier = record_json.get("custom_fields", {}).get("mex:identifier")
-                    field_values.append({
-                        "link_id": identifier,
-                        "display_value": [{'language': 'en', 'value': identifier}] if identifier else [{'language': 'en', 'value': "Unknown"}],
-                    })
+                    identifier = record_json.get("custom_fields", {}).get(
+                        "mex:identifier"
+                    )
+                    field_values.append(
+                        {
+                            "link_id": identifier,
+                            "display_value": [{"language": "en", "value": identifier}]
+                            if identifier
+                            else [{"language": "en", "value": "Unknown"}],
+                        }
+                    )
 
             records_fields[field] = field_values
 

@@ -114,6 +114,567 @@
             "deletion_status": {
                 "type": "keyword"
             },
+            "display_data": {
+                "properties": {
+                    "linked_records": {
+                        "properties": {
+                            "backwards_linked": {
+                                "dynamic": "true",
+                                "type": "object"
+                            },
+                            "mex:accessPlatform": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:accessService": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:affiliation": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:belongsTo": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:contact": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "email": {
+                                        "type": "keyword"
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:containedBy": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:contributingUnit": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:contributor": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:creator": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:distribution": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:editor": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:editorOfSeries": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:externalAssociate": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:externalPartner": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:funderOrCommissioner": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:hadPrimarySource": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:hasDataSubject": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:inScheme": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:involvedPerson": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:involvedUnit": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:isPartOf": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:isPartOfActivity": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:memberOf": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:parentUnit": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:publication": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:publisher": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:responsibleUnit": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:succeeds": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:unitInCharge": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:unitOf": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:usedIn": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:wasGeneratedBy": {
+                                "properties": {
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "files": {
                 "properties": {
                     "count": {
@@ -186,373 +747,6 @@
             },
             "id": {
                 "type": "keyword"
-            },
-            "display_data": {
-                "properties": {
-                    "linked_records": {
-                        "properties": {
-                            "backwards_linked": {
-                                "dynamic": "true",
-                                "type": "object"
-                            },
-                            "mex:accessPlatform": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:accessService": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:affiliation": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:belongsTo": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:contact": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"},
-                                    "email": {"type": "keyword"}
-                                }
-                            },
-                            "mex:containedBy": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:contributingUnit": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:contributor": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:creator": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:distribution": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:editor": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:editorOfSeries": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:externalAssociate": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:externalPartner": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:funderOrCommissioner": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:hadPrimarySource": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:hasDataSubject": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:inScheme": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:involvedPerson": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:involvedUnit": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:isPartOf": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:isPartOfActivity": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:memberOf": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:parentUnit": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:publication": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:publisher": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:responsibleUnit": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:succeeds": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:unitInCharge": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:unitOf": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:usedIn": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            },
-                            "mex:wasGeneratedBy": {
-                                "properties": {
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {"type": "keyword"},
-                                            "value": {"type": "text"}
-                                        }
-                                    },
-                                    "link_id": {"type": "keyword"}
-                                }
-                            }
-                        },
-                        "type": "object"
-                    }
-                },
-                "type": "object"
             },
             "internal_notes": {
                 "properties": {

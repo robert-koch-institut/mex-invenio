@@ -1036,4 +1036,3 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
-
