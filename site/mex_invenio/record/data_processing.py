@@ -21,7 +21,6 @@ def normalised_value(
 
 
 def normalise_record_data(record: dict, linked_records: dict):
-    print("record: ", record)
     data = {}
     data["backwards_linked"] = {}
     custom_fields = record["ui"]["custom_fields"]
@@ -44,14 +43,6 @@ def normalise_record_data(record: dict, linked_records: dict):
 def _normalise_value(
     field_name: str, field_raw_value: Any, resource_type: str, linked_records: dict
 ):
-    """
-    Normalise values based on type logic from Jinja macros.
-    Returns a list of normalised values:
-      - plain strings for simple fields
-      - dicts {"display_value": ..., "language": ...} for multilingual text/labels
-      - dicts {"url": ..., "display_value": ...} for extids/urls
-      - dicts {"display_value": ..., "link_id": ...} for identifiers
-    """
 
     if not field_raw_value or current_app.config.get("FIELD_TYPES") is None:
         return []
