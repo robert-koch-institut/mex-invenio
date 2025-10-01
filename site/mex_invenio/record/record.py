@@ -78,5 +78,5 @@ class MexRecord(MethodView):
             record=record,
             linked_records_data=linked_records_data,
             is_preview=False,
-            data=data
+            data=data,
         )

@@ -104,7 +104,7 @@ def _get_linked_records(record, field_items):
                 ]
 
             field_value = {
-                "title": display_value 
+                "title": display_value
                 if isinstance(display_value, list)
                 else [display_value],
                 "link_id": linked_record_id,
@@ -168,6 +168,7 @@ def _get_records_linked_backwards(mex_id, field_items):
         records_fields[field] = field_values
 
     return records_fields
+
 
 def _get_linked_records_data(record, mex_id) -> dict:
     """Fetch metadata about linked records for a given record."""
