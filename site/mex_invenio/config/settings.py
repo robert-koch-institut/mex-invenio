@@ -7,11 +7,20 @@ For the full list of settings and their values, see
 https://inveniordm.docs.cern.ch/reference/configuration/.
 """
 
+# Standard library imports
 from datetime import datetime
 
+# Third-party imports
+import invenio_rdm_records.services.config as rdm_config
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
+from invenio_oauthclient.views.client import auto_redirect_login
+from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
+from invenio_vocabularies.services.facets import VocabularyLabels
 
+# Local imports
+from mex_invenio.custom_facets import RestrictedTermsFacet
+from mex_invenio.custom_fields import field_types
 from mex_invenio.custom_fields.custom_fields import (
     RDM_NAMESPACES,
     RDM_CUSTOM_FIELDS,
@@ -19,6 +28,8 @@ from mex_invenio.custom_fields.custom_fields import (
 )
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
+from mex_invenio.records.api import MexRDMRecord
+from mex_invenio.services.schema import MexRDMRecordSchema
 
 
 def _(x):  # needed to avoid start time failure with lazy strings
@@ -83,6 +94,12 @@ APP_DEFAULT_SECURE_HEADERS = {
     "strict_transport_security_max_age": 31556926,  # One year in seconds
     "strict_transport_security_preload": False,
 }
+
+# Custom RDM Record Class which implements the additional features required
+# by the Mex model (especially record indexing)
+RDM_RECORD_CLS = MexRDMRecord
+rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
 
 # Flask-Babel
 # ===========
@@ -186,8 +203,6 @@ SECURITY_LOGIN_WITHOUT_CONFIRMATION = (
 
 OAUTHCLIENT_REMOTE_APPS = {}  # configure external login providers
 
-from invenio_oauthclient.views.client import auto_redirect_login
-
 ACCOUNTS_LOGIN_VIEW_FUNCTION = (
     auto_redirect_login  # autoredirect to external login if enabled
 )
@@ -265,10 +280,6 @@ RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
 # ---
 # Custom facets
 # ---
-
-from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
-from mex_invenio.custom_facets import RestrictedTermsFacet
-from invenio_vocabularies.services.facets import VocabularyLabels
 
 RDM_FACETS = {
     **RDM_FACETS,
@@ -1020,8 +1031,6 @@ TAGS = ["mex:keyword", "mex:activityType"]
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
-
-from mex_invenio.custom_fields import field_types
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

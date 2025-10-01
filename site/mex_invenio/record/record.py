@@ -65,18 +65,11 @@ class MexRecord(MethodView):
         if as_json:
             return json.loads(record_ui)
 
-        # record_type = record.data["metadata"]["resource_type"]["id"]
-
-        linked_records_data = _get_linked_records_data(record_item, mex_id)
         record = json.loads(record_ui)
-
-        data = normalise_record_data(record, linked_records_data)
-        print("data: ", data)
 
         return render_template(
             self.template,
             record=record,
-            linked_records_data=linked_records_data,
             is_preview=False,
             data=data,
         )
