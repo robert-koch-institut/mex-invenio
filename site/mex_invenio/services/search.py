@@ -26,10 +26,10 @@ def normalize_display_value(display_value):
             normalized_values.append(item)
         elif isinstance(item, str):
             # Convert string to object format
-            normalized_values.append({"language": "en", "value": item})
+            normalized_values.append({"value": item})
         else:
             # Fallback for other types
-            normalized_values.append({"language": "en", "value": str(item)})
+            normalized_values.append({"value": str(item)})
 
     return normalized_values
 
@@ -216,11 +216,10 @@ class MexDumper(SearchDumper):
                         if display_value:
                             break
                     if not display_value:
-                        display_value = [{"language": "en", "value": linked_record_id}]
+                        display_value = [{"value": linked_record_id}]
                 else:
                     display_value = [
                         {
-                            "language": "en",
                             "value": current_app.config.get(
                                 "NO_RECORD_STRING", "No record found"
                             ),
@@ -284,9 +283,9 @@ class MexDumper(SearchDumper):
                     field_values.append(
                         {
                             "link_id": identifier,
-                            "display_value": [{"language": "en", "value": identifier}]
+                            "display_value": [{"value": identifier}]
                             if identifier
-                            else [{"language": "en", "value": "Unknown"}],
+                            else [{"value": "Unknown"}],
                         }
                     )
 
