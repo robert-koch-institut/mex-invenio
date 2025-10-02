@@ -312,171 +312,104 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-FIELD_LABELS_UI = {
-    "mex:accessPlatform": "Access platform",
-    "mex:accessRestriction": "Access restriction",
-    "mex:accrualPeriodicity": "Update frequency",
-    "mex:alternativeTitle": "Alternative title",
-    "mex:anonymizationPseudonymization": "Anonymization/pseudonymization",
-    "mex:conformsTo": "Standard",
-    "mex:contact": "Contact",
-    "mex:contributingUnit": "Contributing unit",
-    "mex:contributor": "Contributor",
-    "mex:created": "Created",
-    "mex:creator": "Author",
-    "mex:description": "Description",
-    "mex:distribution": "Distribution",
-    "mex:documentation": "Documentation",
-    "mex:doi": "Doi",
-    "mex:externalPartner": "External partner",
-    "mex:hadPrimarySource": "Primary Source",
-    "mex:hasLegalBasis": "Legal basis",
-    "mex:hasPersonalData": "Personal data",
-    "mex:icd10code": "ICD-10",
-    "mex:identifier": "Identifier",
-    "mex:identifierInPrimarySource": "Identifier in primary source",
-    "mex:instrumentToolOrApparatus": "Tool",
-    "mex:isPartOf": "Superordinate data source/data set",
-    "mex:keyword": "Keyword",
-    "mex:language": "Language",
-    "mex:license": "License",
-    "mex:loincId": "LoincId",
-    "mex:maxTypicalAge": "Max. typical age",
-    "mex:meshId": "MeSH",
-    "mex:method": "Method",
-    "mex:methodDescription": "Method description",
-    "mex:minTypicalAge": "Min. typical age",
-    "mex:modified": "Modified",
-    "mex:populationCoverage": "Population coverage",
-    "mex:publication": "Publication",
-    "mex:publisher": "Publisher",
-    "mex:qualityInformation": "Quality information",
-    "mex:resourceCreationMethod": "Creation method",
-    "mex:resourceTypeGeneral": "General type",
-    "mex:resourceTypeSpecific": "Specific type",
-    "mex:rights": "Rights",
-    "mex:sizeOfDataBasis": "Size of data basis",
-    "mex:spatial": "Spatial",
-    "mex:stableTargetId": "Stable target id",
-    "mex:stateOfDataProcessing": "Data processing state",
-    "mex:temporal": "Temporal coverage",
-    "mex:theme": "Theme",
-    "mex:title": "Title",
-    "mex:unitInCharge": "Responsible unit",
-    "mex:wasGeneratedBy": "Related project/endeavor",
-    "mex:usedIn": "Related data",
-    "mex:involvedPerson": "Contributor",
-    "mex:responsibleUnit": "Responsible unit",
-    "mex:involvedUnit": "Contributing unit",
-    "mex:externalAssociate": "External partner",
-    "mex:funderOrCommissioner": "Funded / commissioned by",
-    "mex:fundingProgram": "Funding program",
-    "mex:journal": "Journal",
-    "mex:issue": "Issue",
-    "mex:volume": "Volume",
-    "mex:titleOfBook": "Book title",
-    "mex:subtitle": "Subtitle",
-    "mex:titleOfSeries": "Title of series",
-    "mex:volumeOfSeries": "Volume of series",
-    "mex:section": "Section",
-    "mex:publicationPlace": "Publication place",
-    "mex:publicationYear": "Publication year",
-    "mex:pages": "Pages",
-    "mex:isbnissn": "ISBN / ISSN",
-    "mex:editor": "Editor",
-    "mex:editorOfSeries": "Editor of the series",
-    "mex:alternateIdentifier": "Other identifier",
-    "mex:repositoryURL": "Repository URL",
-    "mex:start": "Start",
-    "mex:end": "End",
-    "mex:website": "Website",
-    "mex:succeeds": "Succeeds",
-    "mex:modified": "Modified",
-    "mex:hasPurpose": "Purpose of data processing",
-}
-
-RECORD_CARDS = {
+UI_SETTINGS = {
     "resource": {
+        "label": "Data Source/Dataset",
+        "special_fields": {
+            "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
+            "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
+            "CREATED": "mex:created",
+            "ACCESS_RESTRICTION": "mex:accessRestriction",
+            "ALT_TITLE": "mex:alternativeTitle",
+            "DESCRIPTION": "mex:description",
+            "LANGUAGE": "mex:language",
+            "MODIFIED": "mex:modified",
+            "MESH_ID": "mex:meshId",
+            "LOINC":"mex:loincId",
+            "ICD10": "mex:icd10code"
+        },
         "left": {
             "creators": {
-                "type": "single",
                 "title": "Creators & Contributors",
                 "icon": "creators.svg",
                 "properties": [
-                    "mex:creator",
-                    "mex:unitInCharge",
-                    "mex:contributor",
-                    "mex:contributingUnit",
-                    "mex:externalPartner",
+                    {"field": "mex:creator", "label": "Author"},
+                    {"field": "mex:unitInCharge", "label": "Responsible unit"},
+                    {"field": "mex:contributor", "label": "Contributor"},
+                    {"field": "mex:contributingUnit", "label": "Contributing unit"},
+                    {"field": "mex:externalPartner", "label": "External partner"},
                 ],
             },
             "theme": {
-                "type": "single",
                 "title": "Theme & Keywords",
                 "icon": "theme.svg",
                 "template": "theme_keywords.html",
                 "properties": [
-                    "mex:theme",
-                    "mex:keyword",
+                    {"field": "mex:theme"},
+                    {"field": "mex:keyword"},
                 ],
             },
             "coverage": {
-                "type": "single",
                 "title": "Data Representation & Coverage",
                 "icon": "coverage.svg",
                 "properties": [
-                    "mex:temporal",
-                    "mex:spatial",
-                    "mex:minTypicalAge",
-                    "mex:maxTypicalAge",
-                    "mex:populationCoverage",
-                    "mex:sizeOfDataBasis",
+                    {"field": "mex:temporal", "label": "Temporal coverage"},
+                    {"field": "mex:spatial", "label": "Spatial"},
+                    {"field": "mex:minTypicalAge", "label": "Min. typical age"},
+                    {"field": "mex:maxTypicalAge", "label": "Max. typical age"},
+                    {"field": "mex:populationCoverage", "label": "Population coverage"},
+                    {"field": "mex:sizeOfDataBasis", "label": "Size of data basis"},
                 ],
             },
             "legal": {
-                "type": "single",
                 "title": "Legal Basis & Data Provenance",
                 "icon": "legal.svg",
                 "properties": [
-                    "mex:hasLegalBasis",
-                    "mex:hasPurpose",
-                    "mex:hasPersonalData",
+                    {"field": "mex:hasLegalBasis", "label": "Legal basis"},
+                    {"field": "mex:hasPurpose", "label": "Purpose of data processing"},
+                    {"field": "mex:hasPersonalData", "label": "Personal data"},
                 ],
             },
             "processing": {
-                "type": "single",
                 "title": "Data Collection & Processing",
                 "icon": "processing.svg",
                 "properties": [
-                    "mex:resourceCreationMethod",
-                    "mex:accrualPeriodicity",
-                    "mex:anonymizationPseudonymization",
-                    "mex:instrumentToolOrApparatus",
+                    {"field": "mex:resourceCreationMethod", "label": "Creation method"},
+                    {"field": "mex:accrualPeriodicity", "label": "Update frequency"},
+                    {"field": "mex:anonymizationPseudonymization", "label": "Anonymization/pseudonymization"},
+                    {"field": "mex:instrumentToolOrApparatus", "label": "Tool"},
                 ],
             },
             "quality": {
-                "type": "single",
                 "title": "Standards & Quality",
                 "icon": "quality.svg",
-                "properties": ["mex:conformsTo", "mex:qualityInformation"],
+                "properties": [
+                    {"field": "mex:conformsTo", "label": "Standard"},
+                    {"field": "mex:qualityInformation", "label": "Quality information"},
+                ],
             },
             "methodology": {
-                "type": "single",
                 "title": "Methodology",
                 "icon": "methodology.svg",
-                "properties": ["mex:method", "mex:methodDescription"],
+                "properties": [
+                    {"field": "mex:method", "label": "Method"},
+                    {"field": "mex:methodDescription", "label": "Method description"},
+                ],
             },
             "publication": {
-                "type": "single",
                 "title": "Related Publications & Further Documentation",
                 "icon": "publication.svg",
-                "properties": ["mex:publication", "mex:documentation"],
+                "properties": [
+                    {"field": "mex:publication", "label": "Publication"},
+                    {"field": "mex:documentation", "label": "Documentation"},
+                ],
             },
             "generatedBy": {
-                "type": "single",
                 "title": "Related Projects",
                 "icon": "relatedProjects.svg",
-                "properties": ["mex:wasGeneratedBy"],
+                "properties": [
+                    {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor"},
+                ],
             },
             "relatedResources": {
                 "type": "container",
@@ -486,88 +419,98 @@ RECORD_CARDS = {
                     {
                         "type": "component",
                         "title": "Part Of",
-                        "properties": ["mex:isPartOf"],
+                        "properties": [
+                            {"field": "mex:isPartOf"},
+                        ],
                     },
                     {
                         "type": "component",
                         "title": "Includes",
-                        "is_backwards_linked": True,
-                        "properties": ["mex:isPartOf"],
+                        "properties": [
+                           {"field": "mex:isPartOf", "is_backwards_linked": True},
+                        ],
                     },
                 ],
             },
         },
         "right": {
             "contact": {
-                "type": "single",
                 "title": "Contact",
                 "template": "contact.html",
                 "icon": "contact.svg",
-                "properties": ["mex:contact"],
+                "properties": [
+                    {"field": "mex:contact"},
+                ],
             },
             "access": {
-                "type": "single",
                 "title": "Access & Usage Rights",
                 "icon": "access.svg",
                 "properties": [
-                    "mex:accessRestriction",
-                    "mex:doi",
-                    "mex:license",
-                    "mex:rights",
+                    {"field": "mex:accessRestriction", "label": "Access restriction"},
+                    {"field": "mex:doi", "label": "Doi"},
+                    {"field": "mex:license", "label": "License"},
+                    {"field": "mex:rights", "label": "Rights"},
                 ],
             },
             "files": {
-                "type": "single",
                 "title": "Files",
                 "icon": "distribution.svg",
-                "properties": ["mex:distribution"],
+                "properties": [
+                    {"field": "mex:distribution", "label": "Distribution"},
+                ],
             },
             "variables": {
-                "type": "single",
                 "title": "Variables",
                 "icon": "variables.svg",
-                "is_backwards_linked": True,
-                "properties": ["mex:usedIn"],
+                "properties": [
+                    {"field": "mex:usedIn", "label": "Related data", "is_backwards_linked": True},
+                ],
             },
         },
     },
     "activity": {
+        "label": "Project",
+        "special_fields": {
+            "ALT_TITLE": "mex:alternativeTitle",
+            "ACTIVITY_TYPE": "mex:activityType",
+            "ABSTRACT": "mex:abstract",
+        },
         "left": {
             "creators": {
-                "type": "single",
                 "title": "Creators & Contributors",
                 "icon": "creators.svg",
                 "properties": [
-                    "mex:involvedPerson",
-                    "mex:responsibleUnit",
-                    "mex:involvedUnit",
+                    {"field": "mex:involvedPerson", "label": "Contributor"},
+                    {"field": "mex:responsibleUnit", "label": "Responsible unit"},
+                    {"field": "mex:involvedUnit", "label": "Contributing unit"},
                 ],
             },
             "description": {
-                "type": "single",
                 "title": "Description",
                 "icon": "description.svg",
                 "properties": [
-                    "mex:start",
-                    "mex:end",
-                    "mex:theme",
+                    {"field": "mex:start", "label": "Start"},
+                    {"field": "mex:end", "label": "End"},
+                    {"field": "mex:theme", "label": "Theme"},
                 ],
             },
             "partners": {
-                "type": "single",
                 "title": "Partners & Funding",
                 "icon": "funding.svg",
                 "properties": [
-                    "mex:externalAssociate",
-                    "mex:funderOrCommissioner",
-                    "mex:fundingProgram",
+                    {"field": "mex:externalAssociate", "label": "External partner"},
+                    {"field": "mex:funderOrCommissioner", "label": "Funded / commissioned by"},
+                    {"field": "mex:fundingProgram", "label": "Funding program"},
                 ],
             },
             "publication": {
-                "type": "single",
                 "title": "Related Publications & Further Documentation",
                 "icon": "publication.svg",
-                "properties": ["mex:publication", "mex:documentation", "mex:website"],
+                "properties": [
+                    {"field": "mex:publication", "label": "Publication"},
+                    {"field": "mex:documentation", "label": "Documentation"},
+                    {"field": "mex:website", "label": "Website"},
+                ],
             },
             "parentResources": {
                 "type": "container",
@@ -577,8 +520,10 @@ RECORD_CARDS = {
                     {
                         "type": "component",
                         "title": "Part Of",
-                        "properties": ["mex:isPartOfActivity"],
-                    },
+                        "properties": [
+                            {"field": "mex:isPartOfActivity"},
+                        ],
+                    }
                 ],
             },
             "relatedResources": {
@@ -587,79 +532,89 @@ RECORD_CARDS = {
                 "icon": "relatedResources.svg",
                 "components": [
                     {
-                        "type": "component",
                         "title": "Succeeds",
-                        "properties": ["mex:succeeds"],
+                        "properties": [
+                            {"field": "mex:succeeds", "label": "Succeeds"},
+                        ],
                     },
                     {
-                        "type": "component",
                         "title": "Generated By",
-                        "is_backwards_linked": True,
-                        "properties": ["mex:wasGeneratedBy"],
+                        "properties": [
+                            {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor", "is_backwards_linked": True},
+                        ],
                     },
                 ],
             },
         },
         "right": {
             "contact": {
-                "type": "single",
                 "title": "Contact",
                 "template": "contact.html",
                 "icon": "contact.svg",
-                "properties": ["mex:contact"],
+                "properties": [
+                    {"field": "mex:contact"},
+                ],
             }
         },
     },
     "bibliographicresource": {
+        "label": "Publication",
+        "special_fields": {
+            "CREATED": "mex:created",
+            "ACCESS_RESTRICTION": "mex:accessRestriction",
+            "ALT_TITLE": "mex:alternativeTitle",
+            "LANGUAGE": "mex:language",
+            "ABSTRACT": "mex:abstract",
+            "BIBLIOGRAPHICRESOURCE_TYPE": "mex:bibliographicResourceType",
+            "ISSUED": "mex:issued",
+        },
         "left": {
             "creators": {
-                "type": "single",
                 "title": "Creators",
                 "icon": "creators.svg",
-                "properties": ["mex:creator", "mex:contributingUnit"],
+                "properties": [
+                    {"field": "mex:creator", "label": "Author"},
+                    {"field": "mex:contributingUnit", "label": "Contributing unit"},
+                ],
             },
             "keywords": {
-                "type": "single",
                 "title": "Keywords",
                 "icon": "theme.svg",
                 "properties": [
-                    "mex:keyword",
+                    {"field": "mex:keyword"},
                 ],
             },
             "titleProper": {
-                "type": "single",
                 "title": "Title Proper",
                 "icon": "titleProper.svg",
                 "properties": [
-                    "mex:journal",
-                    "mex:issue",
-                    "mex:volume",
-                    "mex:titleOfBook",
-                    "mex:subtitle",
-                    "mex:titleOfSeries",
-                    "mex:volumeOfSeries",
-                    "mex:section",
+                    {"field": "mex:journal", "label": "Journal"},
+                    {"field": "mex:issue", "label": "Issue"},
+                    {"field": "mex:volume", "label": "Volume"},
+                    {"field": "mex:titleOfBook", "label": "Book title"},
+                    {"field": "mex:subtitle", "label": "Subtitle"},
+                    {"field": "mex:titleOfSeries", "label": "Title of series"},
+                    {"field": "mex:volumeOfSeries", "label": "Volume of series"},
+                    {"field": "mex:section", "label": "Section"},
                 ],
             },
             "imprint": {
-                "type": "single",
                 "title": "Imprint",
                 "icon": "imprint.svg",
                 "properties": [
-                    "mex:publisher",
-                    "mex:publicationPlace",
-                    "mex:publicationYear",
-                    "mex:pages",
-                    "mex:isbnissn",
+                    {"field": "mex:publisher", "label": "Publisher"},
+                    {"field": "mex:publicationPlace", "label": "Publication place"},
+                    {"field": "mex:publicationYear", "label": "Publication year"},
+                    {"field": "mex:pages", "label": "Pages"},
+                    {"field": "mex:isbnissn", "label": "ISBN / ISSN"},
                 ],
             },
             "editor": {
-                "type": "single",
                 "title": "Editor",
                 "icon": "editor.svg",
                 "properties": [
-                    "mex:editor",
-                    "mex:editorOfSeries",
+                    {"field": "mex:editor", "label": "Editor"},
+                    {"field": "mex:editorOfSeries", "label": "Editor of the series"},
                 ],
             },
             "relatedResources": {
@@ -669,49 +624,35 @@ RECORD_CARDS = {
                 "components": [
                     {
                         "type": "component",
-                        "is_backwards_linked": True,
-                        "properties": ["mex:publication"],
+                        "properties": [
+                            {"field": "mex:publication", "label": "Publication", "is_backwards_linked": True},
+                        ],
                     }
                 ],
             },
         },
         "right": {
             "access": {
-                "type": "single",
                 "title": "Access & Usage Rights",
                 "icon": "access.svg",
                 "properties": [
-                    "mex:accessRestriction",
-                    "mex:doi",
-                    "mex:alternateIdentifier",
-                    "mex:repositoryURL",
-                    "mex:license",
-                    "mex:rights",
+                    {"field": "mex:accessRestriction", "label": "Access restriction"},
+                    {"field": "mex:doi", "label": "Doi"},
+                    {"field": "mex:alternateIdentifier", "label": "Other identifier"},
+                    {"field": "mex:repositoryURL", "label": "Repository URL"},
+                    {"field": "mex:license", "label": "License"},
+                    {"field": "mex:rights", "label": "Rights"},
                 ],
             },
             "files": {
-                "type": "single",
                 "title": "Files",
                 "icon": "distribution.svg",
-                "properties": ["mex:distribution"],
+                "properties": [
+                    {"field": "mex:distribution", "label": "Distribution"},
+                ],
             },
         },
     },
-}
-
-PROPS_WITHOUT_LABELS = {
-    "resource": ["mex:isPartOf", "mex:contact", "mex:distribution", "mex:usedIn"],
-    "activity": [
-        "mex:isPartOfActivity",
-        "mex:wasGeneratedBy",
-        "mex:succeeds",
-        "mex:contact",
-    ],
-    "bibliographicresource": [
-        "mex:publication",
-        "mex:contact",
-        "mex:keyword",
-    ],
 }
 
 IS_ACCESS_STATUS_OPEN = {
@@ -755,263 +696,7 @@ ENTITIES = [
     "variable",
 ]
 
-CORE_ENTITIES_LABELS = {
-    "Resource": "Data Source/Dataset",
-    "Activity": "Project",
-    "Variable": "Variable",
-    "Bibliographic resource": "Publication",
-}
-
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
-
-LINKED_RECORDS_FIELDS = {
-    "accessplatform": {
-        "mex:contact": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ],
-            "mex:contactpoint": ["mex:email"],
-        },
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:unitInCharge": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-    },
-    "activity": {
-        "mex:contact": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ],
-            "mex:contactpoint": ["mex:email"],
-        },
-        "mex:externalAssociate": {
-            "mex:organization": ["mex:officialName"],
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ],
-        },
-        "mex:funderOrCommissioner": {"mex:organization": ["mex:officialName"]},
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:involvedPerson": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:involvedUnit": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:isPartOfActivity": {"mex:activity": ["mex:title"]},
-        "mex:publication": {"mex:bibliographicresource": ["mex:title"]},
-        "mex:responsibleUnit": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:succeeds": {"mex:activity": ["mex:title"]},
-    },
-    "bibliographicresource": {
-        "mex:contributingUnit": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:creator": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:distribution": {"mex:distribution": ["mex:title"]},
-        "mex:editor": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:editorOfSeries": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:publisher": {"mex:organization": ["mex:officialName"]},
-    },
-    "concept": {"mex:inScheme": {"mex:conceptscheme": ["mex:prefLabel"]}},
-    "consent": {
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:hasDataSubject": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-    },
-    "contactpoint": {
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        }
-    },
-    "distribution": {
-        "mex:accessService": {
-            "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-    },
-    "organization": {
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        }
-    },
-    "organizationalunit": {
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:parentUnit": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:unitOf": {"mex:organization": ["mex:officialName"]},
-    },
-    "person": {
-        "mex:affiliation": {"mex:organization": ["mex:officialName"]},
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:memberOf": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-    },
-    "primarysource": {
-        "mex:contact": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"],
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ],
-            "mex:contactpoint": ["mex:email"],
-        },
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:unitInCharge": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName"]
-        },
-    },
-    "resource": {
-        "mex:accessPlatform": {
-            "mex:accessplatform": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:belongsTo": {"mex:activity": ["mex:title"]},
-        "mex:contact": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName"],
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ],
-            "mex:contactpoint": ["mex:email"],
-        },
-        "mex:contributingUnit": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:contributor": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:creator": {
-            "mex:person": [
-                "mex:fullName",
-                "mex:familyName",
-                "mex:givenName",
-                "mex:email",
-            ]
-        },
-        "mex:distribution": {"mex:distribution": ["mex:title"]},
-        "mex:externalPartner": {"mex:organization": ["mex:officialName"]},
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:isPartOf": {"mex:resource": ["mex:title", "mex:alternativeTitle"]},
-        "mex:publication": {"mex:bibliographicresource": ["mex:title"]},
-        "mex:publisher": {"mex:organization": ["mex:officialName"]},
-        "mex:unitInCharge": {
-            "mex:organizationalunit": ["mex:name", "mex:alternativeName", "mex:email"]
-        },
-        "mex:wasGeneratedBy": {"mex:resource": ["mex:title"]},
-    },
-    "variablegroup": {
-        "mex:containedBy": {"mex:resource": ["mex:title"]},
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-    },
-    "variable": {
-        "mex:belongsTo": {"mex:variablegroup": ["mex:label"]},
-        "mex:hadPrimarySource": {
-            "mex:primarysource": ["mex:title", "mex:alternativeTitle"]
-        },
-        "mex:usedIn": {"mex:resource": ["mex:title"]},
-    },
-}
-
-RECORDS_LINKED_BACKWARDS = {
-    "resource": {
-        "mex:usedIn": ["mex:label"],
-        "mex:isPartOf": ["mex:title"],
-    },
-    "activity": {"mex:wasGeneratedBy": ["mex:title"]},
-    "bibliographicresource": {"mex:publication": ["mex:title"]},
-}
-
-RECORD_SPECIAL_FIELDS = {
-    "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
-    "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
-    "CREATED": "mex:created",
-    "ACCESS_RESTRICTION": "mex:accessRestriction",
-    "ALT_TITLE": "mex:alternativeTitle",
-    "DESCRIPTION": "mex:description",
-    "LANGUAGE": "mex:language",
-    "ACTIVITY_TYPE": "mex:activityType",
-    "ABSTRACT": "mex:abstract",
-    "BIBLIOGRAPHICRESOURCE_TYPE": "mex:bibliographicResourceType",
-    "ISSUED": "mex:issued",
-    "MODIFIED": "mex:modified",
-}
 
 EXTIDS = {
     "mex:doi": {
@@ -1026,8 +711,6 @@ EXTIDS = {
     "mex:loincId": {"urls": ["https://loinc.org/"]},
     "mex:icd10code": {},
 }
-
-TAGS = ["mex:keyword", "mex:activityType"]
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
