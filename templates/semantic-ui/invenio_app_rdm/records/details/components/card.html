@@ -31,7 +31,7 @@
                     {% if prop in data %}
                         <div class="card-props-p {%- if prop in config.PROPS_WITHOUT_LABELS[resource_type] %} forced-vertical {%- endif -%}">
                             {%- if prop not in config.PROPS_WITHOUT_LABELS[resource_type] -%}
-                                <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                                <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p> 
                             {%- endif -%}
                             <div class="card-prop-value">
                                 {{ display_values(values) }}

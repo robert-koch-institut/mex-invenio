@@ -4,21 +4,12 @@
     <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
         <div class="tags top-tags">
             <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
-            {% set resource_type_specific = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC,
-            record.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC], resource_type) %}
-            {% set resource_type_general = val(config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL,
-            record.custom_fields[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL], resource_type) %}
-            {% if resource_type_general %}
-            <span class="tag" title="Resource type">{{resource_type_general}}{%- if resource_type_specific
-                -%}/{{resource_type_specific}}{%- endif -%}</span>
-            <span class="tag" title="Resource type">{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL])}}{%- if resource_type_specific -%}/{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC])}}{%- endif -%}</span>
+            {% if config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL in data %}
+            <span class="tag" title="Resource type">{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_GENERAL])}}{%- if config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC in data -%}/{{display_values(data[config.RECORD_SPECIAL_FIELDS.RESOURCE_TYPE_SPECIFIC])}}{%- endif -%}</span>
             {% endif %}
-            {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION,
-            record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
-            <span
-                class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{
-                status }}</span>
-            <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]) }}</span>
+            {%- if config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION in data -%}
+            <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]) }}</span>
+            {% endif %}
         </div>
     </section>
 {%- endblock -%}
@@ -34,24 +25,20 @@
 {%- endblock -%}
 
 {%- block lang_and_date -%}
-    {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE,record.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
-    {% set created = val(config.RECORD_SPECIAL_FIELDS.CREATED,record.custom_fields[config.RECORD_SPECIAL_FIELDS.CREATED],resource_type) %}
-    {% set modified = val(config.RECORD_SPECIAL_FIELDS.MODIFIED,record.custom_fields[config.RECORD_SPECIAL_FIELDS.MODIFIED], resource_type) %}
-
-    {% if language or created or modified %}
+        {% if config.RECORD_SPECIAL_FIELDS.LANGUAGE in data or 
+        config.RECORD_SPECIAL_FIELDS.CREATED in data or 
+        config.RECORD_SPECIAL_FIELDS.MODIFIED in data %}
         <section class="detail">
-            {% if language %}
-            <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
+            {% if config.RECORD_SPECIAL_FIELDS.LANGUAGE in data %}
             <p class="muted" ><b>{{ _('Language') }}:</b> {{
                 display_values(data[config.RECORD_SPECIAL_FIELDS.LANGUAGE]) }}</p>
             {% endif %}
-            {% if created %}
-            <p class="muted"><b>{{ _('Created') }}:</b>{{ created }}</p>
+            {% if config.RECORD_SPECIAL_FIELDS.CREATED in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b>{{
                 display_values(data[config.RECORD_SPECIAL_FIELDS.CREATED]) }}</p>
             {% endif %}
-            {% if modified %}
-            <p class="muted"><b>{{ _('Modified') }}:</b>{{ modified }}</p>
+            {% if config.RECORD_SPECIAL_FIELDS.MODIFIED in data %}
+            <p class="muted"><b>{{ _('Modified') }}:</b>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.MODIFIED]) }}</p>
             {% endif %}
         </section>
     {% endif %}
@@ -59,16 +46,11 @@
 
 
 {%- block extids -%}
-    {% set icd10val = val("mex:icd10code", record.custom_fields["mex:icd10code"], resource_type) %}
-    {% set loincval = val("mex:loincId", record.custom_fields["mex:loincId"], resource_type) %}
-    {% set meshval = val("mex:meshId", record.custom_fields["mex:meshId"], resource_type) %}
-
     {% set icd10val_exists = data["mex:icd10code"] | length > 0 %}
     {% set loincval_exists = data["mex:loincId"] | length > 0 %}
     {% set meshval_exists = data["mex:meshId"] | length > 0 %}
 
     {% if icd10val or loincval or meshval %}
-        <p >icd10code: {{ icd10val_exists }} | loincId: {{ loincval_exists }} | meshId: {{ meshval_exists }}</p>
         <section id="record-ids" aria-label="{{ _('Record IDs') }}">
             <div class="id-tags">
                 {% if icd10val %}

@@ -6,7 +6,7 @@
                 <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
 
                 {% if config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE in data %}
-                    <span class="tag" title="Resource type">{{bibliographicresource_type_general}}{%- if bibliographicresource_type_specific -%}/{{bibliographicresource_type_specific}}{%- endif -%}</span>
+                    <span class="tag" title="Resource type">{{display_values(data[config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE])}}</span>
                 {% endif %}
 
                 {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
