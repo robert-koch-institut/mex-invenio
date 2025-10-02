@@ -124,6 +124,9 @@
                             },
                             "mex:accessPlatform": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -141,6 +144,9 @@
                             },
                             "mex:accessService": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -158,6 +164,9 @@
                             },
                             "mex:affiliation": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -175,6 +184,9 @@
                             },
                             "mex:belongsTo": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -192,6 +204,9 @@
                             },
                             "mex:contact": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -212,6 +227,9 @@
                             },
                             "mex:containedBy": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -229,6 +247,9 @@
                             },
                             "mex:contributingUnit": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -246,6 +267,9 @@
                             },
                             "mex:contributor": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -263,6 +287,9 @@
                             },
                             "mex:creator": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -280,6 +307,9 @@
                             },
                             "mex:distribution": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -297,6 +327,9 @@
                             },
                             "mex:editor": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -314,6 +347,9 @@
                             },
                             "mex:editorOfSeries": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -331,6 +367,9 @@
                             },
                             "mex:externalAssociate": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -348,6 +387,9 @@
                             },
                             "mex:externalPartner": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -365,6 +407,9 @@
                             },
                             "mex:funderOrCommissioner": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -382,6 +427,9 @@
                             },
                             "mex:hadPrimarySource": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -399,6 +447,9 @@
                             },
                             "mex:hasDataSubject": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -416,6 +467,9 @@
                             },
                             "mex:inScheme": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -433,6 +487,9 @@
                             },
                             "mex:involvedPerson": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -450,6 +507,9 @@
                             },
                             "mex:involvedUnit": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -467,6 +527,9 @@
                             },
                             "mex:isPartOf": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -484,6 +547,9 @@
                             },
                             "mex:isPartOfActivity": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -501,6 +567,9 @@
                             },
                             "mex:memberOf": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -518,6 +587,9 @@
                             },
                             "mex:parentUnit": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -535,6 +607,9 @@
                             },
                             "mex:publication": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -552,6 +627,9 @@
                             },
                             "mex:publisher": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -569,6 +647,9 @@
                             },
                             "mex:responsibleUnit": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -586,6 +667,9 @@
                             },
                             "mex:succeeds": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -603,6 +687,9 @@
                             },
                             "mex:unitInCharge": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -620,6 +707,9 @@
                             },
                             "mex:unitOf": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -637,6 +727,9 @@
                             },
                             "mex:usedIn": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {
@@ -654,6 +747,9 @@
                             },
                             "mex:wasGeneratedBy": {
                                 "properties": {
+                                    "core": {
+                                        "type": "boolean"
+                                    },
                                     "display_value": {
                                         "properties": {
                                             "language": {

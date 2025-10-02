@@ -203,8 +203,15 @@ class MexDumper(SearchDumper):
             for linked_record_id in linked_record_ids:
                 display_value = False
                 linked_record = linked_records_map.get(linked_record_id)
+                record_type = None
 
                 if linked_record:
+                    record_type = (
+                        linked_record.get("metadata", {})
+                        .get("resource_type", {})
+                        .get("id", "")
+                    )
+
                     # Try to find display value from props
                     for p in props:
                         for title_field in props[p]:
@@ -229,6 +236,8 @@ class MexDumper(SearchDumper):
                 field_value = {
                     "link_id": linked_record_id,
                     "display_value": normalize_display_value(display_value),
+                    "core": record_type
+                    in ["activity", "resource", "bibliographicresource"],
                 }
 
                 # Handle email for contact fields
