@@ -19,9 +19,9 @@
 
 {% macro display_value(v) %}
     {%- if v.url -%}
-        <a href="{{ v.url }}" title="{{ v.display_value }}" style="color: red; text-decoration: dotted;">{{ v.display_value }}</a>
+        <a href="{{ v.url }}" title="{{ v.display_value }}">{{ v.display_value }}</a>
     {%- else -%}
-        <p style="color: red">{{ v.display_value }}</p>
+        {{ v.display_value }}</p>
     {%- endif -%}
 {% endmacro %}
 

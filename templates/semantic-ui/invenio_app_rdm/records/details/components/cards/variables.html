@@ -13,10 +13,10 @@
         {% endif %}
     {% endfor %}
 {% else %}
-    {% set record_data = record.ui.custom_fields %}
+    {% set record_data = record.custom_fields %}
     {% for prop in card.properties %}
-        {% if prop in record.ui.custom_fields %}
-            {% set ns.value = record.ui.custom_fields[prop] %}
+        {% if prop in record.custom_fields %}
+            {% set ns.value = record.custom_fields[prop] %}
             {% if ns.value %}
                 {% set ns.prop_exist = true %}
             {% endif %}
@@ -33,11 +33,10 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
-                {% if value %}
+                {% if data[prop] %}
                     <div class="card-props-p">
                         <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
-                        <div class="card-prop-value">{{ value }}</div>
+                        <div class="card-prop-value">{{ display_values(data[prop]) }}</div>
                     </div>
                 {% endif %}
             {% endfor %}
@@ -63,10 +62,9 @@
             <p>{{ _('Here are all the variables for this card:') }}</p>
             <ul>
             {% for prop in card.properties %}
-                    {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
-                    {% if value %}
+                    {% if data[prop] %}
                         <div class="card-props-p">
-                            <div class="card-prop-value">{{ value }}</div>
+                            <div class="card-prop-value">{{ display_values(data(prop)) }}</div>
                         </div>
                     {% endif %}
                 {% endfor %}

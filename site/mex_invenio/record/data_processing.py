@@ -20,28 +20,30 @@ def normalised_value(
     }
 
 
-def normalise_record_data(record: dict, linked_records: dict):
+def normalise_record_data(record: dict):
     data = {}
     data["backwards_linked"] = {}
-    custom_fields = record["ui"]["custom_fields"]
-    record_type = record["ui"]["resource_type"]["id"]
+    custom_fields = record["custom_fields"]
+    record_type = record["metadata"]["resource_type"]["id"]
     for field in custom_fields:
-        data[field] = _normalise_value(
-            field, record["ui"]["custom_fields"][field], record_type, linked_records
+        normalised_value = _normalise_value(
+            field, record["custom_fields"][field], record_type
         )
+        data.update({field: normalised_value} if normalised_value else {})
 
-    for field in current_app.config.get("RECORDS_LINKED_BACKWARDS", {}).get(
-        record_type, []
-    ):
-        if field in linked_records["backwards_linked"]:
-            data["backwards_linked"][field] = _normalise_identifier(
-                linked_records["backwards_linked"][field]
-            )
+    for field in record["display_data"]["linked_records"]:
+        if field == "backwards_linked":
+            for f in record["display_data"]["linked_records"]["backwards_linked"]:
+                data["backwards_linked"][f] = _normalise_linked_data(
+                    record["display_data"]["linked_records"]["backwards_linked"][f]
+                )
+        else:
+            data[field] = _normalise_linked_data(record["display_data"]["linked_records"][field])
     return data
 
 
 def _normalise_value(
-    field_name: str, field_raw_value: Any, resource_type: str, linked_records: dict
+    field_name: str, field_raw_value: Any, resource_type: str
 ):
 
     if not field_raw_value or current_app.config.get("FIELD_TYPES") is None:
@@ -56,9 +58,13 @@ def _normalise_value(
     # Determine field type
     field_types = current_app.config.get("FIELD_TYPES").get(resource_type, {})
     ftype = field_types.get(field_name)
+
     # --- type handlers ---
     if field_name in current_app.config.get("EXTIDS", {}):
         return _normalise_extid(values, field_name)
+    
+    elif ftype == "identifier":
+        return None
 
     elif ftype in ("string", "int"):
         return [normalised_value(display_value=str(v)) for v in values]
@@ -75,11 +81,6 @@ def _normalise_value(
     elif ftype == "label":
         return _normalise_label(values)
 
-    elif ftype == "identifier":
-        return _normalise_identifier(
-            linked_records[field_name], field_name == "mex:contact"
-        )
-
     else:
         return [normalised_value(display_value=str(v)) for v in values]
 
@@ -88,28 +89,17 @@ def _normalise_value(
 # helper normalisers
 # -----------------------
 
-
-def _normalise_identifier(
-    values: list, is_contact: bool = False
-) -> list[NormalisedValue]:
-    results = []
-    nvalue = {}
-    print(f"valuesssss {values}")
-    for val in values:
-        for t in val["title"]:
-            if isinstance(t, dict):
-                nvalue = normalised_value(
-                    display_value=t.get("value", ""),
-                    language=t.get("language", ""),
-                    url="/" + val["link_id"],
-                )
-            else:
-                nvalue = normalised_value(display_value=t, url="/" + val["link_id"])
-            if is_contact and isinstance(val, dict):
-                nvalue["email"] = val.get("email", "")
-            results.append(nvalue)
-    return results
-
+def _normalise_linked_data (values: list):
+    normalised = []
+    for v in values:
+        for dv in v["display_value"]:
+            nvalue = normalised_value(
+                        display_value=dv.get("value", ""),
+                        language=dv.get("language", ""),
+                        url="/records/mex/" + v["link_id"]
+                    )
+            normalised.append(nvalue)
+    return normalised
 
 def _normalise_date(values: list) -> list[NormalisedValue]:
     normalised = []

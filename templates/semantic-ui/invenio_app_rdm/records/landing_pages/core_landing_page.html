@@ -1,6 +1,6 @@
 
 <div class="edit-btn"><a id="edit-record" class="button edit"
-                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
+                         href="https://mex-editor.rki.local/item/{{ record.custom_fields['mex:identifier'] }}"
                          target="_blank">{{ _('Edit this record') }}</a></div>
 <div class="ui container">
     <div class="ui relaxed stackable reversed mobile grid mt-5">
@@ -15,7 +15,7 @@
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
                     </div>
-                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
+                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
                     {% if alttitle %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
                     {% endif %}

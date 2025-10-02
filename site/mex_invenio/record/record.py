@@ -39,7 +39,6 @@ class MexRecord(MethodView):
 
             if not record:
                 abort(404)
-            pid = record.json["id"]
         else:
             # Version_id is not provided, fetch the latest record by mex_id
             try:
@@ -48,9 +47,8 @@ class MexRecord(MethodView):
                 abort(404)
             except Exception:
                 abort(500)
-
-            pid = record["id"]
-
+                
+        pid = record["id"] # type: ignore
         record_item = current_rdm_records_service.read(g.identity, pid)
 
         # emit a record view stats event
@@ -65,7 +63,7 @@ class MexRecord(MethodView):
         if as_json:
             return json.loads(record_ui)
 
-        record = json.loads(record_ui)
+        data = normalise_record_data(record) # type: ignore
 
         return render_template(
             self.template,
