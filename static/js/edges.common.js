@@ -1364,9 +1364,11 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
       );
       recordsFrag += `
                 <div class="selected-list">
-                    <img
+                    <button class="img-button">
+                      <img
                         data-id="${id}"
                         class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                    </button>
                     <div>
                         <div class="selected-list-item">
                             ${title}
@@ -1386,7 +1388,9 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                 <div class="card card-shadow">
 
                     <div id="control-section">
+                      <button class="img-button">
                         <img class="${hideClass} controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
+                      </button>
                     </div>
 
                     <div class="divider">
