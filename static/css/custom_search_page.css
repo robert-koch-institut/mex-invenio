@@ -363,3 +363,11 @@ select:focus-visible,
 select:hover {
   outline: 0.19rem solid #2185d0 !important;
 }
+
+.img-button {
+  all: unset; /* removes ALL default styles */
+  cursor: pointer; /* keep the pointer cursor */
+  display: inline-flex; /* keeps alignment neat */
+  align-items: center;
+  justify-content: center;
+}

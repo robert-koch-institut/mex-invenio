@@ -3425,14 +3425,16 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 </div>
 
                 <div class="title ${title ? "" : "hide"}">
-                    <img
+                    <button class="img-button">
+                      <img
                         class="${selectClass} bookmark icon"
                         id="resource-list-${res.id}"
                         data-id="${res.id}"
                         data-state="${selectState}"
                         src="${currentImage}"
                         alt="${selectState} Icon" width="22" height="24"
-                    />
+                      />
+                    </button>
                     <span>
                         ${title}
                     </span>
