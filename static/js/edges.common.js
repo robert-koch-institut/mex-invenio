@@ -666,9 +666,25 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
+                <div id="vertical-tab" class="vertical-tab ${verticalTabClass}">
+                </div>
             </div>
         `;
     edge.context.html(frag);
+
+    let verticalTabSelector = edges.util.jsClassSelector(
+      this.namespace,
+      "verticalTab",
+      ""
+    );
+    edges.on(verticalTabSelector, "click", this, "showTabContent");
+  }
+
+  showTabContent() {
+    let doc = document.getElementById("right-col");
+    if (doc) {
+      doc.style.display = "";
+    }
   }
 };
 
@@ -1362,6 +1378,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         record,
         edges.mex._("No title")
       );
+
       recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
