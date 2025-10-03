@@ -371,3 +371,13 @@ select:hover {
   align-items: center;
   justify-content: center;
 }
+
+.close-icon {
+  width: 1.5rem;
+  height: 2rem;
+}
+
+.slide-icon {
+  width: 1rem;
+  height: 1.05rem;
+}

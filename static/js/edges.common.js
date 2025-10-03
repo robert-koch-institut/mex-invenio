@@ -1384,7 +1384,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <button class="img-button">
                       <img
                         data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt="Slide right" />
                     </button>
                     <div>
                         <div class="selected-list-item">
@@ -1406,7 +1406,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                     <div id="control-section">
                       <button class="img-button">
-                        <img class="${hideClass} controls" src="/static/images/slide-right.svg" alt="Slide right" width="16px" height="17px"/>
+                        <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="Slide right" />
                       </button>
                     </div>
 
