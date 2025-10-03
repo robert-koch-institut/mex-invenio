@@ -1380,6 +1380,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
     }
 
     let frag = "";
+    let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
     if (recordsFrag) {
       frag = `
                 <div class="card card-shadow">
@@ -1395,7 +1396,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <div>
                         ${recordsFrag}
                     </div>
-                    <a class="search-variable" href="/search/variables">
+                    <a class="search-variable" href="/search/variables" title="${title}">
                         ${edges.mex._("See in Variables Search")}
                     </a>
                 </div>
