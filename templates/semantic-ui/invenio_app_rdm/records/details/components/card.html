@@ -34,7 +34,7 @@
                                 <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p> 
                             {%- endif -%}
                             <div class="card-prop-value">
-                                {{ display_values(data[prop.field]) }}
+                                {{ display_values(record_data[prop.field]) }}
                             </div>
                         </div>
                     {% endif %}

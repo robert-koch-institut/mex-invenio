@@ -108,7 +108,8 @@
         &.long {
             flex: 1 1 100%;
             .card-props > .card-props-p {
-                grid-template-columns: 100% auto;
+                grid-template-columns: 100%;
+                grid-template-rows: auto auto;
             }
         }
     }

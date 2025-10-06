@@ -19,9 +19,8 @@
 {%- endblock -%}
 
 {%- block description -%}
-    {% if description %}
+    {% if config.UI_SETTINGS[resource_type].special_fields.DESCRIPTION in data %}
         <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
-            <p>{{ description }}</p>
             <p>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.DESCRIPTION]) }}</p>
         </section>
     {% endif %}
