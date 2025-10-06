@@ -1,14 +1,14 @@
-{% set cards = config.RECORD_CARDS[resource_type][column] %}
-{% set card = config.RECORD_CARDS[resource_type][column][card_name] %}
+{% set cards = config.UI_SETTINGS[resource_type][column] %}
+{% set card = config.UI_SETTINGS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false) %}
-{% if data and data.linked_records and card.is_backwards_linked %}
-    {% set record_data = data.linked_records["backwards_linked"] %}
-{% else %}
-    {% set record_data = data %}
-{% endif %}
 {% for prop in card.properties %}
-    {% if prop in record_data %}
+    {% if "is_backwards_linked" in prop %}
+        {% set record_data = data["backwards_linked"] %}
+    {% else %}
+        {% set record_data = data %}
+    {% endif %}
+    {% if prop.field in record_data %}
         {% set ns.prop_exist = true %}
     {% endif %}
 {% endfor %}
@@ -23,18 +23,18 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                    {% if card.is_backwards_linked -%}
-                        {%- set values = data["backwards_linked"][prop] -%}
-                    {% else -%}
-                        {%- set values = data[prop] -%}
-                    {%- endif -%}
-                    {% if prop in data %}
-                        <div class="card-props-p {%- if prop in config.PROPS_WITHOUT_LABELS[resource_type] %} forced-vertical {%- endif -%}">
-                            {%- if prop not in config.PROPS_WITHOUT_LABELS[resource_type] -%}
-                                <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p> 
+                    {% if prop.field in data %}
+                        {% if "is_backwards_linked" in prop %}
+                            {% set record_data = data.linked_records["backwards_linked"] %}
+                        {% else %}
+                            {% set record_data = data %}
+                        {% endif %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            {%- if 'label' in prop %}
+                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p> 
                             {%- endif -%}
                             <div class="card-prop-value">
-                                {{ display_values(values) }}
+                                {{ display_values(data[prop.field]) }}
                             </div>
                         </div>
                     {% endif %}

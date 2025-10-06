@@ -326,7 +326,8 @@ UI_SETTINGS = {
             "MODIFIED": "mex:modified",
             "MESH_ID": "mex:meshId",
             "LOINC":"mex:loincId",
-            "ICD10": "mex:icd10code"
+            "ICD10": "mex:icd10code",
+            "TITLE": "mex:title"
         },
         "left": {
             "creators": {
@@ -474,6 +475,7 @@ UI_SETTINGS = {
             "ALT_TITLE": "mex:alternativeTitle",
             "ACTIVITY_TYPE": "mex:activityType",
             "ABSTRACT": "mex:abstract",
+            "TITLE": "mex:title"
         },
         "left": {
             "creators": {
@@ -567,6 +569,7 @@ UI_SETTINGS = {
             "ABSTRACT": "mex:abstract",
             "BIBLIOGRAPHICRESOURCE_TYPE": "mex:bibliographicResourceType",
             "ISSUED": "mex:issued",
+            "TITLE": "mex:title"
         },
         "left": {
             "creators": {

@@ -1,15 +1,15 @@
-{% set card_container = config.RECORD_CARDS[resource_type][column][card_name] %}
+{% set card_container = config.UI_SETTINGS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, cards_exist={}, show_container=false) %}
 {% for card in card_container.components %}
     {% set ns.prop_exist = false %}
-    {% if card.is_backwards_linked %}
-        {%- set record_data = data.backwards_linked -%}
-    {%- else -%}
-        {%- set record_data = data -%}
-    {%- endif -%}
     {% for prop in card.properties %}
-        {% if prop in record_data %}
+        {% if "is_backwards_linked" in prop %}
+            {%- set record_data = data.backwards_linked -%}
+        {%- else -%}
+            {%- set record_data = data -%}
+        {%- endif -%}
+        {% if prop.field in record_data %}
             {% set ns.prop_exist = true %}
         {% endif %}
     {% endfor %}
@@ -29,23 +29,23 @@
             {% set previous_exists = ns.cards_exist[card_container.components[loop.index0 - 1].title] if not loop.first else false %}
             {% if not loop.first and current_exists and previous_exists %}<div class="ui divider"></div>{% endif %}
             {% if ns.cards_exist[card.title] %}
-                {% if card.is_backwards_linked %}
-                    {% set record_data = data["backwards_linked"] %}
-                {% else %}
-                    {% set record_data = data %}
-                {% endif %}
                 <h4>
                     {{ _(card.title) }}
                 </h4>
                 <div class="card-props">
                     {% for prop in card.properties %}
-                        {% if prop in record_data %}
-                            <div class="card-props-p {%- if prop in config.PROPS_WITHOUT_LABELS[resource_type] %} forced-vertical {%- endif -%}">
-                            {%- if prop not in config.PROPS_WITHOUT_LABELS[resource_type] -%}
-                                <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        {% if "is_backwards_linked" in prop%}
+                            {% set record_data = data["backwards_linked"] %}
+                        {% else %}
+                            {% set record_data = data %}
+                        {% endif %}
+                        {% if prop.field in record_data %}
+                            <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            {%- if "label" in prop -%}
+                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ prop.label }}</p>
                             {%- endif -%}
                             <div class="card-prop-value">
-                                {{ display_values(record_data[prop]) }}
+                                {{ display_values(record_data[prop.field]) }}
                             </div>
                         </div>
                         {% endif %}
