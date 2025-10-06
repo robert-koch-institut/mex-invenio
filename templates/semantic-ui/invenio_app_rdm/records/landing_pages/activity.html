@@ -3,18 +3,18 @@
     {%- block toptags -%}
         <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}"></section>
             <div class="tags top-tags">
-                <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
-                {% if config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE in data %}
-                    <span class="tags">{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ACTIVITY_TYPE]) }}</span>
+                <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
+                {% if config.UI_SETTINGS[resource_type].special_fields.ACTIVITY_TYPE in data %}
+                    <span class="tags">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ACTIVITY_TYPE]) }}</span>
                 {% endif %}
             </div>
         </section>
     {%- endblock -%}
 
     {%- block description -%}
-        {% if config.RECORD_SPECIAL_FIELDS.ABSTRACT in data %}
+        {% if config.UI_SETTINGS[resource_type].special_fields.ABSTRACT in data %}
             <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
-                <p>{{ display_values(data[config.RECORD_SPECIAL_FIELDS.ABSTRACT]) }}</p>
+                <p>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ABSTRACT]) }}</p>
             </section>
         {% endif %}
     {%- endblock -%}
