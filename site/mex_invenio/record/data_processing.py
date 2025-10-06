@@ -11,12 +11,13 @@ class NormalisedValue(TypedDict):
 
 
 def normalised_value(
-    display_value: str = "", url: str = "", language: str = "en"
+    display_value: str = "", url: str = "", language: str = "en", email: str = ""
 ) -> NormalisedValue:
     return {
         "url": url,
         "display_value": display_value or url or "",
         "language": language,
+        "email": email
     }
 
 
@@ -30,15 +31,16 @@ def normalise_record_data(record: dict):
             field, record["custom_fields"][field], record_type
         )
         data.update({field: normalised_value} if normalised_value else {})
-
-    for field in record["display_data"]["linked_records"]:
-        if field == "backwards_linked":
-            for f in record["display_data"]["linked_records"]["backwards_linked"]:
-                data["backwards_linked"][f] = _normalise_linked_data(
-                    record["display_data"]["linked_records"]["backwards_linked"][f]
-                )
-        else:
-            data[field] = _normalise_linked_data(record["display_data"]["linked_records"][field])
+    if record["display_data"]:
+        for field in record["display_data"]["linked_records"]:
+            if field == "backwards_linked":
+                for f in record["display_data"]["linked_records"]["backwards_linked"]:
+                    data["backwards_linked"][f] = _normalise_linked_data(
+                        record["display_data"]["linked_records"]["backwards_linked"][f]
+                    )
+            else:
+                data[field] = _normalise_linked_data(record["display_data"]["linked_records"][field])
+    
     return data
 
 
@@ -96,7 +98,8 @@ def _normalise_linked_data (values: list):
             nvalue = normalised_value(
                         display_value=dv.get("value", ""),
                         language=dv.get("language", ""),
-                        url="/records/mex/" + v["link_id"]
+                        url="/records/mex/" + v["link_id"],
+                        email=v.get("email", "")
                     )
             normalised.append(nvalue)
     return normalised

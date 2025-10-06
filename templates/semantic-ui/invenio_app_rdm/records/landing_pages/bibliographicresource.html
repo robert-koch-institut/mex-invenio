@@ -1,6 +1,7 @@
 {% extends "invenio_app_rdm/records/landing_pages/core_landing_page.html" -%}
 {% set resource_type = "bibliographicresource" %}
     {%- block toptags -%}
+    {{ record.display_data }}
         <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
             <div class="tags top-tags">
                 <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
