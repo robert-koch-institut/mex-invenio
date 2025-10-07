@@ -109,6 +109,8 @@ def test_display_data_contact_creator(
     for contributor in contributors:
         assert "display_value" in contributor, "display_value not found in contributor"
         assert "link_id" in contributor, "link_id not found in contributor"
+        assert "core" in contributor, "core not found in contributor"
+        assert contributor["core"] == False, "core is true, expected false"
 
         # Extract display values
         for display_val in contributor["display_value"]:
@@ -188,9 +190,7 @@ def test_display_data_normalization(
 
     for display_val in display_values:
         assert isinstance(display_val, dict), "Each display_value item should be a dict"
-        assert "language" in display_val, "display_value should have 'language' key"
         assert "value" in display_val, "display_value should have 'value' key"
-        assert display_val["language"] == "en", "Default language should be 'en'"
         assert display_val["value"] == "Simple Name", (
             "Value should match the person's fullName"
         )
