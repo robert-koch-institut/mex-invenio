@@ -1,5 +1,5 @@
-{% macro display_values(values) %}
-    {% set max_visible = config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+{% macro display_values(values, max) %}
+    {% set max_visible = max if max else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
     {%- set lang = current_i18n.language -%}
     {%- if values[0].language -%}
         {%- set correct_lang = values | selectattr("language", "equalto", lang) | list -%}
