@@ -62,7 +62,6 @@ class MexRecord(MethodView):
         # Just return the record as JSON if requested
 
         record = json.loads(record_ui)
-        record["custom_fields"]["mex:hasLegalBasis"].extend([{'language': 'en', 'value': 'Szwagier mi pozwolil'}, {'language': 'en', 'value': 'A corka kuzynki mogla'}, {'language': 'en', 'value': 'A kto mi zabroni'}, {'language': 'en', 'value': 'Ale wszyscy moga!'}])
 
         if as_json:
             return record
