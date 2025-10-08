@@ -22,6 +22,61 @@ if (!edges.mex.hasOwnProperty("babel")) {
 edges.mex.state.lang = "en";
 
 ///////////////////////////////////////////////////
+// Constants, especially for identifying fields
+
+edges.mex.constants = {}
+
+// keyword fields for facets and sorting
+edges.mex.constants.ACCESS_RESTRICTION_KW = "custom_fields.mex:accessRestriction.keyword"
+edges.mex.constants.JOURNAL_KW = "custom_fields.mex:journal.value.keyword"
+edges.mex.constants.KEYWORD_KW = "custom_fields.mex:keyword.value.keyword"
+edges.mex.constants.ACTIVITY_TYPE_KW = "custom_fields.mex:activityType.keyword"
+edges.mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
+edges.mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
+edges.mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
+edges.mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
+
+edges.mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
+edges.mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+
+// range fields for date histograms
+edges.mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
+edges.mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
+edges.mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
+edges.mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
+
+// field containers, for those with language/value sub fields
+edges.mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
+edges.mex.constants.ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
+edges.mex.constants.SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
+edges.mex.constants.CREATOR_CONTAINER = "custom_fields.mex:creator"
+edges.mex.constants.LABEL_CONTAINER = "custom_fields.mex:label"
+edges.mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
+edges.mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
+edges.mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
+
+// data fields for content, where content is available as literal (or as a list of literals)
+// for display and free-text searching
+edges.mex.constants.VARIABLE_GROUPS_EN = "index_data.enVariableGroups"
+edges.mex.constants.VARIABLE_GROUPS_DE = "index_data.deVariableGroups"
+edges.mex.constants.DESCRIPTION = "custom_fields.mex:description.value"
+edges.mex.constants.CREATED = "custom_fields.mex:created.date"
+edges.mex.constants.ABSTRACT = "custom_fields.mex:abstract.value"
+edges.mex.constants.START = "custom_fields.mex:start"
+edges.mex.constants.END = "custom_fields.mex:end"
+edges.mex.constants.PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
+edges.mex.constants.USED_IN_EN = "index_data.enUsedInResource"
+edges.mex.constants.USED_IN_DE = "index_data.deUsedInResource"
+edges.mex.constants.BELONGS_TO_LABEL = "index_data.belongsToLabel"
+edges.mex.constants.DATA_TYPE = "custom_fields.mex:dataType"
+edges.mex.constants.CODING_SYSTEM = "custom_fields.mex:codingSystem"
+edges.mex.constants.TITLE = "custom_fields.mex:title.value"
+edges.mex.constants.ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
+edges.mex.constants.CONTRIBUTORS = "index_data.contributors"
+edges.mex.constants.EXTERNAL_PARTNERS = "index_data.externalPartners"
+edges.mex.constants.ICD10 = "custom_fields.mex:icd10code.value"
+
+///////////////////////////////////////////////////
 // General Functions
 
 edges.mex.countFormat = edges.util.numFormat({
@@ -51,6 +106,32 @@ edges.mex.monthFormatter = function (val) {
     timeZone: "UTC",
   });
 };
+
+edges.mex.displayYearMonthPeriod = function (params) {
+    let from = params.from;
+    let to = params.to;
+
+    let frdisplay = false;
+    if (from) {
+        frdisplay = new Date(parseInt(from)).toLocaleString('default', { month: 'long', year: 'numeric', timeZone: "UTC" });
+    }
+
+    let todisplay = false;
+    if (to) {
+        todisplay = new Date(parseInt(to - 1)).toLocaleString('default', { month: 'long', year: 'numeric', timeZone: "UTC" });
+    }
+
+    let range = frdisplay;
+    if (to) {
+        if (todisplay !== frdisplay) {
+            range += ` to ${todisplay}`;
+        }
+    } else {
+        range += "+";
+    }
+
+    return {to: to, toType: "lt", from: from, fromType: "gte", display: range}
+}
 
 edges.mex._register = [];
 edges.mex._keymode = true;
@@ -215,7 +296,7 @@ edges.mex.fullSearchController = function (params) {
       searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
       searchButtonText: params.searchButtonText || edges.mex._("Search"),
       freetextSubmitDelay: params.freetextSubmitDelay || -1,
-      searchTitle: params.searchTitle || edges.mex._("Search"),
+      searchTitle: params.searchTitle || edges.mex._("Search")
     }),
   });
 };
@@ -227,6 +308,7 @@ edges.mex.pager = function (params) {
     renderer: new edges.mex.renderers.Pager({
       showSizeSelector: false,
       showPageNavigation: params.showPageNavigation ?? true,
+            showRecordCount: false,
     }),
   });
 };
@@ -420,7 +502,7 @@ edges.mex.variablesDisplay = function (params) {
 edges.mex.accessRestrictionFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "access_restriction",
-    field: "custom_fields.mex:accessRestriction.keyword",
+    field: edges.mex.constants.ACCESS_RESTRICTION_KW,
     title: edges.mex._("Access Restriction"),
     valueFunction: edges.mex.vocabularyLookup,
     category: "left",
@@ -430,7 +512,7 @@ edges.mex.accessRestrictionFacet = function () {
 edges.mex.createdFacet = function () {
   return edges.mex.dateHistogram({
     id: "created",
-    field: "created",
+    field: edges.mex.constants.CREATED_RANGE,
     title: edges.mex._("Created"),
     category: "left",
     interval: "month",
@@ -442,7 +524,7 @@ edges.mex.createdFacet = function () {
 edges.mex.endFacet = function () {
   return edges.mex.dateHistogram({
     id: "end",
-    field: "custom_fields.mex:end.date_range",
+    field: edges.mex.constants.END_RANGE,
     title: edges.mex._("Activity End"),
     category: "left",
     interval: "year",
@@ -454,7 +536,7 @@ edges.mex.endFacet = function () {
 edges.mex.startFacet = function () {
   return edges.mex.dateHistogram({
     id: "start",
-    field: "custom_fields.mex:start.date_range",
+    field: edges.mex.constants.START_RANGE,
     title: edges.mex._("Activity Start"),
     category: "left",
     interval: "year",
@@ -466,7 +548,7 @@ edges.mex.startFacet = function () {
 edges.mex.publicationYearFacet = function () {
   return edges.mex.dateHistogram({
     id: "publication_year",
-    field: "custom_fields.mex:publicationYear.date_range",
+    field: edges.mex.constants.PUBLICATION_YEAR_RANGE,
     title: edges.mex._("Publication Year"),
     category: "left",
     interval: "year",
@@ -478,7 +560,7 @@ edges.mex.publicationYearFacet = function () {
 edges.mex.journalFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "journal",
-    field: "custom_fields.mex:journal.value.keyword",
+    field: edges.mex.constants.JOURNAL_KW,
     title: edges.mex._("Journal"),
     category: "left",
   });
@@ -487,7 +569,7 @@ edges.mex.journalFacet = function () {
 edges.mex.keywordFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "keyword",
-    field: "custom_fields.mex:keyword.value.keyword",
+    field: edges.mex.constants.KEYWORD_KW,
     title: edges.mex._("Keyword"),
     size: 5,
     category: "left",
@@ -497,7 +579,7 @@ edges.mex.keywordFacet = function () {
 edges.mex.activityTypeFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "activity_type",
-    field: "custom_fields.mex:activityType.keyword",
+    field: edges.mex.constants.ACTIVITY_TYPE_KW,
     title: edges.mex._("Activity Type"),
     category: "left",
     valueFunction: edges.mex.vocabularyLookup,
@@ -505,9 +587,9 @@ edges.mex.activityTypeFacet = function () {
 };
 
 edges.mex.funderOrCommissionerFacet = function () {
-  let field = "index_data.deFunderOrCommissioners.keyword";
+  let field = edges.mex.constants.FUNDER_DE_KW;
   if (edges.mex.state.lang === "en") {
-    field = "index_data.enFunderOrCommissioners.keyword";
+    field = edges.mex.constants.FUNDER_EN_KW;
   }
   return edges.mex.refiningAndFacet({
     id: "funder_or_commissioner",
@@ -520,7 +602,7 @@ edges.mex.funderOrCommissionerFacet = function () {
 edges.mex.themeFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "theme",
-    field: "custom_fields.mex:theme.keyword",
+    field: edges.mex.constants.THEME_KW,
     title: edges.mex._("Theme"),
     category: "left",
     valueFunction: edges.mex.vocabularyLookup,
@@ -530,7 +612,7 @@ edges.mex.themeFacet = function () {
 edges.mex.hasPersonalDataFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "has_personal_data",
-    field: "custom_fields.mex:hasPersonalData.keyword",
+    field: edges.mex.constants.PERSONAL_DATA_KW,
     title: edges.mex._("Has Personal Data"),
     category: "left",
     valueFunction: edges.mex.vocabularyLookup,
@@ -540,7 +622,7 @@ edges.mex.hasPersonalDataFacet = function () {
 edges.mex.resourceCreationMethodFacet = function () {
   return edges.mex.refiningAndFacet({
     id: "resource_creation_method",
-    field: "custom_fields.mex:resourceCreationMethod.keyword",
+    field: edges.mex.constants.CREATION_METHOD_KW,
     title: edges.mex._("Resource Creation Method"),
     category: "left",
     valueFunction: edges.mex.vocabularyLookup,
@@ -554,6 +636,73 @@ edges.mex.defaultPager = function () {
 edges.mex.bottomPager = function () {
   return edges.mex.pagerSelector({});
 };
+
+edges.mex.resultCount = function(params) {
+    if (!params) { params = {}; }
+    return new edges.components.Pager({
+        id: params.id || "result-count",
+        category: params.category || "left-middle-top",
+        renderer: new edges.mex.renderers.Pager({
+            showSizeSelector: false,
+            showPageNavigation: false,
+            showRecordCount: true,
+        }),
+    });
+}
+
+edges.mex.sorter = function (params) {
+    if (!params) { params = {}; }
+    return new edges.components.FullSearchController({
+        id: params.id || "sorter",
+        category: params.category || "right-middle-top",
+        sortOptions: params.sortOptions || [],
+        renderer: new edges.mex.renderers.Sorter({}),
+    });
+}
+
+edges.mex.selectedFilters = function (params) {
+    if (!params) { params = {}; }
+    let defaultFieldDisplays = {}
+    defaultFieldDisplays[edges.mex.constants.ACCESS_RESTRICTION_KW] = edges.mex._("Access Restriction")
+    defaultFieldDisplays[edges.mex.constants.JOURNAL_KW] = edges.mex._("Journal")
+    defaultFieldDisplays[edges.mex.constants.KEYWORD_KW] = edges.mex._("Keyword")
+    defaultFieldDisplays[edges.mex.constants.ACTIVITY_TYPE_KW] = edges.mex._("Activity Type")
+    defaultFieldDisplays[edges.mex.constants.THEME_KW] = edges.mex._("Theme")
+    defaultFieldDisplays[edges.mex.constants.PERSONAL_DATA_KW] = edges.mex._("Has Personal Data")
+    defaultFieldDisplays[edges.mex.constants.CREATION_METHOD_KW] = edges.mex._("Resource Creation Method")
+    defaultFieldDisplays[edges.mex.constants.FUNDER_DE_KW] = edges.mex._("Funder or Commissioner")
+    defaultFieldDisplays[edges.mex.constants.FUNDER_EN_KW] = edges.mex._("Funder or Commissioner")
+    defaultFieldDisplays[edges.mex.constants.CREATED_RANGE] = edges.mex._("Created")
+    defaultFieldDisplays[edges.mex.constants.START_RANGE] = edges.mex._("Activity Start")
+    defaultFieldDisplays[edges.mex.constants.END_RANGE] = edges.mex._("Activity End")
+    defaultFieldDisplays[edges.mex.constants.PUBLICATION_YEAR_RANGE] = edges.mex._("Publication Year")
+
+    let defaultValueFunctions = {}
+    defaultValueFunctions[edges.mex.constants.ACCESS_RESTRICTION_KW] = edges.mex.vocabularyLookup
+    // defaultValueFunctions[edges.mex.constants.JOURNAL_KW] = false
+    // defaultValueFunctions[edges.mex.constants.KEYWORD_KW] = false
+    defaultValueFunctions[edges.mex.constants.ACTIVITY_TYPE_KW] = edges.mex.vocabularyLookup
+    defaultValueFunctions[edges.mex.constants.THEME_KW] = edges.mex.vocabularyLookup
+    defaultValueFunctions[edges.mex.constants.PERSONAL_DATA_KW] = edges.mex.vocabularyLookup
+    defaultValueFunctions[edges.mex.constants.CREATION_METHOD_KW] = edges.mex.vocabularyLookup
+    // defaultValueFunctions[edges.mex.constants.FUNDER_DE_KW] = edges.mex._("Funder or Commissioner")
+    // defaultValueFunctions[edges.mex.constants.FUNDER_EN_KW] = edges.mex._("Funder or Commissioner")
+
+    let defaultRangeFunctions = {}
+    defaultRangeFunctions[edges.mex.constants.CREATED_RANGE] = edges.mex.displayYearMonthPeriod
+    defaultRangeFunctions[edges.mex.constants.START_RANGE] = edges.mex.displayYearMonthPeriod
+    defaultRangeFunctions[edges.mex.constants.END_RANGE] = edges.mex.displayYearMonthPeriod
+    defaultRangeFunctions[edges.mex.constants.PUBLICATION_YEAR_RANGE] = edges.mex.displayYearMonthPeriod
+
+    return new edges.components.SelectedFilters({
+        id: params.id || "selected-filters",
+        category: "full",
+        fieldDisplays: params.fieldDisplays || defaultFieldDisplays,
+        valueFunctions: params.valueFunctions || defaultValueFunctions,
+        rangeFunctions: params.rangeFunctions || defaultRangeFunctions,
+        renderer: new edges.mex.renderers.SelectedFilters({})
+    });
+}
 
 /////////////////////////////////////////
 // Vocabulary lookup
@@ -606,6 +755,30 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
         facetContainers += container;
       }
     }
+
+        ///////////////////////////////////
+        // left middle top
+        let leftMiddleTop = edge.category("left-middle-top");
+        let leftMiddleTopClass = edges.util.styleClasses(this.namespace, "left-middle-top");
+        let leftMiddleTopContainers = "";
+
+        if (leftMiddleTop.length > 0) {
+            for (let i = 0; i < leftMiddleTop.length; i++) {
+                leftMiddleTopContainers += `<div class="${leftMiddleTopClass}"><div id="${leftMiddleTop[i].id}"></div></div>`;
+            }
+        }
+
+        ///////////////////////////////////
+        // right middle top
+        let rightMiddleTop = edge.category("right-middle-top");
+        let rightMiddleTopClass = edges.util.styleClasses(this.namespace, "right-middle-top");
+        let rightMiddleTopContainers = "";
+
+        if (rightMiddleTop.length > 0) {
+            for (let i = 0; i < rightMiddleTop.length; i++) {
+                rightMiddleTopContainers += `<div class="${rightMiddleTopClass}"><div id="${rightMiddleTop[i].id}"></div></div>`;
+            }
+        }
 
     ///////////////////////////////////
     // assemble the middle components
@@ -661,7 +834,17 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                     ${facetContainers}
                 </div>
                 <div class="wide column" style="flex: 1;">
-                    ${middleContainers}
+                    <div class="ui grid container">
+                        <div class="eight wide column">
+                            ${leftMiddleTopContainers}
+                        </div>
+                        <div class="eight wide column">
+                            ${rightMiddleTopContainers}
+                        </div>
+                    </div>
+                    <div class="ui grid container">
+                        ${middleContainers}
+                    </div>
                 </div>
                 <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
@@ -1208,7 +1391,7 @@ edges.mex.components.Selector = class extends edges.Component {
         this.set(id, hit._source);
 
         let en = edges.util.pathValue(
-          "index_data.enVariableGroups",
+          edges.mex.constants.VARIABLE_GROUPS_EN,
           hit._source,
           []
         );
@@ -1217,7 +1400,7 @@ edges.mex.components.Selector = class extends edges.Component {
         }
 
         let de = edges.util.pathValue(
-          "index_data.deVariableGroups",
+          edges.mex.constants.VARIABLE_GROUPS_DE,
           hit._source,
           []
         );
@@ -1233,12 +1416,12 @@ edges.mex.components.Selector = class extends edges.Component {
 
   unselectRecord(id) {
     let record = this.get(id);
-    let en = edges.util.pathValue("index_data.enVariableGroups", record, []);
+    let en = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_EN, record, []);
     for (let group of en) {
       this.removeVariableGroup(group.mex_id, true);
     }
 
-    let de = edges.util.pathValue("index_data.deVariableGroups", record, []);
+    let de = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_DE, record, []);
     for (let group of de) {
       this.removeVariableGroup(group.mex_id, true);
     }
@@ -1325,6 +1508,205 @@ if (!edges.mex.hasOwnProperty("renderers")) {
   edges.mex.renderers = {};
 }
 
+edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
+    constructor(params) {
+        super(params);
+
+        this.showFilterField = edges.util.getParam(params, "showFilterField", true);
+
+        this.allowRemove = edges.util.getParam(params, "allowRemove", true);
+
+        this.showSearchString = edges.util.getParam(params, "showSearchString", false);
+
+        this.ifNoFilters = edges.util.getParam(params, "ifNoFilters", false);
+
+        this.hideValues = edges.util.getParam(params, "hideValues", []);
+
+        this.omit = edges.util.getParam(params, "omit", []);
+
+        this.namespace = "edges-mex-selected-filters";
+    }
+
+    draw() {
+        // for convenient short references
+        let sf = this.component;
+        let ns = this.namespace;
+        ///static/images/close.svg
+        // sort out the classes we are going to use
+        let fieldClass = edges.util.styleClasses(ns, "field", this);
+        let fieldNameClass = edges.util.styleClasses(ns, "fieldname", this);
+        let valClass = edges.util.styleClasses(ns, "value", this);
+        let clearAllClass = edges.util.styleClasses(ns, "clear-all", this);
+        let containerClass = edges.util.styleClasses(ns, "container", this);
+
+        let filters = "";
+
+        if (this.showSearchString && sf.searchString) {
+            let field = sf.searchField;
+            let text = sf.searchString;
+            filters += `<span class="${fieldClass}">`;
+            if (field) {
+                if (field in sf.fieldDisplays) {
+                    field = sf.fieldDisplays[field];
+                }
+                filters += `<span class="${fieldNameClass}">${field}:&nbsp;</span>`;
+            }
+            filters += `<span class="${valClass}">${text}</span></span>`;
+        }
+
+        var fields = Object.keys(sf.mustFilters);
+        var showClear = false;
+        for (var i = 0; i < fields.length; i++) {
+            var field = fields[i];
+            var def = sf.mustFilters[field];
+            var removeClass = edges.util.allClasses(ns, "remove", this);
+
+            // render any compound filters
+            if (def.filter === "compound") {
+                filters += `<li class="${valClass}">
+                                <a href="DELETE" class="${removeClass}" data-compound="${field}" title="Remove">
+                                    ${def.display}
+                                    <span data-feather="x" aria-hidden="true"></span>
+                                </a>
+                            </li>`;
+                showClear = true;
+            } else {
+                if ($.inArray(field, this.omit) > -1) {
+                    continue;
+                }
+                showClear = true;
+            }
+
+            for (var j = 0; j < def.values.length; j++) {
+                filters += `<span class="${fieldClass}">`;
+                if (this.showFilterField) {
+                    filters += `<span class="${fieldNameClass}">${def.display}:&nbsp;</span>`;
+                }
+                let val = def.values[j];
+                let valDisplay = ": " + val.display;
+                if ($.inArray(field, this.hideValues) > -1) {
+                    valDisplay = "";
+                }
+                filters += `<span class="${valClass}">${val.display}</span>`;
+
+                // the remove block looks different, depending on the kind of filter to remove
+                if (this.allowRemove) {
+                    if (def.filter === "term" || def.filter === "terms") {
+                        filters += `<a class="${removeClass}" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
+                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                                    </a>`;
+                    } else if (def.filter === "range") {
+                        var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
+                        var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
+                        filters += `<a class="${removeClass}" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
+                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                                    </a>`;
+                    }
+                }
+
+                filters += "</span>";
+            }
+        }
+
+        if (showClear) {
+            let clearClass = edges.util.allClasses(this.namespace, "clear", this);
+            let clearFrag = `<button type="button" class="${clearClass}" title="Clear all search and sort parameters and start again">
+                    Clear all
+                </button>`;
+
+            filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
+        }
+
+        if (filters === "" && this.ifNoFilters) {
+            filters = this.ifNoFilters;
+        }
+
+        if (filters !== "") {
+            let frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${filters}</div></div>`;
+            sf.context.parent().show();
+            sf.context.html(frag);
+
+            // click handler for when a filter remove button is clicked
+            let removeSelector = edges.util.jsClassSelector(ns, "remove", this);
+            edges.on(removeSelector, "click", this, "removeFilter");
+
+            // click handler for when the clear button is clicked
+            let clearSelector = edges.util.jsClassSelector(ns, "clear", this);
+            edges.on(clearSelector, "click", this, "clearFilters");
+        } else {
+            sf.context.parent().hide();
+        }
+    }
+
+    /////////////////////////////////////////////////////
+    // event handlers
+
+    removeFilter(element) {
+        var el = this.component.jq(element);
+
+        // if this is a compound filter, remove it by id
+        var compound = el.attr("data-compound");
+        if (compound) {
+            this.component.removeCompoundFilter({compound_id: compound});
+            return;
+        }
+
+        // otherwise follow the usual instructions for removing a filter
+        var field = el.attr("data-field");
+        var ft = el.attr("data-filter");
+        var bool = el.attr("data-bool");
+
+        var value = false;
+        if (ft === "terms" || ft === "term") {
+            var val = el.attr("data-value");
+             // translate string value to a type required by a model
+            if (val === "true"){
+                value = true;
+            }
+            else if (val === "false"){
+                value = false;
+            }
+            else if (!isNaN(parseInt(val))){
+                value = parseInt(val);
+            }
+            else {
+                value = val;
+            }
+        } else if (ft === "range") {
+            value = {};
+
+            var from = el.attr("data-gte");
+            var fromType = "gte";
+            if (!from) {
+                from = el.attr("data-gt");
+                fromType = "gt";
+            }
+
+            var to = el.attr("data-lt");
+            var toType = "lt";
+            if (!to) {
+                to = el.attr("data-lte");
+                toType = "lte";
+            }
+
+            if (from) {
+                value["from"] = parseInt(from);
+                value["fromType"] = fromType;
+            }
+            if (to) {
+                value["to"] = parseInt(to);
+                value["toType"] = toType;
+            }
+        }
+
+        this.component.removeFilter(bool, ft, field, value);
+    }
+
+    clearFilters() {
+        this.component.clearSearch();
+    }
+}
+
 edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
   constructor(params) {
     super(params);
@@ -1374,11 +1756,18 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
       let record = this.component.get(id);
 
       let title = edges.mex.getLangVal(
-        "custom_fields.mex:title",
+        edges.mex.constants.TITLE_CONTAINER,
         record,
         edges.mex._("No title")
       );
 
+
+            let variables = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_DE, record, []);
+            if (edges.mex.state.lang === "en") {
+                variables = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_EN, record, []);
+            }
+
+            let vCount = variables.length;
       recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1390,10 +1779,9 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                         <div class="selected-list-item">
                             ${title}
                         </div>
-                        <!-- TODO: Create and entry point -->
-                        <a class="selected-list-sub-item">
-                            26 Variables
-                        </a>
+                        <div class="muted">
+                            ${vCount} ${edges.mex._("Variable Groups")}
+                        </div>
                     </div>
                 </div>`;
     }
@@ -1511,7 +1899,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
       let record = this.component.get(id);
 
       let title = edges.mex.getLangVal(
-        "custom_fields.mex:title",
+        edges.mex.constants.TITLE_CONTAINER,
         record,
         edges.mex._("No title")
       );
@@ -1522,7 +1910,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
       }
 
       let lang = edges.mex.state.lang;
-      let vgField = "index_data." + lang + "VariableGroups";
+      let vgField = lang === "en" ? edges.mex.constants.VARIABLE_GROUPS_EN : edges.mex.constants.VARIABLE_GROUPS_EN;
       let vgs = edges.util.pathValue(vgField, record, []);
 
       let vgFrag = "No variable groups";
@@ -1854,17 +2242,12 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       if (this.searchButtonText !== false) {
         text = this.searchButtonText;
       }
-      searchFrag = `<div class="field"><button type="button" class="button ${searchClass} search-button">${text}</button></div>`;
+      searchFrag = `<div class="ui form"><div class="field"><button type="button" class="button ${searchClass} search-button">${text}</button></div></div>`;
     }
 
     let searchBox = `
             <div class="ui form" style="display: flex;">
                 ${clearFrag}
-
-                <div class="field">
-                    ${field_select}
-                </div>
-
                 <div class="field" style="flex-grow: 1;">
                     <input type="text" id="${textId}" class="ui input ${textClass}" name="q" placeholder="${this.searchPlaceholder}" style="width: 100%;" />
                 </div>
@@ -2036,7 +2419,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
   }
 
   setUISearchField() {
-    if (!this.component.searchField) {
+    if (!this.component.searchField || this.component.searchField === "*") {
       return;
     }
     // get the selector we need
@@ -2090,6 +2473,278 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
     let text = this.component.jq(textId).val();
     this.component.setSearchText(text);
   };
+};
+
+edges.mex.renderers.Sorter = class extends edges.Renderer {
+    constructor(params) {
+        super(params);
+
+        ////////////////////////////////////////
+        // state variables
+
+        this.namespace = "mex-sorter";
+    }
+
+    draw() {
+        let comp = this.component;
+
+        // if sort options are provided render the orderer and the order by
+        let sortFrag = "";
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            // classes that we'll use
+            let sortFieldClass = edges.util.allClasses(
+                this.namespace,
+                "sortby",
+                this
+            );
+
+            let sortOptions = "";
+            for (let i = 0; i < comp.sortOptions.length; i++) {
+                let field = comp.sortOptions[i].field;
+                let display = comp.sortOptions[i].display;
+                sortOptions += `<option value="${field}">${edges.util.escapeHtml(
+                    display
+                )}</option>`;
+            }
+
+            sortFrag = `<div class="form">
+                <div class="field">
+                    ${edges.mex._("Sort by")}
+                    <select class="ui dropdown ${sortFieldClass}">
+                        <option value="_score">${edges.mex._("Relevance")}</option>
+                        ${sortOptions}
+                    </select>
+                </div>
+            </div>`;
+        }
+
+        // assemble the final fragment and render it into the component's context
+        let containerClass = edges.util.styleClasses(
+            this.namespace,
+            "container",
+            this
+        );
+
+        // Upgrading the search UI as per sematic ui
+        let frag = `
+            <div class="ui grid ${containerClass}">
+                <div class="ui right aligned column" style="text-align: right;">
+                ${sortFrag}
+                </div>
+            </div>`;
+
+        comp.context.html(frag);
+
+        // now populate all the dynamic bits
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            this.setUISortDir();
+            this.setUISortField();
+        }
+
+        // attach all the bindings
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            let directionSelector = edges.util.jsClassSelector(
+                this.namespace,
+                "direction",
+                this
+            );
+            let sortSelector = edges.util.jsClassSelector(
+                this.namespace,
+                "sortby",
+                this
+            );
+            edges.on(directionSelector, "click", this, "changeSortDir");
+            edges.on(sortSelector, "change", this, "changeSortBy");
+        }
+    }
+
+    ///////////////////////////////////////a///////////////
+    // functions for setting UI values
+
+    setUISortDir() {
+        // get the selector we need
+        let directionSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "direction",
+            this
+        );
+        let el = this.component.jq(directionSelector);
+        if (this.component.sortDir === "asc") {
+            el.html(`<i class="icon sort up"></i> ${edges.mex._("sort by")}`);
+            el.attr(
+                "title",
+                edges.mex._("Current order ascending. Click to change to descending")
+            );
+        } else {
+            el.html(`<i class="icon sort down"></i> ${edges.mex._("sort by")}`);
+            el.attr(
+                "title",
+                edges.mex._("Current order descending. Click to change to ascending")
+            );
+        }
+    }
+
+    setUISortField() {
+        if (!this.component.sortBy) {
+            return;
+        }
+        // get the selector we need
+        let sortSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "sortby",
+            this
+        );
+        let el = this.component.jq(sortSelector);
+        el.val(this.component.sortBy);
+    }
+
+    ////////////////////////////////////////
+    // event handlers
+
+    changeSortDir = function (element) {
+        this.component.changeSortDir();
+    };
+
+    changeSortBy = function (element) {
+        let val = this.component.jq(element).val();
+        this.component.setSortBy(val);
+    };
+};
+
+edges.mex.renderers.Sorter = class extends edges.Renderer {
+    constructor(params) {
+        super(params);
+
+        ////////////////////////////////////////
+        // state variables
+
+        this.namespace = "mex-sorter";
+    }
+
+    draw() {
+        let comp = this.component;
+
+        // if sort options are provided render the orderer and the order by
+        let sortFrag = "";
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            // classes that we'll use
+            let sortFieldClass = edges.util.allClasses(
+                this.namespace,
+                "sortby",
+                this
+            );
+
+            let sortOptions = "";
+            for (let i = 0; i < comp.sortOptions.length; i++) {
+                let field = comp.sortOptions[i].field;
+                let display = comp.sortOptions[i].display;
+                sortOptions += `<option value="${field}">${edges.util.escapeHtml(
+                    display
+                )}</option>`;
+            }
+
+            sortFrag = `<div class="form">
+                <div class="field">
+                    ${edges.mex._("Sort by")}
+                    <select class="ui dropdown ${sortFieldClass}">
+                        <option value="_score">${edges.mex._("Relevance")}</option>
+                        ${sortOptions}
+                    </select>
+                </div>
+            </div>`;
+        }
+
+        // assemble the final fragment and render it into the component's context
+        let containerClass = edges.util.styleClasses(
+            this.namespace,
+            "container",
+            this
+        );
+
+        // Upgrading the search UI as per sematic ui
+        let frag = `
+            <div class="ui grid ${containerClass}">
+                <div class="ui right aligned column" style="text-align: right;">
+                ${sortFrag}
+                </div>
+            </div>`;
+
+        comp.context.html(frag);
+
+        // now populate all the dynamic bits
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            this.setUISortDir();
+            this.setUISortField();
+        }
+
+        // attach all the bindings
+        if (comp.sortOptions && comp.sortOptions.length > 0) {
+            let directionSelector = edges.util.jsClassSelector(
+                this.namespace,
+                "direction",
+                this
+            );
+            let sortSelector = edges.util.jsClassSelector(
+                this.namespace,
+                "sortby",
+                this
+            );
+            edges.on(directionSelector, "click", this, "changeSortDir");
+            edges.on(sortSelector, "change", this, "changeSortBy");
+        }
+    }
+
+    ///////////////////////////////////////a///////////////
+    // functions for setting UI values
+
+    setUISortDir() {
+        // get the selector we need
+        let directionSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "direction",
+            this
+        );
+        let el = this.component.jq(directionSelector);
+        if (this.component.sortDir === "asc") {
+            el.html(`<i class="icon sort up"></i> ${edges.mex._("sort by")}`);
+            el.attr(
+                "title",
+                edges.mex._("Current order ascending. Click to change to descending")
+            );
+        } else {
+            el.html(`<i class="icon sort down"></i> ${edges.mex._("sort by")}`);
+            el.attr(
+                "title",
+                edges.mex._("Current order descending. Click to change to ascending")
+            );
+        }
+    }
+
+    setUISortField() {
+        if (!this.component.sortBy) {
+            return;
+        }
+        // get the selector we need
+        let sortSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "sortby",
+            this
+        );
+        let el = this.component.jq(sortSelector);
+        el.val(this.component.sortBy);
+    }
+
+    ////////////////////////////////////////
+    // event handlers
+
+    changeSortDir = function (element) {
+        this.component.changeSortDir();
+    };
+
+    changeSortBy = function (element) {
+        let val = this.component.jq(element).val();
+        this.component.setSortBy(val);
+    };
 };
 
 edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
@@ -2248,7 +2903,7 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                         <div class="${resultClass}">
                             <a href="#" class="${valClass}" data-key="${escapedTerm}">${escapedDisplay}</a> (${count})
                             ${
-                              activeClass == valClass && !this.showSelected
+                              activeClass === valClass && !this.showSelected
                                 ? ""
                                 : `<i class="icon delete"></i>`
                             }
@@ -2683,6 +3338,12 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
 
       for (let i = 0; i < ts.values.length; i++) {
         let val = ts.values[i];
+
+                // skip empty date bins if requested
+                if (this.hideEmptyDateBin && val.count === 0) {
+                    continue;
+                }
+
         let checked = filterTerms.includes(val.display) ? "checked" : "";
         // This will allow us to remove filter if already selected this can seamlessly work for checkboxes and button
         let activeClass = filterTerms.includes(val.display)
@@ -2720,7 +3381,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
           )}" ${ltData}>
                                 ${edges.util.escapeHtml(val.display)}
                             </a> (${count}) ${
-            activeClass == valClass && !this.showSelected
+            activeClass === valClass && !this.showSelected
               ? ""
               : `<i class="icon delete"></i>`
           }
@@ -3339,11 +4000,11 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
     if (state === "unselected") {
       this.selector.selectRecord(id);
       el.attr("data-state", "selected");
-      el.attr("src", "/static/images/selected.svg");
+      el.html("-");
     } else {
       this.selector.unselectRecord(id);
       el.attr("data-state", "unselected");
-      el.attr("src", "/static/images/unselected.svg");
+      el.html("+");
     }
 
     if (this.onSelectToggle) {
@@ -3367,17 +4028,17 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
   _renderResult(res) {
     let title = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:title", res, edges.mex._("No title"))
+      this._getLangVal(edges.mex.constants.TITLE_CONTAINER, res, edges.mex._("No title"))
     );
 
-    let alt = this._getLangVal("custom_fields.mex:alternativeTitle", res);
+    let alt = this._getLangVal(edges.mex.constants.ALT_TITLE_CONTAINER, res);
     if (alt) {
       alt = edges.util.escapeHtml(alt);
     } else {
       alt = "";
     }
 
-    let desc = this._getLangVal("custom_fields.mex:description", res, "");
+    let desc = this._getLangVal(edges.mex.constants.DESCRIPTION_CONTAINER, res, "");
     if (desc.length > 300) {
       desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
@@ -3390,9 +4051,9 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
       if (res.uuid === hit._id) {
         if (
           hit.highlight &&
-          hit.highlight["custom_fields.mex:description.value"]
+          hit.highlight[edges.mex.constants.DESCRIPTION]
         ) {
-          desc = hit.highlight["custom_fields.mex:description.value"][0];
+          desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
           desc = desc.replace(/<em>/g, "<code>");
           desc = desc.replace(/<\/em>/g, "</code>");
         }
@@ -3405,7 +4066,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
     // let createdDate = new Date(created);
     created = edges.mex.fullDateFormatter(created);
 
-    let keywords = this._rankedByLang("custom_fields.mex:keyword", res);
+    let keywords = this._rankedByLang(edges.mex.constants.KEYWORD_CONTAINER, res);
     if (keywords.length > 5) {
       keywords = keywords.slice(0, 5);
     }
@@ -3415,7 +4076,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     let selectState = "unselected";
-    let currentImage = "/static/images/unselected.svg";
+    let current = "+";
 
     if (this.selector && this.selector.isSelected(res.id)) {
       selectState = "selected";
@@ -3436,29 +4097,28 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
     let frag = `
             <div class="resource-card card-shadow">
-                <div class="card-header ${created ? "" : "hide"}">
-                    <span class="date">${created}</span>
-                    <!--
-                    <span  class="${previewClass} preview" data-id="${res.id}">
-                        👁️ ${edges.mex._("Preview")}
-                    </span>
-                    -->
+                <div class="card-header ${created ? "" : "hide"}" style="width: 100%">
+                    <div class="ui grid">
+                        <div class="ten wide column">
+                            <span class="date">${created}</span>
+                        </div>
+                        <div class="six wide column" style="text-align: right">
+                            <button class="img-button">
+                      <button type="button"
+                                    class="ui icon button ${selectClass}"
+                                    data-id="${res.id}"
+                                    data-state="${selectState}"
+                                    title="${selectState}"
+                                    aria-label="${selectState}">
+                                ${current}
+                            </button>
+                          </div>
+                    </button>
+                    </div>
                 </div>
 
-                <div class="title ${title ? "" : "hide"}">
-                    <button class="img-button">
-                      <img
-                        class="${selectClass} bookmark icon"
-                        id="resource-list-${res.id}"
-                        data-id="${res.id}"
-                        data-state="${selectState}"
-                        src="${currentImage}"
-                        alt="${selectState} Icon" width="22" height="24"
-                      />
-                    </button>
-                    <span>
-                        ${title}
-                    </span>
+                <div class="title">
+                    <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
                 </div>
 
                 <div class="subtitle ${alt ? "" : "hide"}">
@@ -3630,7 +4290,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
 
   _renderResult(record) {
     let title = edges.mex.getLangVal(
-      "custom_fields.mex:title",
+      edges.mex.constants.TITLE_CONTAINER,
       record,
       edges.mex._("No title")
     );
@@ -3649,7 +4309,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
 
     // Variable groups
     let lang = edges.mex.state.lang;
-    let vgField = "index_data." + lang + "VariableGroups";
+    let vgField = lang === "en" ? edges.mex.constants.VARIABLE_GROUPS_EN : edges.mex.constants.VARIABLE_GROUPS_DE;
     let vgs = edges.util.pathValue(vgField, record, []);
 
     let vgFrag = "No variable groups";
@@ -3823,17 +4483,17 @@ edges.mex.renderers.ActivitiesResults = class extends edges.Renderer {
 
   _renderResult(res) {
     let title = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:title", res, "No title")
+      this._getLangVal(edges.mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = this._getLangVal("custom_fields.mex:alternativeTitle", res);
+    let alt = this._getLangVal(edges.mex.constants.ALT_TITLE_CONTAINER, res);
     if (alt) {
       alt = edges.util.escapeHtml(alt);
     } else {
       alt = "";
     }
 
-    let desc = this._getLangVal("custom_fields.mex:abstract", res, "");
+    let desc = this._getLangVal(edges.mex.constants.ABSTRACT_CONTAINER, res, "");
     if (desc.length > 300) {
       desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
@@ -3846,9 +4506,9 @@ edges.mex.renderers.ActivitiesResults = class extends edges.Renderer {
       if (res.uuid === hit._id) {
         if (
           hit.highlight &&
-          hit.highlight["custom_fields.mex:abstract.value"]
+          hit.highlight[edges.mex.constants.ABSTRACT]
         ) {
-          desc = hit.highlight["custom_fields.mex:abstract.value"][0];
+          desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
           desc = desc.replace(/<em>/g, "<code>");
           desc = desc.replace(/<\/em>/g, "</code>");
         }
@@ -3856,7 +4516,7 @@ edges.mex.renderers.ActivitiesResults = class extends edges.Renderer {
     }
 
     let start = edges.mex._("Unknown start date");
-    start = this._extractMultiDate("custom_fields.mex:start", res, start);
+    start = this._extractMultiDate(edges.mex.constants.START, res, start);
 
     let end = edges.mex._("Unknown end date");
     end = this._extractMultiDate("custom_fields.mex:end", res, end);
@@ -4002,24 +4662,24 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
 
   _renderResult(res) {
     let title = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:title", res, "No title")
+      this._getLangVal(edges.mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = this._getLangVal("custom_fields.mex:alternativeTitle", res);
+    let alt = this._getLangVal(edges.mex.constants.ALT_TITLE_CONTAINER, res);
     if (alt) {
       alt = edges.util.escapeHtml(alt);
     } else {
       alt = "";
     }
 
-    let sub = this._getLangVal("custom_fields.mex:subtitle", res);
+    let sub = this._getLangVal(edges.mex.constants.SUBTITLE_CONTAINER, res);
     if (sub) {
       sub = edges.util.escapeHtml(alt);
     } else {
       sub = "";
     }
 
-    let desc = this._getLangVal("custom_fields.mex:abstract", res, "");
+    let desc = this._getLangVal(edges.mex.constants.ABSTRACT_CONTAINER, res, "");
     if (desc.length > 300) {
       desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
@@ -4032,9 +4692,9 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
       if (res.uuid === hit._id) {
         if (
           hit.highlight &&
-          hit.highlight["custom_fields.mex:abstract.value"]
+          hit.highlight[edges.mex.constants.ABSTRACT]
         ) {
-          desc = hit.highlight["custom_fields.mex:abstract.value"][0];
+          desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
           desc = desc.replace(/<em>/g, "<code>");
           desc = desc.replace(/<\/em>/g, "</code>");
         }
@@ -4042,7 +4702,7 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
     }
 
     // FIXME: will need to be a dereferenced field
-    let creators = edges.util.pathValue("custom_fields.mex:creator", res, []);
+    let creators = edges.util.pathValue(edges.mex.constants.CREATOR_CONTAINER, res, []);
     creators = creators.map((c) => edges.util.escapeHtml(c)).join(", ");
 
     let pubYear = edges.util.pathValue(
@@ -4313,13 +4973,13 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
   _renderResult(res) {
     // get fields (escaped)
     let label = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:label", res, "No label")
+      this._getLangVal(edges.mex.constants.LABEL_CONTAINER, res, "No label")
     );
 
     let langPrefix = edges.mex.state.lang;
-
+        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
     let resources = edges.util.pathValue(
-      `index_data.${langPrefix}UsedInResource`,
+      rpath,
       res,
       []
     );
@@ -4331,7 +4991,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         "</li></ul>";
     }
 
-    let groups = edges.util.pathValue(`index_data.belongsToLabel`, res, []);
+    let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_LABEL, res, []);
     let groupFrag = "";
     if (groups.length > 1) {
       groupFrag =
@@ -4349,11 +5009,11 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     );
 
     let desc = edges.util.escapeHtml(
-      this._getLangVal("custom_fields.mex:description", res, "")
+      this._getLangVal(edges.mex.constants.DESCRIPTION_CONTAINER, res, "")
     );
 
     let codingSystem = edges.util.pathValue(
-      "custom_fields.mex:codingSystem",
+      edges.mex.constants.CODING_SYSTEM,
       res,
       []
     );

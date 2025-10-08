@@ -36,7 +36,8 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:containedBy", multiple=True),
     TextCF(name="mex:contributingUnit", multiple=True),
     TextCF(name="mex:contributor", multiple=True),  # FIXME: index external document
-    TextCF(name="mex:created"),
+    # TextCF(name="mex:created"),
+    FixedEDTFDateStringCF(name="mex:created"),
     TextCF(name="mex:creator", multiple=True),
     TextCF(name="mex:dataType"),
     MultiLanguageTextCF(name="mex:description", multiple=True),

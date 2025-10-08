@@ -381,3 +381,18 @@ select:hover {
   width: 1rem;
   height: 1.05rem;
 }
+
+.edges-mex-selected-filters_field {
+    border: 1px solid #A5AAC3;
+    border-radius: 25px;
+    padding: 5px 10px;
+    background-color: #E0F4FC;
+    margin-right: 10px;
+}
+
+.edges-mex-selected-filters_clear {
+    border: 1px solid #A5AAC3;
+    border-radius: 25px;
+    padding: 5px 10px;
+    background-color: #E0F4FC
+}
