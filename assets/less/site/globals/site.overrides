@@ -293,3 +293,358 @@ aside {
         }
     }
 }
+
+
+.search-page {
+  body {
+    background-color: #f9fdfe;
+  }
+
+  .banner {
+    background-color: #e9ecf3;
+    padding: 1.25rem 3.12rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 9.38rem;
+    background-image: url("dna-bg.svg");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: contain;
+    margin-bottom: 1.25rem;
+
+    small {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      color: #333;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      color: @primaryColor;
+      margin: 0.5rem 0 0 0;
+    }
+  }
+
+  .search-label {
+    align-content: center;
+  }
+
+  .card {
+    display: flex;
+    min-width: 23.75rem;
+    padding: 0.94rem 0.63rem 0.63rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.56rem;
+    background: @whiteBackground;
+
+    &-shadow {
+      box-shadow:
+        0.06rem 0.06rem 0.13rem 0 rgba(249, 255, 255, 0.3) inset,
+        -0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.5) inset,
+        -0.06rem 0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+        0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+        -0.06rem -0.06rem 0.13rem 0 rgba(249, 255, 255, 0.9),
+        0.06rem 0.06rem 0.19rem 0 rgba(199, 217, 217, 0.9);
+    }
+
+    &-header {
+      color: var(--layout-text-muted, @mutedTextColor);
+      font-family: "Fira Sans";
+      font-size: 1.12rem;
+      font-weight: 500;
+      line-height: 1.5rem;
+    }
+  }
+
+  .title {
+    color: @primaryColor;
+    font-family: var(--text-family-default, "Fira Sans");
+    font-size: var(--text-size-heading-medium, 1.31rem);
+    font-weight: var(--text-weight-semi-bold, 600);
+    line-height: var(--text-line-height-heading-large, 2rem);
+    display: flex;
+    gap: 0.5rem;
+    flex: 1 0 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    img {
+      margin-top: 0.31rem;
+    }
+  }
+
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .subtitle {
+    color: #5170c1;
+    font-family: var(--text-family-default, "Fira Sans");
+    font-size: var(--text-size-heading-small, 1.12rem);
+    font-weight: var(--text-weight-semi-bold, 600);
+    line-height: 1.5rem;
+    align-self: stretch;
+  }
+
+  .description {
+    color: #000;
+    font-family: var(--text-family-default, "Fira Sans");
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    align-self: stretch;
+  }
+
+  .tags {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    gap: 0.63rem;
+    align-self: stretch;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: flex;
+    padding: 0.31rem;
+    justify-content: center;
+    align-items: center;
+    gap: 0.63rem;
+    background: @highlightColor;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .preview {
+    cursor: pointer;
+  }
+
+  .pagination-bar {
+    justify-content: center;
+    background-color: #f9fcfd;
+    padding: 1em 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .result-counter {
+    .value {
+      background-color: #e6f4fa;
+      border-radius: 999px;
+      padding: 0.75rem;
+      display: inline-block;
+      color: #000;
+      font-family: "Fira Sans";
+      font-size: 1.38rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+
+    .label {
+      display: inline-block;
+      vertical-align: super;
+      color: #000;
+      font-family: "Fira Sans";
+      font-size: 1.12rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+    }
+  }
+
+  .divider {
+    border: 0.06rem solid #a5aac3;
+    width: 100%;
+    opacity: 0.5;
+  }
+
+  .selected-list {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.56rem;
+    margin-bottom: 0.63rem;
+
+    &-item {
+      color: #1c1c1c;
+      font-family: "Fira Sans";
+      font-size: 1.31rem;
+      font-weight: 400;
+      line-height: 2rem;
+      margin-bottom: 0.63rem;
+    }
+
+    &-sub-item {
+      color: @primaryColor;
+      font-family: "Fira Sans";
+      font-size: 1.31rem;
+      font-weight: 400;
+      line-height: 2rem;
+    }
+  }
+
+  .search-variable {
+    display: flex;
+    padding: 0.63rem 1.25rem;
+    align-items: center;
+    gap: 0.31rem;
+    background: @primaryColor;
+    color: @whiteBackground;
+    font-family: "Fira Sans";
+    font-size: 1.12rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    cursor: pointer;
+
+    &:focus,
+    &:hover {
+      color: @primaryColor;
+      background-color: @whiteBackground;
+      border: 1px solid @primaryColor;
+      text-decoration: none;
+    }
+  }
+
+  .search-button {
+    display: flex;
+    height: 2.19rem;
+    padding: 0.31rem 0.63rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.63rem;
+    border: 0.06rem solid var(--layout-border, #a5aac3);
+    background: @highlightColor;
+    cursor: pointer;
+
+    &:focus,
+    &:hover {
+      background: @primaryColor;
+      color: white;
+    }
+  }
+
+  .pagination-item,
+  .pagination-icon {
+    color: var(--layout-text-muted, @mutedTextColor);
+    font-family: "Fira Sans";
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+  }
+
+  .page-size-selector {
+    display: flex;
+    justify-content: flex-end;
+    color: var(--layout-text-muted, @mutedTextColor);
+    font-family: "Fira Sans";
+    font-size: 1rem !important;
+    font-weight: 500;
+    line-height: 1.5rem;
+  }
+
+  .vertical-tab {
+    writing-mode: sideways-lr;
+    transform: rotate(180deg);
+    background-color: #f5f9fc;
+    border: 0.06rem solid #dbe5ef;
+    padding: 1rem 0.63rem;
+    color: #000;
+    font-family: "Fira Sans";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: relative;
+    clip-path: polygon(
+      0.63rem 0%,
+      100% 0%,
+      100% 100%,
+      0.63rem 100%,
+      0% calc(100% - 0.63rem),
+      0% 0.63rem
+    );
+    cursor: pointer;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .cursor-not-allowed {
+    cursor: not-allowed;
+  }
+
+  .facet-title {
+    color: var(--layout-text-default, #171a2b);
+    font-family: "Fira Sans";
+    font-size: 1.12rem;
+    font-weight: bold;
+    line-height: 1.5rem;
+  }
+
+  .checkbox {
+    display: flex;
+    min-height: 2rem;
+    padding-right: 1rem;
+    align-items: flex-start;
+    gap: 1rem;
+
+    label {
+      color: var(--layout-text-default, #171a2b);
+      font-family: "Fira Sans";
+      font-size: 1.12rem;
+      font-weight: 400;
+      line-height: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      display: flex;
+      width: 1.5rem;
+      height: 1.5rem;
+      padding: 0;
+    }
+  }
+
+  input,
+  select {
+    &:focus,
+    &:focus-visible,
+    &:hover {
+      outline: 0.19rem solid #2185d0 !important;
+    }
+  }
+
+  .img-button {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .close-icon {
+    width: 1.5rem;
+    height: 2rem;
+  }
+
+  .slide-icon {
+    width: 1rem;
+    height: 1.05rem;
+  }
+}
