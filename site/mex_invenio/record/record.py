@@ -9,7 +9,7 @@ from invenio_stats import current_stats
 
 import json
 
-from mex_invenio.record.utils import _get_linked_records_data, _get_record_by_mex_id
+from mex_invenio.record.utils import _get_record_by_mex_id
 from mex_invenio.record.data_processing import normalise_record_data
 
 
@@ -39,6 +39,7 @@ class MexRecord(MethodView):
 
             if not record:
                 abort(404)
+            pid = record.json["id"]
         else:
             # Version_id is not provided, fetch the latest record by mex_id
             try:
@@ -48,7 +49,7 @@ class MexRecord(MethodView):
             except Exception:
                 abort(500)
                 
-        pid = record["id"] # type: ignore
+            pid = record["id"] # type: ignore
         record_item = current_rdm_records_service.read(g.identity, pid)
 
         # emit a record view stats event
@@ -60,11 +61,10 @@ class MexRecord(MethodView):
         record_ui = ui_serializer.serialize_object(record_item.data)
 
         # Just return the record as JSON if requested
+        if as_json:
+            return json.loads(record_ui)
 
         record = json.loads(record_ui)
-
-        if as_json:
-            return record
 
         data = normalise_record_data(record) # type: ignore
 
