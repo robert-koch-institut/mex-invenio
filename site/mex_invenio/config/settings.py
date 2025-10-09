@@ -29,6 +29,7 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.custom_fields.ext_ids import get_ext_ids
+from mex_invenio.custom_fields.backwards_linked_records import get_fields_linked_backwards
 
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
@@ -713,11 +714,27 @@ ENTITIES = [
     "variable",
 ]
 
+TITLE_FIELDS = [
+    'mex:prefLabel',
+    'mex:officialName',
+    'mex:title',
+    'mex:alternativeTitle',
+    'mex:label',
+    'mex:name',
+    'mex:fullName',
+    'mex:alternativeName',
+    'mex:familyName',
+    'mex:givenName',
+    'mex:email'
+]
+
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
 EXT_IDS = get_ext_ids(UI_SETTINGS)
+FIELDS_LINKED_BACKWARDS = get_fields_linked_backwards(UI_SETTINGS)
+print("FIELDS_LINKED_BACKWARDS: ", FIELDS_LINKED_BACKWARDS)
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

@@ -119,9 +119,14 @@ class MexDumper(SearchDumper):
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""
 
+        record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
+        if not record_type:
+            log.append("No resource type found, skipping linked records data")
+            return
+
         # Get the record type to determine which fields to process
         records_linked_backwards = current_app.config.get(
-            "RECORDS_LINKED_BACKWARDS", {}
+            "FIELDS_LINKED_BACKWARDS", {}
         )
 
         if not records_linked_backwards:
@@ -135,7 +140,7 @@ class MexDumper(SearchDumper):
         # Process backward-linked records
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
         if mex_id and record_type in records_linked_backwards:
-            field_items = records_linked_backwards[record_type].items()
+            field_items = records_linked_backwards[record_type]
             backwards_linked = self._get_records_linked_backwards_for_dump(
                 record, mex_id, field_items, log
             )
@@ -154,13 +159,15 @@ class MexDumper(SearchDumper):
         """Get forward-linked records for a record during dumping."""
         records_fields = {}
         cf = record.get("custom_fields", {})
+        record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
         linked_record_ids = []
         record_linked_fields = []
 
 
         # Collect all linked record IDs
         for field in cf:
-            if current_app.config["PREF_LABELS"].field == "identifier":
+            if current_app.config["FIELD_TYPES"].get(record_type, {}).get(field, "") == "identifier":
+
                 linked_ids = cf.get(field)
                 if linked_ids is not None:
                     record_linked_fields.append(field)
@@ -183,8 +190,10 @@ class MexDumper(SearchDumper):
             if mex_id:
                 linked_records_map[mex_id] = r.json
 
+        print("linked_records_map: ", linked_records_map)
+
         # Process each field
-        for field, props in record_linked_fields:
+        for field in record_linked_fields:
             raw_value = cf.get(field)
             if not raw_value:
                 continue
@@ -197,6 +206,7 @@ class MexDumper(SearchDumper):
             for linked_record_id in linked_record_ids:
                 display_value = False
                 linked_record = linked_records_map.get(linked_record_id)
+                print("linked_record: ", linked_record)
 
                 field_value = {
                     "link_id": linked_record_id,
@@ -217,15 +227,15 @@ class MexDumper(SearchDumper):
                         ]
 
                     # Try to find display value from props
-                    for p in props:
-                        for title_field in props[p]:
-                            if title_field in linked_record.get("custom_fields", {}):
-                                display_value = linked_record["custom_fields"][
-                                    title_field
-                                ]
-                                break
-                        if display_value:
+                    if not "TITLE_FIELDS" in current_app.config:
+                        log.append("I don't know which fields are the titles; returning not changed.")
+                        return records_fields
+                    for title_field in current_app.config.get("TITLE_FIELDS", []):
+                        if title_field in linked_record.get("custom_fields", {}):
+                            display_value = linked_record["custom_fields"][title_field]
                             break
+                    if display_value:
+                        break
                     if not display_value:
                         display_value = [{"value": linked_record_id}]
                 else:
@@ -241,11 +251,7 @@ class MexDumper(SearchDumper):
 
                 # Handle email for contact fields
                 if linked_record and field == "mex:contact":
-                    flattened = [item for items in props.values() for item in items]
-                    if "mex:email" in flattened:
-                        email = linked_record.get("custom_fields", {}).get(
-                            "mex:email", ""
-                        )
+                        email = linked_record.get("custom_fields", {}).get("mex:email", "")
                         if email:
                             field_value["email"] = email
 
@@ -259,7 +265,7 @@ class MexDumper(SearchDumper):
         """Get backward-linked records for a record during dumping."""
         records_fields = {}
 
-        for field, props in field_items:
+        for field in field_items:
             # Find records that reference this mex_id in the given field
             linked_records = self._records_by_custom_field(record, field, mex_id, log)
 
@@ -271,7 +277,10 @@ class MexDumper(SearchDumper):
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
 
-                for f in props:
+                if not "TITLE_FIELDS" in current_app.config:
+                        log.append("I don't know which fields are the titles; returning not changed.")
+                        return records_fields
+                for f in current_app.config.get("TITLE_FIELDS", []):
                     display_value = record_json.get("custom_fields", {}).get(f, None)
                     if display_value:
                         field_values.append(

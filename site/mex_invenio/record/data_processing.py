@@ -61,9 +61,6 @@ def _normalise_value(
     field_types = current_app.config.get("FIELD_TYPES").get(resource_type, {})
     ftype = field_types.get(field_name)
 
-    if (field_name == "mex:documentation"):
-        raise Exception
-
     # --- type handlers ---
     if field_name in current_app.config.get("EXT_IDS", {}):
         return _normalise_extid(values, field_name)
