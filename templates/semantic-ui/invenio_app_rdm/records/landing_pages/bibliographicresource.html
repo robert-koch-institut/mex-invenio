@@ -5,36 +5,36 @@
             <div class="tags top-tags">
                 <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
 
-                {% if config.UI_SETTINGS[resource_type].special_fields.BIBLIOGRAPHICRESOURCE_TYPE in data %}
-                    <span class="tag" title="Resource type">{{display_values(data[config.UI_SETTINGS[resource_type].special_fields.BIBLIOGRAPHICRESOURCE_TYPE])}}</span>
+                {% if special_field("BIBLIOGRAPHICRESOURCE_TYPE") in data %}
+                    <span class="tag" title="Resource type">{{display_values(data[special_field("BIBLIOGRAPHICRESOURCE_TYPE")])}}</span>
                 {% endif %}
 
-                {%- if config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION in data -%}
-                    <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION]) }}</span>
+                {%- if special_field("ACCESS_RESTRICTION") in data -%}
+                    <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[special_field("ACCESS_RESTRICTION")]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
                 {% endif %}
             </div>
         </section>
     {%- endblock -%}
 
     {%- block description -%}
-        {% if config.UI_SETTINGS[resource_type].special_fields.ABSTRACT in data %}
+        {% if special_field("ABSTRACT") in data %}
             <section id="record-description" aria-label="{{ _('Record abstract') }}" style="margin-top: 1rem;">
-                <p>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ABSTRACT]) }}</p>
+                <p>{{ display_values(data[special_field("ABSTRACT")]) }}</p>
             </section>
         {% endif %}
     {%- endblock -%}
 
 {%- block lang_and_date -%}
-        {% if config.UI_SETTINGS[resource_type].special_fields.LANGUAGE in data or 
-        config.UI_SETTINGS[resource_type].special_fields.ISSUED in data %}
+        {% if special_field("LANGUAGE") in data or 
+        special_field("ISSUED") in data %}
         <section class="detail">
-            {% if config.UI_SETTINGS[resource_type].special_fields.LANGUAGE in data %}
+            {% if special_field("LANGUAGE") in data %}
             <p class="muted" ><b>{{ _('Language') }}:</b> {{
-                display_values(data[config.UI_SETTINGS[resource_type].special_fields.LANGUAGE]) }}</p>
+                display_values(data[special_field("LANGUAGE")]) }}</p>
             {% endif %}
-            {% if config.UI_SETTINGS[resource_type].special_fields.ISSUED in data %}
+            {% if special_field("ISSUED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b> {{
-                display_values(data[config.UI_SETTINGS[resource_type].special_fields.ISSUED]) }}</p>
+                display_values(data[special_field("ISSUED")]) }}</p>
             {% endif %}
         </section>
     {% endif %}

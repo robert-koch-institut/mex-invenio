@@ -61,8 +61,11 @@ def _normalise_value(
     field_types = current_app.config.get("FIELD_TYPES").get(resource_type, {})
     ftype = field_types.get(field_name)
 
+    if (field_name == "mex:documentation"):
+        raise Exception
+
     # --- type handlers ---
-    if field_name in current_app.config.get("EXTIDS", {}):
+    if field_name in current_app.config.get("EXT_IDS", {}):
         return _normalise_extid(values, field_name)
     
     elif ftype == "identifier":
@@ -182,7 +185,7 @@ def _normalise_extid(values: list, field_name: str) -> list[NormalisedValue]:
             displayed = val
             if val.startswith("http"):
                 for prefix in (
-                    current_app.config.get("EXTIDS").get(field_name).get("urls")
+                    current_app.config.get("EXT_IDS").get(field_name).get("prefixes")
                 ):
                     if val.startswith(prefix):
                         displayed = val.replace(prefix, "")

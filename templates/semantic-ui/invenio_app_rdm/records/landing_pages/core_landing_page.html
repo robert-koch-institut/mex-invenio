@@ -15,11 +15,11 @@
                 {{ record }}
                 <section id="record-title-section">
                     <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.TITLE]) }}</h1>
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[special_field("TITLE")]) }}</h1>
                     </div>
                     
-                    {% if ALTTITLE in config.UI_SETTINGS[resource_type].special_fields and config.UI_SETTINGS[resource_type].special_fields.ALTTITLE in data  %}
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ALTTITLE]) }}</h2>
+                    {% if ALTTITLE in config.UI_SETTINGS[resource_type].special_fields and special_field("ALTTITLE") in data  %}
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ display_values(data[special_field("ALTTITLE")]) }}</h2>
                     {% endif %}
                 </section>
                 {%- endblock title -%}

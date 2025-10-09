@@ -17,3 +17,4 @@ def get_pref_labels() -> dict:
             print(f"Error processing vocabulary {vocabulary_name}: {e}")
 
     return pref_labels
+

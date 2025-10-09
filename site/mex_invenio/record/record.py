@@ -66,6 +66,10 @@ class MexRecord(MethodView):
 
         record = json.loads(record_ui)
 
+        # Just return the record as JSON if requested
+        if as_json:
+            return record
+
         data = normalise_record_data(record) # type: ignore
 
         return render_template(

@@ -28,6 +28,8 @@ from mex_invenio.custom_fields.custom_fields import (
 )
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
+from mex_invenio.custom_fields.ext_ids import get_ext_ids
+
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
@@ -316,18 +318,18 @@ UI_SETTINGS = {
     "resource": {
         "label": "Data Source/Dataset",
         "special_fields": {
-            "RESOURCE_TYPE_SPECIFIC": "mex:resourceTypeSpecific",
-            "RESOURCE_TYPE_GENERAL": "mex:resourceTypeGeneral",
-            "CREATED": "mex:created",
-            "ACCESS_RESTRICTION": "mex:accessRestriction",
-            "ALT_TITLE": "mex:alternativeTitle",
-            "DESCRIPTION": "mex:description",
-            "LANGUAGE": "mex:language",
-            "MODIFIED": "mex:modified",
-            "MESH_ID": "mex:meshId",
-            "LOINC":"mex:loincId",
-            "ICD10": "mex:icd10code",
-            "TITLE": "mex:title"
+            "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
+            "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
+            "CREATED": {"field": "mex:created"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "DESCRIPTION": {"field": "mex:description"},
+            "LANGUAGE": {"field": "mex:language"},
+            "MODIFIED": {"field": "mex:modified"},
+            "MESH_ID": {"field": "mex:meshId", "prefixes": ["http://id.nlm.nih.gov/mesh/"]},
+            "LOINC": {"field": "mex:loincId", "prefixes": ["https://loinc.org/"]},
+            "ICD10": {"field": "mex:icd10code"},
+            "TITLE": {"field": "mex:title"}
         },
         "left": {
             "creators": {
@@ -448,7 +450,13 @@ UI_SETTINGS = {
                 "icon": "access.svg",
                 "properties": [
                     {"field": "mex:accessRestriction", "label": "Access restriction"},
-                    {"field": "mex:doi", "label": "Doi"},
+                    {"field": "mex:doi", "label": "Doi",
+                     "prefixes": [
+                            "https://dx.doi.org/",
+                            "http://doi.org/",
+                            "https://doi.org/",
+                            "http://dx.doi.org/",
+                        ]},
                     {"field": "mex:license", "label": "License"},
                     {"field": "mex:rights", "label": "Rights"},
                 ],
@@ -472,10 +480,10 @@ UI_SETTINGS = {
     "activity": {
         "label": "Project",
         "special_fields": {
-            "ALT_TITLE": "mex:alternativeTitle",
-            "ACTIVITY_TYPE": "mex:activityType",
-            "ABSTRACT": "mex:abstract",
-            "TITLE": "mex:title"
+            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ACTIVITY_TYPE": {"field": "mex:activityType"},
+            "ABSTRACT": {"field": "mex:abstract"},
+            "TITLE": {"field": "mex:title"}
         },
         "left": {
             "creators": {
@@ -562,14 +570,14 @@ UI_SETTINGS = {
     "bibliographicresource": {
         "label": "Publication",
         "special_fields": {
-            "CREATED": "mex:created",
-            "ACCESS_RESTRICTION": "mex:accessRestriction",
-            "ALT_TITLE": "mex:alternativeTitle",
-            "LANGUAGE": "mex:language",
-            "ABSTRACT": "mex:abstract",
-            "BIBLIOGRAPHICRESOURCE_TYPE": "mex:bibliographicResourceType",
-            "ISSUED": "mex:issued",
-            "TITLE": "mex:title"
+            "CREATED": {"field": "mex:created"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "LANGUAGE": {"field": "mex:language"},
+            "ABSTRACT": {"field": "mex:abstract"},
+            "BIBLIOGRAPHICRESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
+            "ISSUED": {"field": "mex:issued"},
+            "TITLE": {"field": "mex:title"},
         },
         "left": {
             "creators": {
@@ -640,7 +648,13 @@ UI_SETTINGS = {
                 "icon": "access.svg",
                 "properties": [
                     {"field": "mex:accessRestriction", "label": "Access restriction"},
-                    {"field": "mex:doi", "label": "Doi"},
+                    {"field": "mex:doi", "label": "Doi",
+                     "prefixes": [
+                            "https://dx.doi.org/",
+                            "http://doi.org/",
+                            "https://doi.org/",
+                            "http://dx.doi.org/",
+                        ]},
                     {"field": "mex:alternateIdentifier", "label": "Other identifier"},
                     {"field": "mex:repositoryURL", "label": "Repository URL"},
                     {"field": "mex:license", "label": "License"},
@@ -701,22 +715,9 @@ ENTITIES = [
 
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
 
-EXTIDS = {
-    "mex:doi": {
-        "urls": [
-            "https://dx.doi.org/",
-            "http://doi.org/",
-            "https://doi.org/",
-            "http://dx.doi.org/",
-        ]
-    },
-    "mex:meshId": {"urls": ["http://id.nlm.nih.gov/mesh/"]},
-    "mex:loincId": {"urls": ["https://loinc.org/"]},
-    "mex:icd10code": {},
-}
-
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
+EXT_IDS = get_ext_ids(UI_SETTINGS)
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

@@ -4,17 +4,17 @@
         <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}"></section>
             <div class="tags top-tags">
                 <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
-                {% if config.UI_SETTINGS[resource_type].special_fields.ACTIVITY_TYPE in data %}
-                    <span class="tags">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ACTIVITY_TYPE]) }}</span>
+                {% if special_field("ACTIVITY_TYPE") in data %}
+                    <span class="tags">{{ display_values(data[special_field("ACTIVITY_TYPE")]) }}</span>
                 {% endif %}
             </div>
         </section>
     {%- endblock -%}
 
     {%- block description -%}
-        {% if config.UI_SETTINGS[resource_type].special_fields.ABSTRACT in data %}
+        {% if special_field("ABSTRACT") in data %}
             <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
-                <p>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ABSTRACT]) }}</p>
+                <p>{{ display_values(data[special_field("ABSTRACT")]) }}</p>
             </section>
         {% endif %}
     {%- endblock -%}

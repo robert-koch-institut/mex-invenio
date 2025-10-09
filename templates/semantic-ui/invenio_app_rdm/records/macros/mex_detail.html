@@ -1,3 +1,7 @@
+{%- macro special_field(field_name) -%}
+    {{config.UI_SETTINGS[resource_type].special_fields[field_name].field}}
+{%- endmacro -%}
+
 {% macro display_values(values) %}
     {%- set lang = current_i18n.language -%}
     {%- if values[0].language -%}

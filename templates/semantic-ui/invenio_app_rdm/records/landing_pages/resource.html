@@ -8,39 +8,39 @@
     <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
         <div class="tags top-tags">
             <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
-            {% if config.UI_SETTINGS[resource_type].special_fields.RESOURCE_TYPE_GENERAL in data %}
-            <span class="tag" title="Resource type">{{display_values(data[config.UI_SETTINGS[resource_type].special_fields.RESOURCE_TYPE_GENERAL])}}{%- if config.UI_SETTINGS[resource_type].special_fields.RESOURCE_TYPE_SPECIFIC in data -%}/{{display_values(data[config.UI_SETTINGS[resource_type].special_fields.RESOURCE_TYPE_SPECIFIC])}}{%- endif -%}</span>
+            {% if special_field("RESOURCE_TYPE_GENERAL") in data %}
+            <span class="tag" title="Resource type">{{display_values(data[special_field("RESOURCE_TYPE_GENERAL")])}}{%- if special_field("RESOURCE_TYPE_SPECIFIC") in data -%}/{{display_values(data[special_field("RESOURCE_TYPE_SPECIFIC")])}}{%- endif -%}</span>
             {% endif %}
-            {%- if config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION in data -%}
-            <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.ACCESS_RESTRICTION]) }}</span>
+            {%- if special_field("ACCESS_RESTRICTION") in data -%}
+            <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[special_field("ACCESS_RESTRICTION")]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
             {% endif %}
         </div>
     </section>
 {%- endblock -%}
 
 {%- block description -%}
-    {% if config.UI_SETTINGS[resource_type].special_fields.DESCRIPTION in data %}
+    {% if special_field("DESCRIPTION") in data %}
         <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
-            <p>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.DESCRIPTION]) }}</p>
+            <p>{{ display_values(data[special_field("DESCRIPTION")]) }}</p>
         </section>
     {% endif %}
 {%- endblock -%}
 
 {%- block lang_and_date -%}
-        {% if config.UI_SETTINGS[resource_type].special_fields.LANGUAGE in data or 
-        config.UI_SETTINGS[resource_type].special_fields.CREATED in data or 
-        config.UI_SETTINGS[resource_type].special_fields.MODIFIED in data %}
+        {% if special_field("LANGUAGE") in data or 
+        special_field("CREATED") in data or 
+        special_field("MODIFIED") in data %}
         <section class="detail">
-            {% if config.UI_SETTINGS[resource_type].special_fields.LANGUAGE in data %}
+            {% if special_field("LANGUAGE") in data %}
             <p class="muted" ><b>{{ _('Language') }}:</b> {{
-                display_values(data[config.UI_SETTINGS[resource_type].special_fields.LANGUAGE]) }}</p>
+                display_values(data[special_field("LANGUAGE")]) }}</p>
             {% endif %}
-            {% if config.UI_SETTINGS[resource_type].special_fields.CREATED in data %}
+            {% if special_field("CREATED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b>{{
-                display_values(data[config.UI_SETTINGS[resource_type].special_fields.CREATED]) }}</p>
+                display_values(data[special_field("CREATED")]) }}</p>
             {% endif %}
-            {% if config.UI_SETTINGS[resource_type].special_fields.MODIFIED in data %}
-            <p class="muted"><b>{{ _('Modified') }}:</b>{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.MODIFIED]) }}</p>
+            {% if special_field("MODIFIED") in data %}
+            <p class="muted"><b>{{ _('Modified') }}:</b>{{ display_values(data[special_field("MODIFIED")]) }}</p>
             {% endif %}
         </section>
     {% endif %}
