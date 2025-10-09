@@ -120,27 +120,17 @@ class MexDumper(SearchDumper):
         """Generate linked records data and add to display_data."""
 
         # Get the record type to determine which fields to process
-        record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
-        if not record_type:
-            log.append("No resource type found, skipping linked records data")
-            return
-
-        linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})
         records_linked_backwards = current_app.config.get(
             "RECORDS_LINKED_BACKWARDS", {}
         )
 
-        if not linked_records_fields and not records_linked_backwards:
-            log.append("No linked records configuration found")
-            return
+        if not records_linked_backwards:
+            log.append("No backwards linked records configuration found")
 
         linked_records_data = {}
 
-        # Process forward-linked records
-        if record_type in linked_records_fields:
-            field_items = linked_records_fields[record_type].items()
-            linked_records = self._get_linked_records_for_dump(record, field_items, log)
-            linked_records_data.update(linked_records)
+        linked_records = self._get_linked_records_for_dump(record, log)
+        linked_records_data.update(linked_records)
 
         # Process backward-linked records
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
@@ -160,20 +150,24 @@ class MexDumper(SearchDumper):
         else:
             log.append("No linked records data generated")
 
-    def _get_linked_records_for_dump(self, record, field_items, log):
+    def _get_linked_records_for_dump(self, record, log):
         """Get forward-linked records for a record during dumping."""
         records_fields = {}
         cf = record.get("custom_fields", {})
         linked_record_ids = []
+        record_linked_fields = []
+
 
         # Collect all linked record IDs
-        for field, props in field_items:
-            linked_ids = cf.get(field)
-            if linked_ids is not None:
-                if isinstance(linked_ids, list):
-                    linked_record_ids.extend(linked_ids)
-                else:
-                    linked_record_ids.append(linked_ids)
+        for field in cf:
+            if current_app.config["PREF_LABELS"].field == "identifier":
+                linked_ids = cf.get(field)
+                if linked_ids is not None:
+                    record_linked_fields.append(field)
+                    if isinstance(linked_ids, list):
+                        linked_record_ids.extend(linked_ids)
+                    else:
+                        linked_record_ids.append(linked_ids)
 
         # Remove duplicates and batch fetch all linked records
         unique_linked_ids = list(set(linked_record_ids))
@@ -190,7 +184,7 @@ class MexDumper(SearchDumper):
                 linked_records_map[mex_id] = r.json
 
         # Process each field
-        for field, props in field_items:
+        for field, props in record_linked_fields:
             raw_value = cf.get(field)
             if not raw_value:
                 continue

@@ -12,6 +12,7 @@
                 {%- endblock -%}
 
                 {%- block title -%}
+                {{ record }}
                 <section id="record-title-section">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[config.UI_SETTINGS[resource_type].special_fields.TITLE]) }}</h1>

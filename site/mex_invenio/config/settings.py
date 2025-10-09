@@ -401,7 +401,7 @@ UI_SETTINGS = {
                 "title": "Related Publications & Further Documentation",
                 "icon": "publication.svg",
                 "properties": [
-                    {"field": "mex:publication", "label": "Publication"},
+                    {"field": "mex:publication", "label": "Publication", "is_backwards_linked": True},
                     {"field": "mex:documentation", "label": "Documentation"},
                 ],
             },
@@ -409,7 +409,7 @@ UI_SETTINGS = {
                 "title": "Related Projects",
                 "icon": "relatedProjects.svg",
                 "properties": [
-                    {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor"},
+                    {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor", "is_backwards_linked": True},
                 ],
             },
             "relatedResources": {
