@@ -4,19 +4,18 @@
 {% set card = config.UI_SETTINGS.resource[column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, value=none) %}
-{% if record.display_data and record.display_data.linked_records and card.is_backwards_linked %}
-    {% for prop in card.properties %}
-        {% if "is_backwards_linked" in prop %}
-            {% set record_data = data["backwards_linked"] %}
-        {%- else -%}
-            {% set record_data = data %}
-        {% endif %}
-        {% if prop.field in record_data %}
-            {% set ns.value = record_data[prop.field] %}
-            {% set ns.prop_exist = true %}
-        {% endif %}
-    {% endfor %}
-{% endif %}
+{% for prop in card.properties %}
+    {% if "is_backwards_linked" in prop %}
+        {% set record_data = data["backwards_linked"] %}
+    {%- else -%}
+        {% set record_data = data %}
+    {% endif %}
+    
+    {% if prop.field in record_data %}
+        {% set ns.value = record_data[prop.field] %}
+        {% set ns.prop_exist = true %}
+    {% endif %}
+{% endfor %}
 {% if ns.prop_exist %}
     <div class="card">
         <h3>

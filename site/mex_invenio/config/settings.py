@@ -322,7 +322,11 @@ UI_SETTINGS = {
             "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
             "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction",
+                                   "color_map": {
+                                        "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
+                                        "https://mex.rki.de/item/access-restriction-2": "#fcd0cd"
+                                   }},
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "DESCRIPTION": {"field": "mex:description"},
             "LANGUAGE": {"field": "mex:language"},
@@ -332,7 +336,7 @@ UI_SETTINGS = {
             "ICD10": {"field": "mex:icd10code"},
             "TITLE": {"field": "mex:title"}
         },
-        "left": {
+        "main": {
             "creators": {
                 "title": "Creators & Contributors",
                 "icon": "creators.svg",
@@ -437,7 +441,7 @@ UI_SETTINGS = {
                 ],
             },
         },
-        "right": {
+        "side_bar": {
             "contact": {
                 "title": "Contact",
                 "template": "contact.html",
@@ -473,7 +477,7 @@ UI_SETTINGS = {
                 "title": "Variables",
                 "icon": "variables.svg",
                 "properties": [
-                    {"field": "mex:usedIn", "label": "Related data", "is_backwards_linked": True},
+                    {"field": "mex:usedIn", "is_backwards_linked": True},
                 ],
             },
         },
@@ -486,7 +490,7 @@ UI_SETTINGS = {
             "ABSTRACT": {"field": "mex:abstract"},
             "TITLE": {"field": "mex:title"}
         },
-        "left": {
+        "main": {
             "creators": {
                 "title": "Creators & Contributors",
                 "icon": "creators.svg",
@@ -557,7 +561,7 @@ UI_SETTINGS = {
                 ],
             },
         },
-        "right": {
+        "side_bar": {
             "contact": {
                 "title": "Contact",
                 "template": "contact.html",
@@ -572,7 +576,11 @@ UI_SETTINGS = {
         "label": "Publication",
         "special_fields": {
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction",
+                                   "color_map": {
+                                        "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
+                                        "https://mex.rki.de/item/access-restriction-2": "#fcd0cd"
+                                   }},
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "LANGUAGE": {"field": "mex:language"},
             "ABSTRACT": {"field": "mex:abstract"},
@@ -580,7 +588,7 @@ UI_SETTINGS = {
             "ISSUED": {"field": "mex:issued"},
             "TITLE": {"field": "mex:title"},
         },
-        "left": {
+        "main": {
             "creators": {
                 "title": "Creators",
                 "icon": "creators.svg",
@@ -643,7 +651,7 @@ UI_SETTINGS = {
                 ],
             },
         },
-        "right": {
+        "side_bar": {
             "access": {
                 "title": "Access & Usage Rights",
                 "icon": "access.svg",
@@ -671,11 +679,6 @@ UI_SETTINGS = {
             },
         },
     },
-}
-
-IS_ACCESS_STATUS_OPEN = {
-    "https://mex.rki.de/item/access-restriction-1": True,
-    "https://mex.rki.de/item/access-restriction-2": False,
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -734,7 +737,6 @@ FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
 EXT_IDS = get_ext_ids(UI_SETTINGS)
 FIELDS_LINKED_BACKWARDS = get_fields_linked_backwards(UI_SETTINGS)
-print("FIELDS_LINKED_BACKWARDS: ", FIELDS_LINKED_BACKWARDS)
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

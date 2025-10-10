@@ -12,7 +12,6 @@
                 {%- endblock -%}
 
                 {%- block title -%}
-                {{ record }}
                 <section id="record-title-section">
                     <div class="first-line">
                         <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[special_field("TITLE")]) }}</h1>
@@ -36,7 +35,7 @@
                 {%- endblock -%}
 
                 <section id="record-card" class="record-cards">
-                    {%- set column = "left" -%}
+                    {%- set column = "main" -%}
                     {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
                 </section>
 
@@ -44,7 +43,7 @@
 
             <aside class="five wide tablet five wide computer column sixteen wide mobile sidebar record-cards vertical"
                    aria-label="{{ _('Record details') }}">
-                {%- set column = "right" -%}
+                {%- set column = "side_bar" -%}
                 {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
                 {% block record_sidebar %}
                     {%- include "invenio_app_rdm/records/details/side_bar.html" %}

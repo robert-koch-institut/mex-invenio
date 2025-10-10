@@ -10,7 +10,7 @@
                 {% endif %}
 
                 {%- if special_field("ACCESS_RESTRICTION") in data -%}
-                    <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[data[special_field("ACCESS_RESTRICTION")]] %} success {%- else %} error {%- endif -%}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
+                    <span class="tag" style="background-color: {{ config.UI_SETTINGS[resource_type].special_fields["ACCESS_RESTRICTION"].color_map[record.custom_fields[special_field("ACCESS_RESTRICTION")]] }}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
                 {% endif %}
             </div>
         </section>
