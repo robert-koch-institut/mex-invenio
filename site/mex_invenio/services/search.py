@@ -190,8 +190,6 @@ class MexDumper(SearchDumper):
             if mex_id:
                 linked_records_map[mex_id] = r.json
 
-        print("linked_records_map: ", linked_records_map)
-
         # Process each field
         for field in record_linked_fields:
             raw_value = cf.get(field)
@@ -206,7 +204,6 @@ class MexDumper(SearchDumper):
             for linked_record_id in linked_record_ids:
                 display_value = False
                 linked_record = linked_records_map.get(linked_record_id)
-                print("linked_record: ", linked_record)
 
                 field_value = {
                     "link_id": linked_record_id,
@@ -257,7 +254,8 @@ class MexDumper(SearchDumper):
 
                 field_values.append(field_value)
 
-            records_fields[field] = field_values
+            if len(field_values):
+                records_fields[field] = field_values
 
         return records_fields
 
@@ -305,7 +303,7 @@ class MexDumper(SearchDumper):
                             else [{"value": "Unknown"}],
                         }
                     )
-
-            records_fields[field] = field_values
+            if len(field_values):
+                records_fields[field] = field_values
 
         return records_fields
