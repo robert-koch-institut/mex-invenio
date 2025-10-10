@@ -231,7 +231,6 @@ class MexDumper(SearchDumper):
                     for title_field in current_app.config.get("TITLE_FIELDS", []):
                         if title_field in linked_record.get("custom_fields", {}):
                             display_value = linked_record["custom_fields"][title_field]
-                            print('linked_record["custom_fields"][title_field]: ', linked_record["custom_fields"][title_field])
                             break
                     if not display_value:
                         display_value = [{"value": linked_record_id}]
@@ -265,7 +264,9 @@ class MexDumper(SearchDumper):
 
         for field in field_items:
             # Find records that reference this mex_id in the given field
+            print("field: ", field)
             linked_records = self._records_by_custom_field(record, field, mex_id, log)
+            print("linked_records: ", linked_records)
 
             if not linked_records:
                 continue
@@ -274,6 +275,7 @@ class MexDumper(SearchDumper):
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
+                print("record_json: ", record_json)
 
                 if not "TITLE_FIELDS" in current_app.config:
                         log.append("I don't know which fields are the titles; returning not changed.")
@@ -303,7 +305,7 @@ class MexDumper(SearchDumper):
                             else [{"value": "Unknown"}],
                         }
                     )
-            if len(field_values):
-                records_fields[field] = field_values
+                
+            if field_values: records_fields[field] = field_values
 
         return records_fields
