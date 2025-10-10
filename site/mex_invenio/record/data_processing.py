@@ -21,7 +21,7 @@ def normalised_value(
     }
 
 
-def normalise_record_data(record: dict):
+def normalise_record_data(record: dict) -> dict:
     data = {}
     data["backwards_linked"] = {}
     custom_fields = record["custom_fields"]
@@ -30,23 +30,25 @@ def normalise_record_data(record: dict):
         normalised_value = _normalise_value(
             field, record["custom_fields"][field], record_type
         )
-        data.update({field: normalised_value} if normalised_value else {})
+        data.update({field: normalised_value} if len(normalised_value) else {})
     if record["display_data"]:
         for field in record["display_data"]["linked_records"]:
             if field == "backwards_linked":
                 for f in record["display_data"]["linked_records"]["backwards_linked"]:
-                    data["backwards_linked"][f] = _normalise_linked_data(
+                    normalised_value_dd = _normalise_linked_data(
                         record["display_data"]["linked_records"]["backwards_linked"][f]
                     )
+                    if normalised_value_dd: data["backwards_linked"][f] = normalised_value_dd
             else:
-                data[field] = _normalise_linked_data(record["display_data"]["linked_records"][field])
+                normalised_value_dd = _normalise_linked_data(record["display_data"]["linked_records"][field])
+                if normalised_value_dd: data[field] = normalised_value_dd
     
     return data
 
 
 def _normalise_value(
     field_name: str, field_raw_value: Any, resource_type: str
-):
+) -> list:
 
     if not field_raw_value or current_app.config.get("FIELD_TYPES") is None:
         return []
@@ -66,7 +68,7 @@ def _normalise_value(
         return _normalise_extid(values, field_name)
     
     elif ftype == "identifier":
-        return None
+        return []
 
     elif ftype in ("string", "int"):
         return [normalised_value(display_value=str(v)) for v in values]
