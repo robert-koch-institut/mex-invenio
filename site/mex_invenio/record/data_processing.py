@@ -30,7 +30,7 @@ def normalise_record_data(record: dict) -> dict:
         normalised_value = _normalise_value(
             field, record["custom_fields"][field], record_type
         )
-        data.update({field: normalised_value} if len(normalised_value) else {})
+        if normalised_value: data.update({field: normalised_value})
     if record["display_data"]:
         for field in record["display_data"]["linked_records"]:
             if field == "backwards_linked":

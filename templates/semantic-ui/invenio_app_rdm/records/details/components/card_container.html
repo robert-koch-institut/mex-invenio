@@ -14,7 +14,7 @@
         {% endif %}
     {% endfor %}
     {% set _ = ns.cards_exist.update({card.title: ns.prop_exist}) %}
-    {% if ns.prop_exist %} {% set ns.show_container = true %} {% endif %}
+    {% if 1 %} {% set ns.show_container = true %} {% endif %}
 {% endfor %}
 {% if ns.show_container %}
     <div class="card long">

@@ -201,9 +201,9 @@ class MexDumper(SearchDumper):
             )
             field_values = []
 
-            for linked_record_id in linked_record_ids:
+            for linked_record_id in unique_linked_ids:
                 display_value = False
-                linked_record = linked_records_map.get(linked_record_id)
+                linked_record = linked_records_map.get(linked_record_id, None)
 
                 field_value = {
                     "link_id": linked_record_id,
