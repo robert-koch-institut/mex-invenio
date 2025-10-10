@@ -29,7 +29,9 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.custom_fields.ext_ids import get_ext_ids
-from mex_invenio.custom_fields.backwards_linked_records import get_fields_linked_backwards
+from mex_invenio.custom_fields.backwards_linked_records import (
+    get_fields_linked_backwards,
+)
 
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
@@ -322,19 +324,24 @@ UI_SETTINGS = {
             "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
             "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction",
-                                   "color_map": {
-                                        "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
-                                        "https://mex.rki.de/item/access-restriction-2": "#fcd0cd"
-                                   }},
+            "ACCESS_RESTRICTION": {
+                "field": "mex:accessRestriction",
+                "color_map": {
+                    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
+                    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+                },
+            },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "DESCRIPTION": {"field": "mex:description"},
             "LANGUAGE": {"field": "mex:language"},
             "MODIFIED": {"field": "mex:modified"},
-            "MESH_ID": {"field": "mex:meshId", "prefixes": ["http://id.nlm.nih.gov/mesh/"]},
+            "MESH_ID": {
+                "field": "mex:meshId",
+                "prefixes": ["http://id.nlm.nih.gov/mesh/"],
+            },
             "LOINC": {"field": "mex:loincId", "prefixes": ["https://loinc.org/"]},
             "ICD10": {"field": "mex:icd10code"},
-            "TITLE": {"field": "mex:title"}
+            "TITLE": {"field": "mex:title"},
         },
         "main": {
             "creators": {
@@ -384,7 +391,10 @@ UI_SETTINGS = {
                 "properties": [
                     {"field": "mex:resourceCreationMethod", "label": "Creation method"},
                     {"field": "mex:accrualPeriodicity", "label": "Update frequency"},
-                    {"field": "mex:anonymizationPseudonymization", "label": "Anonymization/pseudonymization"},
+                    {
+                        "field": "mex:anonymizationPseudonymization",
+                        "label": "Anonymization/pseudonymization",
+                    },
                     {"field": "mex:instrumentToolOrApparatus", "label": "Tool"},
                 ],
             },
@@ -408,7 +418,11 @@ UI_SETTINGS = {
                 "title": "Related Publications & Further Documentation",
                 "icon": "publication.svg",
                 "properties": [
-                    {"field": "mex:publication", "label": "Publication", "is_backwards_linked": True},
+                    {
+                        "field": "mex:publication",
+                        "label": "Publication",
+                        "is_backwards_linked": True,
+                    },
                     {"field": "mex:documentation", "label": "Documentation"},
                 ],
             },
@@ -416,7 +430,11 @@ UI_SETTINGS = {
                 "title": "Related Projects",
                 "icon": "relatedProjects.svg",
                 "properties": [
-                    {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor", "is_backwards_linked": True},
+                    {
+                        "field": "mex:wasGeneratedBy",
+                        "label": "Related project/endeavor",
+                        "is_backwards_linked": True,
+                    },
                 ],
             },
             "relatedResources": {
@@ -435,7 +453,7 @@ UI_SETTINGS = {
                         "type": "component",
                         "title": "Includes",
                         "properties": [
-                           {"field": "mex:isPartOf", "is_backwards_linked": True},
+                            {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
                     },
                 ],
@@ -455,13 +473,16 @@ UI_SETTINGS = {
                 "icon": "access.svg",
                 "properties": [
                     {"field": "mex:accessRestriction", "label": "Access restriction"},
-                    {"field": "mex:doi", "label": "Doi",
-                     "prefixes": [
+                    {
+                        "field": "mex:doi",
+                        "label": "Doi",
+                        "prefixes": [
                             "https://dx.doi.org/",
                             "http://doi.org/",
                             "https://doi.org/",
                             "http://dx.doi.org/",
-                        ]},
+                        ],
+                    },
                     {"field": "mex:license", "label": "License"},
                     {"field": "mex:rights", "label": "Rights"},
                 ],
@@ -488,7 +509,7 @@ UI_SETTINGS = {
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "ACTIVITY_TYPE": {"field": "mex:activityType"},
             "ABSTRACT": {"field": "mex:abstract"},
-            "TITLE": {"field": "mex:title"}
+            "TITLE": {"field": "mex:title"},
         },
         "main": {
             "creators": {
@@ -514,7 +535,10 @@ UI_SETTINGS = {
                 "icon": "funding.svg",
                 "properties": [
                     {"field": "mex:externalAssociate", "label": "External partner"},
-                    {"field": "mex:funderOrCommissioner", "label": "Funded / commissioned by"},
+                    {
+                        "field": "mex:funderOrCommissioner",
+                        "label": "Funded / commissioned by",
+                    },
                     {"field": "mex:fundingProgram", "label": "Funding program"},
                 ],
             },
@@ -555,7 +579,11 @@ UI_SETTINGS = {
                     {
                         "title": "Generated By",
                         "properties": [
-                            {"field": "mex:wasGeneratedBy", "label": "Related project/endeavor", "is_backwards_linked": True},
+                            {
+                                "field": "mex:wasGeneratedBy",
+                                "label": "Related project/endeavor",
+                                "is_backwards_linked": True,
+                            },
                         ],
                     },
                 ],
@@ -576,11 +604,13 @@ UI_SETTINGS = {
         "label": "Publication",
         "special_fields": {
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction",
-                                   "color_map": {
-                                        "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
-                                        "https://mex.rki.de/item/access-restriction-2": "#fcd0cd"
-                                   }},
+            "ACCESS_RESTRICTION": {
+                "field": "mex:accessRestriction",
+                "color_map": {
+                    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
+                    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+                },
+            },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "LANGUAGE": {"field": "mex:language"},
             "ABSTRACT": {"field": "mex:abstract"},
@@ -645,7 +675,11 @@ UI_SETTINGS = {
                     {
                         "type": "component",
                         "properties": [
-                            {"field": "mex:publication", "label": "Publication", "is_backwards_linked": True},
+                            {
+                                "field": "mex:publication",
+                                "label": "Publication",
+                                "is_backwards_linked": True,
+                            },
                         ],
                     }
                 ],
@@ -657,13 +691,16 @@ UI_SETTINGS = {
                 "icon": "access.svg",
                 "properties": [
                     {"field": "mex:accessRestriction", "label": "Access restriction"},
-                    {"field": "mex:doi", "label": "Doi",
-                     "prefixes": [
+                    {
+                        "field": "mex:doi",
+                        "label": "Doi",
+                        "prefixes": [
                             "https://dx.doi.org/",
                             "http://doi.org/",
                             "https://doi.org/",
                             "http://dx.doi.org/",
-                        ]},
+                        ],
+                    },
                     {"field": "mex:alternateIdentifier", "label": "Other identifier"},
                     {"field": "mex:repositoryURL", "label": "Repository URL"},
                     {"field": "mex:license", "label": "License"},
@@ -718,17 +755,17 @@ ENTITIES = [
 ]
 
 TITLE_FIELDS = [
-    'mex:prefLabel',
-    'mex:officialName',
-    'mex:title',
-    'mex:alternativeTitle',
-    'mex:label',
-    'mex:name',
-    'mex:fullName',
-    'mex:alternativeName',
-    'mex:familyName',
-    'mex:givenName',
-    'mex:email'
+    "mex:prefLabel",
+    "mex:officialName",
+    "mex:title",
+    "mex:alternativeTitle",
+    "mex:label",
+    "mex:name",
+    "mex:fullName",
+    "mex:alternativeName",
+    "mex:familyName",
+    "mex:givenName",
+    "mex:email",
 ]
 
 DISCLAIMER = "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."

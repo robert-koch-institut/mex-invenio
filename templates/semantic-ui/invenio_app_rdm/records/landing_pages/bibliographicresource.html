@@ -25,7 +25,7 @@
     {%- endblock -%}
 
 {%- block lang_and_date -%}
-        {% if special_field("LANGUAGE") in data or 
+        {% if special_field("LANGUAGE") in data or
         special_field("ISSUED") in data %}
         <section class="detail">
             {% if special_field("LANGUAGE") in data %}

@@ -10,7 +10,7 @@
     {%- else -%}
         {% set record_data = data %}
     {% endif %}
-    
+
     {% if prop.field in record_data %}
         {% set ns.value = record_data[prop.field] %}
         {% set ns.prop_exist = true %}

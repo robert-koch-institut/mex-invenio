@@ -1,7 +1,7 @@
 {% for card_name in config.UI_SETTINGS[resource_type][column] %}
     {% set card = config.UI_SETTINGS[resource_type][column][card_name] %}
     {% if card.template %}
-        {%- include "invenio_app_rdm/records/details/components/cards/" ~ card.template with context -%}        
+        {%- include "invenio_app_rdm/records/details/components/cards/" ~ card.template with context -%}
     {% elif card.type == "container" %}
         {% with card=card_name %}
             {%- include "invenio_app_rdm/records/details/components/card_container.html" with context %}

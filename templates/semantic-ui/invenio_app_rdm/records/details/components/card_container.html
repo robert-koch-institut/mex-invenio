@@ -44,7 +44,7 @@
                         {% if prop.field in record_data %}
                             <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
                             {%- if 'label' in prop %}
-                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p> 
+                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p>
                             {%- endif -%}
                             <div class="card-prop-value">
                                 {{ display_values(record_data[prop.field]) }}

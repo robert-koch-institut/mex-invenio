@@ -55,7 +55,7 @@ class DisplayField(SystemField):
         #     print(f"Failed to get from search index: {e}")
         #     # Fallback to generating using MexDumper
         #     print("Fallback: generating display_data using MexDumper...")
-            
+
         from mex_invenio.services.search import MexDumper
 
         dumper = MexDumper()

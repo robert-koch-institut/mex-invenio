@@ -48,8 +48,8 @@ class MexRecord(MethodView):
                 abort(404)
             except Exception:
                 abort(500)
-                
-            pid = record["id"] # type: ignore
+
+            pid = record["id"]  # type: ignore
         record_item = current_rdm_records_service.read(g.identity, pid)
 
         # emit a record view stats event
@@ -70,7 +70,7 @@ class MexRecord(MethodView):
         if as_json:
             return record
 
-        data = normalise_record_data(record) # type: ignore
+        data = normalise_record_data(record)  # type: ignore
 
         return render_template(
             self.template,

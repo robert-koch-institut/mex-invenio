@@ -125,9 +125,7 @@ class MexDumper(SearchDumper):
             return
 
         # Get the record type to determine which fields to process
-        FIELDS_LINKED_BACKWARDS = current_app.config.get(
-            "FIELDS_LINKED_BACKWARDS", {}
-        )
+        FIELDS_LINKED_BACKWARDS = current_app.config.get("FIELDS_LINKED_BACKWARDS", {})
 
         if not FIELDS_LINKED_BACKWARDS:
             log.append("No backwards linked records configuration found")
@@ -163,11 +161,12 @@ class MexDumper(SearchDumper):
         linked_record_ids = []
         record_linked_fields = []
 
-
         # Collect all linked record IDs
         for field in cf:
-            if current_app.config["FIELD_TYPES"].get(record_type, {}).get(field, "") == "identifier":
-
+            if (
+                current_app.config["FIELD_TYPES"].get(record_type, {}).get(field, "")
+                == "identifier"
+            ):
                 linked_ids = cf.get(field)
                 if linked_ids is not None:
                     record_linked_fields.append(field)
@@ -180,7 +179,7 @@ class MexDumper(SearchDumper):
         unique_linked_ids = list(set(linked_record_ids))
         if not unique_linked_ids:
             return records_fields
-        
+
         linked_records = self._records_by_mex_identifiers(
             record, unique_linked_ids, log
         )
@@ -226,7 +225,9 @@ class MexDumper(SearchDumper):
 
                     # Try to find display value from props
                     if not "TITLE_FIELDS" in current_app.config:
-                        log.append("I don't know which fields are the titles; returning not changed.")
+                        log.append(
+                            "I don't know which fields are the titles; returning not changed."
+                        )
                         return records_fields
                     for title_field in current_app.config.get("TITLE_FIELDS", []):
                         if title_field in linked_record.get("custom_fields", {}):
@@ -247,9 +248,9 @@ class MexDumper(SearchDumper):
 
                 # Handle email for contact fields
                 if linked_record and field == "mex:contact":
-                        email = linked_record.get("custom_fields", {}).get("mex:email", "")
-                        if email:
-                            field_value["email"] = email
+                    email = linked_record.get("custom_fields", {}).get("mex:email", "")
+                    if email:
+                        field_value["email"] = email
 
                 field_values.append(field_value)
 
@@ -278,8 +279,10 @@ class MexDumper(SearchDumper):
                 print("record_json: ", record_json)
 
                 if not "TITLE_FIELDS" in current_app.config:
-                        log.append("I don't know which fields are the titles; returning not changed.")
-                        return records_fields
+                    log.append(
+                        "I don't know which fields are the titles; returning not changed."
+                    )
+                    return records_fields
                 for f in current_app.config.get("TITLE_FIELDS", []):
                     display_value = record_json.get("custom_fields", {}).get(f, None)
                     if display_value:
@@ -305,7 +308,8 @@ class MexDumper(SearchDumper):
                             else [{"value": "Unknown"}],
                         }
                     )
-                
-            if field_values: records_fields[field] = field_values
+
+            if field_values:
+                records_fields[field] = field_values
 
         return records_fields

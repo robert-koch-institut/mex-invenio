@@ -4,7 +4,7 @@ This document describes the configuration constants used for defining entity dis
 
 ## ⚙️ Constants Overview
 
-| Constant                           |	Type	        | Purpose                                                                                                                 
+| Constant                           |	Type	        | Purpose
 |------------------------------------|------------------|-------------------------------------------------------------------------------------------------------------------------
 |`UI_SETTINGS`                       |	dict            |	Defines the configuration for the core landing pages (i.e. `resource`, `activity`, `bibliographicresource`) are displayed in the user interface — including labels, fields, icons, cards, and templates.
 |`APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` |	list[str]       |	Lists custom templates for invenio standard side bar cards. Only the standard Invenio side bar cards are included. Templates are placed in `/templates/semantic-ui/invenio_app_rdm/records/details/side_bar`
@@ -24,10 +24,10 @@ Each core record's landing page (i.e. "resource", "activity", "bibliographicreso
 ```
 UI_SETTINGS = {
     "<core_record_type>": {
-        "label": "<Display label>",           
-        "special_fields": { ... },            
-        "main": { ... },                      
-        "side_bar": { ... },                      
+        "label": "<Display label>",
+        "special_fields": { ... },
+        "main": { ... },
+        "side_bar": { ... },
     },
     ...
 }
@@ -37,11 +37,11 @@ UI_SETTINGS = {
 
 Each entity configuration (e.g. `UI_SETTINGS["resource"]`) includes the following keys:
 
-Key             |  Required  |  Type             |  Description                                                                                                                                                                                                        
+Key             |  Required  |  Type             |  Description
 ----------------|------------|-------------------|------------------------
-label           |  ✓         |  str              |  User-facing label for this type of records (e.g "Publication")                                                                                                                                                     
-special_fields  |  ✓         |  dict[str, dict]  |  fields used in the template outside of the cards, these are not automatically added to the template but require custom implementation                                                                              
-main            |  ✓         |  dict[str, dict]  |  Cards in the main section of the landing page                                                                                                                                                        
+label           |  ✓         |  str              |  User-facing label for this type of records (e.g "Publication")
+special_fields  |  ✓         |  dict[str, dict]  |  fields used in the template outside of the cards, these are not automatically added to the template but require custom implementation
+main            |  ✓         |  dict[str, dict]  |  Cards in the main section of the landing page
 right           |  ✓         |  dict[str, dict]  |  Cards displayed in the side bar (right column) of the record details page - only custom cards are listed here; standard Invenio cards are listed in the `APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` (see: Constants Overview)
 
 ### 🧩 special_fields
@@ -57,10 +57,10 @@ These fields appear in the template outside of the cards. They are **not** added
 }
 ```
 
-Key                  |  Required  |  Type       |  Description                                                                    
+Key                  |  Required  |  Type       |  Description
 ---------------------|------------|-------------|----------------
-_key_                   |  ✓         |  str        |  Internal identifier for a special field (e.g. "TITLE", "LANGUAGE")             
-field                |  ✓         |  str        |  Metadata field (e.g. "mex:title")                                              
+_key_                   |  ✓         |  str        |  Internal identifier for a special field (e.g. "TITLE", "LANGUAGE")
+field                |  ✓         |  str        |  Metadata field (e.g. "mex:title")
 prefixes             |  -         |  list[str]  |  List of recognised URI prefixes for external link values (used to extract the display value (e.g. `D000026`), from the link (e.g. `http://id.nlm.nih.gov/mesh/D000026`) )
 
 #### ✨ ACCESS RESTRICTION COLOUR MAP
@@ -83,15 +83,15 @@ Cards are listed per columns: main section and the side bar. Only custom cards a
 
 ```
 
-Key                  |  Required  |  Type                        |  Description                                                                                                            
+Key                  |  Required  |  Type                        |  Description
 ---------------------|------------|------------------------------|----------------
-<card_id>            |  ✓         |  str                         |  Identifier of the section (e.g. "creators", "theme")                                                                   
-title                |  ✓         |  str                         |  Section title shown in UI                                                                                              
-icon                 |  ✓         |  str                         |  Icon filename (e.g. "creators.svg")                                                                                    
-template             |  -         |  str                         |  Custom HTML template to render this section, relative templates should be placed in `/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/`                                                                       
+<card_id>            |  ✓         |  str                         |  Identifier of the section (e.g. "creators", "theme")
+title                |  ✓         |  str                         |  Section title shown in UI
+icon                 |  ✓         |  str                         |  Icon filename (e.g. "creators.svg")
+template             |  -         |  str                         |  Custom HTML template to render this section, relative templates should be placed in `/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/`
 type                 |  -         |  "container" or "component"  |  Used for nested structures. "container" groups multiple cards; "component" defines a sub-block inside a container. For "regular" cards omit this property
-properties           |  ✓         |  list[dict]                  |  List of metadata fields rendered in this card (see below).                                                          
-components           |  ✓ (**only** for cards of `type="container"`)         |  list[dict]                  |  list of nested cards, each with its own title and properties (icons are not supported in component cards)                                                
+properties           |  ✓         |  list[dict]                  |  List of metadata fields rendered in this card (see below).
+components           |  ✓ (**only** for cards of `type="container"`)         |  list[dict]                  |  list of nested cards, each with its own title and properties (icons are not supported in component cards)
 
 ## 🧩 properties
 
@@ -104,12 +104,12 @@ Each entry in a properties list defines one metadata field and its display optio
 ]
 ```
 
-Key                             |  required  |  Type                  |  Description                                                                             
+Key                             |  required  |  Type                  |  Description
 --------------------------------|------------|------------------------|----------
-field                           |  ✓         |  str                   |  Metadata field (e.g. `mex:creator`)                                                     
-label                           |  -         |  str                   |  Custom UI label to display; if no label is provided, the values will be displayed without a label                                   
+field                           |  ✓         |  str                   |  Metadata field (e.g. `mex:creator`)
+label                           |  -         |  str                   |  Custom UI label to display; if no label is provided, the values will be displayed without a label
 is_backwards_linked             |  -         |  bool                  |  Marks that the field represents a reverse relationship (e.g. record listed as `partOf` another record)
-prefixes                        |  -         |  list[str] (optional)  |  List of recognised URI prefixes for external link values                               
+prefixes                        |  -         |  list[str] (optional)  |  List of recognised URI prefixes for external link values
 
 ### 🧾 Example Configuration Snippet
 
