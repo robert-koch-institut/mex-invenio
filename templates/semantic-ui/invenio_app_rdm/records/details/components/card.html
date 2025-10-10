@@ -1,5 +1,5 @@
-{% set cards = config.RECORD_CARDS.resource[column] %}
-{% set card = config.RECORD_CARDS.resource[column][card_name] %}
+{% set cards = config.RECORD_CARDS[resource_type][column] %}
+{% set card = config.RECORD_CARDS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, value=none) %}
 {% if linked_records_data and card.is_backwards_linked %}
@@ -21,6 +21,7 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+
 {% if ns.prop_exist %}
     <div class="card">
         <h3>
@@ -33,8 +34,10 @@
             {% for prop in card.properties %}
                 {% set value = val(prop, record_data[prop], resource_type, card.is_backwards_linked) %}
                 {% if value %}
-                    <div class="card-props-p">
-                        <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                    <div class="card-props-p {%- if prop in config.PROPS_WITHOUT_LABELS[resource_type] %} forced-vertical {%- endif -%}">
+                        {%- if prop not in config.PROPS_WITHOUT_LABELS[resource_type] -%}
+                            <p class="card-prop-label" title="{{ _(config.FIELD_LABELS_UI[prop]) }}">{{ _(config.FIELD_LABELS_UI[prop]) }}</p>
+                        {%- endif -%}
                         <div class="card-prop-value">{{ value }}</div>
                     </div>
                 {% endif %}

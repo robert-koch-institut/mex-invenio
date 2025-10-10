@@ -1,10 +1,11 @@
-from flask import render_template, abort, request, g
+from flask import render_template, abort, request, g, current_app
 from flask.views import MethodView
 
 from invenio_rdm_records.records.api import RDMRecord
 from invenio_rdm_records.resources.serializers import UIJSONSerializer
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_stats import current_stats
 
 import json
 
@@ -50,6 +51,12 @@ class MexRecord(MethodView):
             pid = record["id"]
 
         record_item = current_rdm_records_service.read(g.identity, pid)
+
+        # emit a record view stats event
+        emitter = current_stats.get_event_emitter("record-view")
+        if emitter is not None:
+            emitter(current_app, record=record_item._record, via_api=False)
+
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
 
