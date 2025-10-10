@@ -125,11 +125,11 @@ class MexDumper(SearchDumper):
             return
 
         # Get the record type to determine which fields to process
-        records_linked_backwards = current_app.config.get(
+        FIELDS_LINKED_BACKWARDS = current_app.config.get(
             "FIELDS_LINKED_BACKWARDS", {}
         )
 
-        if not records_linked_backwards:
+        if not FIELDS_LINKED_BACKWARDS:
             log.append("No backwards linked records configuration found")
 
         linked_records_data = {}
@@ -139,8 +139,8 @@ class MexDumper(SearchDumper):
 
         # Process backward-linked records
         mex_id = record.get("custom_fields", {}).get("mex:identifier")
-        if mex_id and record_type in records_linked_backwards:
-            field_items = records_linked_backwards[record_type]
+        if mex_id and record_type in FIELDS_LINKED_BACKWARDS:
+            field_items = FIELDS_LINKED_BACKWARDS[record_type]
             backwards_linked = self._get_records_linked_backwards_for_dump(
                 record, mex_id, field_items, log
             )
@@ -167,10 +167,8 @@ class MexDumper(SearchDumper):
         # Collect all linked record IDs
         for field in cf:
             if current_app.config["FIELD_TYPES"].get(record_type, {}).get(field, "") == "identifier":
-                print("field: ", field)
 
                 linked_ids = cf.get(field)
-                print("record_linked_fields: ", record_linked_fields)
                 if linked_ids is not None:
                     record_linked_fields.append(field)
                     if isinstance(linked_ids, list):
@@ -178,15 +176,11 @@ class MexDumper(SearchDumper):
                     else:
                         linked_record_ids.append(linked_ids)
 
-        print("record_linked_fields: ", record_linked_fields)
-
         # Remove duplicates and batch fetch all linked records
         unique_linked_ids = list(set(linked_record_ids))
         if not unique_linked_ids:
             return records_fields
         
-        print("unique_linked_ids: ", unique_linked_ids)
-
         linked_records = self._records_by_mex_identifiers(
             record, unique_linked_ids, log
         )
@@ -209,24 +203,19 @@ class MexDumper(SearchDumper):
             field_values = []
 
             for linked_record_id in record["custom_fields"][field]:
-                print("linked_record_id: ", linked_record_id)
                 display_value = False
-                print("linked_records_map: ", linked_records_map)
                 linked_record = linked_records_map.get(linked_record_id, None)
-                print("linked_record: ", linked_record)
 
                 field_value = {
                     "link_id": linked_record_id,
                 }
 
                 if linked_record:
-                    print("if linked_record")
                     record_type = (
                         linked_record.get("metadata", {})
                         .get("resource_type", {})
                         .get("id", None)
                     )
-                    print("record_type: ", record_type)
 
                     if record_type:
                         field_value["core"] = record_type in [
@@ -234,26 +223,19 @@ class MexDumper(SearchDumper):
                             "resource",
                             "bibliographicresource",
                         ]
-                    print('field_value["core"]: ', field_value["core"])
 
                     # Try to find display value from props
                     if not "TITLE_FIELDS" in current_app.config:
                         log.append("I don't know which fields are the titles; returning not changed.")
-                        print("I don't know which fields are the titles; returning not changed.")
                         return records_fields
                     for title_field in current_app.config.get("TITLE_FIELDS", []):
-                        print("title_field: ", title_field)
                         if title_field in linked_record.get("custom_fields", {}):
                             display_value = linked_record["custom_fields"][title_field]
                             print('linked_record["custom_fields"][title_field]: ', linked_record["custom_fields"][title_field])
                             break
-                    if display_value:
-                        print("we will break here")
                     if not display_value:
                         display_value = [{"value": linked_record_id}]
-                        print("display_value: ", display_value )
                 else:
-                    print("else linked_record")
                     display_value = [
                         {
                             "value": current_app.config.get(
@@ -261,10 +243,8 @@ class MexDumper(SearchDumper):
                             ),
                         }
                     ]
-                print("display_value: ", display_value)
 
                 field_value["display_value"] = normalize_display_value(display_value)
-                print("field_value['display_value']: ", field_value["display_value"])
 
                 # Handle email for contact fields
                 if linked_record and field == "mex:contact":
@@ -272,11 +252,7 @@ class MexDumper(SearchDumper):
                         if email:
                             field_value["email"] = email
 
-                print("field_value: ", field_value)
                 field_values.append(field_value)
-                print("-----------------------------")
-
-                print("field_values: ", field_values)
 
             if len(field_values):
                 records_fields[field] = field_values
