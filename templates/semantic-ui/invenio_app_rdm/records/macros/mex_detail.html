@@ -136,14 +136,14 @@ it under the terms of the MIT License; see LICENSE file for more details.
                                 </span>
                             {% endfor %}
                         {% else %}
-                            <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
+                            <button type="button" class="ui button link-like" data-record-id="{{ v.link_id }}" onclick="supportRecordHandler('{{ v.link_id }}')">{{ v["display_value"] | join(", ")}}</button>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
             {% else %}
                 {% for v in values %}
                     {% if v != config.NO_RECORD_STRING %}
-                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
+                        <button type="button" class="ui button link-like" data-record-id="{{ v.link_id }}" onclick="supportRecordHandler('{{ v.link_id }}')">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</button>
                     {% else %}
                         <i class="muted">Record {{ v.link_id }} not found.</i>
                     {% endif %}

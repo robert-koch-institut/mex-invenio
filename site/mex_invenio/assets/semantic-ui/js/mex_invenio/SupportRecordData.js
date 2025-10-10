@@ -1,12 +1,12 @@
 import React from 'react';
 import { Record } from './Record';
 
-export const SupportRecordData = () => {
+export const SupportRecordData = ({mex_id}) => {
 
   return (
     <>
-      <p><strong>url: </strong> /records/mex/dO8iP5KEwJGZPXwCXKnFOZ/json </p>
-      <Record mex_id="dO8iP5KEwJGZPXwCXKnFOZ" />
+      <p><strong>url: </strong> {`/records/mex/${mex_id}/json`}</p>
+      <Record mex_id={mex_id} />
     </>
   );
 };
