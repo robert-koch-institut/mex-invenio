@@ -77,3 +77,4 @@ celerybeat-schedule.*
 .env
 .aws/
 payload
+*.patch
