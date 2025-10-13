@@ -1,10 +1,5 @@
 {%- extends "invenio_theme/page.html" %}
 
-{% block css %}
-  {{ super() }}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom_search_page.css') }}">
-{% endblock %}
-
 {% block page_body %}
     <style>
         .resource-card {
@@ -20,7 +15,7 @@
         }
     </style>
 
-    <div id="contact-page" class="ui container">
+    <div id="search-page" class="ui container search_page">
         <section class="banner">
             <small>Search our</small>
             <h1>Data Sources & Datasets</h1>

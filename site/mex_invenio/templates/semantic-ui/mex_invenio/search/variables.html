@@ -1,9 +1,6 @@
-{%- extends "invenio_theme/page.html" %} {% block css %} {{ super() }}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/custom_search_page.css') }}"
-/>
-{% endblock %} {% block page_body %}
+{%- extends "invenio_theme/page.html" %}
+
+{% block page_body %}
 <style>
   .variable-details {
     display: none;
