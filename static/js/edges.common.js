@@ -4080,7 +4080,8 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
     if (this.selector && this.selector.isSelected(res.id)) {
       selectState = "selected";
-      currentImage = "/static/images/selected.svg";
+      current = '-'
+      // currentImage = "/static/images/selected.svg";
       // selectText = edges.mex._("Remove");
     }
 
@@ -4105,7 +4106,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                         <div class="six wide column" style="text-align: right">
                             <button class="img-button">
                       <button type="button"
-                                    class="ui icon button ${selectClass}"
+                                    class="ui icon button ${selectState} ${selectClass}"
                                     data-id="${res.id}"
                                     data-state="${selectState}"
                                     title="${selectState}"

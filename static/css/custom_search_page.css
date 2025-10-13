@@ -372,6 +372,16 @@ select:hover {
   justify-content: center;
 }
 
+.button.unselected {
+  background: #E0F4FC;
+  color: #000;
+}
+
+.button.selected {
+  background: #32008C;
+  color: #fff;
+}
+
 .close-icon {
   width: 1.5rem;
   height: 2rem;
