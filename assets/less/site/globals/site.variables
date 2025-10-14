@@ -37,3 +37,4 @@
 @lightLinkColor: @core-color-white-default;
 
 @whiteTextColor: @core-color-white-default;
+@blackTextColor: #000000;

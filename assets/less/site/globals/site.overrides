@@ -396,7 +396,7 @@ aside {
   }
 
   .description {
-    color: #000;
+    color: @blackTextColor;
     font-family: var(--text-family-default, "Fira Sans");
     font-size: var(--text-size-body-small, 1rem);
     font-style: normal;
@@ -446,7 +446,7 @@ aside {
       border-radius: 999px;
       padding: 0.75rem;
       display: inline-block;
-      color: #000;
+      color: @blackTextColor;
       font-family: var(--text-family-default, "Fira Sans");
       font-size: 1.38rem;
       font-style: normal;
@@ -459,7 +459,7 @@ aside {
       display: inline-block;
       vertical-align: super;
       align-items: center;
-      color: #000;
+      color: @blackTextColor;
       font-family: var(--text-family-default, "Fira Sans");
       font-size: var(--text-size-body-default, 1.12rem);
       font-style: normal;
@@ -580,7 +580,7 @@ aside {
     background-color: #f5f9fc;
     border: 0.06rem solid #dbe5ef;
     padding: 1rem 0.63rem;
-    color: #000;
+    color: @blackTextColor;
     font-family: var(--text-family-default, "Fira Sans");
     font-size: var(--text-size-body-small, 1rem);
     font-style: normal;
@@ -673,7 +673,7 @@ aside {
   .button {
     &.unselected {
       background: @highlightColor;
-      color: #000;
+      color: @blackTextColor;
 
       &:hover,
       &:focus {
