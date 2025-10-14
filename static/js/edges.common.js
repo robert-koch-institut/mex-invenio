@@ -1544,7 +1544,7 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
         if (this.showSearchString && sf.searchString) {
             let field = sf.searchField;
             let text = sf.searchString;
-            filters += `<span class="${fieldClass}">`;
+            filters += `<span class="filters ${fieldClass}">`;
             if (field) {
                 if (field in sf.fieldDisplays) {
                     field = sf.fieldDisplays[field];
@@ -1578,7 +1578,7 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
             }
 
             for (var j = 0; j < def.values.length; j++) {
-                filters += `<span class="${fieldClass}">`;
+                filters += `<span class="filters ${fieldClass}">`;
                 if (this.showFilterField) {
                     filters += `<span class="${fieldNameClass}">${def.display}:&nbsp;</span>`;
                 }
@@ -1610,7 +1610,7 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="${clearClass}" title="Clear all search and sort parameters and start again">
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
                     Clear all
                 </button>`;
 

@@ -699,18 +699,14 @@ aside {
     height: 1.05rem;
   }
 
-  .edges-mex-selected-filters_field {
+  .filters {
     border: 1px solid #A5AAC3;
-    border-radius: 25px;
-    padding: 5px 10px;
+    border-radius: 1.5rem;
+    padding: 0.30rem 0.65rem;
     background-color: @highlightColor;
-    margin-right: 10px;
-  }
 
-  .edges-mex-selected-filters_clear {
-    border: 1px solid #A5AAC3;
-    border-radius: 25px;
-    padding: 5px 10px;
-    background-color: @highlightColor;
+    &.edges-mex-selected-filters_field{
+      margin-right: 1.5rem;
+    }
   }
 }
