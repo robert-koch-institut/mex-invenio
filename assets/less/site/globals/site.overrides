@@ -333,7 +333,7 @@ aside {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.56rem;
-    background: #fff;
+    background: @whiteTextColor;
 
     &-shadow {
       box-shadow:
@@ -346,7 +346,7 @@ aside {
     }
 
     &-header {
-      color: var(--layout-text-muted, #404565);
+      color: var(--layout-text-muted, @mutedTextColor);
       font-family: "Fira Sans";
       font-size: 1.12rem;
       font-style: normal;
@@ -514,7 +514,7 @@ aside {
     gap: 0.31rem;
     align-self: stretch;
     background: @primaryColor;
-    color: #fff;
+    color: @whiteTextColor;
     font-family: "Fira Sans";
     font-size: 1.12rem;
     font-style: normal;
@@ -525,7 +525,7 @@ aside {
     &:focus,
     &:hover {
       color: @primaryColor;
-      background-color: #fff;
+      background-color: @whiteTextColor;
       text-decoration: none;
       border: 1px solid @primaryColor;
     }
@@ -551,7 +551,7 @@ aside {
   }
 
   .pagination-item {
-    color: var(--layout-text-muted, #404565);
+    color: var(--layout-text-muted, @mutedTextColor);
     font-family: "Fira Sans";
     font-size: 1rem;
     font-style: normal;
@@ -560,13 +560,13 @@ aside {
   }
 
   .pagination-icon {
-    color: var(--layout-text-muted, #404565);
+    color: var(--layout-text-muted, @mutedTextColor);
   }
 
   .page-size-selector {
     display: flex;
     justify-content: flex-end;
-    color: var(--layout-text-muted, #404565);
+    color: var(--layout-text-muted, @mutedTextColor);
     font-family: "Fira Sans";
     font-size: 1rem !important;
     font-style: normal;
@@ -658,7 +658,7 @@ aside {
     &:focus,
     &:focus-visible,
     &:hover {
-      outline: 0.19rem solid #2185d0 !important;
+      outline: 0.19rem solid @secondaryColor !important;
     }
   }
 
@@ -685,7 +685,7 @@ aside {
 
   &.selected {
     background: @primaryColor;
-    color: #fff;
+    color: @whiteTextColor;
   }
 }
 
