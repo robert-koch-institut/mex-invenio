@@ -356,7 +356,7 @@ aside {
   }
 
   .title {
-    color: #32008c;
+    color: @primaryColor;
     font-family: var(--text-family-default, "Fira Sans");
     font-size: var(--text-size-heading-medium, 1.31rem);
     font-style: normal;
@@ -425,7 +425,7 @@ aside {
     justify-content: center;
     align-items: center;
     gap: 0.63rem;
-    background: #e0f4fc;
+    background: @highlightColor;
   }
 
   .preview {
@@ -497,7 +497,7 @@ aside {
     }
 
     &-sub-item {
-      color: var(--dark-blue, #32008c);
+      color: var(--dark-blue, @primaryColor);
       font-family: var(--text-family-default, "Fira Sans");
       font-size: var(--text-size-heading-medium, 1.31rem);
       font-style: normal;
@@ -513,7 +513,7 @@ aside {
     align-items: center;
     gap: 0.31rem;
     align-self: stretch;
-    background: #32008c;
+    background: @primaryColor;
     color: #fff;
     font-family: "Fira Sans";
     font-size: 1.12rem;
@@ -524,10 +524,10 @@ aside {
 
     &:focus,
     &:hover {
-      color: #32008c;
+      color: @primaryColor;
       background-color: #fff;
       text-decoration: none;
-      border: 1px solid #32008c;
+      border: 1px solid @primaryColor;
     }
   }
 
@@ -540,12 +540,12 @@ aside {
     align-items: center;
     gap: 0.63rem;
     border: 0.06rem solid var(--layout-border, #a5aac3);
-    background: #e0f4fc;
+    background: @highlightColor;
     cursor: pointer;
 
     &:focus,
     &:hover {
-      background: #32008c;
+      background: @primaryColor;
       color: white;
     }
   }
@@ -672,15 +672,22 @@ aside {
 
   .button {
     &.unselected {
-      background: #E0F4FC;
+      background: @highlightColor;
       color: #000;
-    }
 
-    &.selected {
-      background: #32008C;
-      color: #fff;
-    }
+      &:hover,
+      &:focus {
+        outline: 0.19rem solid @secondaryColor !important;
+        background: @primaryColor;
+        color: @whiteTextColor;
+      }
   }
+
+  &.selected {
+    background: @primaryColor;
+    color: #fff;
+  }
+}
 
   .close-icon {
     width: 1.5rem;
@@ -696,7 +703,7 @@ aside {
     border: 1px solid #A5AAC3;
     border-radius: 25px;
     padding: 5px 10px;
-    background-color: #E0F4FC;
+    background-color: @highlightColor;
     margin-right: 10px;
   }
 
@@ -704,6 +711,6 @@ aside {
     border: 1px solid #A5AAC3;
     border-radius: 25px;
     padding: 5px 10px;
-    background-color: #E0F4FC;
+    background-color: @highlightColor;
   }
 }

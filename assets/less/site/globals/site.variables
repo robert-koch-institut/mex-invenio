@@ -35,3 +35,5 @@
 @signupColor: @core-color-green-default;
 @darkLinkColor: @primaryColor;
 @lightLinkColor: @core-color-white-default;
+
+@whiteTextColor: @core-color-white-default;
