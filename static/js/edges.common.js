@@ -1808,7 +1808,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                         ${recordsFrag}
                     </div>
                     <a class="search-variable" href="/search/variables" title="${title}">
-                        ${edges.mex._("See in Variables Search")}
+                        ${edges.mex._("Explore Variables for Chosen Datasets")}
                     </a>
                 </div>
                 `;
