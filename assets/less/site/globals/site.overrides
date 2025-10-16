@@ -629,27 +629,24 @@ aside {
     align-self: stretch;
 
     label {
-      color: var(--layout-text-default, #171a2b);
-      font-family: var(--text-family-default, "Fira Sans");
-      font-size: var(--text-size-body-default, 1.12rem);
-      font-style: normal;
-      font-weight: var(--text-weight-regular, 400);
-      line-height: var(--text-line-height-body-default, 1.5rem);
-      letter-spacing: var(--space-none, 0);
+      color: @blackTextColor;
+      font-family: @fontFamily;
+      font-size: 1.12rem;
+      font-weight: 400;
+      line-height: 1.5rem;
+      letter-spacing: 0;
       display: flex;
       align-items: center;
       gap: 1rem;
       cursor: pointer;
+      flex: 1;
     }
 
     input[type="checkbox"] {
-      display: flex;
-      width: var(--dimension-default, 1.5rem);
-      height: var(--dimension-default, 1.5rem);
-      padding: var(--space-none, 0);
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-none, 0);
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin: 0;
     }
   }
 
