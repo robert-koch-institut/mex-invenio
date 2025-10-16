@@ -24,7 +24,7 @@ edges.instances.variables.init = function () {
     edges.active["variables-resources"] = edges.mex.makeEdge({
         selector: "#resources-container",
         template: new edges.mex.templates.SingleColumnTemplate({
-            preamble: `<a href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
+            preamble: `<a class="link-button" href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
             hideComponentsInitially: ["selector", "selected-filtered", "results", "resource-pager"],
         }),
         resourceType: "resources",
