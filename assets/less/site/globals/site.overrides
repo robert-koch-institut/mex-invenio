@@ -507,7 +507,7 @@ aside {
     }
   }
 
-  .search-variable {
+  .link-button {
     display: flex;
     padding: 0.63rem 1.25rem;
     align-items: center;
@@ -719,4 +719,10 @@ aside {
       margin-right: 1.5rem;
     }
   }
+}
+
+.footer-bottom{
+  color : @whiteTextColor;
+  padding: 0.5rem 2rem;
+  font-size: 0.8rem;
 }
