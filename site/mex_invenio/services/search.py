@@ -1,7 +1,6 @@
 from flask import current_app
 
 from invenio_records.dumpers import SearchDumper
-import json
 
 
 def normalize_display_value(display_value):
@@ -45,24 +44,24 @@ class MexDumper(SearchDumper):
         self._record_cache = {}
 
         log = []
-        log.append("###############MEX Dumper##################")
-        log.append("Record ID: " + record.get("id"))
-        log.append(json.dumps(record.get("custom_fields", {})))
-        log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # log.append("###############MEX Dumper##################")
+        # log.append("Record ID: " + record.get("id"))
+        # log.append(json.dumps(record.get("custom_fields", {})))
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         # Generate linked records data and add to display_data
         self._linked_records_data(record, dump_data, log)
 
-        log.append("**************************************")
-        log.append("Display data:")
-        log.append(json.dumps(dump_data.get("display_data", {})))
-        log.append("**************************************")
+        # log.append("**************************************")
+        # log.append("Display data:")
+        # log.append(json.dumps(dump_data.get("display_data", {})))
+        # log.append("**************************************")
 
         self._record_cache = {}
-        log.append("Dumped custom fields:")
-        log.append(json.dumps(dump_data.get("custom_fields", {})))
-        log.append("###############//MEX Dumper##################")
-        print("\n".join(log))
+        # log.append("Dumped custom fields:")
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # log.append("###############//MEX Dumper##################")
+        # print("\n".join(log))
         return dump_data
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
@@ -71,7 +70,7 @@ class MexDumper(SearchDumper):
         query_for = []
         for mex_id in mex_ids:
             if self._record_cache.get(mex_id):
-                log.append("Cache hit for MEx ID: " + mex_id)
+                # log.append("Cache hit for MEx ID: " + mex_id)
                 results.append(self._record_cache[mex_id])
             else:
                 query_for.append(mex_id)
@@ -79,14 +78,14 @@ class MexDumper(SearchDumper):
         if len(query_for) == 0:
             return results
 
-        log.append("Querying for MEx IDs: " + str(query_for))
+        # log.append("Querying for MEx IDs: " + str(query_for))
         db_query = source.model_cls.query.filter(
             source.model_cls.json["custom_fields"]
             .op("->>")("mex:identifier")
             .in_(query_for),
         )
         db_results = db_query.all()
-        log.append("DB results found: " + str(len(db_results)))
+        # log.append("DB results found: " + str(len(db_results)))
 
         for res in db_results:
             mex_id = res.json.get("custom_fields", {}).get("mex:identifier")
@@ -96,23 +95,19 @@ class MexDumper(SearchDumper):
         return results
 
     def _records_by_custom_field(self, source, name, value, log):
-        from sqlalchemy import or_, func, select
-
         db_query = source.model_cls.query.filter(
             source.model_cls.json["custom_fields"][name].op("?")(value)
         )
 
-        from sqlalchemy.dialects import postgresql
-
-        log.append(
-            str(
-                db_query.statement.compile(
-                    dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
-                )
-            )
-        )
+        # log.append(
+        #    str(
+        #        db_query.statement.compile(
+        #            dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+        #        )
+        #    )
+        # )
         db_results = db_query.all()
-        log.append("DB results found: " + str(len(db_results)))
+        # log.append("DB results found: " + str(len(db_results)))
 
         return db_results
 
@@ -121,14 +116,14 @@ class MexDumper(SearchDumper):
 
         record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
         if not record_type:
-            log.append("No resource type found, skipping linked records data")
+            # log.append("No resource type found, skipping linked records data")
             return
 
         # Get the record type to determine which fields to process
         FIELDS_LINKED_BACKWARDS = current_app.config.get("FIELDS_LINKED_BACKWARDS", {})
 
-        if not FIELDS_LINKED_BACKWARDS:
-            log.append("No backwards linked records configuration found")
+        # if not FIELDS_LINKED_BACKWARDS:
+        #    log.append("No backwards linked records configuration found")
 
         linked_records_data = {}
 
@@ -147,11 +142,11 @@ class MexDumper(SearchDumper):
         # Add the linked records data to display_data
         if linked_records_data:
             dump_data["display_data"]["linked_records"] = linked_records_data
-            log.append("Added linked records data to display_data")
-            log.append(str(linked_records_data))
-            log.append("-----------------------")
-        else:
-            log.append("No linked records data generated")
+            # log.append("Added linked records data to display_data")
+            # log.append(str(linked_records_data))
+            # log.append("-----------------------")
+        # else:
+        #    log.append("No linked records data generated")
 
     def _get_linked_records_for_dump(self, record, log):
         """Get forward-linked records for a record during dumping."""
@@ -183,7 +178,7 @@ class MexDumper(SearchDumper):
         linked_records = self._records_by_mex_identifiers(
             record, unique_linked_ids, log
         )
-        print("linked_records: ", linked_records)
+        # print("linked_records: ", linked_records)
         linked_records_map = {}
         for r in linked_records:
             mex_id = r.json.get("custom_fields", {}).get("mex:identifier")
@@ -196,9 +191,9 @@ class MexDumper(SearchDumper):
             if not raw_value:
                 continue
 
-            linked_record_ids = (
-                raw_value if isinstance(raw_value, list) else [raw_value]
-            )
+            # linked_record_ids = (
+            #    raw_value if isinstance(raw_value, list) else [raw_value]
+            # )
             field_values = []
 
             for linked_record_id in record["custom_fields"][field]:
@@ -225,9 +220,9 @@ class MexDumper(SearchDumper):
 
                     # Try to find display value from props
                     if not "TITLE_FIELDS" in current_app.config:
-                        log.append(
-                            "I don't know which fields are the titles; returning not changed."
-                        )
+                        # log.append(
+                        #    "I don't know which fields are the titles; returning not changed."
+                        # )
                         return records_fields
                     for title_field in current_app.config.get("TITLE_FIELDS", []):
                         if title_field in linked_record.get("custom_fields", {}):
@@ -265,9 +260,9 @@ class MexDumper(SearchDumper):
 
         for field in field_items:
             # Find records that reference this mex_id in the given field
-            print("field: ", field)
+            # print("field: ", field)
             linked_records = self._records_by_custom_field(record, field, mex_id, log)
-            print("linked_records: ", linked_records)
+            # print("linked_records: ", linked_records)
 
             if not linked_records:
                 continue
@@ -276,12 +271,12 @@ class MexDumper(SearchDumper):
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
-                print("record_json: ", record_json)
+                # print("record_json: ", record_json)
 
                 if not "TITLE_FIELDS" in current_app.config:
-                    log.append(
-                        "I don't know which fields are the titles; returning not changed."
-                    )
+                    # log.append(
+                    #    "I don't know which fields are the titles; returning not changed."
+                    # )
                     return records_fields
                 for f in current_app.config.get("TITLE_FIELDS", []):
                     display_value = record_json.get("custom_fields", {}).get(f, None)
