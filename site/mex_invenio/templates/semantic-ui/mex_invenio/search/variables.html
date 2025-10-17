@@ -99,10 +99,19 @@ td {
   </div>
   {% endblock %}
 </div>
-{% endblock %} {% block javascript %} {{ super() }} {% set static="/static/js"
-%} {% set edges=static ~ "/edges" %} {% set vendor = edges ~ "/vendor" %} {% set
-src=edges ~ "/src" %} {% set components=src ~ "/components" %} {% set bs3=src ~
-"/renderers/bs3" %}
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+
+    {{ webpack['i18next.js'] }}
+
+    {% set static="/static/js" %}
+    {% set edges=static ~ "/edges" %}
+    {% set vendor = edges ~ "/vendor" %}
+    {% set src=edges ~ "/src" %}
+    {% set components=src ~ "/components" %}
+    {% set bs3=src ~"/renderers/bs3" %}
 
 <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="{{ src }}/datasources/es7x.js"></script>

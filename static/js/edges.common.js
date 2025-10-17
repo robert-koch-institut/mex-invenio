@@ -4520,13 +4520,17 @@ edges.mex.renderers.ActivitiesResults = class extends edges.Renderer {
     let hits = this.component.edge.result.data.hits.hits;
     for (let hit of hits) {
       if (res.uuid === hit._id) {
-        if (
-          hit.highlight &&
-          hit.highlight[edges.mex.constants.ABSTRACT]
-        ) {
-          desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
-          desc = desc.replace(/<em>/g, "<code>");
-          desc = desc.replace(/<\/em>/g, "</code>");
+        if (hit.highlight) {
+          if (hit.highlight[edges.mex.constants.ABSTRACT]) {
+            desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
+            desc = desc.replace(/<em>/g, "<code>");
+            desc = desc.replace(/<\/em>/g, "</code>");
+          }
+          if (hit.highlight[edges.mex.constants.TITLE]) {
+              title = hit.highlight[edges.mex.constants.TITLE][0];
+              title = title.replace(/<em>/g, "<code>");
+              title = title.replace(/<\/em>/g, "</code>");
+          }
         }
       }
     }
@@ -4706,13 +4710,17 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
     let hits = this.component.edge.result.data.hits.hits;
     for (let hit of hits) {
       if (res.uuid === hit._id) {
-        if (
-          hit.highlight &&
-          hit.highlight[edges.mex.constants.ABSTRACT]
-        ) {
-          desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
-          desc = desc.replace(/<em>/g, "<code>");
-          desc = desc.replace(/<\/em>/g, "</code>");
+        if (hit.highlight) {
+          if (hit.highlight[edges.mex.constants.ABSTRACT]) {
+            desc = hit.highlight[edges.mex.constants.ABSTRACT][0];
+            desc = desc.replace(/<em>/g, "<code>");
+            desc = desc.replace(/<\/em>/g, "</code>");
+          }
+          if (hit.highlight[edges.mex.constants.TITLE]) {
+              title = hit.highlight[edges.mex.constants.TITLE][0];
+              title = title.replace(/<em>/g, "<code>");
+              title = title.replace(/<\/em>/g, "</code>");
+          }
         }
       }
     }
