@@ -49,7 +49,6 @@ edges.mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.
 edges.mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
 edges.mex.constants.ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
 edges.mex.constants.SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
-edges.mex.constants.CREATOR_CONTAINER = "custom_fields.mex:creator"
 edges.mex.constants.LABEL_CONTAINER = "custom_fields.mex:label"
 edges.mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
 edges.mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
@@ -78,6 +77,9 @@ edges.mex.constants.ICD10 = "custom_fields.mex:icd10code.value"
 edges.mex.constants.SHORT_NAME = "custom_fields.mex:shortName.value"
 edges.mex.constants.EXTERNAL_ASSOCIATE = "index_data.externalAssociates"
 edges.mex.constants.INVOLVED_PERSON = "index_data.involvedPersons"
+edges.mex.constants.SUBTITLE = "custom_fields.mex:subtitle.value"
+edges.mex.constants.CREATOR = "index_data.creators"
+edges.mex.constants.KEYWORD = "custom_fields.mex:keyword.value"
 
 ///////////////////////////////////////////////////
 // General Functions
@@ -4736,20 +4738,13 @@ edges.mex.renderers.BibliographicResourcesResults = class extends (
       }
     }
 
-    // FIXME: will need to be a dereferenced field
-    let creators = edges.util.pathValue(edges.mex.constants.CREATOR_CONTAINER, res, []);
+    let creators = edges.util.pathValue(edges.mex.constants.CREATOR, res, []);
     creators = creators.map((c) => edges.util.escapeHtml(c)).join(", ");
 
     let pubYear = edges.util.pathValue(
       "custom_fields.mex:publicationYear.date",
       res,
       ""
-    );
-
-    let previewClass = edges.util.jsClasses(
-      this.namespace,
-      "preview",
-      this.component.id
     );
 
     let frag = `<div class="biblo-resource-card card-shadow">
