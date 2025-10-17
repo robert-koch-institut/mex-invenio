@@ -8,7 +8,9 @@ theme = WebpackThemeBundle(
     default="semantic-ui",
     themes={
         "semantic-ui": dict(
-            entry={},
+            entry={
+                "i18next": "./js/mex_invenio/i18next.js",
+            },
         ),
     },
 )
