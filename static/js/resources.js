@@ -6,6 +6,7 @@ edges.instances.resources = {};
 edges.instances.resources.init = function() {
     edges.active["resources"] = edges.mex.makeEdge({
         resourceType: "resources",
+        includeVerticalTab: true,
         openingQuery: new es.Query({
             size: 50,
             sort: [{ field: edges.mex.constants.CREATED, order: "desc" }]

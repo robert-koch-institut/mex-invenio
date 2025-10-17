@@ -62,8 +62,8 @@ edges.mex.constants.VARIABLE_GROUPS_DE = "index_data.deVariableGroups"
 edges.mex.constants.DESCRIPTION = "custom_fields.mex:description.value"
 edges.mex.constants.CREATED = "custom_fields.mex:created.date"
 edges.mex.constants.ABSTRACT = "custom_fields.mex:abstract.value"
-edges.mex.constants.START = "custom_fields.mex:start"
-edges.mex.constants.END = "custom_fields.mex:end"
+edges.mex.constants.START = "custom_fields.mex:start.date"
+edges.mex.constants.END = "custom_fields.mex:end.date"
 edges.mex.constants.PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
 edges.mex.constants.USED_IN_EN = "index_data.enUsedInResource"
 edges.mex.constants.USED_IN_DE = "index_data.deUsedInResource"
@@ -75,6 +75,9 @@ edges.mex.constants.ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
 edges.mex.constants.CONTRIBUTORS = "index_data.contributors"
 edges.mex.constants.EXTERNAL_PARTNERS = "index_data.externalPartners"
 edges.mex.constants.ICD10 = "custom_fields.mex:icd10code.value"
+edges.mex.constants.SHORT_NAME = "custom_fields.mex:shortName.value"
+edges.mex.constants.EXTERNAL_ASSOCIATE = "index_data.externalAssociates"
+edges.mex.constants.INVOLVED_PERSON = "index_data.involvedPersons"
 
 ///////////////////////////////////////////////////
 // General Functions
@@ -382,7 +385,9 @@ edges.mex.makeEdge = function (params) {
     "/query/api/" +
     params.resourceType;
   let template =
-    params.template || new edges.mex.templates.MainSearchTemplate();
+    params.template || new edges.mex.templates.MainSearchTemplate({
+        includeVerticalTab: params.includeVerticalTab || false,
+      });
   let callbacks = params.callbacks || {};
 
   let defaultQuery = new es.Query({ size: 50 });
@@ -746,6 +751,8 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
   constructor(params) {
     super(params);
 
+    this.includeVerticalTab = edges.util.getParam(params, "includeVerticalTab", false);
+
     this.namespace = "mex-main-search-template";
   }
 
@@ -826,11 +833,15 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
       }
     }
 
-    let verticalTabClass = edges.util.jsClasses(
-      this.namespace,
-      "verticalTab",
-      ""
-    );
+    let verticalTabFrag = "";
+    if (this.includeVerticalTab) {
+      let verticalTabClass = edges.util.jsClasses(
+          this.namespace,
+          "verticalTab",
+          ""
+      );
+      verticalTabFrag = `<div id="vertical-tab" class="vertical-tab ${verticalTabClass}"></div>`;
+    }
 
     let frag = `
             <div class="ui grid container">
@@ -856,8 +867,7 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div id="right-col" class="five wide column" style=${rightContainerStyle}>
                     ${rightContainers}
                 </div>
-                <div id="vertical-tab" class="vertical-tab ${verticalTabClass}">
-                </div>
+                ${verticalTabFrag}
             </div>
         `;
     edge.context.html(frag);
@@ -2216,8 +2226,8 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         }">${edges.util.escapeHtml(obj["display"])}</option>`;
       }
 
-      field_select += `<select class="${searchFieldClass}">
-                                <option value="">${edges.mex._(
+      field_select += `<select class="ui fluid dropdown ${searchFieldClass}">
+                                <option value="*">${edges.mex._(
                                   "search all"
                                 )}</option>
                                 ${fieldOptions}
@@ -2267,30 +2277,31 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
       this
     );
 
-    let sortColumn = sortFrag
-      ? `<div class="three wide column">${sortFrag}</div>`
-      : "";
-
-    let searchColumn = searchFrag
-      ? `<div class="one wide column">${searchFrag}</div>`
-      : "";
-
-    // Upgrading the search UI as per sematic ui
-    let frag = `
-    <div class="ui grid ${containerClass}">
-        <div class="row middle aligned">
-            <div class="search-label">
-                <label><h3>
-                  ${this.searchTitle}
-                </h3></label>
-            </div>
-            <div class="eleven wide column">
-                ${searchBox}
-            </div>
-             ${sortColumn}
-            ${searchColumn}
-        </div>
-    </div>`;
+        // Upgrading the search UI as per sematic ui
+        let frag = `
+            <div class="ui grid ${containerClass}">
+                <div class="row middle aligned">
+                    <div class="one wide column">
+                        <div class="search-label">
+                            <label><h3>
+                              ${this.searchTitle}
+                            </h3></label>
+                        </div>
+                    </div>
+                    <div class="eleven wide column">
+                        ${searchBox}
+                    </div>
+                    <div class="three wide column">
+                        ${field_select}
+                    </div>
+                    <div class="one wide column">
+                        ${searchFrag}
+                    </div>
+                </div>
+                <div class="row right aligned">
+                    ${sortFrag}
+                </div>
+            </div>`;
 
     comp.context.html(frag);
 
