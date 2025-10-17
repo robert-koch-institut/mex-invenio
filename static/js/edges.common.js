@@ -134,25 +134,30 @@ edges.mex.displayYearMonthPeriod = function (params) {
 }
 
 edges.mex._register = [];
-edges.mex._keymode = true;
+edges.mex._keymode = false;
 edges.mex._ = function (key) {
     if (!edges.mex._register.includes(key)) {
         edges.mex._register.push(key);
     }
-    if (edges.mex._keymode === false) {
-        if (key in edges.mex.babel) {
-            return edges.mex.babel[key];
-        }
-        return key;
-    } else {
-        let val = key;
-        if (key in edges.mex.babel) {
-            val = `*${val}*`;
-        } else {
-            val = `~~${val}~~`;
-        }
-        return val;
-    }
+    // FIXME: embedding this here probably doesn't help with extracting the translation keys,
+    // need to replace calls to edges.mex._ with i18next.t directly in the source code
+    // but want to see how key extraction works first
+    return i18next.t(key);
+    // if (edges.mex._keymode === false) {
+    //     return i18next.t(key);
+    //     if (key in edges.mex.babel) {
+    //         return edges.mex.babel[key];
+    //     }
+    //     return key;
+    // } else {
+    //     let val = key;
+    //     if (key in edges.mex.babel) {
+    //         val = `*${val}*`;
+    //     } else {
+    //         val = `~~${val}~~`;
+    //     }
+    //     return val;
+    // }
 };
 
 edges.mex._jinja_babel = function () {
@@ -3409,13 +3414,17 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         let hits = this.component.edge.result.data.hits.hits;
         for (let hit of hits) {
             if (res.uuid === hit._id) {
-                if (
-                    hit.highlight &&
-                    hit.highlight[edges.mex.constants.DESCRIPTION]
-                ) {
-                    desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
-                    desc = desc.replace(/<em>/g, "<code>");
-                    desc = desc.replace(/<\/em>/g, "</code>");
+                if (hit.highlight) {
+                    if (hit.highlight[edges.mex.constants.DESCRIPTION]) {
+                        desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
+                        desc = desc.replace(/<em>/g, "<code>");
+                        desc = desc.replace(/<\/em>/g, "</code>");
+                    }
+                    if (hit.highlight[edges.mex.constants.TITLE]) {
+                        title = hit.highlight[edges.mex.constants.TITLE][0];
+                        title = title.replace(/<em>/g, "<code>");
+                        title = title.replace(/<\/em>/g, "</code>");
+                    }
                 }
             }
         }
