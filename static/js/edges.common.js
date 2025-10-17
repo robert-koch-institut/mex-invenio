@@ -3282,8 +3282,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
       params,
       "hideEmptyDateBin",
       true
-    );
-    Date;
+    )
 
     // Hides facet when there is no data
     this.hideIfEmpty = edges.util.getParam(params, "hideIfEmpty", false);
