@@ -1,5 +1,5 @@
 from flask import current_app
-from typing import Any, List, Dict, Union, Callable, TypedDict
+from typing import Any, List, Dict, TypedDict
 from typing_extensions import NotRequired
 
 
@@ -112,23 +112,25 @@ def _normalise_linked_data(values: list):
 
 def _normalise_date(values: list) -> list[NormalisedValue]:
     normalised = []
+    months = {
+        "01": "Jan",
+        "02": "Feb",
+        "03": "Mar",
+        "04": "Apr",
+        "05": "May",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Aug",
+        "09": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec",
+    }
+
     for val in values:
-        months = {
-            "01": "Jan",
-            "02": "Feb",
-            "03": "Mar",
-            "04": "Apr",
-            "05": "May",
-            "06": "Jun",
-            "07": "Jul",
-            "08": "Aug",
-            "09": "Sep",
-            "10": "Oct",
-            "11": "Nov",
-            "12": "Dec",
-        }
         if not isinstance(val, str):
             normalised.append(normalised_value(display_value=str(val)))
+            continue
 
         if len(val) in (10, 20):  # YYYY-MM-DD or timestamp
             year, month, day = val[0:4], val[5:7], val[8:10]
@@ -168,6 +170,7 @@ def _normalise_url(values: list) -> list[NormalisedValue]:
     for val in values:
         if not isinstance(val, dict):
             normalised.append(normalised_value(url=str(val)))
+            continue
 
         normalised.append(
             normalised_value(
