@@ -27,15 +27,18 @@ from mex_invenio.config import (
     RECORD_METADATA_CREATOR,
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
-    LINKED_RECORDS_FIELDS,
-    RECORDS_LINKED_BACKWARDS,
+    FIELD_TYPES,
+    UI_SETTINGS,
+    TITLE_FIELDS
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
-
+from mex_invenio.custom_fields.backwards_linked_records import (
+    get_fields_linked_backwards,
+)
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -86,8 +89,10 @@ def app_config(app_config, module_tmp_path):
     app_config["OAISERVER_RELATIONS"] = OAISERVER_RELATIONS
 
     # add linked records configurations
-    app_config["LINKED_RECORDS_FIELDS"] = LINKED_RECORDS_FIELDS
-    app_config["RECORDS_LINKED_BACKWARDS"] = RECORDS_LINKED_BACKWARDS
+    app_config["FIELD_TYPES"] = FIELD_TYPES
+    app_config["UI_SETTINGS"] = UI_SETTINGS
+    app_config["TITLE_FIELDS"] = TITLE_FIELDS
+    app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
 
     # add S3
     app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path
