@@ -3,7 +3,6 @@
 
 import json
 import logging
-import os
 import re
 from unittest.mock import patch, MagicMock
 
@@ -30,6 +29,8 @@ from mex_invenio.config import (
     FIELD_TYPES,
     UI_SETTINGS,
     TITLE_FIELDS,
+    ENTITIES,
+    DISCLAIMER,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
@@ -92,6 +93,8 @@ def app_config(app_config, module_tmp_path):
     app_config["FIELD_TYPES"] = FIELD_TYPES
     app_config["UI_SETTINGS"] = UI_SETTINGS
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
+    app_config["ENTITIES"] = ENTITIES
+    app_config["DISCLAIMER"] = DISCLAIMER
     app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
 
     # add S3
