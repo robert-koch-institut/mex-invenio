@@ -191,12 +191,15 @@ class MexDumper(SearchDumper):
             if not raw_value:
                 continue
 
-            # linked_record_ids = (
-            #    raw_value if isinstance(raw_value, list) else [raw_value]
-            # )
+            # TODO
+            # This check was reinserted after if became clear that single values
+            # were being passed. Should this not happen after normalisation?
+            linked_record_ids = (
+                raw_value if isinstance(raw_value, list) else [raw_value]
+            )
             field_values = []
 
-            for linked_record_id in record["custom_fields"][field]:
+            for linked_record_id in linked_record_ids:
                 display_value = False
                 linked_record = linked_records_map.get(linked_record_id, None)
 
