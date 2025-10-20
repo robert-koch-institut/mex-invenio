@@ -29,7 +29,7 @@ from mex_invenio.config import (
     RECORD_METADATA_TITLE_PROPERTIES,
     FIELD_TYPES,
     UI_SETTINGS,
-    TITLE_FIELDS
+    TITLE_FIELDS,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
