@@ -25,9 +25,9 @@ class DisplayField(SystemField):
     #
     def __get__(self, record, owner=None):
         """Get the display data."""
-        #print(
+        # print(
         #    f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
-        #)
+        # )
 
         if record is None:
             # returns the field itself.
@@ -36,27 +36,27 @@ class DisplayField(SystemField):
         # Check if already in record
         display_data = record.get("display_data", None)
         if display_data:
-             #print(f"display_data already exists with keys: {list(display_data.keys())}")
-             return display_data
+            # print(f"display_data already exists with keys: {list(display_data.keys())}")
+            return display_data
 
         # # Try to get from search index first
         try:
-             #print("Trying to get display_data from search index...")
-             res = current_search_client.get(
-                 index=build_alias_name(record.index._name),
-                 id=record.id,
-                 params={"_source_includes": "display_data"},
-             )
-             display_data = res["_source"]["display_data"]
-             #print(
-             #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
-             #)
-             return display_data
+            # print("Trying to get display_data from search index...")
+            res = current_search_client.get(
+                index=build_alias_name(record.index._name),
+                id=record.id,
+                params={"_source_includes": "display_data"},
+            )
+            display_data = res["_source"]["display_data"]
+            # print(
+            #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
+            # )
+            return display_data
         except Exception as e:
             pass
-            #print(f"Failed to get from search index: {e}")
+            # print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
-            #print("Fallback: generating display_data using MexDumper...")
+            # print("Fallback: generating display_data using MexDumper...")
 
         from mex_invenio.services.search import MexDumper
 
@@ -64,7 +64,7 @@ class DisplayField(SystemField):
         temp_data = {"display_data": {}}
         dumper.dump(record, temp_data)
         display_data = temp_data["display_data"]
-        #print(f"Generated display_data with keys: {list(display_data.keys())}")
+        # print(f"Generated display_data with keys: {list(display_data.keys())}")
 
         # Store it in the record for subsequent access
         record["display_data"] = display_data
@@ -77,13 +77,13 @@ class DisplayField(SystemField):
 
     def pre_dump(self, record, data, **kwargs):
         """Called before record is dumped."""
-        #print(f"DisplayField.pre_dump called for record {record.get('id', 'unknown')}")
-        #print(f"Record has display_data: {'display_data' in record}")
-        #print(f"Dump enabled: {self._dump}")
+        # print(f"DisplayField.pre_dump called for record {record.get('id', 'unknown')}")
+        # print(f"Record has display_data: {'display_data' in record}")
+        # print(f"Dump enabled: {self._dump}")
 
         # Include display_data in dumps if enabled
         if self._dump and "display_data" in record:
-            #print(f"Adding display_data to dump: {record['display_data']}")
+            # print(f"Adding display_data to dump: {record['display_data']}")
             data["display_data"] = record["display_data"]
-        #else:
+        # else:
         #    print("display_data not added to dump")
