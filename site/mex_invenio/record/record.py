@@ -59,11 +59,6 @@ class MexRecord(MethodView):
 
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
-
-        # Just return the record as JSON if requested
-        if as_json:
-            return json.loads(record_ui)
-
         record = json.loads(record_ui)
 
         # Just return the record as JSON if requested
