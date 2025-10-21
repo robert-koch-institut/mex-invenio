@@ -2,7 +2,8 @@
     {{config.UI_SETTINGS[resource_type].special_fields[field_name].field}}
 {%- endmacro -%}
 
-{% macro display_values(values) %}
+{% macro display_values(values, max) %}
+    {% set max_visible = max if max else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
     {%- set lang = current_i18n.language -%}
     {%- if values[0].language -%}
         {%- set correct_lang = values | selectattr("language", "equalto", lang) | list -%}
@@ -16,9 +17,35 @@
         {%- set selected = values -%}
     {%- endif -%}
 
-    {%- for v in selected -%}
+    {% set total = selected | length %}
+    {% set visible = selected[:max_visible] %}
+    {% set hidden = selected[max_visible:] %}
+
+    {%- for v in visible  -%}
         {{ display_value(v) }}
     {%- endfor -%}
+
+    {# If there are more, show "Add more" button #}
+    {% if hidden %}
+        <div class="more-values" style="display: none;">
+            {% for v in hidden %}
+                {{ display_value(v) }}
+            {% endfor %}
+        </div>
+        <button
+            type="button"
+            class="ui button show-more-btn"
+            onclick="
+                const hidden = this.previousElementSibling;
+                const isHidden = hidden.style.display === 'none';
+                hidden.style.display = isHidden ? 'block' : 'none';
+                this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+            "
+        >
+            Show all ({{ total }}) &#x25BE;
+        </button>
+    {% endif %}
+
 {% endmacro %}
 
 {% macro display_value(v) %}
