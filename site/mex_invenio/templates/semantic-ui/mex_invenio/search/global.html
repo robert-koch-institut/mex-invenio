@@ -1,8 +1,11 @@
 {%- extends "invenio_theme/page.html" %}
 
 {% block page_body %}
-    <div id="contact-page" class="ui container">
-        <h1>Activities and Bibliographic Resources</h1>
+    <div id="search-page" class="ui container search_page">
+        <section class="banner">
+            <small>Search our</small>
+            <h1>Entire Database</h1>
+        </section>
         {% block root_section %}
             <div id="root-container" class="panel-body">
                 <div id="edge-container"></div>
@@ -13,6 +16,8 @@
 
 {% block javascript %}
     {{ super() }}
+
+    {{ webpack['i18next.js'] }}
 
     {% set static="/static/js" %}
     {% set edges=static ~ "/edges" %}
@@ -25,17 +30,22 @@
     <script src="{{ src }}/datasources/es7x.js"></script>
     <script src="{{ src }}/edges.js"></script>
 
-    <script src="{{ src }}/templates/bs3/Facetview.js"></script>
-
     <script src="{{ components }}/RefiningANDTermSelector.js"></script>
     <script src="{{ components }}/FullSearchController.js"></script>
     <script src="{{ components }}/ResultsDisplay.js"></script>
-
-    <script src="{{ bs3 }}/RefiningANDTermSelector.js"></script>
-    <script src="{{ bs3 }}/FullSearchController.js"></script>
-    <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
+    <script src="{{ components }}/DateHistogram.js"></script>
+    <script src="{{ components }}/Pager.js"></script>
+    <script src="{{ components }}/SelectedFilters.js"></script>
 
     <script src="{{ static }}/edges.common.js"></script>
-    <script src="{{ static }}/activities-bibliographic-resources.js"></script>
+
+    <script>
+    edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    edges.mex.state.lang = "{{ current_i18n.language }}";
+    </script>
+
+    {%  include "mex_invenio/search/_edges_babel.html" %}
+
+    <script src="{{ static }}/global.js"></script>
 
 {% endblock %}

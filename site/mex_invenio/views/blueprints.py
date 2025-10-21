@@ -79,8 +79,8 @@ def create_blueprint(app):
     )
 
     blueprint.add_url_rule(
-        "/search/activities-bibliographic-resources",
-        view_func=search_activities_bibliographic_resources,
+        "/search/global",
+        view_func=search_global,
     )
 
     blueprint.add_url_rule("/search/resources", view_func=search_resources)
@@ -100,8 +100,8 @@ def search_bibliographic_resources():
     return render_template("mex_invenio/search/bibliographic-resources.html")
 
 
-def search_activities_bibliographic_resources():
-    return render_template("mex_invenio/search/activities-bibliographic-resources.html")
+def search_global():
+    return render_template("mex_invenio/search/global.html")
 
 
 def search_resources():
@@ -119,6 +119,7 @@ URL_RESOURCE_TYPE_MAP = {
     "activities": "activity",
     "resources": "resource",
     "variables": "variable",
+    "global": ["bibliographicresource", "activity", "resource", "variable"],
 }
 
 
