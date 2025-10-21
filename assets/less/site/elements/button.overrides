@@ -14,4 +14,17 @@
             text-decoration: underline;
         }
     }
+    &.link-like {
+        background-color: transparent;
+        padding: .5rem 0;
+        font-weight: normal;
+        color: @primaryColor;
+        &:hover {
+            background-color: transparent;
+            padding: .5rem 0;
+            font-weight: normal;
+            color: #32008c;
+            text-decoration: underline;
+        }
+    }
 }
