@@ -51,6 +51,7 @@
 {% macro display_value(v) %}
     {%- if v.url -%}
         <a href="{{ v.url }}" title="{{ v.display_value }}">{{ v.display_value }}</a>
+        <button type="button" class="ui button link-like" data-record-id="{{ v.url }}" onclick="supportRecordHandler('{{ v.url.split('/')[-1] }}')">{{ v.display_value }}</button>
     {%- else -%}
         {{ v.display_value }}</p>
     {%- endif -%}
