@@ -134,25 +134,30 @@ edges.mex.displayYearMonthPeriod = function (params) {
 }
 
 edges.mex._register = [];
-edges.mex._keymode = true;
+edges.mex._keymode = false;
 edges.mex._ = function (key) {
-  if (!edges.mex._register.includes(key)) {
-    edges.mex._register.push(key);
-  }
-  if (edges.mex._keymode === false) {
-    if (key in edges.mex.babel) {
-      return edges.mex.babel[key];
+    if (!edges.mex._register.includes(key)) {
+        edges.mex._register.push(key);
     }
-    return key;
-  } else {
-    let val = key;
-    if (key in edges.mex.babel) {
-      val = `*${val}*`;
-    } else {
-      val = `~~${val}~~`;
-    }
-    return val;
-  }
+    // FIXME: embedding this here probably doesn't help with extracting the translation keys,
+    // need to replace calls to edges.mex._ with i18next.t directly in the source code
+    // but want to see how key extraction works first
+    return i18next.t(key);
+    // if (edges.mex._keymode === false) {
+    //     return i18next.t(key);
+    //     if (key in edges.mex.babel) {
+    //         return edges.mex.babel[key];
+    //     }
+    //     return key;
+    // } else {
+    //     let val = key;
+    //     if (key in edges.mex.babel) {
+    //         val = `*${val}*`;
+    //     } else {
+    //         val = `~~${val}~~`;
+    //     }
+    //     return val;
+    // }
 };
 
 edges.mex._jinja_babel = function () {
@@ -4046,22 +4051,22 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
       desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
 
-    // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-    // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-    // great, and will slow down large result sets
-    let hits = this.component.edge.result.data.hits.hits;
-    for (let hit of hits) {
-      if (res.uuid === hit._id) {
-        if (
-          hit.highlight &&
-          hit.highlight[edges.mex.constants.DESCRIPTION]
-        ) {
-          desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
-          desc = desc.replace(/<em>/g, "<code>");
-          desc = desc.replace(/<\/em>/g, "</code>");
+        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
+        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
+        // great, and will slow down large result sets
+        let hits = this.component.edge.result.data.hits.hits;
+        for (let hit of hits) {
+            if (res.uuid === hit._id) {
+                if (
+                    hit.highlight &&
+                    hit.highlight[edges.mex.constants.DESCRIPTION]
+                ) {
+                    desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
+                    desc = desc.replace(/<em>/g, "<code>");
+                    desc = desc.replace(/<\/em>/g, "</code>");
+                }
+            }
         }
-      }
-    }
 
     let created = edges.util.escapeHtml(
       edges.util.pathValue("created", res, "")
