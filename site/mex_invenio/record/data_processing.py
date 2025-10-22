@@ -8,16 +8,18 @@ class NormalisedValue(TypedDict):
     display_value: str
     language: str
     email: NotRequired[str]
+    core: NotRequired[str]
 
 
 def normalised_value(
-    display_value: str = "", url: str = "", language: str = "en", email: str = ""
+    display_value: str = "", url: str = "", language: str = "en", email: str = "", core: str = ""
 ) -> NormalisedValue:
     return {
         "url": url,
         "display_value": display_value or url or "",
         "language": language,
         "email": email,
+        "core": core
     }
 
 
@@ -100,11 +102,17 @@ def _normalise_linked_data(values: list):
     normalised = []
     for v in values:
         for dv in v["display_value"]:
+            core_record = v.get("core", "")
+            if core_record:
+                url = "/records/mex/" + v["link_id"]
+            else:
+                url = v["link_id"]
             nvalue = normalised_value(
                 display_value=dv.get("value", ""),
                 language=dv.get("language", ""),
-                url="/records/mex/" + v["link_id"],
+                url=url,
                 email=v.get("email", ""),
+                core=v.get("core", "")
             )
             normalised.append(nvalue)
     return normalised

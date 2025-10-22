@@ -497,6 +497,7 @@ UI_SETTINGS = {
             "variables": {
                 "title": "Variables",
                 "icon": "variables.svg",
+                "template": "variables.html",
                 "properties": [
                     {"field": "mex:usedIn", "is_backwards_linked": True},
                 ],

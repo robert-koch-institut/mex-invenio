@@ -1,21 +1,22 @@
-{% set max_variables = 3 %}
 {% set card_name = "variables" %}
 {% set cards = config.UI_SETTINGS.resource[column] %}
 {% set card = config.UI_SETTINGS.resource[column][card_name] %}
+{% set max_visible = config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+{%- set lang = current_i18n.language -%}
 
-{% set ns = namespace(prop_exist=false, value=none) %}
+{% set ns = namespace(prop_exist=false) %}
+
 {% for prop in card.properties %}
     {% if "is_backwards_linked" in prop %}
         {% set record_data = data["backwards_linked"] %}
-    {%- else -%}
+    {% else %}
         {% set record_data = data %}
     {% endif %}
-
     {% if prop.field in record_data %}
-        {% set ns.value = record_data[prop.field] %}
         {% set ns.prop_exist = true %}
     {% endif %}
 {% endfor %}
+
 {% if ns.prop_exist %}
     <div class="card">
         <h3>
@@ -26,75 +27,62 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% if prop.field in data %}
+                {% if "is_backwards_linked" in prop %}
+                    {% set record_data = data["backwards_linked"] %}
+                {% else %}
+                    {% set record_data = data %}
+                {% endif %}
+                {% if prop.field in record_data %}
                     <div class="card-props-p">
                         <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p>
-                        <div class="card-prop-value">{{ display_values(data[prop]) }}</div>
+                        <div class="card-prop-value">
+                            {%- set values = record_data[prop.field] -%}
+                    
+                            {%- if values[0].language -%}
+                                {%- set correct_lang = values | selectattr("language", "equalto", lang) | list -%}
+                                {%- if correct_lang | length > 0 -%}
+                                    {%- set empty_lang = values | selectattr("language", "equalto", "") | list -%}
+                                    {%- set selected = correct_lang  + empty_lang -%}
+                                {%- else -%}
+                                    {%- set selected = values -%}
+                                {%- endif -%}
+                            {%- else -%}
+                                {%- set selected = values -%}
+                            {%- endif -%}
+
+                            {% set total = selected | length %}
+                            {% set visible = selected[:max_visible] %}
+                            {% set hidden = selected[max_visible:] %}
+
+                            {%- for v in visible  -%}
+                                <p>{{ v.display_value }}</p>
+                            {%- endfor -%}
+
+                            {# If there are more, show "Add more" button #}
+                            {% if hidden %}
+                                <div class="more-values" style="display: none;">
+                                    {% for v in hidden %}
+                                        <p>{{ v.display_value }}</p>
+                                    {% endfor %}
+                                </div>
+                                <button
+                                    type="button"
+                                    class="ui button link-like"
+                                    onclick="
+                                        const hidden = this.previousElementSibling;
+                                        const isHidden = hidden.style.display === 'none';
+                                        hidden.style.display = isHidden ? 'block' : 'none';
+                                        this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                                    "
+                                >
+                                    Show all ({{ total }}) &#x25BE;
+                                </button>
+                                <a href="https://127.0.0.1:5000/search?q=&f=restricted_resource_type%3Aactivity&l=list&p=1&s=10&sort=newest" class="ui button button-secondary">See all in variables search page</a>
+    </div>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
             {% endfor %}
-            {% set variables_count = 1 %}
-            {% if variables_count > max_variables %}
-                    <a class="card-prop-label" id="see-all-modal-trigger" style="cursor: pointer">
-                        {{ _('See all %(count)s variables', count=variables_count) }}
-                    </a>
-                <button class="disabled" disabled>
-                    {{ _('See all variables in the variables search page') }}
-                </button>
-            {% endif %}
         </div>
-    </div>
 {% endif %}
-
-<div class="ui modal" id="card-properties-modal">
-    <div class="ui modal body">
-        <div class="header">
-            {{ _('All variables') }}
-        </div>
-        <div class="content">
-            <p>{{ _('Here are all the variables for this card:') }}</p>
-            <ul>
-            {% for prop in card.properties %}
-                    {% if data[prop.field] %}
-                        <div class="card-props-p">
-                            <div class="card-prop-value">{{ display_values(data(prop.field)) }}</div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="actions">
-            <div class="ui approve button" id="close-variables-modal">{{ _('Close') }}</div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const trigger_link = document.getElementById('see-all-modal-trigger')
-    trigger_link.addEventListener('click', e => {
-        e.preventDefault();
-        const modal = document.getElementById('card-properties-modal');
-        const modal_back = document.getElementById('variables-modal-backdrop');
-        if (modal) {
-            modal.style.display = 'block'; // or remove 'hidden' class, depending on your CSS
-        }
-    });
-
-    const modal = document.getElementById('card-properties-modal');
-    const closeBtn = document.getElementById('close-variables-modal');
-
-    if (closeBtn && modal) {
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    // Close modal if click outside modal-content
-    modal.addEventListener('click', e => {
-        // If click target is the modal itself (background), close it
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-    }
-
-</script>

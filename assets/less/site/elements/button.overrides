@@ -1,24 +1,12 @@
 .ui.button {
     overflow: hidden;
     text-overflow: ellipsis;
-    &.show-more-btn {
-        background-color: transparent;
-        padding: .5rem 0;
-        font-weight: normal;
-        color: @primaryColor;
-        &:hover {
-            background-color: transparent;
-            padding: .5rem 0;
-            font-weight: normal;
-            color: #32008c;
-            text-decoration: underline;
-        }
-    }
     &.link-like {
         background-color: transparent;
         padding: .5rem 0;
         font-weight: normal;
         color: @primaryColor;
+        text-align: left;
         &:hover {
             background-color: transparent;
             padding: .5rem 0;

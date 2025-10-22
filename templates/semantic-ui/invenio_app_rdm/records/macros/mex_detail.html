@@ -34,7 +34,7 @@
         </div>
         <button
             type="button"
-            class="ui button show-more-btn"
+            class="ui button link-like"
             onclick="
                 const hidden = this.previousElementSibling;
                 const isHidden = hidden.style.display === 'none';
@@ -50,203 +50,17 @@
 
 {% macro display_value(v) %}
     {%- if v.url -%}
-        <a href="{{ v.url }}" title="{{ v.display_value }}">{{ v.display_value }}</a>
-        <button type="button" class="ui button link-like" data-record-id="{{ v.url }}" onclick="supportRecordHandler('{{ v.url.split('/')[-1] }}')">{{ v.display_value }}</button>
+        {%- if v.core -%}
+            <a href="{{ v.url }}" title="{{ v.display_value }}">
+                <div class="tags"><span class="tag"><img class="ui image icon--text"
+                 src="{{ url_for('static', filename='icons/' ~ v.core ~ '-record.svg') }}"
+                 role="presentation"/> {{ config.UI_SETTINGS[v.core].label }}</span>
+                {{ v.display_value }}
+                </a></div>
+        {%- else -%}
+            <button type="button" class="ui button link-like" data-record-id="{{ v.url }}" onclick="supportRecordHandler('{{ v.url }}')">{{ v.display_value }}</button>
+        {%- endif -%}
     {%- else -%}
-        {{ v.display_value }}</p>
+        <p>{{ v.display_value }}</p>
     {%- endif -%}
 {% endmacro %}
-
-{#
-Copyright (C) 2020-2024 CERN.
-Copyright (C) 2024 Northwestern University.
-
-Invenio RDM Records is free software; you can redistribute it and/or modify
-it under the terms of the MIT License; see LICENSE file for more details.
-#}
-
-{# Display date in user-friendly format #}
-{% macro render_date(dates) %}
-    {%- set months = {
-        '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
-        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
-        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
-    } %}
-    {% for date_str in dates %}
-        {%- if date_str is string and date_str|length == 10 or date_str|length == 20 %}
-            {# Format: YYYY-MM-DD or full timestamp #}
-            {%- set year = date_str[0:4] %}
-            {%- set month = date_str[5:7] %}
-            {%- set day = date_str[8:10] %}
-            <span>{{ months[month] }} {{ day|int }}, {{ year }}</span>
-
-        {%- elif date_str is string and date_str|length == 7 %}
-            {# Format: YYYY-MM #}
-            {%- set year = date_str[0:4] %}
-            {%- set month = date_str[5:7] %}
-            <span>{{ months[month] }} {{ year }}</span>
-
-        {%- elif date_str is string and date_str|length == 4 %}
-            {# Format: YYYY #}
-            <span>{{ date_str }}</span>
-
-        {%- else %}
-            <span>{{ date_str }}</span> {# fallback if it doesn't match any expected format #}
-        {%- endif %}
-    {% endfor %}
-{% endmacro %}
-
-{% macro render_text(field_name, items) %}
-    {%- set lang = current_i18n.language -%}
-    {%- set first_item = items[0] if items|length > 0 else {} -%}
-    {%- set has_language = 'language' in first_item -%}
-
-    {%- if has_language -%}
-        {%- set matching_items = items | selectattr('language', 'equalto', lang) | list -%}
-        {%- set items_to_display = matching_items if matching_items | length > 0 else items -%}
-    {%- else -%}
-        {%- set items_to_display = items -%}
-    {%- endif -%}
-    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
-    {%- for item in items_to_display -%}
-        {% if field_name in config.TAGS %}<div class="tag">{% endif %}<span>{{ item.value }}</span>{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %}</br>{% endif %}
-    {%- endfor -%}
-    {% if field_name in config.TAGS %}</div>{% endif %}
-{% endmacro %}
-
-{% macro render_url(field_name, items) %}
-    {%- for item in items -%}
-        <a href="{{ item.url }}">
-            {%- if item.title -%}
-                {{ render_text(field_name,[{"value": item.title, "language": item.language}]) }}
-            {%- else -%}
-                <span>{{ item.url }}</span>
-            {%- endif -%}
-        </a>
-    {%- endfor -%}
-{% endmacro %}
-
-{% macro render_extid(field_name, values) %}
-{% set ns = namespace(matched=false, displayed=val) %}
-    {%- for val in values -%}
-        {%- if val.startswith("http") -%}
-            {%- for prefix in config.EXTIDS[field_name].urls -%}
-                {%- if not matched and val.startswith(prefix) -%}
-                    {%- set ns.displayed = val | replace(prefix, '') -%}
-                    {%- set ns.matched = true -%}
-                {%- endif -%}
-            {%- endfor -%}
-            <a href="{{ val }}">{{ ns.displayed }}</a>
-        {%- else -%}
-            <span>{{ val }}</span>
-        {%- endif -%}
-        {% if not loop.last %}&nbsp;&nbsp;{% endif %}
-    {%- endfor -%}
-{% endmacro %}
-
-{% macro render_label(field_name, values) %}
-    {%- set lang = current_i18n.language -%}
-    {% set default = {"en": "Invalid label", "de": "Invalid label"} %}
-    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
-    {%- for val in values -%}
-        {% if config.PREF_LABELS %}
-            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
-        {% else %}
-            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ val }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
-        {% endif %}
-    {%- endfor -%}
-     {% if field_name in config.TAGS %}</div>{% endif %}
-{% endmacro %}
-
-{% macro render_identifier(field_name, identifiers, backwards_linked) %}
-    {% if record.display_data and record.display_data.linked_records %}
-        {% if backwards_linked %}
-            {% set value = record.display_data.linked_records["backwards_linked"][field_name] %}
-        {% else %}
-            {% set value = record.display_data.linked_records[field_name] %}
-        {% endif %}
-
-        {% if value %}
-            {%- if value is string or value is mapping -%}
-                {%- set values = [value] -%}
-            {%- else -%}
-                {%- set values = value -%}
-            {%- endif -%}
-
-            {% set first = values[0]["title"][0] %}
-            {% if first is string %}
-                {% for v in values %}
-                    {% if v["title"][0] == config.NO_RECORD_STRING %}
-                        <i class="muted">Record {{ v.link_id }} not found.</i>
-                    {% else %}
-                        {% if "email" in v %}
-                            {% for display_value in v["title"] %}
-                                <span class="email-container">
-                                  <a href="{{ v.link_id }}" class="display-text">{{ display_value }}</a>
-                                    <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
-                                    <img class="ui image icon"
-                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                                        alt="send email"
-                                    />
-                                    </a>
-                                    {% with emailAddress = v.email[loop.index0] ~ "?cc=mex\@rki.de" %}
-                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
-                                    {% endwith %}
-                                </span>
-                            {% endfor %}
-                        {% else %}
-                            <button type="button" class="ui button link-like" data-record-id="{{ v.link_id }}" onclick="supportRecordHandler('{{ v.link_id }}')">{{ v["display_value"] | join(", ")}}</button>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                {% for v in values %}
-                    {% if v != config.NO_RECORD_STRING %}
-                        <button type="button" class="ui button link-like" data-record-id="{{ v.link_id }}" onclick="supportRecordHandler('{{ v.link_id }}')">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</button>
-                    {% else %}
-                        <i class="muted">Record {{ v.link_id }} not found.</i>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% else %}
-            <i class="muted">[No value]</i>
-        {% endif %}
-    {% endif %}
-{% endmacro %}
-
-{%- macro val(field_name, field_raw_value, resource_type, backwards_linked=false) -%}
-    {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
-
-        {# Normalize: wrap single values into a list #}
-        {%- if field_raw_value is string or field_raw_value is number or field_raw_value is mapping -%}
-            {%- set values = [field_raw_value] -%}
-        {%- else -%}
-            {%- set values = field_raw_value -%}
-        {%- endif -%}
-
-        {# Infer type from config #}
-        {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
-        {%- if type == None -%}
-            {%- if field_name in config.RECORDS_LINKED_BACKWARDS.get(resource_type) -%}
-                {%- set type = config.CUSTOM_TYPES.IDENTIFIER -%}
-            {%- endif -%}
-        {%- endif -%}
-        {%- if field_name in config.EXTIDS -%}
-            {{ render_extid(field_name, values) }}
-        {%- elif type == "string" or type == "int" -%}
-            {{ values | join(", ") }}
-        {%- elif type == "text" -%}
-            {{ render_text(field_name, values) }}
-        {%- elif type == "url" -%}
-            {{ render_url(field_name, values) }}
-        {%- elif type == "date" -%}
-            {{ render_date(values) }}
-        {%- elif type == "label" -%}
-            {{ render_label(field_name, values) }}
-        {%- elif type == "identifier" -%}
-            {{ render_identifier(field_name, values, backwards_linked) }}
-        {%- else -%}
-            {%- for val in values -%}{{ val }}{% if not loop.last %}, {% endif %}{% endfor %}
-        {%- endif -%}
-    {%- endif -%}
-{%- endmacro %}
