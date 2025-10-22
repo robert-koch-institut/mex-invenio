@@ -312,8 +312,8 @@ edges.mex.fullSearchController = function (params) {
         fieldOptions: params.fieldOptions || [],
         defaultField: params.defaultField || "*",
         renderer: new edges.mex.renderers.SidebarSearchController({
-            searchButton: true,
-            clearButton: params.clearButton || false,
+            searchButton: params.searchButton ?? true,
+            clearButton: params.clearButton ?? false,
             searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
             searchButtonText: params.searchButtonText || edges.mex._("Search"),
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
@@ -321,6 +321,17 @@ edges.mex.fullSearchController = function (params) {
         }),
     });
 };
+
+edges.mex.staticHeading = function (params) {
+    return new edges.mex.components.StaticHeader({
+        id : params.id || "static_header",
+        category: params.category || "full",
+        renderer : new edges.mex.renderers.StaticHeaderRenderer({
+            staticTitle: params.staticTitle || "",
+            fontStyle : params.fontStyle || "small"
+        })
+    })
+}
 
 edges.mex.pager = function (params) {
     return new edges.components.Pager({
@@ -984,6 +995,12 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
 // Components
 if (!edges.mex.hasOwnProperty("components")) {
     edges.mex.components = {};
+}
+
+edges.mex.components.StaticHeader = class extends edges.Component {
+    constructor(params) {
+        super(params)
+    }
 }
 
 edges.mex.components.Previewer = class extends edges.Component {
@@ -2167,6 +2184,33 @@ edges.mex.renderers.RecordPreview = class extends edges.Renderer {
         this.component.context.html(frag);
     }
 };
+
+edges.mex.renderers.StaticHeaderRenderer = class extends edges.Renderer{
+    constructor(params) {
+        super(params);
+
+        // Just add static header
+        this.staticTitle = edges.util.getParam(params, "staticTitle", "");
+
+        // font size is added to the header
+        this.fontStyle = edges.util.getParam(
+            params,
+            "fontStyle",
+            "small"
+        );
+    }
+
+    draw(){
+        const frag = `
+            <div class="ui sizer vertical segment">
+                <div class="ui ${this.fontStyle} header">
+                    ${this.staticTitle}
+                </div>
+            </div>
+        `
+        this.component.context.html(frag);
+    }
+}
 
 edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
     constructor(params) {

@@ -43,12 +43,20 @@ edges.instances.variables.init = function () {
             }
         },
         components: [
+
+            edges.mex.staticHeading ({
+                category: "column",
+                staticTitle : "Selected Data Sources & Datasets",
+                fontStyle : "tiny"
+            }),
+
             edges.mex.fullSearchController({
                 category: "column",
                 searchPlaceholder: edges.mex._("Find resources..."),
                 searchTitle: edges.mex._("Search Resources By Title"),
                 defaultField: "custom_fields.mex:title.value",
-                clearButton: true
+                clearButton: true,
+                searchButton : false,
             }),
             edges.mex.recordSelectorCompact({
                 category: "column",
