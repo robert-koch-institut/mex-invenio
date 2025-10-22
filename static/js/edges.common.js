@@ -4844,21 +4844,21 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        // Expand/Collapse all button
-        var expandAllBtn = `
-            <div class="expand-toggle" style="margin-bottom: 1rem; display:flex; gap:0.5rem;">
-              <button class="ui small button ${expandAllClass}" data-action="collapse">
-                ${edges.mex._("Collapse all")}
-              </button>
-              <button class="ui small button ${expandAllClass}" data-action="expand">
-                ${edges.mex._("Expand all")}
-              </button>
-            </div>
-        `;
+        let expandAllCheckbox = `
+                <div class="checkbox" style="float:right;">
+                    <label>
+                        ${edges.mex._("Expand all")}
+                        <input type="checkbox" class="${expandAllClass}"/>
+                    </label>
+                </div>
+                <br/>
+
+        `
 
         // Main table
         var container = `
-        ${expandAllBtn}
+        ${expandAllCheckbox}
+
         <table class="${containerClasses} ui celled table" style="border: none;">
           <thead>
             <tr>
@@ -4905,7 +4905,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             "expand-all",
             this.component.id
         );
-        edges.on(expandAllSelector, "click", this, "toggleExpandAll");
+        edges.on(expandAllSelector, "change", this, "toggleExpandAll");
     }
 
     _renderResult(res) {
@@ -5108,7 +5108,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     }
 
     toggleExpandAll(element) {
-        let action = $(element).attr("data-action");
+        let isChecked = element.checked;
         let $ctx = this.component.context;
 
         let collapsedSelector = edges.util.jsClassSelector(
@@ -5123,7 +5123,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        if (action === "expand") {
+        if (isChecked) {
             $ctx.find(collapsedSelector).hide();
             $ctx.find(expandedSelector).show();
         } else {
