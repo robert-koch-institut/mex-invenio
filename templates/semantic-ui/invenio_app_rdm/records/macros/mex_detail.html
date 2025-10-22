@@ -158,7 +158,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
                                     <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
                                     <img class="ui image icon"
                                         src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                                        alt="send email"
+                                        alt="{{ _('send email') }}"
                                     />
                                     </a>
                                     {% with emailAddress = v.email[loop.index0] ~ "?cc=mex\@rki.de" %}
