@@ -13,7 +13,10 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         """Apply type limiter to the search."""
         resource_type = params.get("resource_type")
         if resource_type:
-            search = search.filter("term", metadata__resource_type__id=resource_type)
+            if isinstance(resource_type, list):
+                search = search.filter("terms", metadata__resource_type__id=resource_type)
+            else:
+                search = search.filter("term", metadata__resource_type__id=resource_type)
         # Uncomment this to get a view on the query in development
         # print("#####################################")
         # print(json.dumps(search.to_dict()))
