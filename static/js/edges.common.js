@@ -435,7 +435,6 @@ edges.mex.resourceDisplay = function (params) {
         renderer: new edges.mex.renderers.ResourcesResults({
             noResultsText: params.noResultsText || edges.mex._("No resources found."),
             onSelectToggle: params.onSelectToggle || false,
-            displayOnSidebar: params.displayOnSidebar ?? false,
         }),
     });
 };
@@ -4005,7 +4004,6 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         // callback to trigger when resource is selected or unselected
         this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
-        this.displayOnSidebar = edges.util.getParam(params, "displayOnSidebar", false);
 
         this.selector = null; // will be set in init()
 
@@ -4170,9 +4168,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         let frag = ""
 
-        if (this.displayOnSidebar) {
-            // Frag TBD for variables page
-        } else {
+
             frag = `
             <div class="resource-card card-shadow">
                 <div class="card-header ${created ? "" : "hide"}" style="width: 100%">
@@ -4209,7 +4205,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 </div>
             </div>
         `;
-        }
+
         return frag;
     }
 
