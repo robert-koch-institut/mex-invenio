@@ -920,9 +920,9 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
     }
 
     showTabContent() {
-        let doc = document.getElementById("right-col");
+        const doc = document.getElementById("right-col");
         if (doc) {
-            doc.style.display = "";
+            doc.style.display = (doc.style.display === "none") ? "" : "none";
         }
     }
 };
@@ -1804,11 +1804,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             "hide",
             this.component.id
         );
-        let clearAllClass =  edges.util.jsClasses(
-            this.namespace,
-            "clear-all",
-            this.component.id
-        );
+
 
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
