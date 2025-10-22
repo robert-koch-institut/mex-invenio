@@ -350,7 +350,7 @@ edges.mex.recordSelector = function (params) {
     id: params.id || "selector",
     category: params.category || "right",
     renderer: new edges.mex.renderers.SelectedRecords({
-      title: edges.mex._("Variables Query Filters"),
+      title: edges.mex._("Datasets for Variables Search"),
     }),
   });
 };
@@ -1807,8 +1807,10 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                     <div class="divider">
                     </div>
-
-                    <h4 class="title" style="margin:0px">${this.title}</h4>
+                    <div class="title-container">
+                      <h4 class="title" style="margin:0px">${this.title}</h4>
+                      <button class="ui black basic button"> Clear All </button>
+                    </div>
                     <div>
                         ${recordsFrag}
                     </div>
