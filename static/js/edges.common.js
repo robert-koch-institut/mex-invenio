@@ -366,7 +366,7 @@ edges.mex.recordSelector = function (params) {
     id: params.id || "selector",
     category: params.category || "right",
     renderer: new edges.mex.renderers.SelectedRecords({
-      title: edges.mex._("Variables Query Filters"),
+      title: edges.mex._("Datasets for Variables Search"),
     }),
   });
 };
@@ -1876,7 +1876,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         if (verticalBar) {
             const length = this.component.length;
             verticalBar.innerHTML = `<span> ${edges.mex._(
-                "Variables Query Filters"
+                "Variables Filter"
             )} ${length > 0 ? `(${length})` : ""} </span>`;
         }
 
