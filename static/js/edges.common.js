@@ -1826,6 +1826,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vCount = variables.length;
+            let vFrag = variables.length > 0 ? `${vCount} ${edges.mex._("Variable Groups")}` : "No Variable Groups"
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1838,7 +1839,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                             ${title}
                         </div>
                         <div class="muted">
-                            ${vCount} ${edges.mex._("Variable Groups")}
+                            ${vFrag}
                         </div>
                     </div>
                 </div>`;
