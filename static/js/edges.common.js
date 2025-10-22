@@ -1804,6 +1804,11 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             "hide",
             this.component.id
         );
+        let clearAllClass =  edges.util.jsClasses(
+            this.namespace,
+            "clear-all",
+            this.component.id
+        );
 
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
@@ -1887,8 +1892,10 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             "hide",
             this.component.id
         );
+
         edges.on(selectSelector, "click", this, "selectResource");
         edges.on(hideSelector, "click", this, "hideSelectedRecords");
+
     }
 
     hideSelectedRecords() {
@@ -4107,39 +4114,6 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
         }
 
-    // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-    // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-    // great, and will slow down large result sets
-    let hits = this.component.edge.result.data.hits.hits;
-    for (let hit of hits) {
-      if (res.uuid === hit._id) {
-        if (
-          hit.highlight &&
-          hit.highlight[edges.mex.constants.DESCRIPTION]
-        ) {
-          desc = hit.highlight[edges.mex.constants.DESCRIPTION][0];
-          desc = desc.replace(/<em>/g, "<code>");
-          desc = desc.replace(/<\/em>/g, "</code>");
-        }
-      }
-    }
-
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
-        // let createdDate = new Date(created);
-        created = edges.mex.fullDateFormatter(created);
-
-<<<<<<<<< Temporary merge branch 1
-    let keywords = this._rankedByLang(edges.mex.constants.KEYWORD_CONTAINER, res);
-    if (keywords.length > 5) {
-      keywords = keywords.slice(0, 5);
-    }
-    keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-    if (keywords !== "") {
-      keywords = `<span class="tag">${keywords}</span>`;
-    }
-=========
         // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
         // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
         // great, and will slow down large result sets
@@ -4160,7 +4134,21 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 }
             }
         }
->>>>>>>>> Temporary merge branch 2
+
+        let created = edges.util.escapeHtml(
+            edges.util.pathValue("created", res, "")
+        );
+        // let createdDate = new Date(created);
+        created = edges.mex.fullDateFormatter(created);
+
+        let keywords = this._rankedByLang(edges.mex.constants.KEYWORD_CONTAINER, res);
+        if (keywords.length > 5) {
+            keywords = keywords.slice(0, 5);
+        }
+        keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
+        if (keywords !== "") {
+            keywords = `<span class="tag">${keywords}</span>`;
+        }
 
         let selectState = "unselected";
         let current = "+";
