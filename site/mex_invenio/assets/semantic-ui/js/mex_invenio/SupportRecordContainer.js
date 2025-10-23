@@ -18,7 +18,7 @@ const SupportRecordRoot = () => {
     return () => window.removeEventListener("supportRecord:update", handler);
   }, []);
 
-  return recordId ? <SupportRecordData mex_id={recordId} /> : <p>Nothing here yet</p>;
+  return recordId && <SupportRecordData mex_id={recordId} />;
 };
 
 const supportRecordDiv = document.getElementById("support-record");

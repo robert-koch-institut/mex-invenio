@@ -1,0 +1,57 @@
+.ui.modal.custom-modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 45vw !important;
+  height: 100vh;
+  padding: 0 !important;
+  background: linear-gradient(180deg, @primaryColor 0.36%, rgba(224, 244, 252, 0.20) 8%), @white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .ui.button.button--close {
+    position: absolute;
+    top: 1.75rem;
+    right: 1.75rem;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    .close.icon {
+        color: white;
+        width: 24px;
+        height: 24px;
+      }
+  }
+  
+
+  .custom-modal-header {
+    height: 8.5rem;
+  }
+
+  .content {
+    background-color: transparent;
+    padding: 20px;
+    margin-top: -40px;
+
+    .user-info {
+      .item {
+        margin-bottom: .5rem;
+
+        strong {
+          color: @mutedTextColor;
+          margin-right: 5px;
+        }
+
+        a {
+          color: @primaryColor;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
