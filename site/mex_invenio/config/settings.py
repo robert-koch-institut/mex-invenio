@@ -13,7 +13,7 @@ from datetime import datetime
 # Third-party imports
 import invenio_rdm_records.services.config as rdm_config
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
-from invenio_i18n import lazy_gettext as _
+from invenio_i18n import lazy_gettext as _, lazy_pgettext
 from invenio_oauthclient.views.client import auto_redirect_login
 from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
 from invenio_vocabularies.services.facets import VocabularyLabels
@@ -623,8 +623,8 @@ UI_SETTINGS = {
                 "title": _("Creators"),
                 "icon": "creators.svg",
                 "properties": [
-                    {"field": "mex:creator", "label": "Author"},
-                    {"field": "mex:contributingUnit", "label": "Contributing unit"},
+                    {"field": "mex:creator", "label": _("Author")},
+                    {"field": "mex:contributingUnit", "label": _("Contributing unit")},
                 ],
             },
             "keywords": {
@@ -652,7 +652,7 @@ UI_SETTINGS = {
                 "title": _("Imprint"),
                 "icon": "imprint.svg",
                 "properties": [
-                    {"field": "mex:publisher", "label": _("Publisher")},
+                    {"field": "mex:publisher", "label": lazy_pgettext("BibliographicResource", "Publisher")},
                     {"field": "mex:publicationPlace", "label": _("Publication place")},
                     {"field": "mex:publicationYear", "label": _("Publication year")},
                     {"field": "mex:pages", "label": _("Pages")},
@@ -677,7 +677,7 @@ UI_SETTINGS = {
                         "properties": [
                             {
                                 "field": "mex:publication",
-                                "label": "Publication",
+                                "label": _("Publication"),
                                 "is_backwards_linked": True,
                             },
                         ],
