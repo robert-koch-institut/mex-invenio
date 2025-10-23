@@ -13,7 +13,7 @@ from datetime import datetime
 # Third-party imports
 import invenio_rdm_records.services.config as rdm_config
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
-from invenio_i18n import lazy_gettext as _, lazy_pgettext
+from invenio_i18n import lazy_gettext as _
 from invenio_oauthclient.views.client import auto_redirect_login
 from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
 from invenio_vocabularies.services.facets import VocabularyLabels
@@ -348,11 +348,11 @@ UI_SETTINGS = {
                 "title": _("Creators & Contributors"),
                 "icon": "creators.svg",
                 "properties": [
-                    {"field": "mex:creator", "label": _("Author")},
-                    {"field": "mex:unitInCharge", "label": _("Responsible unit")},
-                    {"field": "mex:contributor", "label": _("Contributor")},
-                    {"field": "mex:contributingUnit", "label": _("Contributing unit")},
-                    {"field": "mex:externalPartner", "label": _("External partner")},
+                    {"field": "mex:creator", "label": _("creator.singular")},
+                    {"field": "mex:unitInCharge", "label": _("unitInCharge.singular")},
+                    {"field": "mex:contributor", "label": _("contributor.singular")},
+                    {"field": "mex:contributingUnit", "label": _("contributingUnit.singular")},
+                    {"field": "mex:externalPartner", "label": _("externalPartner.singular")},
                 ],
             },
             "theme": {
@@ -368,50 +368,50 @@ UI_SETTINGS = {
                 "title": _("Data Representation & Coverage"),
                 "icon": "coverage.svg",
                 "properties": [
-                    {"field": "mex:temporal", "label": _("Temporal coverage")},
-                    {"field": "mex:spatial", "label": _("Spatial")},
-                    {"field": "mex:minTypicalAge", "label": _("Min. typical age")},
-                    {"field": "mex:maxTypicalAge", "label": _("Max. typical age")},
-                    {"field": "mex:populationCoverage", "label": _("Population coverage")},
-                    {"field": "mex:sizeOfDataBasis", "label": _("Size of data basis")},
+                    {"field": "mex:temporal", "label": _("temporal.singular")},
+                    {"field": "mex:spatial", "label": _("spatial.singular")},
+                    {"field": "mex:minTypicalAge", "label": _("minTypicalAge.singular")},
+                    {"field": "mex:maxTypicalAge", "label": _("maxTypicalAge.singular")},
+                    {"field": "mex:populationCoverage", "label": _("populationCoverage.singular")},
+                    {"field": "mex:sizeOfDataBasis", "label": _("sizeOfDataBasis.singular")},
                 ],
             },
             "legal": {
                 "title": _("Legal Basis & Data Provenance"),
                 "icon": "legal.svg",
                 "properties": [
-                    {"field": "mex:hasLegalBasis", "label": _("Legal basis")},
-                    {"field": "mex:hasPurpose", "label": _("Purpose of data processing")},
-                    {"field": "mex:hasPersonalData", "label": _("Personal data")},
+                    {"field": "mex:hasLegalBasis", "label": _("hasLegalBasis.singular")},
+                    {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
+                    {"field": "mex:hasPersonalData", "label": _("hasPersonalData.singular")},
                 ],
             },
             "processing": {
                 "title": _("Data Collection & Processing"),
                 "icon": "processing.svg",
                 "properties": [
-                    {"field": "mex:resourceCreationMethod", "label": _("Creation method")},
-                    {"field": "mex:accrualPeriodicity", "label": _("Update frequency")},
+                    {"field": "mex:resourceCreationMethod", "label": _("resourceCreationMethod.singular")},
+                    {"field": "mex:accrualPeriodicity", "label": _("accrualPeriodicity.singular")},
                     {
                         "field": "mex:anonymizationPseudonymization",
-                        "label": _("Anonymization/pseudonymization"),
+                        "label": _("anonymizationPseudonymization.singular"),
                     },
-                    {"field": "mex:instrumentToolOrApparatus", "label": _("Tool")},
+                    {"field": "mex:instrumentToolOrApparatus", "label": _("instrumentToolOrApparatus.singular")},
                 ],
             },
             "quality": {
                 "title": _("Standards & Quality"),
                 "icon": "quality.svg",
                 "properties": [
-                    {"field": "mex:conformsTo", "label": _("Standard")},
-                    {"field": "mex:qualityInformation", "label": _("Quality information")},
+                    {"field": "mex:conformsTo", "label": _("conformsTo.singular")},
+                    {"field": "mex:qualityInformation", "label": _("qualityInformation.singular")},
                 ],
             },
             "methodology": {
                 "title": _("Methodology"),
                 "icon": "methodology.svg",
                 "properties": [
-                    {"field": "mex:method", "label": _("Method")},
-                    {"field": "mex:methodDescription", "label": _("Method description")},
+                    {"field": "mex:method", "label": _("method.singular")},
+                    {"field": "mex:methodDescription", "label": _("methodDescription.singular")},
                 ],
             },
             "publication": {
@@ -420,10 +420,10 @@ UI_SETTINGS = {
                 "properties": [
                     {
                         "field": "mex:publication",
-                        "label": _("Publication"),
+                        "label": _("publication.singular"),
                         "is_backwards_linked": True,
                     },
-                    {"field": "mex:documentation", "label": _("Documentation")},
+                    {"field": "mex:documentation", "label": _("documentation.singular")},
                 ],
             },
             "generatedBy": {
@@ -461,7 +461,7 @@ UI_SETTINGS = {
         },
         "side_bar": {
             "contact": {
-                "title": _("Contact"),
+                "title": _("contact.singular"),
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": [
@@ -472,10 +472,10 @@ UI_SETTINGS = {
                 "title": _("Access & Usage Rights"),
                 "icon": "access.svg",
                 "properties": [
-                    {"field": "mex:accessRestriction", "label": _("Access restriction")},
+                    {"field": "mex:accessRestriction", "label": _("accessRestriction.singular")},
                     {
                         "field": "mex:doi",
-                        "label": _("Doi"),
+                        "label": _("doi.singular"),
                         "prefixes": [
                             "https://dx.doi.org/",
                             "http://doi.org/",
@@ -483,15 +483,15 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
-                    {"field": "mex:license", "label": _("License")},
-                    {"field": "mex:rights", "label": _("Rights")},
+                    {"field": "mex:license", "label": _("license.singular")},
+                    {"field": "mex:rights", "label": _("rights.singular")},
                 ],
             },
             "files": {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("Distribution")},
+                    {"field": "mex:distribution", "label": _("distribution.singular")},
                 ],
             },
             "variables": {
@@ -516,39 +516,39 @@ UI_SETTINGS = {
                 "title": _("Creators & Contributors"),
                 "icon": "creators.svg",
                 "properties": [
-                    {"field": "mex:involvedPerson", "label": _("Contributor")},
-                    {"field": "mex:responsibleUnit", "label": _("Responsible unit")},
-                    {"field": "mex:involvedUnit", "label": _("Contributing unit")},
+                    {"field": "mex:involvedPerson", "label": _("involvedPerson.singular")},
+                    {"field": "mex:responsibleUnit", "label": _("responsibleUnit.singular")},
+                    {"field": "mex:involvedUnit", "label": _("involvedUnit.singular")},
                 ],
             },
             "description": {
-                "title": _("Description"),
+                "title": _("description.singular"),
                 "icon": "description.svg",
                 "properties": [
-                    {"field": "mex:start", "label": _("Start")},
-                    {"field": "mex:end", "label": _("End")},
-                    {"field": "mex:theme", "label": _("Theme")},
+                    {"field": "mex:start", "label": _("start.singular")},
+                    {"field": "mex:end", "label": _("end.singular")},
+                    {"field": "mex:theme", "label": _("theme.singular")},
                 ],
             },
             "partners": {
                 "title": _("Partners & Funding"),
                 "icon": "funding.svg",
                 "properties": [
-                    {"field": "mex:externalAssociate", "label": _("External partner")},
+                    {"field": "mex:externalAssociate", "label": _("externalAssociate.singular")},
                     {
                         "field": "mex:funderOrCommissioner",
-                        "label": _("Funded / commissioned by"),
+                        "label": _("funderOrCommissioner.singular"),
                     },
-                    {"field": "mex:fundingProgram", "label": _("Funding program")},
+                    {"field": "mex:fundingProgram", "label": _("fundingProgram.singular")},
                 ],
             },
             "publication": {
                 "title": _("Related Publications & Further Documentation"),
                 "icon": "publication.svg",
                 "properties": [
-                    {"field": "mex:publication", "label": _("Publication")},
-                    {"field": "mex:documentation", "label": _("Documentation")},
-                    {"field": "mex:website", "label": _("Website")},
+                    {"field": "mex:publication", "label": _("publication.singular")},
+                    {"field": "mex:documentation", "label": _("documentation.singular")},
+                    {"field": "mex:website", "label": _("website.singular")},
                 ],
             },
             "parentResources": {
@@ -573,7 +573,7 @@ UI_SETTINGS = {
                     {
                         "title": _("Succeeds"),
                         "properties": [
-                            {"field": "mex:succeeds", "label": _("Succeeds")},
+                            {"field": "mex:succeeds", "label": _("succeeds.singular")},
                         ],
                     },
                     {
@@ -581,7 +581,7 @@ UI_SETTINGS = {
                         "properties": [
                             {
                                 "field": "mex:wasGeneratedBy",
-                                "label": _("Related project/endeavor"),
+                                "label": _("wasGeneratedBy.singular"),
                                 "is_backwards_linked": True,
                             },
                         ],
@@ -591,7 +591,7 @@ UI_SETTINGS = {
         },
         "side_bar": {
             "contact": {
-                "title": _("Contact"),
+                "title": _("contact.singular"),
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": [
@@ -623,8 +623,8 @@ UI_SETTINGS = {
                 "title": _("Creators"),
                 "icon": "creators.svg",
                 "properties": [
-                    {"field": "mex:creator", "label": _("Author")},
-                    {"field": "mex:contributingUnit", "label": _("Contributing unit")},
+                    {"field": "mex:creator", "label": _("creator.singular")},
+                    {"field": "mex:contributingUnit", "label": _("contributingUnit.singular")},
                 ],
             },
             "keywords": {
@@ -638,33 +638,33 @@ UI_SETTINGS = {
                 "title": _("Title Proper"),
                 "icon": "titleProper.svg",
                 "properties": [
-                    {"field": "mex:journal", "label": _("Journal")},
-                    {"field": "mex:issue", "label": _("Issue")},
-                    {"field": "mex:volume", "label": _("Volume")},
-                    {"field": "mex:titleOfBook", "label": _("Book title")},
-                    {"field": "mex:subtitle", "label": _("Subtitle")},
-                    {"field": "mex:titleOfSeries", "label": _("Title of series")},
+                    {"field": "mex:journal", "label": _("journal.singular")},
+                    {"field": "mex:issue", "label": _("issue.singular")},
+                    {"field": "mex:volume", "label": _("volume.singular")},
+                    {"field": "mex:titleOfBook", "label": _("titleOfBook.singular")},
+                    {"field": "mex:subtitle", "label": _("subtitle.singular")},
+                    {"field": "mex:titleOfSeries", "label": _("titleOfSeries.singular")},
                     {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
-                    {"field": "mex:section", "label": _("Section")},
+                    {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
             "imprint": {
                 "title": _("Imprint"),
                 "icon": "imprint.svg",
                 "properties": [
-                    {"field": "mex:publisher", "label": lazy_pgettext("BibliographicResource", "Publisher")},
-                    {"field": "mex:publicationPlace", "label": _("Publication place")},
-                    {"field": "mex:publicationYear", "label": _("Publication year")},
-                    {"field": "mex:pages", "label": _("Pages")},
-                    {"field": "mex:isbnissn", "label": _("ISBN / ISSN")},
+                    {"field": "mex:publisher", "label": _("publisher.singular")},
+                    {"field": "mex:publicationPlace", "label": _("publicationPlace.singular")},
+                    {"field": "mex:publicationYear", "label": _("publicationYear.singular")},
+                    {"field": "mex:pages", "label": _("pages.singular")},
+                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {
                 "title": _("Editor"),
                 "icon": "editor.svg",
                 "properties": [
-                    {"field": "mex:editor", "label": _("Editor")},
-                    {"field": "mex:editorOfSeries", "label": _("Editor of the series")},
+                    {"field": "mex:editor", "label": _("editor.singular")},
+                    {"field": "mex:editorOfSeries", "label": _("editorOfSeries.singular")},
                 ],
             },
             "relatedResources": {
@@ -677,7 +677,7 @@ UI_SETTINGS = {
                         "properties": [
                             {
                                 "field": "mex:publication",
-                                "label": _("Publication"),
+                                "label": _("publication.singular"),
                                 "is_backwards_linked": True,
                             },
                         ],
@@ -690,10 +690,10 @@ UI_SETTINGS = {
                 "title": _("Access & Usage Rights"),
                 "icon": "access.svg",
                 "properties": [
-                    {"field": "mex:accessRestriction", "label": _("Access restriction")},
+                    {"field": "mex:accessRestriction", "label": _("accessRestriction.singular")},
                     {
                         "field": "mex:doi",
-                        "label": _("Doi"),
+                        "label": _("doi.singular"),
                         "prefixes": [
                             "https://dx.doi.org/",
                             "http://doi.org/",
@@ -701,17 +701,17 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
-                    {"field": "mex:alternateIdentifier", "label": _("Other identifier")},
-                    {"field": "mex:repositoryURL", "label": _("Repository URL")},
-                    {"field": "mex:license", "label": _("License")},
-                    {"field": "mex:rights", "label": _("Rights")},
+                    {"field": "mex:alternateIdentifier", "label": _("alternateIdentifier.singular")},
+                    {"field": "mex:repositoryURL", "label": _("repositoryURL.singular")},
+                    {"field": "mex:license", "label": _("license.singular")},
+                    {"field": "mex:rights", "label": _("rights.singular")},
                 ],
             },
             "files": {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("Distribution")},
+                    {"field": "mex:distribution", "label": _("distribution.singular")},
                 ],
             },
         },

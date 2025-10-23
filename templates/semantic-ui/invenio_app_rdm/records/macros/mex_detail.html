@@ -5,9 +5,9 @@
 {# Smart translation macro that handles context, plurals, and fallbacks #}
 {% macro smart_translate(context, msgid) %}
     {%- set plural_msgid = msgid.replace('.singular', '.plural') if '.singular' in msgid else msgid + '.plural' -%}
-    {%- set has_plural = '.singular' in msgid -%}
-    {%- if has_plural -%}
-        {{- npgettext(context, msgid, plural_msgid, 1) -}}
+    {%- set plural_result = npgettext(context, msgid, plural_msgid, 1) -%}
+    {%- if plural_result != msgid -%}
+        {{- plural_result -}}
     {%- else -%}
         {%- set ctx_result = pgettext(context, msgid) -%}
         {%- if ctx_result != msgid -%}
