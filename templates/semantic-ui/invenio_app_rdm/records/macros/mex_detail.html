@@ -2,6 +2,22 @@
     {{config.UI_SETTINGS[resource_type].special_fields[field_name].field}}
 {%- endmacro -%}
 
+{# Smart translation macro that handles context, plurals, and fallbacks #}
+{% macro smart_translate(context, msgid) %}
+    {%- set plural_msgid = msgid.replace('.singular', '.plural') if '.singular' in msgid else msgid + '.plural' -%}
+    {%- set has_plural = '.singular' in msgid -%}
+    {%- if has_plural -%}
+        {{- npgettext(context, msgid, plural_msgid, 1) -}}
+    {%- else -%}
+        {%- set ctx_result = pgettext(context, msgid) -%}
+        {%- if ctx_result != msgid -%}
+            {{- ctx_result -}}
+        {%- else -%}
+            {{- _(msgid) -}}
+        {%- endif -%}
+    {%- endif -%}
+{% endmacro %}
+
 {% macro display_values(values) %}
     {%- set lang = current_i18n.language -%}
     {%- if values[0].language -%}
