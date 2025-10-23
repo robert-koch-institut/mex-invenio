@@ -1664,15 +1664,15 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<a class="${removeClass}" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
-                                    </a>`;
+                                    </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<a class="${removeClass}" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
-                                    </a>`;
+                                    </button>`;
                     }
                 }
 
@@ -2028,10 +2028,11 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
             recordsFrag += `
                 <div class="resource-card card-shadow">
                     <div class="selected-list-item">
+                        <button class="img-button">
                         <img
                         data-id="${id}"
                         class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
-
+                        </button>
                             <span title="${title}">${truncated}</span>
                         </div>
                         <div class="selected-list-sub-item">
