@@ -392,7 +392,7 @@ edges.mex.recordSelectorCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactSelectedRecords({
             showIfEmpty: true,
-            title: edges.mex._("Selected Resources"),
+            title: edges.mex._(" "),
             onSelectToggle: params.onSelectToggle || false,
         }),
     });
@@ -1947,11 +1947,13 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
     }
 
     draw() {
-        if (this.component.length === 0 && this.showIfEmpty) {
-            let frag = `<div class="card card-shadow">
-                <div class="divider"></div>
+        let header = this.title ? `<h4 class="title" style="margin:0px">${this.title}</h4>` : ""
 
-                <h4 class="title" style="margin:0px">${this.title}</h4>
+        if (this.component.length === 0 && this.showIfEmpty) {
+
+            let frag = `
+                <div>
+                ${header}
                 <div>
                     <p>${edges.mex._(
                 `Search for resources here.  Selecting a resource will limit the variables displayed to
@@ -2024,30 +2026,25 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
             }
 
             recordsFrag += `
-                <div class="selected-list">
-                    <!-- <img
+                <div class="resource-card card-shadow">
+                    <div class="selected-list-item">
+                        <img
                         data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/> -->
-                    <div>
-                        <div class="selected-list-item">
-                            <button data-id="${id}" class="${selectClass} ui button mini">Unselect</button>
+                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+
                             <span title="${title}">${truncated}</span>
                         </div>
                         <div class="selected-list-sub-item">
                             ${vgFrag}
                         </div>
-
-                    </div>
                 </div>`;
         }
 
         let frag = "";
         if (recordsFrag) {
             frag = `
-                <div class="card card-shadow">
-                    <div class="divider"></div>
-
-                    <h4 class="title" style="margin:0px">${this.title}</h4>
+                <div class="">
+                    ${header}
                     <div>
                         ${recordsFrag}
                     </div>
@@ -4279,7 +4276,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             this.component.results === false ||
             this.component.results.length === 0
         ) {
-            let frag = `<div class="card card-shadow">
+            let frag = `<div class="">
                 <div class="divider"></div>
 
                 <h4 class="title" style="margin:0px">${this.title}</h4>
@@ -4301,7 +4298,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
         }
 
         let frag = `
-            <div class="card card-shadow">
+            <div class="">
                 <div class="divider"></div>
 
                 <h4 class="title" style="margin:0px">${this.title}</h4>
@@ -4496,7 +4493,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
 
         let frag = `
             <div class="selected-list">
-                <div>
+                <div class="resource-card card-shadow">
                     <div class="selected-list-item">
                         <button class="${selectClass} ui button mini"
                             id="resource-list-${record.id}"

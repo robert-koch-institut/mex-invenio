@@ -45,6 +45,7 @@ edges.instances.variables.init = function () {
         components: [
 
             edges.mex.staticHeading ({
+                id:"selected-resources-heading",
                 category: "column",
                 staticTitle : "Selected Data Sources & Datasets",
                 fontStyle : "tiny"
@@ -53,7 +54,7 @@ edges.instances.variables.init = function () {
             edges.mex.fullSearchController({
                 category: "column",
                 searchPlaceholder: edges.mex._("Find resources..."),
-                searchTitle: edges.mex._("Search Resources By Title"),
+                searchTitle: edges.mex._(" "),
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: true,
                 searchButton : false,
@@ -64,18 +65,27 @@ edges.instances.variables.init = function () {
                     edges.instances.variables.propagateSelection();
                 }
             }),
+
+            edges.mex.staticHeading ({
+                id:"all-resources-heading",
+                category: "column",
+                staticTitle : "All Data Sources & Datasets",
+                fontStyle : "tiny"
+            }),
+
             edges.mex.resourceDisplayCompact({
                 id: "selected-filtered",
                 category: "column",
                 secondaryResults: "selected-filter",
-                title: edges.mex._("Filtered Selected Resources"),
+                title: edges.mex._(" "),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
             }),
             edges.mex.resourceDisplayCompact({
+                id: "all-resources",
                 category: "column",
-                title: edges.mex._("All Resources"),
+                title: edges.mex._(" "),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
