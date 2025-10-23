@@ -295,6 +295,9 @@ aside {
 }
 
 .search_page {
+
+  background : @lightBackground;
+
   .banner {
     background-color: #e9ecf3;
     padding: 1.25rem 3.12rem;

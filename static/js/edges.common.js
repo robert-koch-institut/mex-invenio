@@ -4349,7 +4349,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             // we are selecting the resource
             this.selector.selectRecord(id);
             el.attr("data-state", "selected");
-            let selectButtonText = edges.mex._("Unselect");
+            let selectButtonText = "-";
             el.html(selectButtonText);
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", false);
@@ -4357,7 +4357,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             // we are unselecting the resource
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            let selectButtonText = edges.mex._("Select");
+            let selectButtonText = "+";
             el.html(selectButtonText);
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", true);
@@ -4414,10 +4414,10 @@ edges.mex.renderers.CompactResourcesResults = class extends (
         }
 
         let selectState = "unselected";
-        let selectButtonText = edges.mex._("Select");
+        let selectButtonText = "+"
         if (this.selector && this.selector.isSelected(record.id)) {
             selectState = "selected";
-            selectButtonText = edges.mex._("Unselect");
+            selectButtonText = "-"
         }
 
         // Variable groups
@@ -4495,7 +4495,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             <div class="selected-list">
                 <div class="resource-card card-shadow">
                     <div class="selected-list-item">
-                        <button class="${selectClass} ui button mini"
+                        <button class="${selectClass} ui icon button ${selectState}"
                             id="resource-list-${record.id}"
                             data-id="${record.id}"
                             data-state="${selectState}"
