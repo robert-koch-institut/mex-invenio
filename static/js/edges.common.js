@@ -1682,7 +1682,7 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
+            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="Clear all search and sort parameters and start again">
                     Clear all
                 </button>`;
 
@@ -2328,7 +2328,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let clearFrag = "";
         if (this.clearButton) {
             clearFrag = `<div class="field">
-                <button type="button" class="ui button ${resetClass}" title="${edges.mex._(
+                <button type="button" class="ui button ${resetClass} black basic" title="${edges.mex._(
                 "Clear all search and sort parameters and start again"
             )}">
                     ${edges.mex._("Clear")}
