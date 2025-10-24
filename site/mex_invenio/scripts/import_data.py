@@ -25,6 +25,7 @@ from typing import Union, Any
 import click
 from dictdiffer import diff
 from flask import current_app
+from invenio_access.permissions import system_identity
 from invenio_app.factory import create_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
@@ -187,8 +188,11 @@ def import_data(
                     except Exception as e:
                         logger.error(f"Error processing record: {str(e)}")
 
-        # End the timer after processing is done
-        end_time = time.time()
+    # Rebuild the search index after all records have been processed
+    current_rdm_records_service.rebuild_index(identity=system_identity)
+
+    # End the timer after processing is done
+    end_time = time.time()
 
     # Calculate the total time taken and print the results
     elapsed_time = end_time - start_time
