@@ -38,9 +38,22 @@ logger = logging.getLogger(__name__)
 
 
 def process_record(
-    mex_id: str, mex_data: dict, owner_id: int
+    line: str, owner_id: int
 ) -> Union[None, dict[str, Any]]:
     """Create and publish a single record."""
+    json_data = json.loads(line)
+    mex_id = json_data["identifier"]
+
+    try:
+        mex_data = mex_to_invenio_schema(json_data)
+    except json.JSONDecodeError:
+        # Log and skip the line if it is not valid JSON
+        logger.error(f"Error decoding JSON: {line}")
+        return None
+    except KeyError as ke:
+        # Log and skip the line if it is missing a key
+        logger.error(f"KeyError: {ke}\nError processing record: {line}")
+        return None
 
     with current_app.app_context():  # Manually push application context in each process
         identity = get_authenticated_identity(owner_id)
@@ -155,22 +168,8 @@ def import_data(
             # Use multiprocessing Pool to parallelize the process
             with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
                 for line in lines:
-                    json_data = json.loads(line)
-                    mex_id = json_data["identifier"]
-
-                    try:
-                        mex_data = mex_to_invenio_schema(json_data)
-                    except json.JSONDecodeError:
-                        # Log and skip the line if it is not valid JSON
-                        logger.error(f"Error decoding JSON: {line}")
-                        continue
-                    except KeyError as ke:
-                        # Log and skip the line if it is missing a key
-                        logger.error(f"KeyError: {ke}\nError processing record: {line}")
-                        continue
-
                     futures.append(
-                        pool.apply_async(process_record, (mex_id, mex_data, owner.id))
+                        pool.apply_async(process_record, (line, owner.id))
                     )
 
                 # Collect the results as they complete
