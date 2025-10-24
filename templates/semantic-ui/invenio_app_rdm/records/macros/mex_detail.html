@@ -145,8 +145,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
                 {%- set values = value -%}
             {%- endif -%}
 
-            {% set first = values[0]["title"][0] %}
-            {% if first is string %}
+            {% if "title" in values[0] and values[0]["title"][0] is string %}
                 {% for v in values %}
                     {% if v["title"][0] == config.NO_RECORD_STRING %}
                         <i class="muted">Record {{ v.link_id }} not found.</i>
