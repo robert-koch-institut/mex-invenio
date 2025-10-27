@@ -1444,6 +1444,7 @@ edges.mex.components.Selector = class extends edges.Component {
         this._resources = {};
         this._variable_groups = {};
         window.localStorage.clear();
+        this.draw();
     }
 
     ids() {
@@ -1820,6 +1821,11 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             "hide",
             this.component.id
         );
+        let clearAllRecordsClass = edges.util.jsClasses(
+            this.namespace,
+            "clear-all",
+            this.component.id
+        );
 
 
         for (let id of this.component.ids()) {
@@ -1873,7 +1879,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     </div>
                     <div class="title-container">
                       <h4 class="title" style="margin:0px">${this.title}</h4>
-                      <button class="ui black basic button"> Clear All </button>
+                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -1905,16 +1911,30 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             "hide",
             this.component.id
         );
+        let clearAllSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "clear-all",
+            this.component.id
+        );
 
         edges.on(selectSelector, "click", this, "selectResource");
         edges.on(hideSelector, "click", this, "hideSelectedRecords");
-
+        edges.on(clearAllSelector, "click", this, "clearAllRecords");
     }
 
     hideSelectedRecords() {
         let doc = document.getElementById("right-col");
         if (doc) {
             doc.style.display = "none";
+        }
+    }
+
+    clearAllRecords() {
+        let conf = confirm("Are you sure you want to remove all the selected resources?")
+
+        if(conf) {
+            this.component.clearAll();
+            this.resourceComponent.renderer.draw();
         }
     }
 
