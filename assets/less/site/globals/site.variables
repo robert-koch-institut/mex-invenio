@@ -11,7 +11,7 @@
 @whiteBackground: @core-color-white-default;
 @mutedBackground: #F7F7F9;
 
-@pageFont: "Fira Sans", sans-serif;
+@pageFont: "FiraSans", sans-serif;
 
 @mutedTextColor: #404565;
 
@@ -39,4 +39,4 @@
 @whiteTextColor: @core-color-white-default;
 @blackTextColor: #000000;
 
-@fontFamily: "Fira Sans";
+@fontFamily: "FiraSans";
