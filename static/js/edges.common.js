@@ -1991,6 +1991,11 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
             "select",
             this.component.id
         );
+        let clearAllRecordsClass = edges.util.jsClasses(
+            this.namespace,
+            "clear-all",
+            this.component.id
+        );
 
         for (let id of this.component.ids()) {
             let record = this.component.get(id);
@@ -2066,6 +2071,9 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
             frag = `
                 <div class="">
                     ${header}
+                    <div class="">
+                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    </div>
                     <div>
                         ${recordsFrag}
                     </div>
@@ -2095,10 +2103,30 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
             this.component.id
         );
         edges.on(vgSelectSelector, "change", this, "toggleVariableGroupSelection");
+
+        let clearAllSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "clear-all",
+            this.component.id
+        );
+
+        edges.on(clearAllSelector, "click", this, "clearAllRecords");
     }
 
     hideSelectedRecords() {
         // Do nothing, as this is a compact view
+    }
+
+    clearAllRecords() {
+        let conf = confirm("Are you sure you want to remove all the selected resources?")
+
+        if(conf) {
+            this.component.clearAll();
+
+            if(this.resourceComponent) {
+                this.resourceComponent.renderer.draw();
+            }
+        }
     }
 
     selectResource(element) {
