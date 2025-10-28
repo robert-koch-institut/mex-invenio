@@ -35,6 +35,12 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data
 
+from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
+
+
+RecordCommitOp.on_commit = lambda self, uow: None
+RecordDeleteOp.on_commit = lambda self, uow: None
+
 # No-op indexer class to disable indexing during import
 class NoOpIndexer:
     """A no-operation indexer that does nothing."""
@@ -54,7 +60,11 @@ class NoOpIndexer:
         pass
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
 
 
@@ -272,8 +282,11 @@ def import_data(
                         batch_records.append(json_data)
                         num_lines += 1
 
+                        logger.info(f"Processing line: {num_lines}")
+
                         # Process batch when it reaches batch_size
                         if len(batch_records) >= batch_size:
+                            logger.info(f"Processing batch of {len(batch_records)} records")
                             batch_results = process_batch(batch_records, identity)
                             update_report(report, batch_results)
                             batch_records = []
