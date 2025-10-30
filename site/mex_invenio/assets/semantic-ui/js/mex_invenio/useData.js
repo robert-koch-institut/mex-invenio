@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 
-export const useData = ({ mex_id }) => {
+export const useData = (mexId) => {
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!mex_id) return;
+        if (!mexId) return;
 
-        const endpoint = `/records/mex/${mex_id}/json`;
+        const endpoint = `/records/mex/${mexId}/json`;
         console.log("Fetching", endpoint);
 
         setLoading(true);
@@ -36,7 +36,7 @@ export const useData = ({ mex_id }) => {
             setError(err);
             setLoading(false);
         });
-  }, [mex_id]);
+  }, [mexId]);
 
   return { data, loading, error };
 }

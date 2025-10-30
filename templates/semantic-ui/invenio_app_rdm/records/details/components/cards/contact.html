@@ -22,7 +22,7 @@
                             {% for value in data[prop.field] %}
                             {%- if "email" in value %}
                                 <span class="email-container">
-                                  <a href="{{ value.url }}" class="display-text">{{ value.display_value }}</a>
+                                  <button type="button" class="ui button link-like" data-record-id="{{ value.url }}" onclick="supportRecordHandler('{{ value.url }}')">{{ value.display_value }}</button>
                                     <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
                                     <img class="ui image icon"
                                         src="{{ url_for('static', filename='icons/mailto.svg') }}"
