@@ -65,7 +65,17 @@ class MexRecord(MethodView):
         if as_json:
             return record
 
-        data = normalise_record_data(record)  # type: ignore
+        data = normalise_record_data(record)
+        record_type = record.get("metadata", {}).get("resource_type", {}).get("id", None)
+        core_records = [
+            "activity",
+            "resource",
+            "bibliographicresource"
+        ]
+
+        # return the record as JSON if it is not a core type
+        if not record_type in core_records:
+            return record
 
         return render_template(
             self.template,

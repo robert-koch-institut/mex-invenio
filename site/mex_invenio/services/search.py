@@ -271,12 +271,25 @@ class MexDumper(SearchDumper):
 
             if not linked_records:
                 continue
-
+            
             field_values = []
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
-                # print("record_json: ", record_json)
+                print("record_json: ", record_json)
+
+                record_type = record_json.get("metadata", {}).get("resource_type", {}).get("id", None)
+
+                core_records = [
+                        "activity",
+                        "resource",
+                        "bibliographicresource"
+                    ]
+                record_core = None
+                if record_type and record_type in core_records:
+                    print(f"Found core record: {record_type}")
+                    record_core = record_type
+
 
                 if not "TITLE_FIELDS" in current_app.config:
                     # log.append(
@@ -292,6 +305,7 @@ class MexDumper(SearchDumper):
                                     "mex:identifier"
                                 ),
                                 "display_value": normalize_display_value(display_value),
+                                "core": record_core if record_core else ""
                             }
                         )
                         break
@@ -306,6 +320,7 @@ class MexDumper(SearchDumper):
                             "display_value": [{"value": identifier}]
                             if identifier
                             else [{"value": "Unknown"}],
+                            "core": record_core if record_core else ""
                         }
                     )
 
