@@ -53,22 +53,22 @@ class DisplayField(SystemField):
             # )
             return display_data
         except Exception as e:
-            pass
+            return {}
             # print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
             # print("Fallback: generating display_data using MexDumper...")
 
-        from mex_invenio.services.search import MexDumper
+        #from mex_invenio.services.search import MexDumper
 
-        dumper = MexDumper()
-        temp_data = {"display_data": {}}
-        dumper.dump(record, temp_data)
-        display_data = temp_data["display_data"]
+        #dumper = MexDumper()
+        #temp_data = {"display_data": {}}
+        #dumper.dump(record, temp_data)
+        #display_data = temp_data["display_data"]
         # print(f"Generated display_data with keys: {list(display_data.keys())}")
 
         # Store it in the record for subsequent access
-        record["display_data"] = display_data
-        return display_data
+        #record["display_data"] = display_data
+        #return display_data
 
     def pre_commit(self, record, **kwargs):
         """Called before record is committed."""
