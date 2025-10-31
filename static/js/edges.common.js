@@ -2451,6 +2451,13 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 </div>`;
         }
 
+        // TODO: Find a better way to figure out dynamic design
+        let titleWidth = "one"
+        if(this.searchTitle.length > 15) {
+            titleWidth = "five"
+            searchBoxWidth = "ten"
+        }
+
         // Upgrading the search UI as per sematic ui
         let frag = ""
 
@@ -2460,9 +2467,9 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 <div style="flex:1">
                     <div class="one wide column">
                         <div class="search-label">
-                            <label><h3>
+                            <h4>
                               ${this.searchTitle}
-                            </h3></label>
+                            </h4>
                         </div>
                     </div>
                     <br/>
@@ -2485,11 +2492,11 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             frag  = `
             <div class="ui grid ${containerClass}">
                 <div class="row middle aligned">
-                    <div class="one wide column">
+                    <div class="${titleWidth} wide column">
                         <div class="search-label">
-                            <label><h3>
+                            <h4>
                               ${this.searchTitle}
-                            </h3></label>
+                            </h4>
                         </div>
                     </div>
                     <div class="${searchBoxWidth} wide column">
