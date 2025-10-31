@@ -25,7 +25,7 @@ edges.instances.variables.init = function () {
         selector: "#resources-container",
         template: new edges.mex.templates.SingleColumnTemplate({
             preamble: `<a class="link-button" href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
-            hideComponentsInitially: ["selector", "selected-filtered", "results", "resource-pager"],
+            hideComponentsInitially: ["selector", "selected-filtered", "results"],
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -81,6 +81,7 @@ edges.instances.variables.init = function () {
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: false,
                 searchButton : true,
+                compactDesign : true,
             }),
 
             edges.mex.resourceDisplayCompact({
@@ -168,13 +169,12 @@ edges.instances.variables.init = function () {
         resourceType: "variables",
         openingQuery: openingQuery,
         components: [
-            edges.mex.pager({
-                category: "column",
-                showPageNavigation: false,
+            edges.mex.resultCount({
+                category: "left-middle-top",
             }),
 
             edges.mex.fullSearchController({
-                category: "column",
+                category: "right-middle-top",
                 searchPlaceholder: edges.mex._("Find variables..."),
                 searchTitle: "Search Variable By Name",
             }),

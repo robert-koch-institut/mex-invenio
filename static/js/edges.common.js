@@ -317,7 +317,8 @@ edges.mex.fullSearchController = function (params) {
             searchPlaceholder: params.searchPlaceholder || edges.mex._("Search..."),
             searchButtonText: params.searchButtonText || edges.mex._("Search"),
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
-            searchTitle: params.searchTitle || edges.mex._("Search")
+            searchTitle: params.searchTitle || edges.mex._("Search"),
+            compactDesign : params.compactDesign ?? false,
         }),
     });
 };
@@ -979,10 +980,41 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
             }
         }
 
+        // left middle top
+        let leftMiddleTop = edge.category("left-middle-top");
+        let leftMiddleTopClass = edges.util.styleClasses(this.namespace, "left-middle-top");
+        let leftMiddleTopContainers = "";
+
+        if (leftMiddleTop.length > 0) {
+            for (let i = 0; i < leftMiddleTop.length; i++) {
+                leftMiddleTopContainers += `<div class="${leftMiddleTopClass}"><div id="${leftMiddleTop[i].id}"></div></div>`;
+            }
+        }
+
+        ///////////////////////////////////
+        // right middle top
+        let rightMiddleTop = edge.category("right-middle-top");
+        let rightMiddleTopClass = edges.util.styleClasses(this.namespace, "right-middle-top");
+        let rightMiddleTopContainers = "";
+
+        if (rightMiddleTop.length > 0) {
+            for (let i = 0; i < rightMiddleTop.length; i++) {
+                rightMiddleTopContainers += `<div class="${rightMiddleTopClass}"><div id="${rightMiddleTop[i].id}"></div></div>`;
+            }
+        }
+
         let frag = `
             <div class="ui grid container">
                 <div class="sixteen wide column">
                     ${preambleFrag}
+                    <div class="ui grid container">
+                        <div class="three wide column">
+                            ${leftMiddleTopContainers}
+                        </div>
+                        <div class="wide column" style="flex: 1;">
+                            ${rightMiddleTopContainers}
+                        </div>
+                    </div>
                     ${compContainers}
                 </div>
             </div>
@@ -2293,6 +2325,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         );
 
         this.searchTitle = edges.util.getParam(params, "searchTitle", "Search");
+        this.compactDesign = edges.util.getParam(params, "compactDesign", false);
 
         ////////////////////////////////////////
         // state variables
@@ -2419,7 +2452,37 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         }
 
         // Upgrading the search UI as per sematic ui
-        let frag = `
+        let frag = ""
+
+        if(this.compactDesign) {
+            frag = `
+                <div class="ui grid ${containerClass}">
+                <div style="flex:1">
+                    <div class="one wide column">
+                        <div class="search-label">
+                            <label><h3>
+                              ${this.searchTitle}
+                            </h3></label>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="ui grid row middle aligned">
+                        <div class="${searchBoxWidth} wide column" style="padding-right:0rem">
+                            ${searchBox}
+                        </div>
+                        ${fieldSelectFrag}
+                        <div class="one wide column" style="padding-left:0rem">
+                            ${searchFrag}
+                        </div>
+                    </div>
+                </div>
+                <div class="row right aligned">
+                    ${sortFrag}
+                </div>
+            </div>
+            `
+        } else {
+            frag  = `
             <div class="ui grid ${containerClass}">
                 <div class="row middle aligned">
                     <div class="one wide column">
@@ -2441,6 +2504,7 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                     ${sortFrag}
                 </div>
             </div>`;
+        }
 
         comp.context.html(frag);
 
