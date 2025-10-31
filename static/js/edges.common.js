@@ -4905,9 +4905,10 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         var container = `
         ${expandAllCheckbox}
 
-        <table class="${containerClasses} ui celled table" style="border: none;">
+        <table class="${containerClasses} ui celled table" style="border: none;background: transparent !important;">
           <thead>
             <tr>
+                <th style="width:20px;"></th>
               <th style="border:none; font-weight:600">${edges.mex._(
             "Variables"
         )}</th>
@@ -5059,7 +5060,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
                       ${codingFrag}
                     </div>`;
             }
-            let detailFrag = `
+            detailFrag = `
   <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
     <h4 style="margin-top:0; font-weight:600;">${label}</h4>
     ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
@@ -5087,24 +5088,35 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let frag = `
-            <tr class="${collapsedRowIdClass} ${collapsedRowClass} variable-row" data-label="${label}" role="row" data-id="${res.id}">
-              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${label}</td>
+            <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
+                <td>
+                    <button class="img-button ${collapsedClass}">
+                      <img
+                        class="controls" src="/static/images/expand.svg" alt="expand icon" />
+                    </button>
+                </td>
+                <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${label}</td>
               <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${resourceFrag}</td>
               <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${groupFrag}</td>
               <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${dataType}</td>
             </tr>
 
-            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
+            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
+                <td>
+                    <button class="img-button ${expandedClass}">
+                      <img
+                        class="controls" src="/static/images/shrink.svg" alt="shrink icon" />
+                    </button>
+                </td>
                 <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${label}</strong></td>
                 <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${resourceFrag}</strong></td>
                 <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${groupFrag}</strong></td>
                 <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${dataType}</strong></td>
             </tr>
 
-            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row" role="row" style="display:none; border-top: 0">
-              <td colspan="4" class="${expandedClass}" style="border-left: 0; border-right: 0; border-top: 0">
+            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-bottom" role="row" style="display:none; border-top: 0;">
+              <td colspan="6" style="border-left: 0; border-right: 0; border-top: 0">
                   ${detailFrag}
-                </div>
               </td>
             </tr>
           `;

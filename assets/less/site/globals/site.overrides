@@ -8,6 +8,7 @@
 
 html {
     font-size: 100%;
+    background : @lightBackground;
 }
 
 .muted {
@@ -30,6 +31,10 @@ html {
     margin-left: auto !important;
     margin-right: auto !important;
     width: 85vw;
+}
+
+.whiteBackground {
+  background: @whiteBackground;
 }
 
 .detail {
@@ -363,6 +368,34 @@ aside {
       font-style: normal;
       font-weight: 500;
       line-height: 1.5rem;
+    }
+  }
+
+    .variable-row{
+    background: @whiteBackground;
+
+    &-shadow {
+      box-shadow:
+    -0.06rem 0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+    0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+    -0.06rem -0.06rem 0.13rem 0 rgba(249, 255, 255, 0.9),
+    0.06rem 0.06rem 0.19rem 0 rgba(199, 217, 217, 0.9);
+    }
+
+    &-shadow-top {
+      margin-top: 5px;
+      box-shadow:
+    -0.06rem -0.06rem 0.13rem 0 rgba(249, 255, 255, 0.9),
+    0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+    -0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.5) inset;
+    }
+
+    &-shadow-bottom {
+      margin-bottom: 5px;
+       box-shadow:
+    0.06rem 0.06rem 0.19rem 0 rgba(199, 217, 217, 0.9),
+    -0.06rem 0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
+    0.06rem 0.06rem 0.13rem 0 rgba(249, 255, 255, 0.3) inset;
     }
   }
 
