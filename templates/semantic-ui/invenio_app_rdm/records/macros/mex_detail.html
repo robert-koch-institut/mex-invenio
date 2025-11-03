@@ -69,7 +69,14 @@
                 {% set _ = ns.titles.append(dv.value) %}
             {% endfor %}
             {% set combined_title = ns.titles | join(', ') %}
-            <button type="button" class="ui button link-like" data-record-id="{{ v.url }}" onclick="supportRecordHandler('{{ v.url }}')">{{ combined_title }}</button>
+            <button 
+            type="button" 
+            class="ui button link-like" 
+            data-record-id="{{ v.url }}" 
+            onclick="supportRecordHandler('{{ v.url }}', '{{ combined_title }}')"
+            >
+            {{ combined_title }}
+            </button>
         {%- endif -%}
     {%- else -%}
         {% set ns = namespace(titles=[]) %}

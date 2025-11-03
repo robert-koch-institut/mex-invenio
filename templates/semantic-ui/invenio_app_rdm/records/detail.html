@@ -314,12 +314,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
     });
 
-    const supportRecordHandler = (mex_id) => {
-        console.log(mex_id);
-        window.dispatchEvent(
-            new CustomEvent("supportRecord:update", { detail: { mex_id } })
-        );
-    }
+    const supportRecordHandler = (mex_id, combined_title) => {
+    window.dispatchEvent(
+        new CustomEvent("supportRecord:update", { detail: { mex_id, combined_title } })
+    );
+};
 
 </script>
 

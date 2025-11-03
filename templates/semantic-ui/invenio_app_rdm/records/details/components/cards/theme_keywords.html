@@ -24,10 +24,8 @@
             <div class="card-props-p forced-vertical">
                 <div class="card-prop-value">
                     <div class="tags">
-                        {% for keyword in data[keyword_field] -%}
-                            {%- if keyword.display_value -%}
-                                <div class="tag">{{ keyword.display_value }}</div>
-                            {%- endif -%}
+                        {% for keyword in record.custom_fields[keyword_field] -%}
+                                <div class="tag" style="white-space: unset;">{{ keyword.value }}</div>
                         {%- endfor -%}
                         </div>
                 </div>

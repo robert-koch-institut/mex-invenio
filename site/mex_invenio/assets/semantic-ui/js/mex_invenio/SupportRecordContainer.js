@@ -6,12 +6,14 @@ const SupportRecordRoot = () => {
   const [recordId, setRecordId] = useState(
     document.getElementById("support-record")?.dataset.recordId || null
   );
+  const [recordTitle, setRecordTitle] = useState("");
   const [open, setOpen] = useState(false);
 
   // Listen for custom events from plain JS
   useEffect(() => {
     const handler = (event) => { 
         setRecordId(event.detail.mex_id);
+        setRecordTitle(event.detail.combined_title)
         setOpen(true);
     }
     window.addEventListener("supportRecord:update", handler);
@@ -19,7 +21,7 @@ const SupportRecordRoot = () => {
   }, []);
 
   return open && (
-  <SupportRecordData mexId={recordId} closeModalFn={() => setOpen(false)} />
+  <SupportRecordData mexId={recordId} title={recordTitle} closeModalFn={() => setOpen(false)} />
 );
 };
 

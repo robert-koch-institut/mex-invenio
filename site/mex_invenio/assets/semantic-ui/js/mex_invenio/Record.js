@@ -2,20 +2,20 @@ import React from "react";
 import { useData } from "./useData";
 
 
-export const Record = ({ mexId }) => {
+export const Record = ({ mexId, title }) => {
   const { data, loading, error } = useData(mexId);
 
   if (loading) return <p>Loading… { mexId }</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error.message}</p>;
 
   const invenio_id = data["id"]
-  const title = data["custom_fields"]["mex:alternativeName"]
 
   return <div className="recordContent">
     <p className="record--ids">{ mexId } | <a href={`/api/records/${ invenio_id }`}> { invenio_id } </a></p>
-    <div className="data">
+    <h2 className="ui header">{title}</h2>
+    <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
       {JSON.stringify(data, null, 2)}
-    </div>
+    </pre>
   </div>
 ;
 }
