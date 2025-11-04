@@ -12,16 +12,11 @@ from datetime import datetime
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 
-from mex_invenio.custom_fields.custom_fields import (
-    RDM_NAMESPACES,
-    RDM_CUSTOM_FIELDS,
-    RDM_CUSTOM_FIELDS_UI,
-)
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 
 
-def _(x):  # needed to avoid start time failure with lazy strings
+def _(x):  # needed to avoid start time failure with lazy strings  # noqa: F811
     return x
 
 
@@ -186,7 +181,7 @@ SECURITY_LOGIN_WITHOUT_CONFIRMATION = (
 
 OAUTHCLIENT_REMOTE_APPS = {}  # configure external login providers
 
-from invenio_oauthclient.views.client import auto_redirect_login
+from invenio_oauthclient.views.client import auto_redirect_login  # noqa: E402
 
 ACCOUNTS_LOGIN_VIEW_FUNCTION = (
     auto_redirect_login  # autoredirect to external login if enabled
@@ -266,9 +261,10 @@ RECORD_METADATA_DEFAULT_TITLE = "[Untitled]"
 # Custom facets
 # ---
 
-from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
-from mex_invenio.custom_facets import RestrictedTermsFacet
-from invenio_vocabularies.services.facets import VocabularyLabels
+from invenio_rdm_records.config import RDM_FACETS, RDM_SEARCH  # noqa: E402
+from invenio_vocabularies.services.facets import VocabularyLabels  # noqa: E402
+
+from mex_invenio.custom_facets import RestrictedTermsFacet  # noqa: E402
 
 RDM_FACETS = {
     **RDM_FACETS,
@@ -380,7 +376,6 @@ FIELD_LABELS_UI = {
     "mex:end": "End",
     "mex:website": "Website",
     "mex:succeeds": "Succeeds",
-    "mex:modified": "Modified",
     "mex:hasPurpose": "Purpose of data processing",
 }
 
@@ -1021,7 +1016,7 @@ TAGS = ["mex:keyword", "mex:activityType"]
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
 
-from mex_invenio.custom_fields import field_types
+from mex_invenio.custom_fields import field_types  # noqa: E402
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

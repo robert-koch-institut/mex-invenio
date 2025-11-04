@@ -6,6 +6,7 @@ Invenio-based institutional repository and metadata platform.
 [![cve-scan](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml)
 [![linting](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml)
 [![open-code](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/open-code.yml/badge.svg)](https://gitlab.opencode.de/robert-koch-institut/mex/mex-invenio)
+[![testing](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml)
 
 ## Project
 
@@ -63,30 +64,7 @@ components of the MEx project are open-sourced under the same license as well.
 - on unix, run `make install`
 - on windows, run `.\mex.bat install`
 
-### Linting
+### Linting and testing
 
 - run all linters with `make lint` or `.\mex.bat lint`
-
-### Unit testing
-
-Unit testing is done using a customised version of pytest,
-[pytest-invenio](https://github.com/inveniosoftware/pytest-invenio).
-Tests are stored in `./tests`.
-
-To run the tests, execute the following command:
-
-```bash
-pipenv run pytest
-```
-
-with the option -W ignore to suppress warnings:
-
-```bash
-pipenv run pytest -W ignore
-```
-
-with the option -s to show stdout from the app:
-
-```bash
-pipenv run pytest -W ignore -s
-```
+- run all tests with `make test` (see tests/TESTS.md for details)

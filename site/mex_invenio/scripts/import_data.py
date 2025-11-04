@@ -90,7 +90,7 @@ def process_record(
 
             return None
         except Exception:
-            logger.exception(f"Error processing record:")
+            logger.exception("Error processing record:")
             return None
 
 

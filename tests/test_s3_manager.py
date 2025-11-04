@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from mex_invenio.scripts.s3_manager import manage_s3_files, get_latest_file
+from mex_invenio.scripts.s3_manager import manage_s3_files
 
 from freezegun import freeze_time
 

@@ -1,4 +1,4 @@
-.PHONY: all setup hooks install lint
+.PHONY: all setup hooks install lint test
 all: install lint
 
 setup:
@@ -21,3 +21,10 @@ lint:
 	# run the linter hooks from pre-commit on all files
 	@ echo linting all files; \
 	pre-commit run --all-files; \
+
+test:
+	# run the unit and integration test suites
+	@ echo running all tests; \
+	eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"; \
+	pipenv run pytest -W ignore -s; \
+	pipenv run docker-services-cli down; \

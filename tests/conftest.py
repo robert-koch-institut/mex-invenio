@@ -3,7 +3,6 @@
 
 import json
 import logging
-import os
 import re
 from unittest.mock import patch, MagicMock
 

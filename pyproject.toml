@@ -1,0 +1,22 @@
+[tool.pytest.ini_options]
+addopts = [
+    "--verbose",
+    "--cov",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-fail-under=70",
+    "--cov-branch",
+]
+
+[tool.ruff]
+fix = true
+line-length = 88
+show-fixes = true
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["mex_invenio", "tests"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
