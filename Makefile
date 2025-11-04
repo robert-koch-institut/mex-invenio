@@ -27,4 +27,6 @@ test:
 	@ echo running all tests; \
 	eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"; \
 	pipenv run pytest -W ignore -s; \
+	EXIT_CODE=$$?; \
 	pipenv run docker-services-cli down; \
+	exit $$EXIT_CODE; \
