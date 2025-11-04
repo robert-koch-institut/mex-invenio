@@ -2,8 +2,10 @@
 
 Invenio-based institutional repository and metadata platform.
 
+[![cookiecutter](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cookiecutter.yml/badge.svg)](https://github.com/robert-koch-institut/mex-template)
 [![cve-scan](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml)
 [![linting](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml)
+[![open-code](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/open-code.yml/badge.svg)](https://gitlab.opencode.de/robert-koch-institut/mex/mex-invenio)
 
 ## Project
 
@@ -41,6 +43,12 @@ For more information, please feel free to email us at [mex@rki.de](mailto:mex@rk
 Nordufer 20 \
 13353 Berlin \
 Germany
+
+## Package
+
+Invenio is an open source project that was initially developed by CERN. The
+`mex-invenio` repository is an implementation of an Invenio instance for the Robert Koch
+Institute. It will serve as the point of entry for the entire MEx project.
 
 ## License
 
