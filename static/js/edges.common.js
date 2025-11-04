@@ -393,7 +393,7 @@ edges.mex.recordSelectorCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactSelectedRecords({
             showIfEmpty: true,
-            title: edges.mex._(" "),
+            title: edges.mex._("Selected Data Sources & Datasets"),
             onSelectToggle: params.onSelectToggle || false,
         }),
     });
@@ -1999,7 +1999,21 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
     }
 
     draw() {
-        let header = this.title ? `<h4 class="title" style="margin:0px">${this.title}</h4>` : ""
+        let header = this.title ? `<h5 class="tiny" style="margin:0.625rem 0rem">${this.title}</h5>` : ""
+
+        let expandAllClass = edges.util.jsClasses(
+            this.namespace,
+            "variable-expand-all",
+            this.component.id
+        );
+
+        let expandAllCheckbox = `
+                <div class="checkbox" style="margin:1rem 0rem;">
+                    <label>
+                        ${edges.mex._("Expand all")}
+                        <input type="checkbox" class="${expandAllClass}"/>
+                    </label>
+                </div>`
 
         if (this.component.length === 0 && this.showIfEmpty) {
 
@@ -2102,8 +2116,9 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
         if (recordsFrag) {
             frag = `
                 <div class="">
+                    ${expandAllCheckbox}
                     ${header}
-                    <div class="">
+                    <div class="" style="margin-top:1.625rem">
                       <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
                     </div>
                     <div>
@@ -2143,10 +2158,42 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
         );
 
         edges.on(clearAllSelector, "click", this, "clearAllRecords");
+
+        let expandAllSelector = edges.util.jsClassSelector(
+            this.namespace,
+            "variable-expand-all",
+            this.component.id
+        );
+        edges.on(expandAllSelector, "change", this, "toggleVariableExpandAll");
     }
 
     hideSelectedRecords() {
         // Do nothing, as this is a compact view
+    }
+
+    toggleVariableExpandAll(element){
+        let isChecked = element.checked;
+        let $ctx = this.component.context;
+
+        try {
+            const selector = "span.dir"
+            const nextElement = $ctx.find(selector).parent().next()
+
+            if ($ctx.find(selector).text() === "▾") {
+            $ctx.find(selector).text("▴");
+        } else {
+            $ctx.find(selector).text("▾");
+        }
+
+        if(isChecked) {
+            nextElement.hide();
+        } else {
+            nextElement.show();
+        }
+        nextElement.toggle();
+        } catch (err) {
+            console.error(`Error while expanding variable groups: ${err}`);s
+        }
     }
 
     clearAllRecords() {

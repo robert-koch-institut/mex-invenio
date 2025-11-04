@@ -43,16 +43,9 @@ edges.instances.variables.init = function () {
             }
         },
         components: [
-
-            edges.mex.staticHeading ({
-                id:"selected-resources-heading",
-                category: "column",
-                staticTitle : "Selected Data Sources & Datasets",
-                fontStyle : "tiny"
-            }),
-
             edges.mex.recordSelectorCompact({
                 category: "column",
+                title : "All Data Sources & Datasets",
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
