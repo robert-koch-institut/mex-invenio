@@ -8,7 +8,6 @@ check-manifest = ">=0.25"
 # Pytest-invenio 3 breaks the test with:
 # ModuleNotFoundError: No module named 'flask_sqlalchemy.session'
 pytest-invenio = "<3"
-pytest-cov = ">=6"
 flask-pytest = "*"
 # Avoid pytest>=8 as dependency resolution is not giving a compatible version of pluggy
 # Manifests as: https://github.com/pytest-dev/pytest/issues/12144
@@ -16,6 +15,7 @@ pytest = "<8"
 freezegun = "*"
 docker-services-cli = "*"
 ruff = ">=0.14"
+pytest-cov = ">=6"
 
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}
