@@ -498,6 +498,13 @@ aside {
     vertical-align: top;
   }
 
+  .title-container{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100% !important;
+        }
+
   .result-counter {
     .value {
       background-color: #e6f4fa;
