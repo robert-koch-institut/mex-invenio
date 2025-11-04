@@ -51,31 +51,19 @@ components of the MEx project are open-sourced under the same license as well.
 
 ### Installation
 
-- on unix, consider using pyenv https://github.com/pyenv/pyenv
-  - get pyenv `curl https://pyenv.run | bash`
-  - install 3.9 `pyenv install 3.9`
-  - switch version `pyenv global 3.9`
-  - run `make install`
-- on windows, consider using pyenv-win https://pyenv-win.github.io/pyenv-win/
-  - follow https://pyenv-win.github.io/pyenv-win/#quick-start
-  - install 3.9 `pyenv install 3.9`
-  - switch version `pyenv global 3.9`
-  - run `.\mex.bat install`
+- install python3.11 on your system
+- on unix, run `make install`
+- on windows, run `.\mex.bat install`
 
 ### Linting
 
-- run all linters with `pre-commit run --all-files`
+- run all linters with `make lint` or `.\mex.bat lint`
 
 ### Unit testing
 
-Unit testing is done using a customised version of pytest, [pytest-invenio](https://github.com/inveniosoftware/pytest-invenio).
+Unit testing is done using a customised version of pytest,
+[pytest-invenio](https://github.com/inveniosoftware/pytest-invenio).
 Tests are stored in `./tests`.
-
-To install the testing environment, run the following command:
-
-```bash
-pipenv install -d
-```
 
 To run the tests, execute the following command:
 
