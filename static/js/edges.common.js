@@ -2172,28 +2172,28 @@ edges.mex.renderers.CompactSelectedRecords = class extends (
     }
 
     toggleVariableExpandAll(element){
-        let isChecked = element.checked;
-        let $ctx = this.component.context;
-
         try {
-            const selector = "span.dir"
-            const nextElement = $ctx.find(selector).parent().next()
+    const $ctx = this.component.context;
+    const isChecked = element.checked;
+    const selector = "span.dir";
+    const $dirs = $ctx.find(selector);
+    const $nextElements = $dirs.parent().next();
 
-            if ($ctx.find(selector).text() === "▾") {
-            $ctx.find(selector).text("▴");
-        } else {
-            $ctx.find(selector).text("▾");
-        }
+    // Determine the symbol and visibility
+    const currentSymbol = isChecked ? "▴" : "▾";
 
-        if(isChecked) {
-            nextElement.hide();
-        } else {
-            nextElement.show();
-        }
-        nextElement.toggle();
-        } catch (err) {
-            console.error(`Error while expanding variable groups: ${err}`);s
-        }
+    // Toggle related elements
+    if (isChecked) {
+        $nextElements.show();
+    } else {
+        $nextElements.hide();
+    }
+
+    $dirs.text(currentSymbol);
+
+} catch (err) {
+    console.error(`Error while expanding variable groups: ${err}`);
+}
     }
 
     clearAllRecords() {
