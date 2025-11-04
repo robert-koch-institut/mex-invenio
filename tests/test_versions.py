@@ -6,10 +6,11 @@ from tests.data import person_data
 
 
 def test_import_person_skipped(
-    db, location, resource_type_v, contributors_role_v, import_file
+    db, location, resource_type_v, contributors_role_v, import_file, clear_files
 ):
     """Test that the CLI command skips a reimport of person data."""
     service = current_rdm_records.records_service
+    #clear_files()
 
     # Import the person data using the import_file fixture.
     messages = import_file("person", person_data)
@@ -50,10 +51,11 @@ def test_import_person_skipped(
 
 
 def test_import_person_2nd_version(
-    db, location, resource_type_v, contributors_role_v, import_file, client
+    db, location, resource_type_v, contributors_role_v, import_file, client, clear_files
 ):
     """Test that the CLI command imports the contact point data correctly."""
     service = current_rdm_records.records_service
+    clear_files()
 
     # Import the person data using the import_file fixture.
     messages = import_file("person", person_data)
@@ -87,6 +89,8 @@ def test_import_person_2nd_version(
     # Reimport modified person data to test the "Updated" case.
     messages = import_file("person_2", person_data)
     match = search_messages(messages, created_regex)
+
+    print(messages)
 
     assert match.group("verb") == "Updated"
 

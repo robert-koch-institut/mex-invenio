@@ -3,6 +3,7 @@
 
 import json
 import logging
+import os
 import re
 from unittest.mock import patch, MagicMock
 
@@ -10,6 +11,7 @@ import pytest
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
+import invenio_rdm_records.services.config as rdm_config
 from invenio_app.factory import create_ui
 from invenio_rdm_records.cli import (
     create_records_custom_field,
@@ -40,6 +42,10 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
+
+from mex_invenio.records.api import MexRDMRecord, MEXBulkIndexer
+from mex_invenio.services.schema import MexRDMRecordSchema
+
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -74,6 +80,11 @@ def app_config(app_config, module_tmp_path):
     # need this to make sure separate indexes are created for testing
     app_config["SEARCH_INDEX_PREFIX"] = "test"
     app_config["SERVER_NAME"] = "127.0.0.1"
+
+    app_config['RDM_RECORD_CLS'] = MexRDMRecord
+    #rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+    #rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
+    #rdm_config.RDMRecordServiceConfig.indexer_cls = MEXBulkIndexer
 
     # add custom fields
     app_config["RDM_NAMESPACES"] = RDM_NAMESPACES
@@ -310,11 +321,13 @@ def import_file(
     create_user("importer", email)
 
     def _import_file(filename, data):
-        contact_point_file = create_file(f"{filename}.json", data)
+        file = create_file(f"{filename}.json", data)
 
+        # Capture logs at DEBUG level and from all loggers
         with caplog.at_level(logging.INFO):
-            cli_runner(_import_data, email, contact_point_file)
+            result = cli_runner(_import_data, email, file, '--index')
 
+        assert result.exit_code == 0, f"CLI command failed with exit code {result.exit_code}: {result.exception}"
         current_rdm_records.records_service.indexer.refresh()
 
         return caplog.messages
@@ -328,3 +341,16 @@ def mock_s3_client():
         s3_client = MagicMock()
         mock.return_value = s3_client
         yield s3_client
+
+
+@pytest.fixture
+def clear_files(tmp_path):
+    """Fixture to clear files after test."""
+
+    def _clear_files():
+        for root, dirs, files in os.walk(tmp_path):
+            for file in files:
+                print(file)
+                #os.remove(os.path.join(root, file))
+
+    return _clear_files

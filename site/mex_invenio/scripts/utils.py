@@ -2,15 +2,22 @@
 
 import filecmp
 import html
+import logging
 import os
 from datetime import datetime
 from typing import Callable
 
-from flask import current_app
 from marshmallow_utils.html import sanitize_unicode
 
 
-def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable):
+logging.basicConfig(
+    level=logging.INFO,
+    #format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    #datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+def _get_value_by_lang(config, mex_data: dict, key: str, lang: str, val_filter: Callable):
     """Get the value of a key in the MEx metadata by language."""
     if isinstance(mex_data[key], str) and (
         val_filter is None or val_filter(mex_data[key])
@@ -42,22 +49,22 @@ def _get_value_by_lang(mex_data: dict, key: str, lang: str, val_filter: Callable
     if val_filter is None or val_filter(mex_data[key][0]["value"]):
         return mex_data[key][0]["value"]
 
-    return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
+    return config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
 
-def get_title(mex_data: dict) -> str:
+def get_title(config, mex_data: dict) -> str:
     """Get the title of the record from the MEx metadata."""
-    for key in current_app.config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
+    for key in config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
         if key in mex_data and len(mex_data[key]) > 0:
             try:
-                return _get_value_by_lang(mex_data, key, "de", lambda x: len(x) > 2)
+                return _get_value_by_lang(config, mex_data, key, "de", lambda x: len(x) > 2)
             except TypeError:
                 continue
 
-    return current_app.config.get("RECORD_METADATA_DEFAULT_TITLE", "")
+    return config.get("RECORD_METADATA_DEFAULT_TITLE", "")
 
 
-def mex_to_invenio_schema(mex_data: dict) -> dict:
+def mex_to_invenio_schema(config, mex_data: dict) -> dict:
     """Convert MEx schema metadata to internal Invenio RDM Record schema."""
     # Remove the 'Merged' prefix from the entityType in order to be able to process test data
     resource_type = mex_data.pop("entityType").removeprefix("Merged").lower()
@@ -73,9 +80,9 @@ def mex_to_invenio_schema(mex_data: dict) -> dict:
         "pids": {},
         "metadata": {
             "resource_type": {"id": resource_type},
-            "creators": [current_app.config.get("RECORD_METADATA_CREATOR", "")],
+            "creators": [config.get("RECORD_METADATA_CREATOR", "")],
             "publication_date": datetime.today().strftime("%Y-%m-%d"),
-            "title": get_title(mex_data),
+            "title": get_title(config, mex_data),
         },
         "custom_fields": {},
     }
@@ -124,3 +131,31 @@ def compare_files(existing_file: str, new_file: str) -> bool:
         os.remove(new_file)  # Remove duplicate file
         return True
     return False
+
+
+def get_related_mex_ids(config, record: dict) -> list:
+    """Get related MEx identifiers from the record's custom fields."""
+    field_types = config.get("FIELD_TYPES", [])
+    record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
+    related_ids = set()
+
+    related_fields = [k for k,v in field_types.get(record_type, {}).items() if v == "identifier"]
+
+    print('HERE', related_fields)
+
+    for field in related_fields:
+        #mex_field = f"mex:{field}"
+        if field in record.get("custom_fields", {}):
+            field_value = record["custom_fields"][field]
+            if isinstance(field_value, list):
+                for item in field_value:
+                    related_ids.add(str(item))
+            else:
+                related_ids.add(str(field_value))
+
+    print('----------------------')
+    print(record)
+    print(related_ids)
+    print('----------------------')
+
+    return list(related_ids)

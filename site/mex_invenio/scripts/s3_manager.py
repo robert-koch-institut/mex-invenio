@@ -133,7 +133,7 @@ def rename_and_keep_latest_file(
     os.rename(new_file, final_new_file_path)  # Rename new file
 
     if existing_file:
-        os.remove(existing_file)
+        #os.remove(existing_file)
         logger.info(
             f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
         )
