@@ -484,6 +484,20 @@ aside {
     box-shadow: none;
   }
 
+
+    .variable-row.active-col-1 .summary-item[data-col="1"],
+  .variable-row.active-col-2 .summary-item[data-col="2"],
+  .variable-row.active-col-3 .summary-item[data-col="3"],
+  .variable-row.active-col-4 .summary-item[data-col="4"] {
+    font-weight: 600;
+  }
+  td.collapsed-view {
+    cursor: pointer;
+  }
+  td {
+    vertical-align: top;
+  }
+
   .result-counter {
     .value {
       background-color: #e6f4fa;

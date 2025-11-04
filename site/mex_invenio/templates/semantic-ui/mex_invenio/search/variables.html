@@ -1,91 +1,5 @@
-{%- extends "invenio_theme/page.html" %}
-
-{% block page_body %}
-<style>
-  .variable-details {
-    display: none;
-  }
-  .variable-details.open {
-    display: table-row;
-  }
-  .details-card {
-    border: 1px solid #ddd;
-    padding: 12px;
-    background: #fafafa;
-    border-radius: 6px;
-  }
-  .variable-summary {
-    cursor: pointer;
-  }
-  .variable-summary:hover {
-    background: #f0f0f0;
-  }
-
-  /* details card look */
-.details-card {
-  background: #ffffff;
-  border: 1px solid #e6eef5;
-  border-radius: 8px;
-  padding: 18px;
-  box-shadow: 0 1px 3px rgba(12,20,30,0.04);
-  margin: 8px 0;
-}
-.details-grid { display:flex; gap:24px; align-items:flex-start; }
-.details-left { flex: 1 1 60%; }
-.details-right { flex: 1 1 40%; color:#333; }
-.details-title { margin:0 0 8px 0; font-weight:700; }
-.coding-system { margin-top:12px; border-top:1px solid #f0f6fb; padding-top:10px; }
-.variable-summary.expanded { background:#f8fdff; }
-.code { font-weight:700; margin-right:6px; }
-.expand-toggle {
-  margin: 0 0 10px 0;
-  text-align: right;
-}
-.details-card {
-  background: #fff;
-  border: 1px solid #e6eef5;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 10px;
-}
-.variable-row.expanded { background: #f9fcff; }
-.expand-toggle { margin-bottom: 10px; text-align: right; }
-.details-card {
-  background:#fff;
-  border:1px solid #e6eef5;
-  border-radius:8px;
-  padding:16px;
-  box-shadow:0 2px 6px rgba(12,20,30,0.04);
-}
-.summary-grid {
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:16px;
-  margin-bottom:12px;
-}
-.summary-item { padding:6px 8px; border-radius:6px; }
-.variable-row.active-col-1 .summary-item[data-col="1"],
-.variable-row.active-col-2 .summary-item[data-col="2"],
-.variable-row.active-col-3 .summary-item[data-col="3"],
-.variable-row.active-col-4 .summary-item[data-col="4"] {
-  background:#f0fbff;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
-  font-weight:600;
-}
-.variable-row.expanded { background:#fbfeff; }
-td.collapsed-view { cursor:pointer; }
-
-td {
-    vertical-align: top;
-}
-
-</style>
+{%- extends "invenio_theme/page.html" %} {% block page_body %}
+<style></style>
 
 <div id="variable-page" class="ui container search_page">
   <section class="banner">
@@ -99,19 +13,10 @@ td {
   </div>
   {% endblock %}
 </div>
-{% endblock %}
-
-{% block javascript %}
-    {{ super() }}
-
-    {{ webpack['i18next.js'] }}
-
-    {% set static="/static/js" %}
-    {% set edges=static ~ "/edges" %}
-    {% set vendor = edges ~ "/vendor" %}
-    {% set src=edges ~ "/src" %}
-    {% set components=src ~ "/components" %}
-    {% set bs3=src ~"/renderers/bs3" %}
+{% endblock %} {% block javascript %} {{ super() }} {{ webpack['i18next.js'] }}
+{% set static="/static/js" %} {% set edges=static ~ "/edges" %} {% set vendor =
+edges ~ "/vendor" %} {% set src=edges ~ "/src" %} {% set components=src ~
+"/components" %} {% set bs3=src ~"/renderers/bs3" %}
 
 <script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="{{ src }}/datasources/es7x.js"></script>
