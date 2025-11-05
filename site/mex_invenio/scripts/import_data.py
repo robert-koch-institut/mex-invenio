@@ -38,7 +38,7 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data, get_related_mex_ids
 
-from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp, unit_of_work
+from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
 
 
 # No-op indexer class to disable indexing during import
@@ -144,37 +144,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
     except Exception as e:
         logger.error(f"Error in bulk database search: {e}")
         return {}
-
-
-def find_existing_record(mex_id: str) -> dict:
-    """Find a single existing record by MEx ID using direct database query."""
-    try:
-        # Query database directly for this specific MEx ID
-        record_with_pid = db.session.query(
-            RDMRecord.model_cls, 
-            PersistentIdentifier.pid_value
-        ).join(
-            PersistentIdentifier,
-            (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id) & 
-            (PersistentIdentifier.pid_type == 'recid')
-        ).filter(
-            text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = :mex_id")
-        ).params(mex_id=mex_id).first()
-
-        if record_with_pid:
-            record, pid_value = record_with_pid
-            # Extract data immediately and return as plain dict
-            record_json = copy.deepcopy(record.json)
-            return {
-                'id': str(pid_value),
-                'custom_fields': record_json.get('custom_fields', {}),
-                'metadata': record_json.get('metadata', {})
-            }
-        return None
-        
-    except Exception as e:
-        logger.error(f"Error finding existing record for {mex_id}: {e}")
-        return None
 
 
 def process_record_batch(
@@ -322,9 +291,12 @@ def import_data(
 
     # Sort files by modification time, newest first (ignore directories)
     files = sorted([f for f in Path(directory).iterdir() if f.is_file()], key=lambda x: -x.stat().st_mtime)
-    logger.info('0000000000000000000000000000000000000')
-    logger.info([f.name for f in files])
-    logger.info('0000000000000000000000000000000000000')
+    logger.info('=== FILE DEBUGGING ===')
+    logger.info(f'Directory: {directory}')
+    logger.info(f'Files found: {[f.name for f in files]}')
+    logger.info(f'Number of files: {len(files)}')
+    logger.info(f'Index parameter passed: {index}')
+    logger.info('======================')
 
     # Skip comparison if this is the first import
     if len(files) > 1:
@@ -345,14 +317,22 @@ def import_data(
 
         assert result.returncode == 0, "Error during file comparison"
 
+        logger.info(f'=== DIFF RESULT ===')
+        logger.info(f'Diff file: {diff_file}')
+        logger.info(f'Diff file size: {os.path.getsize(diff_file)} bytes')
+        logger.info(f'Original import_file: {import_file}')
+        logger.info('==================')
+
         if os.path.getsize(diff_file) == 0:
             logger.info("No new/changed records to import since last import.")
             return
 
         # Use the diff file for import
+        logger.info(f'Switching from {import_file} to diff file {diff_file}')
         import_file = diff_file
         # Do manual indexing, because this is an update
         index = True
+        logger.info(f'Index parameter now set to: {index}')
 
     with current_app.app_context():
         user_datastore = current_app.extensions["security"].datastore
@@ -378,12 +358,12 @@ def import_data(
         identity = get_authenticated_identity(owner.id)
 
         if not index:
-            RecordCommitOp.on_commit = lambda self, uow: None
-            RecordDeleteOp.on_commit = lambda self, uow: None
+            #RecordCommitOp.on_commit = lambda self, uow: None
+            #RecordDeleteOp.on_commit = lambda self, uow: None
             # Temporarily disable indexing for performance
-            original_indexer = current_rdm_records_service.indexer
+            #original_indexer = current_rdm_records_service.indexer
             # Monkey patch the indexer to a no-op version
-            current_rdm_records_service._indexer = NoOpIndexer()
+            #current_rdm_records_service._indexer = NoOpIndexer()
             logger.info("Disabled indexing during import for better performance")
         
         try:
@@ -420,7 +400,7 @@ def import_data(
                     
         finally:
             if not index:
-                current_rdm_records_service._indexer = original_indexer
+                #current_rdm_records_service._indexer = original_indexer
                 logger.info("Restored indexing")
 
     # End the timer after processing is done

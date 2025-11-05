@@ -8,6 +8,13 @@ import re
 from unittest.mock import patch, MagicMock
 
 import pytest
+import sqlalchemy as sa
+try:
+    from flask_sqlalchemy.session import Session as FlaskSQLAlchemySession
+except ImportError:
+    # Fallback for older Flask-SQLAlchemy versions
+    from flask_sqlalchemy import SQLAlchemy
+    FlaskSQLAlchemySession = SQLAlchemy().session
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
@@ -59,6 +66,88 @@ def search_messages(messages, pattern):
             return re.search(pattern, message)
 
     return None
+
+
+try:
+    class PytestInvenioSession(FlaskSQLAlchemySession):
+        """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
+        
+        def rollback(self) -> None:
+            if self._transaction is None:
+                pass
+            else:
+                self._transaction.rollback(_to_root=False)
+except (TypeError, AttributeError):
+    # Fallback for older Flask-SQLAlchemy versions - use standard session
+    PytestInvenioSession = None
+
+
+@pytest.fixture(scope='function')
+def db_session_options():
+    """Session options to prevent SQLAlchemy Continuum session binding issues."""
+    options = dict(expire_on_commit=False)
+    if PytestInvenioSession is not None:
+        options['class_'] = PytestInvenioSession
+    return options
+
+
+@pytest.fixture(scope="function")
+def db(database, db_session_options):
+    """Creates a new database session for a test - compatible with Flask-SQLAlchemy 2.5.1.
+    
+    Scope: function
+    
+    You must use this fixture if your test connects to the database. The
+    fixture will set a save point and rollback all changes performed during
+    the test (this is much faster than recreating the entire database).
+    """
+    from invenio_db import db as invenio_db
+    
+    connection = database.engine.connect()
+    transaction = connection.begin()
+
+    # Create session with our custom options
+    options = dict(
+        bind=connection,
+        binds={},
+        **db_session_options,
+    )
+    
+    session = database.create_scoped_session(options=options)
+    
+    # Monkey patch the session
+    old_session = invenio_db.session
+    invenio_db.session = session
+
+    try:
+        yield invenio_db
+    finally:
+        session.remove()
+        transaction.rollback()
+        connection.close()
+        invenio_db.session = old_session
+
+
+@pytest.fixture(scope='function')
+def db_session_transaction_restart(db):
+    """Fixture to restart savepoints after transaction ends for SQLAlchemy Continuum compatibility."""
+    
+    session_obj = db.session()
+    
+    @sa.event.listens_for(session_obj, "after_transaction_end")
+    def restart_savepoint(sess, trans):
+        if trans.nested and not trans._parent.nested:
+            sess.expire_all()
+            sess.begin_nested()
+    
+    yield
+    
+    # Clean up the event listener - use try/except to handle cases where session may have changed
+    try:
+        sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
+    except sa.exc.InvalidRequestError:
+        # Event listener may have already been removed or session changed
+        pass
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -278,6 +367,7 @@ def initialise_custom_fields(app, location, db, search_clear, cli_runner):
 @pytest.fixture
 def create_file(tmp_path):
     """Create a file, either absolute or relative to the tmp_path."""
+    created_files = []
 
     def _create_file(filename, data, absolute=False):
         if isinstance(data, dict):
@@ -291,9 +381,18 @@ def create_file(tmp_path):
             file_path = tmp_path / filename
             file_path.write_text(data)
 
+        created_files.append(str(file_path))
         return str(file_path)
 
-    return _create_file
+    yield _create_file
+    
+    # Cleanup: remove all created files after the test
+    for file_path in created_files:
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except OSError:
+            pass  # File might already be deleted
 
 
 @pytest.fixture
@@ -312,15 +411,19 @@ def import_file(
     initialise_custom_fields,
     custom_field_exists,
     db,
+    db_session_options,
+    db_session_transaction_restart,
     caplog,
     cli_runner,
     create_user,
     create_file,
+    tmp_path,
 ):
     email = "importer@address.com"
     create_user("importer", email)
 
     def _import_file(filename, data):
+        
         file = create_file(f"{filename}.json", data)
 
         # Capture logs at DEBUG level and from all loggers
@@ -328,7 +431,13 @@ def import_file(
             result = cli_runner(_import_data, email, file, '--index')
 
         assert result.exit_code == 0, f"CLI command failed with exit code {result.exit_code}: {result.exception}"
+        
+        print(f"=== IMPORT_FILE FIXTURE DEBUG ===")
+        print(f"CLI result output: {result.output}")
+        print(f"Refreshing indexer: {type(current_rdm_records.records_service.indexer)}")
         current_rdm_records.records_service.indexer.refresh()
+        print("Indexer refreshed")
+        print("================================")
 
         return caplog.messages
 
