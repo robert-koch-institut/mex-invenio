@@ -27,62 +27,15 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% if "is_backwards_linked" in prop %}
-                    {% set record_data = data["backwards_linked"] %}
-                {% else %}
-                    {% set record_data = data %}
-                {% endif %}
-                {% if prop.field in record_data %}
-                    <div class="card-props-p">
-                        <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p>
+                {% if prop.field in data.backwards_linked %}
+                    {% set var_data = data["backwards_linked"][prop.field] %}
+                    <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">
-                            {%- set values = record_data[prop.field] -%}
-                    
-                            {%- if values[0].language -%}
-                                {%- set correct_lang = values | selectattr("language", "equalto", lang) | list -%}
-                                {%- if correct_lang | length > 0 -%}
-                                    {%- set empty_lang = values | selectattr("language", "equalto", "") | list -%}
-                                    {%- set selected = correct_lang  + empty_lang -%}
-                                {%- else -%}
-                                    {%- set selected = values -%}
-                                {%- endif -%}
-                            {%- else -%}
-                                {%- set selected = values -%}
-                            {%- endif -%}
-
-                            {% set total = selected | length %}
-                            {% set visible = selected[:max_visible] %}
-                            {% set hidden = selected[max_visible:] %}
-
-                            {%- for v in visible  -%}
-                                <p>{{ v.display_value }}</p>
-                            {%- endfor -%}
-
-                            {# If there are more, show "Add more" button #}
-                            {% if hidden %}
-                                <div class="more-values" style="display: none;">
-                                    {% for v in hidden %}
-                                        <p>{{ v.display_value }}</p>
-                                    {% endfor %}
-                                </div>
-                                <button
-                                    type="button"
-                                    class="ui button link-like"
-                                    onclick="
-                                        const hidden = this.previousElementSibling;
-                                        const isHidden = hidden.style.display === 'none';
-                                        hidden.style.display = isHidden ? 'block' : 'none';
-                                        this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
-                                    "
-                                >
-                                    Show all ({{ total }}) &#x25BE;
-                                </button>
-                                <a href="https://127.0.0.1:5000/search?q=&f=restricted_resource_type%3Aactivity&l=list&p=1&s=10&sort=newest" class="ui button button-secondary">See all in variables search page</a>
-    </div>
-                            {% endif %}
+                            {{ display_values(var_data)}}
                         </div>
                     </div>
                 {% endif %}
             {% endfor %}
         </div>
+    </div>
 {% endif %}
