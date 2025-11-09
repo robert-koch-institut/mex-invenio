@@ -1,4 +1,4 @@
-"""Script to import data for the MEx Invenio repository.
+"""Script to import data for the MEx Invenio repository on a regular basis.
 
 Make sure the Invenio services have been set up and are running.
 
@@ -25,7 +25,6 @@ import time
 import click
 from dictdiffer import diff
 from flask import current_app
-from invenio_access.permissions import system_identity
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
@@ -79,9 +78,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
     if not mex_ids:
         return {}
 
-    logger.info(f"Performing bulk search for {len(mex_ids)} MEx IDs")
-    logger.info(f"Searching for MEx IDs: {mex_ids}")
-
     try:
         # Query database with JOIN to get PID in one query using SQLAlchemy ORM
         records_with_pids = db.session.query(
@@ -94,8 +90,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
         ).filter(
             text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)")
         ).params(mex_ids=mex_ids).all()
-
-        logger.info(f"Database returned {len(records_with_pids)} records with matching MEx IDs")
 
         # Convert to the same format as search results
         existing_records = {}
@@ -115,7 +109,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
                 }
                 existing_records[mex_id] = record_data
 
-        logger.info(f"Found {len(existing_records)} existing records out of {len(mex_ids)} requested")
         return existing_records
         
     except Exception as e:
@@ -135,8 +128,6 @@ def process_record_batch(
             mex_data = mex_to_invenio_schema(current_app.config, json_data)
 
             existing_record = existing_records.get(mex_id)
-
-            logger.info(f"Processing MEx ID: {mex_id} - Existing record: {'found' if existing_record else 'not found'}")
 
             if not existing_record:
                 # Create a new record
@@ -159,19 +150,8 @@ def process_record_batch(
                 current_data = normalize_record_data(existing_record["custom_fields"])
                 new_data = normalize_record_data(mex_data["custom_fields"])
                 metadata_diff = list(diff(current_data, new_data))
-                logger.info(f"Metadata diff for record {mex_id}: {metadata_diff}")
 
                 if metadata_diff:
-                    logger.error(f"Record {mex_id} has differences: {metadata_diff}")
-                    logger.error(
-                        f"Current custom_fields keys: {list(current_data.keys())}"
-                    )
-                    logger.error(f"New custom_fields keys: {list(new_data.keys())}")
-                    logger.error(
-                        f"Missing from current: {set(new_data.keys()) - set(current_data.keys())}"
-                    )
-                    logger.error("---" * 20)
-
                     new_version = current_rdm_records_service.new_version(
                         id_=record_pid, identity=identity
                     )
@@ -297,7 +277,6 @@ def import_data(
 
                     # Process batch when it reaches batch_size
                     if len(batch_records) >= batch_size:
-                        logger.info(f"Processing batch of {len(batch_records)} records")
                         batch_results = process_batch(batch_records, identity)
                         update_report(report, batch_results)
                         batch_records = []
@@ -346,7 +325,6 @@ def import_data(
         for mex_id in report["related"]:
             if mex_id in mex_id_to_uuid:
                 uuid = mex_id_to_uuid[mex_id]
-                print(f"Indexing record {mex_id} with UUID {uuid}")
                 current_rdm_records_service.indexer.index_by_id(uuid)
             else:
                 logger.warning(f"Could not find UUID for related MEx ID: {mex_id}")

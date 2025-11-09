@@ -423,18 +423,12 @@ def import_file(
         
         file = create_file(f"{filename}.json", data)
 
-        # Capture logs at DEBUG level and from all loggers
-        with caplog.at_level(logging.INFO):
+        with caplog.at_level(logging.DEBUG):
             result = cli_runner(_import_data, email, file)
 
         assert result.exit_code == 0, f"CLI command failed with exit code {result.exit_code}: {result.exception}"
-        
-        print(f"=== IMPORT_FILE FIXTURE DEBUG ===")
-        print(f"CLI result output: {result.output}")
-        print(f"Refreshing indexer: {type(current_rdm_records.records_service.indexer)}")
+
         current_rdm_records.records_service.indexer.refresh()
-        print("Indexer refreshed")
-        print("================================")
 
         return caplog.messages
 
@@ -447,16 +441,3 @@ def mock_s3_client():
         s3_client = MagicMock()
         mock.return_value = s3_client
         yield s3_client
-
-
-@pytest.fixture
-def clear_files(tmp_path):
-    """Fixture to clear files after test."""
-
-    def _clear_files():
-        for root, dirs, files in os.walk(tmp_path):
-            for file in files:
-                print(file)
-                #os.remove(os.path.join(root, file))
-
-    return _clear_files

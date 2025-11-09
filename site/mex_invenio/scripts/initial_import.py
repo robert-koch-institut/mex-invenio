@@ -1,4 +1,8 @@
-"""Script to import data for the MEx Invenio repository.
+"""Script to do the initial import of a large number of data for the MEx Invenio repository.
+
+This script is intended to run only once, to import the data to a vanilla database.
+It does not do any lookups or comparisons. Synchronous indexing is disabled in order to
+speed up the processing.
 
 Make sure the Invenio services have been set up and are running.
 
@@ -6,9 +10,8 @@ Does the following:
 - Finds the file provided as CLI argument.
 - Finds a user to own the record.
 - Reads in the metadata in MEx json format.
-- Looks up the record in the repository by the MEx identifier.
-- If the record does not exist, creates a new record.
-- Else compares the custom fields of the existing record with the new data and creates a new version of the record.
+- Disables synchronous indexing by monkey patching
+- Creates a new draft and publishes as a record
 
 To run the script, go to the repository root directory and use the following command:
 
@@ -23,7 +26,6 @@ import time
 
 import click
 from flask import current_app
-from invenio_access.permissions import system_identity
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 
@@ -100,17 +102,17 @@ def process_record_batch(
     return results
 
 
-@click.command("import_data")
+@click.command("initial_import")
 @click.argument("email")
 @click.argument("import_file")
 @click.option(
     "--batch-size", default=100, help="Number of records to process in each batch."
 )
-def _import_data(email: str, import_file: str, batch_size: int) -> bool:
-    return import_data(email, import_file, batch_size, cli=True)
+def _initial_import(email: str, import_file: str, batch_size: int) -> bool:
+    return initial_import(email, import_file, batch_size, cli=True)
 
 
-def import_data(
+def initial_import(
         email: str,
         import_file: str,
         batch_size: int = 100,
@@ -229,4 +231,4 @@ def import_data(
 
 
 if __name__ == "__main__":
-    _import_data()
+    _initial_import()

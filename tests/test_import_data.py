@@ -49,9 +49,6 @@ def test_import_contact_point(
     service = current_rdm_records.records_service
 
     messages = import_file("contact-point", contact_point_data)
-
-    # Log output is captured in the import_file fixture defined in
-    # conftest and returned by the fixture as a list of messages.
     match = search_messages(messages, created_regex)
 
     number_of_records_published = int(match.group("count"))
@@ -59,51 +56,16 @@ def test_import_contact_point(
 
     assert match is not None
     assert len(match.groups()) == 3
-
-    # Debugging: Check what indexer we're using
-    print(f"=== INDEXER DEBUG ===")
-    print(f"Service indexer type: {type(service.indexer)}")
-    print(f"Service indexer: {service.indexer}")
-    print(f"Expected record ID: {published_record_id}")
-    print("====================")
     
     # Ensure search index is refreshed before searching
-    print("Refreshing service indexer...")
     service.indexer.refresh()
     
-    # Let's also try to search the MEX index directly
-    from opensearchpy import OpenSearch
-    client = OpenSearch([{'host': 'localhost', 'port': 9200}])
-    
-    print(f"=== DIRECT INDEX CHECK ===")
-    try:
-        # Check what indexes exist
-        indices = client.indices.get_alias()
-        mex_indices = {k: v for k, v in indices.items() if 'mexrecords' in k}
-        print(f"MEX indices found: {list(mex_indices.keys())}")
-        
-        # Search the MEX index directly
-        if mex_indices:
-            index_name = list(mex_indices.keys())[0]
-            direct_search = client.search(index=index_name, body={"query": {"match_all": {}}})
-            print(f"Direct search in {index_name}: {direct_search['hits']['total']}")
-            if direct_search['hits']['hits']:
-                print(f"Direct search found records: {[hit['_id'] for hit in direct_search['hits']['hits']]}")
-        
-    except Exception as e:
-        print(f"Direct search error: {e}")
-    print("=========================")
-    
     search_obj = service.search(system_identity)
-    print(f"=== SERVICE SEARCH ===")
-    print(f"Search object type: {type(search_obj)}")
-    print(f"Search total: {search_obj.total}")
-    #print(f"Search results: {search_obj.to_dict()}")
-    print("=====================")
-    
-    # Check if we have any results before trying to access them
+
     assert search_obj.total == number_of_records_published, f"Expected {number_of_records_published} records, but found {search_obj.total}"
     assert search_obj.total > 0, "No records found in search results"
     
     record = list(search_obj.hits)[0]
     assert record["id"] == published_record_id
+    assert 'reginagarrett@example.com' in record["custom_fields"]["mex:email"]
+    assert 'zJBx8K7g9mQ8X03VZHnxW' in record["custom_fields"]["mex:identifier"]
