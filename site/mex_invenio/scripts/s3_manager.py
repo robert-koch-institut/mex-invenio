@@ -1,5 +1,5 @@
 """
-This script fetches the latest file from an S3 store and uploads it to the server.
+This script fetches the latest file from an S3 store and imports it to the server.
 
 ### How to Run
 To execute the script, run:
@@ -36,7 +36,7 @@ import os
 from dotenv import load_dotenv
 from flask import current_app
 from mex_invenio.scripts.import_data import import_data
-from mex_invenio.scripts.utils import compare_files
+from mex_invenio.scripts.utils import compare_files, diff_files
 from datetime import datetime, timezone
 
 # Configure logging
@@ -132,16 +132,19 @@ def rename_and_keep_latest_file(
 
     os.rename(new_file, final_new_file_path)  # Rename new file
 
+    # Create diff file if both files exist
+    diff_file_path = final_new_file_path
     if existing_file and os.path.exists(existing_file):
         try:
-            os.remove(existing_file)
+            diff_file_path = diff_files(payload_folder, existing_file, final_new_file_path)
+            #os.remove(existing_file)
             logger.info(
                 f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
             )
         except OSError as e:
             logger.warning(f"Could not remove existing file {existing_file}: {e}")
 
-    return final_new_file_path
+    return diff_file_path
 
 
 @click.command("manage_s3_files")
@@ -160,6 +163,7 @@ def manage_s3_files(check: bool, ingest: bool = False):
     if not latest_file_key:
         return
 
+    # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER")
     os.makedirs(s3_download_folder, exist_ok=True)
 

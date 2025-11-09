@@ -19,9 +19,6 @@ import copy
 import json
 import logging
 import os.path
-from datetime import datetime
-from pathlib import Path
-import subprocess
 import sys
 import time
 
@@ -38,26 +35,6 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data, get_related_mex_ids
 
-from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
-
-
-# No-op indexer class to disable indexing during import
-class NoOpIndexer:
-    """A no-operation indexer that does nothing."""
-    def index(self, *args, **kwargs):
-        pass
-    def delete(self, *args, **kwargs):
-        pass
-    def delete_by_id(self, *args, **kwargs):
-        pass
-    def exists(self, *args, **kwargs):
-        return False
-    def bulk_index(self, *args, **kwargs):
-        pass
-    def bulk_delete(self, *args, **kwargs):
-        pass
-    def refresh(self, *args, **kwargs):
-        pass
 
 # Configure logging
 logging.basicConfig(
@@ -239,7 +216,6 @@ def process_batch(batch_records: list[dict], identity) -> list[dict]:
 
 def update_report(report: dict, batch_results: list[dict]):
     """Update the report with results from a batch."""
-    print(batch_results)
     for result in batch_results:
         if result["action"] == "create":
             report["created"].append(result["id"])
@@ -257,19 +233,14 @@ def update_report(report: dict, batch_results: list[dict]):
 @click.option(
     "--batch-size", default=100, help="Number of records to process in each batch."
 )
-@click.option(
-    "--index", is_flag=True, default=False,
-    help="Skip indexing during import for better performance.",
-)
-def _import_data(email: str, import_file: str, batch_size: int, index: bool) -> bool:
-    return import_data(email, import_file, batch_size, index, cli=True)
+def _import_data(email: str, import_file: str, batch_size: int) -> bool:
+    return import_data(email, import_file, batch_size, cli=True)
 
 
 def import_data(
     email: str,
     import_file: str,
     batch_size: int = 100,
-    index: bool = False,
     cli: bool = False,
 ) -> bool:
     """Main function to import data.
@@ -285,54 +256,6 @@ def import_data(
         else:
             logger.error(message)
             return False
-
-    # Find the directory of the file
-    directory = "/".join(import_file.split("/")[:-1]) + "/"
-
-    # Sort files by modification time, newest first (ignore directories)
-    files = sorted([f for f in Path(directory).iterdir() if f.is_file()], key=lambda x: -x.stat().st_mtime)
-    logger.info('=== FILE DEBUGGING ===')
-    logger.info(f'Directory: {directory}')
-    logger.info(f'Files found: {[f.name for f in files]}')
-    logger.info(f'Number of files: {len(files)}')
-    logger.info(f'Index parameter passed: {index}')
-    logger.info('======================')
-
-    # Skip comparison if this is the first import
-    if len(files) > 1:
-        diffdirectory = directory + "diffs/"
-
-        if not os.path.exists(diffdirectory):
-            os.makedirs(diffdirectory, exist_ok=True)
-
-        last_import = files[1]
-
-        awk_pattern = "NR==FNR{seen[$0]=1; next} !($0 in seen)"
-        timestamp = datetime.today().strftime('%d-%m-%Y_%I_%M_%S')
-        diff_file = f"{diffdirectory}diff_{timestamp}.ndjson"
-
-        comparison_cmd = f"awk '{awk_pattern}' {last_import} {import_file} > {diff_file}"
-
-        result = subprocess.run([comparison_cmd], shell=True, check=True)
-
-        assert result.returncode == 0, "Error during file comparison"
-
-        logger.info(f'=== DIFF RESULT ===')
-        logger.info(f'Diff file: {diff_file}')
-        logger.info(f'Diff file size: {os.path.getsize(diff_file)} bytes')
-        logger.info(f'Original import_file: {import_file}')
-        logger.info('==================')
-
-        if os.path.getsize(diff_file) == 0:
-            logger.info("No new/changed records to import since last import.")
-            return
-
-        # Use the diff file for import
-        logger.info(f'Switching from {import_file} to diff file {diff_file}')
-        import_file = diff_file
-        # Do manual indexing, because this is an update
-        index = True
-        logger.info(f'Index parameter now set to: {index}')
 
     with current_app.app_context():
         user_datastore = current_app.extensions["security"].datastore
@@ -357,51 +280,36 @@ def import_data(
     with current_app.app_context():
         identity = get_authenticated_identity(owner.id)
 
-        if not index:
-            #RecordCommitOp.on_commit = lambda self, uow: None
-            #RecordDeleteOp.on_commit = lambda self, uow: None
-            # Temporarily disable indexing for performance
-            #original_indexer = current_rdm_records_service.indexer
-            # Monkey patch the indexer to a no-op version
-            #current_rdm_records_service._indexer = NoOpIndexer()
-            logger.info("Disabled indexing during import for better performance")
-        
-        try:
-            with open(import_file) as f:
-                batch_records = []
+        with open(import_file) as f:
+            batch_records = []
 
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
 
-                    try:
-                        json_data = json.loads(line)
-                        batch_records.append(json_data)
-                        num_lines += 1
+                try:
+                    json_data = json.loads(line)
+                    batch_records.append(json_data)
+                    num_lines += 1
 
-                        logger.info(f"Processing line: {num_lines}")
+                    logger.info(f"Processing line: {num_lines}")
 
-                        # Process batch when it reaches batch_size
-                        if len(batch_records) >= batch_size:
-                            logger.info(f"Processing batch of {len(batch_records)} records")
-                            batch_results = process_batch(batch_records, identity)
-                            update_report(report, batch_results)
-                            batch_records = []
+                    # Process batch when it reaches batch_size
+                    if len(batch_records) >= batch_size:
+                        logger.info(f"Processing batch of {len(batch_records)} records")
+                        batch_results = process_batch(batch_records, identity)
+                        update_report(report, batch_results)
+                        batch_records = []
 
-                    except json.JSONDecodeError:
-                        logger.error(f"Error decoding JSON line: {line}")
-                        report["error"] += 1
+                except json.JSONDecodeError:
+                    logger.error(f"Error decoding JSON line: {line}")
+                    report["error"] += 1
 
-                # Process remaining records
-                if batch_records:
-                    batch_results = process_batch(batch_records, identity)
-                    update_report(report, batch_results)
-                    
-        finally:
-            if not index:
-                #current_rdm_records_service._indexer = original_indexer
-                logger.info("Restored indexing")
+            # Process remaining records
+            if batch_records:
+                batch_results = process_batch(batch_records, identity)
+                update_report(report, batch_results)
 
     # End the timer after processing is done
     end_time = time.time()
@@ -431,11 +339,6 @@ def import_data(
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
     logger.info(time_taken)
-
-    # Rebuild the search index after all records have been processed (if requested)
-
-    #with app.app_context():
-    #    current_rdm_records_service.rebuild_index(identity=system_identity)
 
     # Get UUIDs for related MEx IDs for indexing
     if report["related"]:

@@ -4,6 +4,7 @@ import filecmp
 import html
 import logging
 import os
+import subprocess
 from datetime import datetime
 from typing import Callable
 
@@ -132,6 +133,32 @@ def compare_files(existing_file: str, new_file: str) -> bool:
         return True
     return False
 
+
+def diff_files(directory: str, existing_file: str, new_file: str) -> str:
+    logger.info('=== FILE DEBUGGING ===')
+    logger.info(f'Directory: {directory}')
+    logger.info('======================')
+
+    diffdirectory = os.path.join(directory, "diffs")
+    os.makedirs(diffdirectory, exist_ok=True)
+
+    awk_pattern = "NR==FNR{seen[$0]=1; next} !($0 in seen)"
+    timestamp = datetime.today().strftime('%d-%m-%Y_%I_%M_%S')
+    diff_file = os.path.join(diffdirectory, f"diff_{timestamp}.ndjson")
+
+    comparison_cmd = f"awk '{awk_pattern}' {existing_file} {new_file} > {diff_file}"
+
+    result = subprocess.run([comparison_cmd], shell=True, check=True)
+
+    assert result.returncode == 0, "Error during file comparison"
+
+    logger.info(f'=== DIFF RESULT ===')
+    logger.info(f'Diff file: {diff_file}')
+    logger.info(f'Diff file size: {os.path.getsize(diff_file)} bytes')
+    logger.info(f'Original import_file: {existing_file}')
+    logger.info('==================')
+
+    return diff_file
 
 def get_related_mex_ids(config, record: dict) -> list:
     """Get related MEx identifiers from the record's custom fields."""

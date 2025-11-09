@@ -43,9 +43,10 @@ def test_identical_files(
     # Import should not import anything and the younger file should be removed
     result = cli_runner(manage_s3_files, "--check")
 
-    assert result.exit_code == 0  # No files imported
+    assert result.exit_code == 0
     assert os.path.exists(existing_file_path)
     assert not os.path.exists(downloaded_file_path)
+    assert len(os.listdir(download_path)) == 1
 
 
 @freeze_time("2023-01-01")
@@ -83,11 +84,18 @@ def test_replace_file_but_fail_import(
     }
     # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
 
-    # Import should not import anything and the younger file should be removed
+    # Import should not import anything
     result = cli_runner(manage_s3_files, "--check")
 
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
+    directory_contents = os.listdir(download_path)
+    diff_directory_contents = os.listdir(os.path.join(download_path, 'diffs'))
 
-    assert not os.path.exists(existing_file_path)
     assert result.exit_code == 0
     assert os.path.exists(renamed_downloaded_file)
+    assert 'diffs' in directory_contents
+    assert 'diff_01-01-2023_12_00_00.ndjson' in diff_directory_contents
+
+    with open(os.path.join(download_path,'diffs', 'diff_01-01-2023_12_00_00.ndjson'), 'r') as diff_file:
+        diff_content = diff_file.read()
+        assert diff_content.strip() == '{"s":"b"}'

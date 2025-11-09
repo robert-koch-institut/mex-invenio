@@ -1,6 +1,3 @@
-# conftest.py
-# see https://github.com/nyudlts/ultraviolet/blob/main/tests/conftest.py
-
 import json
 import logging
 import os
@@ -428,7 +425,7 @@ def import_file(
 
         # Capture logs at DEBUG level and from all loggers
         with caplog.at_level(logging.INFO):
-            result = cli_runner(_import_data, email, file, '--index')
+            result = cli_runner(_import_data, email, file)
 
         assert result.exit_code == 0, f"CLI command failed with exit code {result.exit_code}: {result.exception}"
         
