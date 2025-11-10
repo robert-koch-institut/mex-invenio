@@ -88,8 +88,6 @@ def test_import_person_2nd_version(
     messages = import_file("person_2", person_data)
     match = search_messages(messages, created_regex)
 
-    print(messages)
-
     assert match.group("verb") == "Updated"
 
     search_obj = service.search(system_identity)

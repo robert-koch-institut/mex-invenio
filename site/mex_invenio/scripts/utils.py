@@ -135,10 +135,6 @@ def compare_files(existing_file: str, new_file: str) -> bool:
 
 
 def diff_files(directory: str, existing_file: str, new_file: str) -> str:
-    logger.info('=== FILE DEBUGGING ===')
-    logger.info(f'Directory: {directory}')
-    logger.info('======================')
-
     diffdirectory = os.path.join(directory, "diffs")
     os.makedirs(diffdirectory, exist_ok=True)
 
@@ -152,12 +148,6 @@ def diff_files(directory: str, existing_file: str, new_file: str) -> str:
 
     assert result.returncode == 0, "Error during file comparison"
 
-    logger.info(f'=== DIFF RESULT ===')
-    logger.info(f'Diff file: {diff_file}')
-    logger.info(f'Diff file size: {os.path.getsize(diff_file)} bytes')
-    logger.info(f'Original import_file: {existing_file}')
-    logger.info('==================')
-
     return diff_file
 
 def get_related_mex_ids(config, record: dict) -> list:
@@ -168,10 +158,7 @@ def get_related_mex_ids(config, record: dict) -> list:
 
     related_fields = [k for k,v in field_types.get(record_type, {}).items() if v == "identifier"]
 
-    print('HERE', related_fields)
-
     for field in related_fields:
-        #mex_field = f"mex:{field}"
         if field in record.get("custom_fields", {}):
             field_value = record["custom_fields"][field]
             if isinstance(field_value, list):
@@ -179,10 +166,5 @@ def get_related_mex_ids(config, record: dict) -> list:
                     related_ids.add(str(item))
             else:
                 related_ids.add(str(field_value))
-
-    print('----------------------')
-    print(record)
-    print(related_ids)
-    print('----------------------')
 
     return list(related_ids)
