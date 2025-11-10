@@ -360,6 +360,7 @@ UI_SETTINGS = {
                 "icon": "theme.svg",
                 "template": "theme_keywords.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:theme"},
                     {"field": "mex:keyword"},
                 ],
@@ -367,11 +368,11 @@ UI_SETTINGS = {
             "coverage": {
                 "title": "Data Representation & Coverage",
                 "icon": "coverage.svg",
+                "template": "coverage.html",
                 "properties": [
                     {"field": "mex:temporal", "label": "Temporal coverage"},
                     {"field": "mex:spatial", "label": "Spatial"},
-                    {"field": "mex:minTypicalAge", "label": "Min. typical age"},
-                    {"field": "mex:maxTypicalAge", "label": "Max. typical age"},
+                    {"field": "fn", "label": "Typical age"},
                     {"field": "mex:populationCoverage", "label": "Population coverage"},
                     {"field": "mex:sizeOfDataBasis", "label": "Size of data basis"},
                 ],
@@ -409,7 +410,9 @@ UI_SETTINGS = {
             "methodology": {
                 "title": "Methodology",
                 "icon": "methodology.svg",
+                "template": "methodology.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:method", "label": "Method"},
                     {"field": "mex:methodDescription", "label": "Method description"},
                 ],
@@ -433,7 +436,6 @@ UI_SETTINGS = {
                     {
                         "field": "mex:wasGeneratedBy",
                         "label": "Related project/endeavor",
-                        "is_backwards_linked": True,
                     },
                 ],
             },

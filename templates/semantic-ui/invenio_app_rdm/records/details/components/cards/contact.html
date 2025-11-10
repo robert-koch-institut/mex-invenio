@@ -27,11 +27,17 @@
                                 {% set combined_names = ns.names | join(', ') %}
                                 {%- if "email" in value and value.email %}
                                     <span class="email-container">
-                                    <button type="button" class="ui button link-like" data-record-id="{{ value.url }}" onclick="supportRecordHandler('{{ value.url }}')">{{ value.combined_names }}</button>
+                                    <button type="button" 
+                                        class="ui button link-like" 
+                                        data-record-id="{{ value.url }}" 
+                                        onclick="supportRecordHandler('{{ value.url }}')" >
+                                        {{ combined_names }}
+                                    </button>
                                         <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
                                         <img class="ui image icon"
                                             src="{{ url_for('static', filename='icons/mailto.svg') }}"
                                             alt="send email"
+                                            title='{{_("Send email") }}'
                                         />
                                         </a>
                                         {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
