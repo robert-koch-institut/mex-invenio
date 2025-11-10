@@ -135,13 +135,19 @@ def initial_import(
             logger.error(message)
             return False
 
+    # Store original on_commit methods
+    original_record_commit_op = RecordCommitOp.on_commit
+    original_record_delete_op = RecordDeleteOp.on_commit
+    
+    # Disable on_commit methods for performance
     RecordCommitOp.on_commit = lambda self, uow: None
     RecordDeleteOp.on_commit = lambda self, uow: None
+    
     # Temporarily disable indexing for performance
     original_indexer = current_rdm_records_service.indexer
     # Monkey patch the indexer to a no-op version
     current_rdm_records_service._indexer = NoOpIndexer()
-    logger.info("Disabled indexing during import for better performance")
+    logger.info("Disabled indexing and commit operations during import for better performance")
 
     with current_app.app_context():
         user_datastore = current_app.extensions["security"].datastore
@@ -203,8 +209,14 @@ def initial_import(
                     batch_results = process_record_batch(batch_records, identity)
                     report.extend(batch_results)
         finally:
+            # Restore original indexer
             current_rdm_records_service._indexer = original_indexer
-            logger.info("Restored indexing")
+            
+            # Restore original on_commit methods
+            RecordCommitOp.on_commit = original_record_commit_op
+            RecordDeleteOp.on_commit = original_record_delete_op
+            
+            logger.info("Restored indexing and commit operations")
 
     # End the timer after processing is done
     end_time = time.time()
