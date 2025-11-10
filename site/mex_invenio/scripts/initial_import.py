@@ -2,7 +2,9 @@
 
 This script is intended to run only once, to import the data to a vanilla database.
 It does not do any lookups or comparisons. Synchronous indexing is disabled in order to
-speed up the processing.
+speed up the processing. Note that since no check is made on the mex:identifier value,
+running this script twice with an object with the same mex:identifier will result in
+two records being created with the same identifier.
 
 Make sure the Invenio services have been set up and are running.
 
@@ -158,6 +160,7 @@ def initial_import(
     start_time = time.time()
     num_lines = 0
     report = []
+    errors = []
 
     # Process records in batches
     with current_app.app_context():
@@ -188,7 +191,7 @@ def initial_import(
 
                     except json.JSONDecodeError:
                         logger.error(f"Error decoding JSON line: {line}")
-                        report["error"] += 1
+                        errors.append(line)
 
                 # Process remaining records
                 if batch_records:
@@ -204,19 +207,14 @@ def initial_import(
     # Calculate the total time taken and print the results
     elapsed_time = end_time - start_time
     minutes, seconds = divmod(elapsed_time, 60)
+    record_count = len(report)
+    errors = len(errors)
 
-    for action in report:
-        if isinstance(report[action], list):
-            record_count = len(report[action])
-        elif isinstance(report[action], int):
-            record_count = report[action]
+    if record_count > 0:
+        logger.info(f"Created {record_count} records. Ids: {report}")
 
-        if record_count > 0:
-            if action == "error":
-                logger.error(f"Encountered {record_count} errors during import.")
-
-            else:
-                logger.info(f"{action.capitalize()} {record_count} records. Ids: {report[action]}")
+    if errors:
+        logger.error(f"Errors: {errors}")
 
     if minutes:
         time_taken = (

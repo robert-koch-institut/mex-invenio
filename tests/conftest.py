@@ -26,6 +26,7 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.scripts.import_data import _import_data
+from mex_invenio.scripts.initial_import import _initial_import
 from mex_invenio.config import (
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
@@ -419,12 +420,15 @@ def import_file(
     email = "importer@address.com"
     create_user("importer", email)
 
-    def _import_file(filename, data):
+    def _import_file(filename, data, initial=False):
         
         file = create_file(f"{filename}.json", data)
 
         with caplog.at_level(logging.DEBUG):
-            result = cli_runner(_import_data, email, file)
+            if initial:
+                result = cli_runner(_initial_import, email, file)
+            else:
+                result = cli_runner(_import_data, email, file)
 
         assert result.exit_code == 0, f"CLI command failed with exit code {result.exit_code}: {result.exception}"
 
