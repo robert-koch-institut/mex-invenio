@@ -136,8 +136,10 @@ def rename_and_keep_latest_file(
     diff_file_path = final_new_file_path
     if existing_file and os.path.exists(existing_file):
         try:
-            diff_file_path = diff_files(payload_folder, existing_file, final_new_file_path)
-            #os.remove(existing_file)
+            diff_file_path = diff_files(
+                payload_folder, existing_file, final_new_file_path
+            )
+            # os.remove(existing_file)
             logger.info(
                 f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
             )

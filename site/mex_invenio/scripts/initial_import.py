@@ -31,7 +31,11 @@ from flask import current_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 
-from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data, get_related_mex_ids
+from mex_invenio.scripts.utils import (
+    mex_to_invenio_schema,
+    normalize_record_data,
+    get_related_mex_ids,
+)
 
 from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
 
@@ -71,9 +75,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def process_record_batch(
-        records_data: list[dict], identity
-) -> list[dict]:
+def process_record_batch(records_data: list[dict], identity) -> list[dict]:
     """Process a batch of records."""
     results = []
 
@@ -82,9 +84,7 @@ def process_record_batch(
             mex_data = mex_to_invenio_schema(current_app.config, json_data)
 
             # Create a new record
-            draft = current_rdm_records_service.create(
-                data=mex_data, identity=identity
-            )
+            draft = current_rdm_records_service.create(data=mex_data, identity=identity)
             published = current_rdm_records_service.publish(
                 id_=draft.id, identity=identity
             )
@@ -96,6 +96,7 @@ def process_record_batch(
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
             import traceback
+
             logger.error(
                 f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
                 f"Full traceback:\n{traceback.format_exc()}"
@@ -115,10 +116,10 @@ def _initial_import(email: str, import_file: str, batch_size: int) -> bool:
 
 
 def initial_import(
-        email: str,
-        import_file: str,
-        batch_size: int = 100,
-        cli: bool = False,
+    email: str,
+    import_file: str,
+    batch_size: int = 100,
+    cli: bool = False,
 ) -> bool:
     """Main function to import data.
     Batch size is set to 100 records by default.
@@ -184,8 +185,12 @@ def initial_import(
 
                         # Process batch when it reaches batch_size
                         if len(batch_records) >= batch_size:
-                            logger.info(f"Processing batch of {len(batch_records)} records")
-                            batch_results = process_record_batch(batch_records, identity)
+                            logger.info(
+                                f"Processing batch of {len(batch_records)} records"
+                            )
+                            batch_results = process_record_batch(
+                                batch_records, identity
+                            )
                             report.extend(batch_results)
                             batch_records = []
 

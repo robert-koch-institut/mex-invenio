@@ -32,42 +32,49 @@ from invenio_db import db
 from invenio_pidstore.models import PersistentIdentifier
 from sqlalchemy import text
 
-from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data, get_related_mex_ids
+from mex_invenio.scripts.utils import (
+    mex_to_invenio_schema,
+    normalize_record_data,
+    get_related_mex_ids,
+)
 
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    #format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-    #datefmt='%Y-%m-%d %H:%M:%S'
+    # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    # datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
-
 
 
 def get_record_uuids_by_mex_ids(mex_ids: list[str]) -> dict[str, str]:
     """Get record UUIDs for given MEx IDs."""
     if not mex_ids:
         return {}
-    
+
     try:
         # Query for record UUIDs by MEx IDs
-        records = db.session.query(
-            RDMRecord.model_cls.id,
-            RDMRecord.model_cls.json
-        ).filter(
-            text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)")
-        ).params(mex_ids=mex_ids).all()
-        
+        records = (
+            db.session.query(RDMRecord.model_cls.id, RDMRecord.model_cls.json)
+            .filter(
+                text(
+                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+                )
+            )
+            .params(mex_ids=mex_ids)
+            .all()
+        )
+
         # Map MEx ID to UUID
         mex_id_to_uuid = {}
         for record_id, record_json in records:
-            mex_id = record_json.get('custom_fields', {}).get('mex:identifier')
+            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
             if mex_id in mex_ids:
                 mex_id_to_uuid[mex_id] = str(record_id)
-        
+
         return mex_id_to_uuid
-        
+
     except Exception as e:
         logger.error(f"Error getting UUIDs for MEx IDs: {e}")
         return {}
@@ -80,37 +87,44 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
 
     try:
         # Query database with JOIN to get PID in one query using SQLAlchemy ORM
-        records_with_pids = db.session.query(
-            RDMRecord.model_cls, 
-            PersistentIdentifier.pid_value
-        ).join(
-            PersistentIdentifier,
-            (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id) & 
-            (PersistentIdentifier.pid_type == 'recid')
-        ).filter(
-            text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)")
-        ).params(mex_ids=mex_ids).all()
+        records_with_pids = (
+            db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
+            .join(
+                PersistentIdentifier,
+                (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
+                & (PersistentIdentifier.pid_type == "recid"),
+            )
+            .filter(
+                text(
+                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+                )
+            )
+            .params(mex_ids=mex_ids)
+            .all()
+        )
 
         # Convert to the same format as search results
         existing_records = {}
         for record, pid_value in records_with_pids:
             # Extract data immediately to avoid session binding issues
             record_json = copy.deepcopy(record.json)
-            mex_id = record_json.get('custom_fields', {}).get('mex:identifier')
+            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
             if mex_id:
                 if mex_id in existing_records:
                     logger.warning(f"Multiple records found for MEx id: {mex_id}")
-                
+
                 # Convert database record to search result format using the joined PID
                 record_data = {
-                    'id': str(pid_value),
-                    'custom_fields': copy.deepcopy(record_json.get('custom_fields', {})),
-                    'metadata': copy.deepcopy(record_json.get('metadata', {}))
+                    "id": str(pid_value),
+                    "custom_fields": copy.deepcopy(
+                        record_json.get("custom_fields", {})
+                    ),
+                    "metadata": copy.deepcopy(record_json.get("metadata", {})),
                 }
                 existing_records[mex_id] = record_data
 
         return existing_records
-        
+
     except Exception as e:
         logger.error(f"Error in bulk database search: {e}")
         return {}
@@ -174,6 +188,7 @@ def process_record_batch(
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
             import traceback
+
             logger.error(
                 f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
                 f"Full traceback:\n{traceback.format_exc()}"
@@ -308,7 +323,9 @@ def import_data(
                 logger.error(f"Encountered {record_count} errors during import.")
 
             else:
-                logger.info(f"{action.capitalize()} {record_count} records. Ids: {report[action]}")
+                logger.info(
+                    f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
+                )
 
     if minutes:
         time_taken = (

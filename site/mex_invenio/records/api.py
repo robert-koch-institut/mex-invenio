@@ -16,10 +16,10 @@ from mex_invenio.fields.systemfields import DisplayField
 
 class MEXBulkIndexer(RecordIndexer):
     """Custom indexer optimized for MEX record processing."""
-    
+
     def __init__(self, *args, **kwargs):
         # Override default batch size from 10,000 to 100 for MEX records
-        kwargs.setdefault('bulk_index_max_items', 100)
+        kwargs.setdefault("bulk_index_max_items", 100)
         super().__init__(*args, **kwargs)
 
 

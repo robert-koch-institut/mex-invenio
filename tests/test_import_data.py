@@ -56,16 +56,18 @@ def test_import_contact_point(
 
     assert match is not None
     assert len(match.groups()) == 3
-    
+
     # Ensure search index is refreshed before searching
     service.indexer.refresh()
-    
+
     search_obj = service.search(system_identity)
 
-    assert search_obj.total == number_of_records_published, f"Expected {number_of_records_published} records, but found {search_obj.total}"
+    assert search_obj.total == number_of_records_published, (
+        f"Expected {number_of_records_published} records, but found {search_obj.total}"
+    )
     assert search_obj.total > 0, "No records found in search results"
-    
+
     record = list(search_obj.hits)[0]
     assert record["id"] == published_record_id
-    assert 'reginagarrett@example.com' in record["custom_fields"]["mex:email"]
-    assert 'zJBx8K7g9mQ8X03VZHnxW' in record["custom_fields"]["mex:identifier"]
+    assert "reginagarrett@example.com" in record["custom_fields"]["mex:email"]
+    assert "zJBx8K7g9mQ8X03VZHnxW" in record["custom_fields"]["mex:identifier"]

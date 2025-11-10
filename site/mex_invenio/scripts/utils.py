@@ -13,12 +13,15 @@ from marshmallow_utils.html import sanitize_unicode
 
 logging.basicConfig(
     level=logging.INFO,
-    #format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-    #datefmt='%Y-%m-%d %H:%M:%S'
+    # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    # datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
 
-def _get_value_by_lang(config, mex_data: dict, key: str, lang: str, val_filter: Callable):
+
+def _get_value_by_lang(
+    config, mex_data: dict, key: str, lang: str, val_filter: Callable
+):
     """Get the value of a key in the MEx metadata by language."""
     if isinstance(mex_data[key], str) and (
         val_filter is None or val_filter(mex_data[key])
@@ -58,7 +61,9 @@ def get_title(config, mex_data: dict) -> str:
     for key in config.get("RECORD_METADATA_TITLE_PROPERTIES", ""):
         if key in mex_data and len(mex_data[key]) > 0:
             try:
-                return _get_value_by_lang(config, mex_data, key, "de", lambda x: len(x) > 2)
+                return _get_value_by_lang(
+                    config, mex_data, key, "de", lambda x: len(x) > 2
+                )
             except TypeError:
                 continue
 
@@ -139,7 +144,7 @@ def diff_files(directory: str, existing_file: str, new_file: str) -> str:
     os.makedirs(diffdirectory, exist_ok=True)
 
     awk_pattern = "NR==FNR{seen[$0]=1; next} !($0 in seen)"
-    timestamp = datetime.today().strftime('%d-%m-%Y_%I_%M_%S')
+    timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
     diff_file = os.path.join(diffdirectory, f"diff_{timestamp}.ndjson")
 
     comparison_cmd = f"awk '{awk_pattern}' {existing_file} {new_file} > {diff_file}"
@@ -150,13 +155,16 @@ def diff_files(directory: str, existing_file: str, new_file: str) -> str:
 
     return diff_file
 
+
 def get_related_mex_ids(config, record: dict) -> list:
     """Get related MEx identifiers from the record's custom fields."""
     field_types = config.get("FIELD_TYPES", [])
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
     related_ids = set()
 
-    related_fields = [k for k,v in field_types.get(record_type, {}).items() if v == "identifier"]
+    related_fields = [
+        k for k, v in field_types.get(record_type, {}).items() if v == "identifier"
+    ]
 
     for field in related_fields:
         if field in record.get("custom_fields", {}):

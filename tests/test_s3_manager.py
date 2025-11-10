@@ -89,13 +89,15 @@ def test_replace_file_but_fail_import(
 
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
     directory_contents = os.listdir(download_path)
-    diff_directory_contents = os.listdir(os.path.join(download_path, 'diffs'))
+    diff_directory_contents = os.listdir(os.path.join(download_path, "diffs"))
 
     assert result.exit_code == 0
     assert os.path.exists(renamed_downloaded_file)
-    assert 'diffs' in directory_contents
-    assert 'diff_01-01-2023_12_00_00.ndjson' in diff_directory_contents
+    assert "diffs" in directory_contents
+    assert "diff_01-01-2023_12_00_00.ndjson" in diff_directory_contents
 
-    with open(os.path.join(download_path,'diffs', 'diff_01-01-2023_12_00_00.ndjson'), 'r') as diff_file:
+    with open(
+        os.path.join(download_path, "diffs", "diff_01-01-2023_12_00_00.ndjson"), "r"
+    ) as diff_file:
         diff_content = diff_file.read()
         assert diff_content.strip() == '{"s":"b"}'
