@@ -1,4 +1,4 @@
-.ui.header > caption > {
+.ui.header > caption > h2 {
     font-size: 1.5rem;
     text-align: start;
     margin-bottom: 1.5rem;

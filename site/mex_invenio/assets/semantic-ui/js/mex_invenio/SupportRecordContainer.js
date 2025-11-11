@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { SupportRecordData } from "./SupportRecordData";
 
@@ -10,19 +10,49 @@ const SupportRecordRoot = () => {
   const [recordTitle, setRecordTitle] = useState("");
   const [open, setOpen] = useState(false);
 
+  const historyStack = useRef([]);
+
   useEffect(() => {
     const handler = (event) => {
       const { mex_id, combined_title } = event.detail;
+
+      if (open && recordId) {
+        historyStack.current.push({
+          recordId,
+          recordTitle,
+        });
+      }
+
       setRecordId(mex_id);
       setRecordTitle(combined_title);
-      setOpen(true); // keep modal open or reopen it
+      setOpen(true);
     };
 
     window.addEventListener("supportRecord:update", handler);
     return () => window.removeEventListener("supportRecord:update", handler);
-  }, []);
+  }, [open, recordId, recordTitle]);
 
-  const closeModal = () => setOpen(false);
+  const closeModal = () => {
+    setOpen(false);
+    historyStack.current = [];
+  };
+
+  const goBack = () => {
+    const prev = historyStack.current.pop();
+    if (!prev) {
+      setOpen(false);
+      return;
+    }
+    setRecordId(prev.recordId);
+    setRecordTitle(prev.recordTitle);
+    setOpen(true);
+  };
+
+  // Title of the modal you would return to
+  const previousTitle =
+    historyStack.current.length > 0
+      ? historyStack.current[historyStack.current.length - 1].recordTitle
+      : null;
 
   return (
     open && (
@@ -30,6 +60,8 @@ const SupportRecordRoot = () => {
         mexId={recordId}
         title={recordTitle}
         closeModalFn={closeModal}
+        goBackFn={goBack}
+        previousTitle={previousTitle}    // <-- pass it down
       />
     )
   );
