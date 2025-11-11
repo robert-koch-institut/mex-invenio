@@ -23,9 +23,10 @@ edges.instances.variables.init = function () {
 
     edges.active["variables-resources"] = edges.mex.makeEdge({
         selector: "#resources-container",
+        openingQuery: new es.Query({size: 10}),
         template: new edges.mex.templates.SingleColumnTemplate({
             preamble: `<a class="link-button" href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
-            hideComponentsInitially: ["selector", "selected-filtered", "results"],
+            // hideComponentsInitially: ["selector", "selected-filtered", "results"],
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -46,6 +47,7 @@ edges.instances.variables.init = function () {
             edges.mex.recordSelectorCompact({
                 category: "column",
                 title : "All Data Sources & Datasets",
+                resourceComponentIds: ["all-resources", "selected-filtered"],
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
@@ -65,8 +67,6 @@ edges.instances.variables.init = function () {
                 fontStyle : "small"
             }),
 
-
-
             edges.mex.fullSearchController({
                 category: "column",
                 searchPlaceholder: edges.mex._("Find resources..."),
@@ -82,6 +82,7 @@ edges.instances.variables.init = function () {
                 category: "column",
                 secondaryResults: "selected-filter",
                 title: edges.mex._(" "),
+                hideIfNoResults: true,
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
@@ -95,7 +96,6 @@ edges.instances.variables.init = function () {
                 }
             }),
 
-            // TODO: add pager component
             edges.mex.pagerSelector({
                 category: "column",
                 id: "resource-pager",
@@ -115,13 +115,13 @@ edges.instances.variables.init = function () {
                     // if a search string is set, show the search results and hide the selector
                     $("#selector").hide();
                     $("#selected-filtered").show();
-                    $("#results").show();
+                    $("#all-resources").show();
                     $("#resource-pager").show();
                 } else {
                     // if no search string is set, show the selector and hide the results
                     $("#selected-filtered").hide();
-                    $("#results").hide();
-                    $("#resource-pager").hide();
+                    $("#all-resources").show();
+                    $("#resource-pager").show();
                     $("#selector").show();
                 }
             },

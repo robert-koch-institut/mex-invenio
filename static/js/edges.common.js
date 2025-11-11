@@ -389,9 +389,10 @@ edges.mex.recordSelectorCompact = function (params) {
         category: params.category || "right",
         secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactSelectedRecords({
-            showIfEmpty: true,
+            showIfEmpty: false,
             title: edges.mex._("Selected Data Sources & Datasets"),
             onSelectToggle: params.onSelectToggle || false,
+            resourceComponentIds: params.resourceComponentIds || ["results"],
         }),
     });
 };
@@ -413,11 +414,9 @@ edges.mex.makeEdge = function (params) {
     let callbacks = params.callbacks || {};
 
     let defaultQuery = new es.Query({size: 50});
-    let oq = params.openingQuery || null;
-    if (oq) {
-        oq.merge(defaultQuery);
-    } else {
-        oq = defaultQuery;
+    let oq = defaultQuery;
+    if (params.openingQuery) {
+        oq.merge(params.openingQuery);
     }
     return new edges.Edge({
         selector: selector,
@@ -458,8 +457,9 @@ edges.mex.resourceDisplayCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new edges.mex.renderers.CompactResourcesResults({
             title: params.title || edges.mex._("Resources"),
-            noResultsText: params.noResultsText || edges.mex._("No resources found."),
+            noResultsText: params.noResultsText || edges.mex._("No resources that match your search were found."),
             onSelectToggle: params.onSelectToggle || false,
+            hideIfNoResults: params.hideIfNoResults || false,
         }),
     });
 };
@@ -965,11 +965,8 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
         if (comps.length > 0) {
             for (let i = 0; i < comps.length; i++) {
                 let style = "";
-                if (
-                    this.hideComponentsInitially !== false &&
-                    this.hideComponentsInitially.includes(comps[i].id)
-                ) {
-                    style = " style='display:none;' ";
+                if (this.hideComponentsInitially !== false && this.hideComponentsInitially.includes(comps[i].id)) {
+                    style = ` style="display:none;" `;
                 }
 
                 let container = `<div class="${compClass}"><div id="${comps[i].id}"${style}></div></div>`;
@@ -1133,6 +1130,9 @@ edges.mex.components.Selector = class extends edges.Component {
 
     unselectRecord(id) {
         let record = this.get(id);
+        if (!record) {
+            return;
+        }
         let en = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_EN, record, []);
         for (let group of en) {
             this.removeVariableGroup(group.mex_id, true);
@@ -1428,14 +1428,22 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
         this.namespace = "select-records";
 
-        this.resourceComponent = null;
+        this.resourceComponentIds = edges.util.getParam(params, "resourceComponentIds", ["results"]);
+
+        this.resourceComponents = [];
     }
 
     init(component) {
         super.init(component);
-        this.resourceComponent = this.component.edge.getComponent({
-            id: "results",
-        });
+        for (let id of this.resourceComponentIds) {
+            let resComp = this.component.edge.getComponent({
+                id: id,
+            });
+            this.resourceComponents.push(resComp);
+        }
+        // this.resourceComponent = this.component.edge.getComponent({
+        //     id: "results",
+        // });
     }
 
     draw() {
@@ -1577,7 +1585,8 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         if(conf) {
             this.component.clearAll();
-            this.resourceComponent.renderer.draw();
+            this._resourceComponentsRefresh();
+            // this.resourceComponent.renderer.draw();
         }
     }
 
@@ -1585,14 +1594,33 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let el = $(element);
         let id = el.attr("data-id");
 
-        // Syncing this with resource result component.
-        let doc = document.getElementById(`resource-list-${id}`);
+        this.component.unselectRecord(id);
+        this._resourceComponentsSelectResource(id, true);
 
-        if (doc && this.resourceComponent && this.resourceComponent.renderer) {
-            this.resourceComponent.renderer.selectResource(doc);
-        } else {
-            this.component.unselectRecord(id);
-            this.resourceComponent.renderer.draw();
+        // Syncing this with resource result component.
+        // if (doc) {
+        //     this._resourceComponentsSelectResource(doc);
+        //     // this.resourceComponent.renderer.selectResource(doc);
+        // }
+        // else {
+        //     this._resourceComponentsRefresh();
+        //     //this.resourceComponent.renderer.draw();
+        // }
+    }
+
+    _resourceComponentsRefresh() {
+        for (let resComp of this.resourceComponents) {
+            if (resComp && resComp.renderer) {
+                resComp.renderer.draw();
+            }
+        }
+    }
+
+    _resourceComponentsSelectResource(id, propagate) {
+        for (let resComp of this.resourceComponents) {
+            if (resComp && resComp.renderer) {
+                resComp.renderer.selectResourceIfVisible(id, propagate);
+            }
         }
     }
 };
@@ -1810,26 +1838,35 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
 
         if(conf) {
             this.component.clearAll();
+            this._resourceComponentsRefresh();
 
-            if(this.resourceComponent) {
-                this.resourceComponent.renderer.draw();
-            }
+            // if(this.resourceComponent) {
+            //     this.resourceComponent.renderer.draw();
+            // }
         }
     }
 
     selectResource(element) {
+        // let el = $(element);
+        // let id = el.attr("data-id");
+        //
+        // // Syncing this with resource result component.
+        // let doc = document.getElementById(`resource-list-${id}`);
+        //
+        // if (doc) {
+        //     this._resourceComponentsSelectResource(doc);
+        //     // this.resourceComponent.renderer.selectResource(doc);
+        // } else {
+        //     this.component.unselectRecord(id);
+        //     this._resourceComponentsRefresh();
+        //     // this.resourceComponent.renderer.draw();
+        // }
+
         let el = $(element);
         let id = el.attr("data-id");
 
-        // Syncing this with resource result component.
-        let doc = document.getElementById(`resource-list-${id}`);
-
-        if (doc && this.resourceComponent && this.resourceComponent.renderer) {
-            this.resourceComponent.renderer.selectResource(doc);
-        } else {
-            this.component.unselectRecord(id);
-            this.resourceComponent.renderer.draw();
-        }
+        this.component.unselectRecord(id);
+        this._resourceComponentsSelectResource(id, false);
 
         if (this.onSelectToggle) {
             this.onSelectToggle({parent: this, id: id});
@@ -4043,15 +4080,23 @@ edges.mex.renderers.CompactResourcesResults = class extends (
 
         this.title = edges.util.getParam(params, "title", edges.mex._("Resources"));
 
+        this.hideIfNoResults = edges.util.getParam(
+            params,
+            "hideIfNoResults",
+            false
+        );
+
         // FIXME: may want to override namespace
         this.namespace = "mex-resources-results";
     }
 
     draw() {
-        if (
-            this.component.results === false ||
-            this.component.results.length === 0
-        ) {
+        if (this.component.results === false || this.component.results.length === 0) {
+            if (this.hideIfNoResults) {
+                this.component.context.html("");
+                return;
+            }
+
             let frag = `<div class="">
                 <div class="divider"></div>
 
@@ -4110,7 +4155,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
         edges.on(vgSelectSelector, "change", this, "toggleVariableGroupSelection");
     }
 
-    selectResource(element) {
+    selectResource(element, propagate=true) {
         let el = $(element);
         let id = el.attr("data-id");
         let state = el.attr("data-state");
@@ -4127,6 +4172,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             el.attr("data-state", "selected");
             let selectButtonText = "-";
             el.html(selectButtonText);
+            el.removeClass("unselected").addClass("selected");
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", false);
         } else {
@@ -4135,12 +4181,26 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             el.attr("data-state", "unselected");
             let selectButtonText = "+";
             el.html(selectButtonText);
+            el.removeClass("selected").addClass("unselected");
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", true);
         }
 
-        if (this.onSelectToggle) {
+        if (this.onSelectToggle && propagate) {
             this.onSelectToggle({parent: this, id: id});
+        }
+    }
+
+    selectResourceIfVisible(id, propagate=true) {
+        let buttonSelector = edges.util.idSelector(
+            this.namespace,
+            `resource-${id}`,
+            this.component.id
+        );
+
+        let button = this.component.jq(buttonSelector);
+        if (button.length > 0) {
+            this.selectResource(button[0], propagate);
         }
     }
 
@@ -4267,12 +4327,15 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             this.component.id
         );
 
+        let id = edges.util.safeId(record.id);
+        let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
+
         let frag = `
             <div class="selected-list">
                 <div class="resource-card card-shadow">
                     <div class="selected-list-item">
                         <button class="${selectClass} ui icon button ${selectState}"
-                            id="resource-list-${record.id}"
+                            id="${buttonId}"
                             data-id="${record.id}"
                             data-state="${selectState}"
                             >${selectButtonText}</button>
