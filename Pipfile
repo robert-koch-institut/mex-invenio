@@ -18,13 +18,13 @@ docker-services-cli = "*"
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}
 mex-invenio = {editable = true, path="./site"}
-# mex-model version has implications for rendering so breaking changes should be considered carefully
-mex-model = "4.1.2"
 uwsgi = ">=2.0"
 uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
 boto3 = "*"
 dotenv = "*"
+# mex-model version has implications for rendering so breaking changes should be considered carefully
+mex-model = "==4.4.0"
 
 [requires]
 python_version = "3.11"
