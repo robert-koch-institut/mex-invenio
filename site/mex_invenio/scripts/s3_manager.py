@@ -118,10 +118,10 @@ def get_latest_existing_file(payload_folder):
 
 
 def rename_and_keep_latest_file(
-    existing_file, new_file, payload_folder, check_comparison: bool
+    existing_file, new_file, payload_folder
 ):
     """Handles file retention based on check flag."""
-    if check_comparison and compare_files(existing_file, new_file):
+    if compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
         return None  # New file is identical, so discard it
 
@@ -150,9 +150,8 @@ def rename_and_keep_latest_file(
 
 
 @click.command("manage_s3_files")
-@click.option("--check", is_flag=True, default=False)
 @click.option("--ingest", is_flag=True, default=False)
-def manage_s3_files(check: bool, ingest: bool = False):
+def manage_s3_files(ingest: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
 
     s3_config = load_config(ingest)
@@ -179,7 +178,7 @@ def manage_s3_files(check: bool, ingest: bool = False):
 
     if new_file_path:
         final_file_path = rename_and_keep_latest_file(
-            existing_file_path, new_file_path, s3_download_folder, check
+            existing_file_path, new_file_path, s3_download_folder
         )
         if ingest and final_file_path:
             logger.info(f"importing data using file {final_file_path}")

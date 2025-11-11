@@ -41,7 +41,7 @@ def test_identical_files(
     # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
 
     # Import should not import anything and the younger file should be removed
-    result = cli_runner(manage_s3_files, "--check")
+    result = cli_runner(manage_s3_files)
 
     assert result.exit_code == 0
     assert os.path.exists(existing_file_path)
@@ -85,7 +85,7 @@ def test_replace_file_but_fail_import(
     # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
 
     # Import should not import anything
-    result = cli_runner(manage_s3_files, "--check")
+    result = cli_runner(manage_s3_files)
 
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
     directory_contents = os.listdir(download_path)
