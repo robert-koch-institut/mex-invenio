@@ -37,26 +37,32 @@
 {% endmacro %}
 
 {% macro display_value(v) %}
+
+    {%- set lang = current_i18n.language -%}
+    {%- set dd = v["display_data"] -%}
+    {%- if dd[0].language -%}
+        {%- set correct_lang = dd | selectattr("language", "equalto", lang) | list -%}
+        {%- if correct_lang | length > 0 -%}
+            {%- set empty_lang = dd | selectattr("language", "equalto", "") | list -%}
+            {%- set selected = correct_lang  + empty_lang -%}
+        {%- else -%}
+            {%- set selected = dd -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set selected = dd -%}
+    {%- endif -%}
+    {% set ns = namespace(titles=[]) %}
+    {% for s in selected %}
+        {% set _ = ns.titles.append(s.value) %}
+    {% endfor %}
+    {% set combined_title = ns.titles | join(', ') %}
+
     {%- if v.url -%}
-        {%- if v.core -%}
-            {%- set lang = current_i18n.language -%}
-            {%- set dd = v["display_data"] -%}
-            {%- if dd[0].language -%}
-                {%- set correct_lang = dd | selectattr("language", "equalto", lang) | list -%}
-                {%- if correct_lang | length > 0 -%}
-                    {%- set empty_lang = dd | selectattr("language", "equalto", "") | list -%}
-                    {%- set selected = correct_lang  + empty_lang -%}
-                {%- else -%}
-                    {%- set selected = dd -%}
-                {%- endif -%}
-            {%- else -%}
-                {%- set selected = dd -%}
-            {%- endif -%}
-            {% set ns = namespace(titles=[]) %}
-            {% for s in selected %}
-                {% set _ = ns.titles.append(s.value) %}
-            {% endfor %}
-            {% set combined_title = ns.titles | join(', ') %}
+        {% if "http" in v.url %}
+            <a href="{{ v.url }}" title="{{ combined_title }}">
+                {{ combined_title }}
+            </a>
+        {%- elif v.core -%}
             <a href="{{ v.url }}" title="{{ combined_title }}">
                 <div class="tags"><span class="tag"><img class="ui image icon--text"
                  src="{{ url_for('static', filename='icons/' ~ v.core ~ '-record.svg') }}"
@@ -64,11 +70,6 @@
                 {{ combined_title }}
                 </a></div>
         {%- else -%}
-            {% set ns = namespace(titles=[]) %}
-            {% for dv in v["display_data"] %}
-                {% set _ = ns.titles.append(dv.value) %}
-            {% endfor %}
-            {% set combined_title = ns.titles | join(', ') %}
             <button 
             type="button" 
             class="ui button link-like" 
@@ -79,11 +80,6 @@
             </button>
         {%- endif -%}
     {%- else -%}
-        {% set ns = namespace(titles=[]) %}
-        {% for dv in v["display_data"] %}
-            {% set _ = ns.titles.append(dv.value) %}
-        {% endfor %}
-        {% set combined_title = ns.titles | join(', ') %}
         <p>{{combined_title }}</p>
     {%- endif -%}
 {% endmacro %}

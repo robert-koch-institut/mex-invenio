@@ -30,7 +30,7 @@
                                     <button type="button" 
                                         class="ui button link-like" 
                                         data-record-id="{{ value.url }}" 
-                                        onclick="supportRecordHandler('{{ value.url }}')" >
+                                        onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" >
                                         {{ combined_names }}
                                     </button>
                                         <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">

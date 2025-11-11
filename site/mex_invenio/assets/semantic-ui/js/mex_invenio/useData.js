@@ -9,7 +9,7 @@ export const useData = (mexId) => {
     useEffect(() => {
         if (!mexId) return;
 
-        const endpoint = `/records/mex/${mexId}/json`;
+        const endpoint = `/records/mex/${mexId}/json?normalised`;
         console.log("Fetching", endpoint);
 
         setLoading(true);

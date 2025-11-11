@@ -719,6 +719,11 @@ UI_SETTINGS = {
             },
         },
     },
+    "contact": {
+        "fields": [
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}
+        ]
+    }
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [

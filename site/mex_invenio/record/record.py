@@ -19,6 +19,7 @@ class MexRecord(MethodView):
 
     def get(self, mex_id, as_json=False):
         version_id = request.args.get("version_id", None)
+        normalised = "normalised" in request.args
 
         # Establish the version_id as an integer if it is provided
         if version_id:
@@ -61,10 +62,6 @@ class MexRecord(MethodView):
         record_ui = ui_serializer.serialize_object(record_item.data)
         record = json.loads(record_ui)
 
-        # Just return the record as JSON if requested
-        if as_json:
-            return record
-
         data = normalise_record_data(record)
         record_type = record.get("metadata", {}).get("resource_type", {}).get("id", None)
         core_records = [
@@ -73,8 +70,14 @@ class MexRecord(MethodView):
             "bibliographicresource"
         ]
 
+        if as_json:
+            if normalised:
+                record["normalised"] = data
+            return record
+
         # return the record as JSON if it is not a core type
         if not record_type in core_records:
+            record["normalised"] = data
             return record
 
         return render_template(

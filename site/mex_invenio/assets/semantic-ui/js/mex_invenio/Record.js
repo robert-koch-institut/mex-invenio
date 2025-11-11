@@ -1,5 +1,7 @@
 import React from "react";
 import { useData } from "./useData";
+import { settings } from "./includes/settings"
+import { DisplayValues } from "./includes/DisplayValue";
 
 
 export const Record = ({ mexId, title }) => {
@@ -12,10 +14,16 @@ export const Record = ({ mexId, title }) => {
 
   return <div className="recordContent">
     <p className="record--ids">{ mexId } | <a href={`/api/records/${ invenio_id }`}> { invenio_id } </a></p>
-    <h2 className="ui header">{title}</h2>
-    <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-      {JSON.stringify(data, null, 2)}
-    </pre>
-  </div>
+      <table class="ui table">
+      <caption><h2 className="ui header">{ title }</h2></caption>
+      {Object.entries(data.normalised).map(([key, value]) => (
+          key !== "backwards_linked" &&
+          <tr className="row props">
+            <th class="props-label">{ key }</th>
+            <td><DisplayValues key={key} values={value} /></td>
+          </tr>
+      ))}
+      </table>
+    </div>
 ;
 }

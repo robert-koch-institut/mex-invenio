@@ -1,0 +1,4 @@
+.ui.header > caption {
+    font-size: 1.5rem;
+    text-align: start;
+}
