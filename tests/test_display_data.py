@@ -2,8 +2,6 @@
 
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
-from invenio_search import current_search_client
-from invenio_search.utils import build_alias_name
 
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.search import MexDumper
@@ -16,7 +14,7 @@ def test_display_data_contact_creator(
     """Test that display_data is populated when accessing a record with MexDumper-compatible fields."""
     service = current_rdm_records.records_service
 
-    # 1. Import linked records first (person records for contact/creator)
+    # Import linked records first (person records for contact/creator)
     messages_person1 = import_file(
         "person1",
         {
@@ -35,13 +33,8 @@ def test_display_data_contact_creator(
         },
     )
 
-    current_search_client.indices.refresh(index=build_alias_name("mexrecords-records"))
-
-    # 2. Import the resource record that has contact/creator fields (processed by MexDumper)
+    # Import the resource record that has contact/creator fields (processed by MexDumper)
     messages_resource = import_file("resource", resource_data)
-
-    # 3. Manually trigger index refresh to ensure all records are searchable
-    current_search_client.indices.refresh(index=build_alias_name("mexrecords-records"))
 
     # Debug: Check all created records
     search_obj = service.search(system_identity)
@@ -143,8 +136,6 @@ def test_display_data_normalization(
         },
     )
 
-    current_search_client.indices.refresh(index=build_alias_name("mexrecords-records"))
-
     # Import a resource that references this person
     test_resource_data = {
         **resource_data,
@@ -153,7 +144,6 @@ def test_display_data_normalization(
     }
 
     messages_resource = import_file("test_resource", test_resource_data)
-    current_search_client.indices.refresh(index=build_alias_name("mexrecords-records"))
 
     # Find the resource record
     search_obj = service.search(system_identity)
