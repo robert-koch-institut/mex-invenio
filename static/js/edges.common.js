@@ -237,6 +237,29 @@ edges.mex.rankedByLang = function (path, res) {
     return ranked;
 };
 
+edges.mex.resolveOpeningQuery = function(openingQuery) {
+    // we need to account for the possibility that we've been given a source argument in the url
+    // but we don't want edges managing the url space
+    const params = new URLSearchParams(window.location.search);
+    const initialQueryObject = params.get("source") ?? "";
+    const initialQueryString = params.get("q") ?? "";
+
+    if (initialQueryObject !== "" || initialQueryString !== "") {
+        const url = new URL(window.location.href);
+        url.search = "";
+        window.history.replaceState("", "", url.toString());
+    }
+
+    if (initialQueryObject) {
+        const obj = JSON.parse(initialQueryObject);
+        return new es.Query({raw: obj});
+    } else if (initialQueryString) {
+        openingQuery.setQueryString(initialQueryString);
+        return openingQuery;
+    }
+}
+
+
 edges.mex.extractMultiDate = function(path, res, def) {
     let out = def;
     let dates = edges.util.pathValue(path, res, []);
@@ -396,6 +419,16 @@ edges.mex.recordSelectorCompact = function (params) {
         }),
     });
 };
+
+edges.mex.typeSpecificJumpOff = function(params) {
+
+    return new edges.mex.components.TypeSpecificJumpOff({
+        id: params.id || "jump-off",
+        category: params.category || "full",
+        preamble: params.preamble || edges.mex._("Search on specific resource type: "),
+        targets: params.targets || { },
+    });
+}
 
 edges.mex.makeEdge = function (params) {
     let current_domain = document.location.host;
@@ -1021,6 +1054,59 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
 // Components
 if (!edges.mex.hasOwnProperty("components")) {
     edges.mex.components = {};
+}
+
+edges.mex.components.TypeSpecificJumpOff = class extends edges.Component {
+    constructor(params) {
+        super(params)
+
+        this.preamble = edges.util.getParam(params, "preamble", "");
+        this.targets = edges.util.getParam(params, "targets", {});
+    }
+
+    draw() {
+        if (!this.edge.currentQuery) {
+            this.context.html("");
+            return;
+        }
+
+        if (this.targets.length === 0) {
+            this.context.html("");
+            return;
+        }
+
+        let frag = `<p>${this.preamble}</p>
+                            <ul>
+                                ${this.renderTargets()}
+                            </ul>`;
+        this.context.html(frag);
+    }
+
+    renderTargets() {
+        const qs = this.queryString();
+        let frag = ``;
+        for (let url in this.targets) {
+            let display = this.targets[url];
+            frag += `<li><a href="${url}?${qs}">${display}</a></li>`;
+        }
+        return frag;
+    }
+
+    queryString() {
+        const objectify_options = {
+            include_query_string : true,
+            include_filters : false,
+            include_paging : false,
+            include_sort : true,
+            include_fields : false,
+            include_aggregations : false
+        }
+        const q = JSON.stringify(this.edge.currentQuery.objectify(objectify_options));
+        let obj = {};
+        obj["source"] = encodeURIComponent(q);
+        const qs = this.edge._makeUrlQuery(obj)
+        return qs;
+    }
 }
 
 edges.mex.components.StaticHeader = class extends edges.Component {
@@ -4362,7 +4448,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
     }
 };
 
-edges.mex.renderers.activitiesResultView = function(res, highlights) {
+edges.mex.renderers.activitiesResultView = function(res, highlights, include_resource_type=false) {
     if (!highlights) { highlights = {}}
 
     let title = edges.util.escapeHtml(
@@ -4381,15 +4467,17 @@ edges.mex.renderers.activitiesResultView = function(res, highlights) {
         desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
 
-    if (highlights[edges.mex.constants.ABSTRACT]) {
-        desc = highlights[edges.mex.constants.ABSTRACT][0];
-        desc = desc.replace(/<em>/g, "<code>");
-        desc = desc.replace(/<\/em>/g, "</code>");
-    }
-    if (highlights[edges.mex.constants.TITLE]) {
-        title = highlights[edges.mex.constants.TITLE][0];
-        title = title.replace(/<em>/g, "<code>");
-        title = title.replace(/<\/em>/g, "</code>");
+    if (highlights) {
+        if (highlights[edges.mex.constants.ABSTRACT]) {
+            desc = highlights[edges.mex.constants.ABSTRACT][0];
+            desc = desc.replace(/<em>/g, "<code>");
+            desc = desc.replace(/<\/em>/g, "</code>");
+        }
+        if (highlights[edges.mex.constants.TITLE]) {
+            title = highlights[edges.mex.constants.TITLE][0];
+            title = title.replace(/<em>/g, "<code>");
+            title = title.replace(/<\/em>/g, "</code>");
+        }
     }
 
     let start = edges.mex._("Unknown start date");
@@ -4398,8 +4486,16 @@ edges.mex.renderers.activitiesResultView = function(res, highlights) {
     let end = edges.mex._("Unknown end date");
     end = edges.mex.extractMultiDate(edges.mex.constants.END, res, end);
 
+    function resourceType() {
+        if (include_resource_type) {
+            return `<div class="resource-type">${edges.mex._('ACTIVITY')}</div>`
+        }
+        return "";
+    }
+
     let frag = `
         <div class="activity-card card-shadow">
+            ${resourceType()}
             <div class="title ${title ? "" : "hide"}">
                 <span>
                     ${title}
@@ -4433,7 +4529,7 @@ edges.mex.renderers.activitiesResultView = function(res, highlights) {
     return frag;
 }
 
-edges.mex.renderers.bibliographicResourcesView = function(res, highlights) {
+edges.mex.renderers.bibliographicResourcesView = function(res, highlights, include_resource_type=false) {
     let title = edges.util.escapeHtml(
         edges.mex.getLangVal(edges.mex.constants.TITLE_CONTAINER, res, "No title")
     );
@@ -4457,15 +4553,17 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights) {
         desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
     }
 
-    if (highlights[edges.mex.constants.ABSTRACT]) {
-        desc = highlights[edges.mex.constants.ABSTRACT][0];
-        desc = desc.replace(/<em>/g, "<code>");
-        desc = desc.replace(/<\/em>/g, "</code>");
-    }
-    if (highlights[edges.mex.constants.TITLE]) {
-        title = highlights[edges.mex.constants.TITLE][0];
-        title = title.replace(/<em>/g, "<code>");
-        title = title.replace(/<\/em>/g, "</code>");
+    if (highlights) {
+        if (highlights[edges.mex.constants.ABSTRACT]) {
+            desc = highlights[edges.mex.constants.ABSTRACT][0];
+            desc = desc.replace(/<em>/g, "<code>");
+            desc = desc.replace(/<\/em>/g, "</code>");
+        }
+        if (highlights[edges.mex.constants.TITLE]) {
+            title = highlights[edges.mex.constants.TITLE][0];
+            title = title.replace(/<em>/g, "<code>");
+            title = title.replace(/<\/em>/g, "</code>");
+        }
     }
 
     let creators = edges.util.pathValue(edges.mex.constants.CREATOR, res, []);
@@ -4477,7 +4575,15 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights) {
         ""
     );
 
+    function resourceType() {
+        if (include_resource_type) {
+            return `<div class="resource-type">${edges.mex._('PUBLICATION')}</div>`
+        }
+        return "";
+    }
+
     let frag = `<div class="biblo-resource-card card-shadow">
+            ${resourceType()}
             <div class="title ${title ? "" : "hide"}">
                  <span>
                     ${title}
@@ -5065,7 +5171,7 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderResult(res) {
-        let resType = edges.util.pathValue("resource_type", res, "resource");
+        let resType = edges.util.pathValue("metadata.resource_type.id", res, "resource");
 
         if (resType === "bibliographicresource") {
             return this._renderBibliographicResource(res);
@@ -5141,6 +5247,7 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let frag = `
             <div class="resource-card card-shadow">
+                <div class="resource-type">${edges.mex._('DATA SOURCE OR DATASET')}</div>
                 <div class="title">
                     <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
                 </div>
@@ -5164,11 +5271,11 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderBibliographicResource(res) {
-        return edges.mex.renderers.bibliographicResourcesView(res);
+        return edges.mex.renderers.bibliographicResourcesView(res, null, true);
     }
 
     _renderActivity(res) {
-        return edges.mex.renderers.activitiesResultView(res);
+        return edges.mex.renderers.activitiesResultView(res, null, true);
     }
 
     _renderVariable(res) {
@@ -5212,9 +5319,9 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
         //     this._getLangVal(edges.mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
 
-
         let frag = `
             <div class="resource-card card-shadow">
+                <div class="resource-type">${edges.mex._('VARIABLE')}</div>
                 <div class="title">
                     <a href="/records/${res.id}" target="_blank">${label ? label : res.id}</a>
                 </div>

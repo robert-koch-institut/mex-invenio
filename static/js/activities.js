@@ -10,12 +10,16 @@ if (!edges.hasOwnProperty("active")) {
 
 edges.instances.activities = {};
 edges.instances.activities.init = function () {
-    edges.active["activities"] = edges.mex.makeEdge({
-        resourceType: "activities",
-        openingQuery: new es.Query({
+    const openingQuery = edges.mex.resolveOpeningQuery(
+        new es.Query({
             size: 50,
             sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
-        }),
+        })
+    );
+
+    edges.active["activities"] = edges.mex.makeEdge({
+        resourceType: "activities",
+        openingQuery: openingQuery,
         components: [
             edges.mex.fullSearchController({
                 fieldOptions: [

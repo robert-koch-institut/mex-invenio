@@ -26,7 +26,6 @@ edges.instances.variables.init = function () {
         openingQuery: new es.Query({size: 10}),
         template: new edges.mex.templates.SingleColumnTemplate({
             preamble: `<a class="link-button" href="/search/resources">${edges.mex._("Back to Data Sources &amp; Datasets Search")}</a>`,
-            // hideComponentsInitially: ["selector", "selected-filtered", "results"],
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -115,14 +114,14 @@ edges.instances.variables.init = function () {
                     // if a search string is set, show the search results and hide the selector
                     $("#selector").hide();
                     $("#selected-filtered").show();
-                    $("#all-resources").show();
-                    $("#resource-pager").show();
+                    // $("#all-resources").show();
+                    // $("#resource-pager").show();
                 } else {
                     // if no search string is set, show the selector and hide the results
                     $("#selected-filtered").hide();
                     $("#all-resources").show();
-                    $("#resource-pager").show();
-                    $("#selector").show();
+                    // $("#resource-pager").show();
+                    // $("#selector").show();
                 }
             },
         },
@@ -131,30 +130,17 @@ edges.instances.variables.init = function () {
     // to prepare the initial variables search, we need to see if anything has been
     // selected already, and set the opening query
     let selectedMexIds = edges.instances.variables.getSelectedMexIds();
-    let openingQuery = edges.instances.variables.buildVariablesQuery(null, selectedMexIds);
-    // if (selectedMexIds.length > 0) {
-    //     openingQuery = new es.Query();
-    //
-    //     // add the resource constraints
-    //     if (selectedMexIds["resources"].length > 0) {
-    //         openingQuery.addMust(
-    //             new es.TermsFilter({
-    //                 field: "custom_fields.mex:usedIn.keyword",
-    //                 values: selectedMexIds["resources"],
-    //             })
-    //         );
-    //
-    //         // only add the variable group constraints if there are selected resources
-    //         if (selectedMexIds["variable_groups"].length > 0) {
-    //             openingQuery.addMust(
-    //                 new es.TermsFilter({
-    //                     field: "custom_fields.mex:belongsTo.keyword",
-    //                     values: selectedMexIds["variable_groups"],
-    //                 })
-    //             );
-    //         }
-    //     }
-    // }
+
+    // get any query constraints from the URL
+    let openingQuery = edges.mex.resolveOpeningQuery(
+        new es.Query({
+            size: 50,
+            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+        })
+    );
+
+    // update the query with the resources constraints
+    openingQuery = edges.instances.variables.buildVariablesQuery(openingQuery, selectedMexIds);
 
     edges.active["variables"] = edges.mex.makeEdge({
         selector: "#variables-container",

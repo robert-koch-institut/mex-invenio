@@ -78,8 +78,9 @@ def create_blueprint(app):
         "/search/bibliographic-resources", view_func=search_bibliographic_resources
     )
 
+    # this overrides the /search route to point to our global search page
     blueprint.add_url_rule(
-        "/search/global",
+        "/search",
         view_func=search_global,
     )
 

@@ -4,13 +4,17 @@ if (!edges.hasOwnProperty("active")) { edges.active = {}}
 
 edges.instances.resources = {};
 edges.instances.resources.init = function() {
+    const openingQuery = edges.mex.resolveOpeningQuery(
+        new es.Query({
+            size: 50,
+            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+        })
+    );
+
     edges.active["resources"] = edges.mex.makeEdge({
         resourceType: "resources",
         includeVerticalTab: true,
-        openingQuery: new es.Query({
-            size: 50,
-            sort: [{ field: edges.mex.constants.CREATED, order: "desc" }]
-        }),
+        openingQuery: openingQuery,
         components: [
             edges.mex.fullSearchController({
                 fieldOptions: [
