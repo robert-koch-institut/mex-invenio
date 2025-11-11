@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
+
 const DisplayValue = ({ v }) => {
+
+    const supportRecordHandler = (mex_id, combined_title) => {
+        window.dispatchEvent(
+            new CustomEvent("supportRecord:update", { detail: { mex_id, combined_title } })
+        );
+    }; 
+
     const combineTitles = (items) => items.map(d => d.value).join(', ');
 
     const lang = "en";
@@ -47,7 +55,7 @@ const DisplayValue = ({ v }) => {
                     type="button"
                     className="ui button link-like"
                     data-record-id={v.url}
-                    onClick={() => console.log("support record clicked")}
+                    onClick={() => supportRecordHandler(v.url, combinedTitle)}
                 >
                 {combinedTitle}
                 </button>

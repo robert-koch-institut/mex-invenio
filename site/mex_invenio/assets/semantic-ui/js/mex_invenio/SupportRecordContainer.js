@@ -3,26 +3,36 @@ import ReactDOM from "react-dom";
 import { SupportRecordData } from "./SupportRecordData";
 
 const SupportRecordRoot = () => {
-  const [recordId, setRecordId] = useState(
-    document.getElementById("support-record")?.dataset.recordId || null
-  );
+  const initialId =
+    document.getElementById("support-record")?.dataset.recordId || null;
+
+  const [recordId, setRecordId] = useState(initialId);
   const [recordTitle, setRecordTitle] = useState("");
   const [open, setOpen] = useState(false);
 
-  // Listen for custom events from plain JS
   useEffect(() => {
-    const handler = (event) => { 
-        setRecordId(event.detail.mex_id);
-        setRecordTitle(event.detail.combined_title)
-        setOpen(true);
-    }
+    const handler = (event) => {
+      const { mex_id, combined_title } = event.detail;
+      setRecordId(mex_id);
+      setRecordTitle(combined_title);
+      setOpen(true); // keep modal open or reopen it
+    };
+
     window.addEventListener("supportRecord:update", handler);
     return () => window.removeEventListener("supportRecord:update", handler);
   }, []);
 
-  return open && (
-  <SupportRecordData mexId={recordId} title={recordTitle} closeModalFn={() => setOpen(false)} />
-);
+  const closeModal = () => setOpen(false);
+
+  return (
+    open && (
+      <SupportRecordData
+        mexId={recordId}
+        title={recordTitle}
+        closeModalFn={closeModal}
+      />
+    )
+  );
 };
 
 const supportRecordDiv = document.getElementById("support-record");
