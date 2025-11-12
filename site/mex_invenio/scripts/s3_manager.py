@@ -117,9 +117,7 @@ def get_latest_existing_file(payload_folder):
     return files[-1] if files else None
 
 
-def rename_and_keep_latest_file(
-    existing_file, new_file, payload_folder
-):
+def rename_and_keep_latest_file(existing_file, new_file, payload_folder):
     """Handles file retention based on check flag."""
     if compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")

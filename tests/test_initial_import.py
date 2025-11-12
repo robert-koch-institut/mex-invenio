@@ -7,7 +7,7 @@ from tests.data import resource_data
 
 
 def test_initial_import_resource(
-        db, location, resource_type_v, contributors_role_v, import_file
+    db, location, resource_type_v, contributors_role_v, import_file
 ):
     """Test that the CLI command imports the contact point data correctly."""
     service = current_rdm_records.records_service
@@ -33,9 +33,9 @@ def test_initial_import_resource(
     assert len(db_result) == 1
     db_record = db_result[0]
     print(db_record.data)
-    #assert search_obj.total > 0, "No records found in search results"
+    # assert search_obj.total > 0, "No records found in search results"
 
-    #record = list(search_obj.hits)[0]
-    #assert record["id"] == published_record_id
-    #assert 'reginagarrett@example.com' in record["custom_fields"]["mex:email"]
-    #assert 'zJBx8K7g9mQ8X03VZHnxW' in record["custom_fields"]["mex:identifier"]
+    # record = list(search_obj.hits)[0]
+    # assert record["id"] == published_record_id
+    # assert 'reginagarrett@example.com' in record["custom_fields"]["mex:email"]
+    # assert 'zJBx8K7g9mQ8X03VZHnxW' in record["custom_fields"]["mex:identifier"]

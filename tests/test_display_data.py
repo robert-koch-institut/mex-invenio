@@ -10,10 +10,7 @@ from tests.data import resource_data, person_data, org_unit_data
 
 def get_record(records, identifier):
     for record in records:
-        if (
-            record.get("custom_fields", {}).get("mex:identifier")
-            == identifier
-        ):
+        if record.get("custom_fields", {}).get("mex:identifier") == identifier:
             return record
     return None
 
@@ -22,15 +19,15 @@ def test_display_data_contact_creator(
     db, location, resource_type_v, contributors_role_v, import_file
 ):
     """Test that display_data is populated and automatically updated when linked records change.
-    
+
     This test verifies the complete display_data lifecycle:
     1. Creates an organizational unit, two person records, and a resource record
-    2. Verifies that the resource record's display_data correctly shows linked person names 
+    2. Verifies that the resource record's display_data correctly shows linked person names
        in creator and contributor fields
     3. Updates the organizational unit's name to test cascading display updates
-    4. Verifies that person records referencing the updated org unit automatically 
+    4. Verifies that person records referencing the updated org unit automatically
        have their memberOf display_data updated with the new organizational unit name
-    
+
     This ensures that when core entities (like organizational units) are modified,
     all dependent records automatically reflect the updated information in their
     display_data without requiring manual re-indexing of individual records.
@@ -149,7 +146,7 @@ def test_display_data_contact_creator(
     # Check that the person record's memberOf display value was updated
     person_record_info = get_record(all_records, "gwjehcvTCGBH4CTyDWTiXY")
     assert person_record_info is not None, "Person record not found"
-    person_record = service.read(system_identity, person_record_info['id']).data
+    person_record = service.read(system_identity, person_record_info["id"]).data
 
     display_data = person_record.get("display_data", {})
     assert "linked_records" in display_data, "linked_records not found in display_data"
@@ -163,7 +160,7 @@ def test_display_data_contact_creator(
         if unit["link_id"] == "sLrfLJKbfnSUGkMJsOXA5":
             updated_unit = unit
             break
-    
+
     assert updated_unit is not None, "Updated org unit not found in memberOf"
     assert updated_unit["display_value"][0]["value"] == "New Org Unit Name"
 

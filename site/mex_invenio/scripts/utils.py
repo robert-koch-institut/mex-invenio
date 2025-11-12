@@ -168,13 +168,15 @@ def get_related_mex_ids(record: dict, logger) -> list:
     if not record_id:
         return []
 
-    mapping = {'organizationalunit': 'organizational-unit',
-               'contactpoint': 'contact-point',
-               'accessplatform': 'access-platform',
-               'bibliographicresource': 'bibliographic-resource',
-               'variablegroup': 'variable-group',
-               'primarysource': 'primary-source',}
-    
+    mapping = {
+        "organizationalunit": "organizational-unit",
+        "contactpoint": "contact-point",
+        "accessplatform": "access-platform",
+        "bibliographicresource": "bibliographic-resource",
+        "variablegroup": "variable-group",
+        "primarysource": "primary-source",
+    }
+
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
 
     if record_type in mapping:
@@ -206,11 +208,15 @@ def get_related_mex_ids(record: dict, logger) -> list:
         for field in target_fields:
             # Check if record_id is in the field (handles both string and array values)
             conditions.append(
-                text(f"rdm_records_metadata.json->'custom_fields'->'mex:{field}' ? :record_id_{field}")
+                text(
+                    f"rdm_records_metadata.json->'custom_fields'->'mex:{field}' ? :record_id_{field}"
+                )
             )
             # Also check if it's a direct string match
             conditions.append(
-                text(f"rdm_records_metadata.json->'custom_fields'->>'mex:{field}' = :record_id_str_{field}")
+                text(
+                    f"rdm_records_metadata.json->'custom_fields'->>'mex:{field}' = :record_id_str_{field}"
+                )
             )
 
         # Build parameters dict
@@ -227,7 +233,7 @@ def get_related_mex_ids(record: dict, logger) -> list:
             .all()
         )
 
-        return [str(uuid) for uuid, in record_uuids]
+        return [str(uuid) for (uuid,) in record_uuids]
 
     except Exception as e:
         print(f"Error searching for related MEX IDs for {record_id}: {e}")
