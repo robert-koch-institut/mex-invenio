@@ -144,7 +144,7 @@ person_data = {
     "givenName": [],
     "identifier": "f3sOhpidaNuj5P2kpPNrnN",
     "isniId": ["https://isni.org/isni/4300367410484481"],
-    "memberOf": ["dbH9MailktkHGSffoZ4cFP"],
+    "memberOf": ["Y7DWGmva2fT9KRFMaMTFU"],
     "orcidId": [
         "https://orcid.org/8314-0231-6277-8087",
         "https://orcid.org/4826-2772-7133-640X",

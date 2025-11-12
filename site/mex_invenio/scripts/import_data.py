@@ -153,7 +153,7 @@ def process_record_batch(
                 )
                 results.append({"action": "create", "id": published.id})
 
-                for related_id in get_related_mex_ids(current_app.config, mex_data):
+                for related_id in get_related_mex_ids(mex_data, logger):
                     results.append({"action": "related", "id": related_id})
 
             else:
@@ -177,7 +177,7 @@ def process_record_batch(
                     )
                     results.append({"action": "update", "id": new_record.id})
 
-                    for related_id in get_related_mex_ids(current_app.config, mex_data):
+                    for related_id in get_related_mex_ids(mex_data, logger):
                         results.append({"action": "related", "id": related_id})
                 else:
                     results.append({"action": "skip", "id": record_pid})
@@ -338,13 +338,8 @@ def import_data(
 
     # Get UUIDs for related MEx IDs for indexing
     if report["related"]:
-        mex_id_to_uuid = get_record_uuids_by_mex_ids(report["related"])
         for mex_id in report["related"]:
-            if mex_id in mex_id_to_uuid:
-                uuid = mex_id_to_uuid[mex_id]
-                current_rdm_records_service.indexer.index_by_id(uuid)
-            else:
-                logger.warning(f"Could not find UUID for related MEx ID: {mex_id}")
+            current_rdm_records_service.indexer.index_by_id(mex_id)
 
     return True
 

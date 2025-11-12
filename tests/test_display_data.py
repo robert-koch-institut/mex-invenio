@@ -5,14 +5,40 @@ from invenio_rdm_records.proxies import current_rdm_records
 
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.search import MexDumper
-from tests.data import resource_data, person_data
+from tests.data import resource_data, person_data, org_unit_data
+
+
+def get_record(records, identifier):
+    for record in records:
+        if (
+            record.get("custom_fields", {}).get("mex:identifier")
+            == identifier
+        ):
+            return record
+    return None
 
 
 def test_display_data_contact_creator(
     db, location, resource_type_v, contributors_role_v, import_file
 ):
-    """Test that display_data is populated when accessing a record with MexDumper-compatible fields."""
+    """Test that display_data is populated and automatically updated when linked records change.
+    
+    This test verifies the complete display_data lifecycle:
+    1. Creates an organizational unit, two person records, and a resource record
+    2. Verifies that the resource record's display_data correctly shows linked person names 
+       in creator and contributor fields
+    3. Updates the organizational unit's name to test cascading display updates
+    4. Verifies that person records referencing the updated org unit automatically 
+       have their memberOf display_data updated with the new organizational unit name
+    
+    This ensures that when core entities (like organizational units) are modified,
+    all dependent records automatically reflect the updated information in their
+    display_data without requiring manual re-indexing of individual records.
+    """
     service = current_rdm_records.records_service
+
+    # Import an org unit record (to test org unit linked records)
+    messages_orgunit = import_file("orgunit", org_unit_data)
 
     # Import linked records first (person records for contact/creator)
     messages_person1 = import_file(
@@ -21,6 +47,7 @@ def test_display_data_contact_creator(
             **person_data,
             "identifier": "gwjehcvTCGBH4CTyDWTiXY",  # matches resource_data contributor
             "fullName": ["John Bazooge"],
+            "memberOf": ["sLrfLJKbfnSUGkMJsOXA5"],  # Use the org unit being tested
         },
     )
 
@@ -41,15 +68,7 @@ def test_display_data_contact_creator(
     all_records = list(search_obj.hits)
 
     # Find and test the resource record specifically
-    search_record = None
-    for record in all_records:
-        if (
-            record.get("custom_fields", {}).get("mex:identifier")
-            == resource_data["identifier"]
-        ):
-            search_record = record
-            break
-
+    search_record = get_record(all_records, resource_data["identifier"])
     assert search_record is not None, "Resource record not found"
 
     # Get the actual record object to trigger display_data generation
@@ -118,6 +137,35 @@ def test_display_data_contact_creator(
     assert "Jane Bumbles" in contributor_display_values, (
         "Missing Jane Bumbles in contributor display values"
     )
+
+    messages_org_unit_changed = import_file(
+        "org_unit_changed",
+        {
+            **org_unit_data,
+            "name": [{"value": "New Org Unit Name"}],
+        },
+    )
+
+    # Check that the person record's memberOf display value was updated
+    person_record_info = get_record(all_records, "gwjehcvTCGBH4CTyDWTiXY")
+    assert person_record_info is not None, "Person record not found"
+    person_record = service.read(system_identity, person_record_info['id']).data
+
+    display_data = person_record.get("display_data", {})
+    assert "linked_records" in display_data, "linked_records not found in display_data"
+
+    linked_records = display_data["linked_records"]
+    member_of = linked_records["mex:memberOf"]
+
+    # Find the org unit that was updated (sLrfLJKbfnSUGkMJsOXA5)
+    updated_unit = None
+    for unit in member_of:
+        if unit["link_id"] == "sLrfLJKbfnSUGkMJsOXA5":
+            updated_unit = unit
+            break
+    
+    assert updated_unit is not None, "Updated org unit not found in memberOf"
+    assert updated_unit["display_value"][0]["value"] == "New Org Unit Name"
 
 
 def test_display_data_normalization(

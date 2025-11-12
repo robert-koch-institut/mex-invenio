@@ -10,6 +10,11 @@ from typing import Callable
 
 from marshmallow_utils.html import sanitize_unicode
 
+from invenio_rdm_records.records.api import RDMRecord
+from invenio_db import db
+from sqlalchemy import text, or_
+from mex.model import ENTITY_JSON_BY_NAME
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -156,23 +161,74 @@ def diff_files(directory: str, existing_file: str, new_file: str) -> str:
     return diff_file
 
 
-def get_related_mex_ids(config, record: dict) -> list:
-    """Get related MEx identifiers from the record's custom fields."""
-    field_types = config.get("FIELD_TYPES", [])
+def get_related_mex_ids(record: dict, logger) -> list:
+    """Get UUIDs of MEX records that reference this record's identifier in their custom fields."""
+    record_id = record.get("custom_fields", {}).get("mex:identifier")
+
+    if not record_id:
+        return []
+
+    mapping = {'organizationalunit': 'organizational-unit',
+               'contactpoint': 'contact-point',
+               'accessplatform': 'access-platform',
+               'bibliographicresource': 'bibliographic-resource',
+               'variablegroup': 'variable-group',
+               'primarysource': 'primary-source',}
+    
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
-    related_ids = set()
 
-    related_fields = [
-        k for k, v in field_types.get(record_type, {}).items() if v == "identifier"
-    ]
+    if record_type in mapping:
+        record_type = mapping[record_type]
 
-    for field in related_fields:
-        if field in record.get("custom_fields", {}):
-            field_value = record["custom_fields"][field]
-            if isinstance(field_value, list):
-                for item in field_value:
-                    related_ids.add(str(item))
-            else:
-                related_ids.add(str(field_value))
+    target_id = f"/schema/entities/{record_type}#/identifier"
 
-    return list(related_ids)
+    # Find fields that reference this record type
+    target_fields = []
+    for entity in ENTITY_JSON_BY_NAME.values():
+        for prop_name, prop in entity.get("properties", {}).items():
+            if prop.get("$ref") == target_id:
+                target_fields.append(prop_name)
+            elif prop.get("type") == "array" and "items" in prop:
+                if prop["items"].get("$ref") == target_id:
+                    target_fields.append(prop_name)
+                elif "anyOf" in prop["items"]:
+                    for sub_prop in prop["items"]["anyOf"]:
+                        if sub_prop.get("$ref") == target_id:
+                            target_fields.append(prop_name)
+                            break
+
+    if not target_fields:
+        return []
+
+    try:
+        # Build OR conditions for each target field
+        conditions = []
+        for field in target_fields:
+            # Check if record_id is in the field (handles both string and array values)
+            conditions.append(
+                text(f"rdm_records_metadata.json->'custom_fields'->'mex:{field}' ? :record_id_{field}")
+            )
+            # Also check if it's a direct string match
+            conditions.append(
+                text(f"rdm_records_metadata.json->'custom_fields'->>'mex:{field}' = :record_id_str_{field}")
+            )
+
+        # Build parameters dict
+        params = {}
+        for field in target_fields:
+            params[f"record_id_{field}"] = record_id
+            params[f"record_id_str_{field}"] = record_id
+
+        # Query database for records that reference this record_id
+        record_uuids = (
+            db.session.query(RDMRecord.model_cls.id)
+            .filter(or_(*conditions))
+            .params(**params)
+            .all()
+        )
+
+        return [str(uuid) for uuid, in record_uuids]
+
+    except Exception as e:
+        print(f"Error searching for related MEX IDs for {record_id}: {e}")
+        return []
