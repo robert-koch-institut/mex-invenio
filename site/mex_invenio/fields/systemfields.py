@@ -25,38 +25,38 @@ class DisplayField(SystemField):
     #
     def __get__(self, record, owner=None):
         """Get the display data."""
-        # print(
-        #    f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
-        # )
+        print(
+           f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
+        )
 
         if record is None:
             # returns the field itself.
             return self
 
         # Check if already in record
-        # display_data = record.get("display_data", None)
-        # if display_data:
-        #     # print(f"display_data already exists with keys: {list(display_data.keys())}")
-        #     return display_data
+        display_data = record.get("display_data", None)
+        if display_data:
+            # print(f"display_data already exists with keys: {list(display_data.keys())}")
+            return display_data
 
-        # # # Try to get from search index first
-        # try:
-        #     # print("Trying to get display_data from search index...")
-        #     res = current_search_client.get(
-        #         index=build_alias_name(record.index._name),
-        #         id=record.id,
-        #         params={"_source_includes": "display_data"},
-        #     )
-        #     display_data = res["_source"]["display_data"]
-        #     # print(
-        #     #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
-        #     # )
-        #     return display_data
-        # except Exception as e:
-        #     pass
-        #     # print(f"Failed to get from search index: {e}")
-        #     # Fallback to generating using MexDumper
-        #     # print("Fallback: generating display_data using MexDumper...")
+        # # Try to get from search index first
+        try:
+            # print("Trying to get display_data from search index...")
+            res = current_search_client.get(
+                index=build_alias_name(record.index._name),
+                id=record.id,
+                params={"_source_includes": "display_data"},
+            )
+            display_data = res["_source"]["display_data"]
+            # print(
+            #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
+            # )
+            return display_data
+        except Exception as e:
+            pass
+            # print(f"Failed to get from search index: {e}")
+            # Fallback to generating using MexDumper
+            # print("Fallback: generating display_data using MexDumper...")
 
         from mex_invenio.services.search import MexDumper
 
