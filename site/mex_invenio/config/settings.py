@@ -576,7 +576,7 @@ UI_SETTINGS = {
                     {
                         "title": "Succeeds",
                         "properties": [
-                            {"field": "mex:succeeds", "label": "Succeeds"},
+                            {"field": "mex:succeeds"},
                         ],
                     },
                     {
@@ -722,6 +722,22 @@ UI_SETTINGS = {
     "contact": {
         "fields": [
             {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}
+        ]
+    },
+    "organization": {
+        "fields": [
+            {"field": "mex:geprisId", "prefixes": ["https://gepris.dfg.de/gepris/institution/"]},
+            {"field": "mex:gndId", "prefixes": ["https://d-nb.info/gnd/"]},
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:rorId", "prefixes": ["https://ror.org/"]},
+            {"field": "mex:viafId", "prefixes": ["https://viaf.org/viaf/"]},
+            {"field": "mex:wikidataId", "prefixes": ["http://www.wikidata.org/entity/"]}
+        ]
+    },
+    "person": {
+        "fields": [
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]},
         ]
     }
 }

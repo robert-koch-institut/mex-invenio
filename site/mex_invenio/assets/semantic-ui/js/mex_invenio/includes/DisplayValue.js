@@ -1,70 +1,6 @@
 import React, { useState } from 'react';
-
-const DisplayValue = ({ v }) => {
-
-    const supportRecordHandler = (mex_id, combined_title) => {
-        window.dispatchEvent(
-            new CustomEvent("supportRecord:update", { detail: { mex_id, combined_title } })
-        );
-    }; 
-
-    const combineTitles = (items) => items.map(d => d.value).join(', ');
-
-    const lang = "en";
-    const dd = v.display_data;
-    let selected = [];
-
-    const correctLang = dd.filter(d => d.language === lang);
-    if (correctLang.length > 0) {
-        const emptyLang = dd.filter(d => d.language === '');
-        selected = [...correctLang, ...emptyLang];
-    } else {
-        selected = dd;
-    }
-
-    const combinedTitle = combineTitles(selected);
-  
-    if (v.url) {
-        if (v.url.includes("http")){ 
-            return (
-                <a href={ v.url } title={ combinedTitle }>
-                    { combinedTitle }
-                </a>
-            )
-        }
-        else if (v.core) {
-            return (
-                <a href={v.url} title={combinedTitle}>
-                    <div className="tags">
-                        <span className="tag">
-                            <img
-                                className="ui image icon--text"
-                                src={`/static/icons/${v.core}-record.svg`}
-                                role="presentation"
-                                alt=""
-                            />
-                            (--Record type--)   
-                        </span>
-                        {combinedTitle}
-                    </div>
-                </a>
-            );
-        } else {
-            return (
-                <button
-                    type="button"
-                    className="ui button link-like"
-                    data-record-id={v.url}
-                    onClick={() => supportRecordHandler(v.url, combinedTitle)}
-                >
-                {combinedTitle}
-                </button>
-            );
-        }
-    } else {
-        return <p>{combinedTitle}</p>;
-    }
-};
+import { Button } from 'semantic-ui-react';
+import { settings } from './settings';
 
 const DisplayValues = ({
   values,
@@ -79,7 +15,7 @@ const DisplayValues = ({
   }
 
   return (
-    <>
+    <div className="props-values">
       {visible.map((v, index) => (
         <DisplayValue
           key={index}
@@ -98,17 +34,104 @@ const DisplayValues = ({
             ))}
           </div>
 
-          <button
-            type="button"
-            className="ui button link-like"
+          <Button
+            className="link-like"
             onClick={() => setShowAll(!showAll)}
           >
             {showAll ? 'Show less ▲' : `Show all (${total}) ▼`}
-          </button>
+          </Button>
         </>
       )}
-    </>
+    </div>
   );
+};
+
+const DisplayValue = ({ v }) => {
+  const supportRecordHandler = (mex_id, combined_title) => {
+    window.dispatchEvent(
+      new CustomEvent("supportRecord:update", {
+        detail: { mex_id, combined_title }
+      })
+    );
+  };
+
+  const combineTitles = (items) => items.map(d => d.value).join(', ');
+
+  const lang = "en";
+  const dd = v.display_data || [];
+  const correctLang = dd.filter(d => d.language === lang);
+  const emptyLang = dd.filter(d => d.language === '');
+
+  const selected =
+    correctLang.length > 0
+      ? [...correctLang, ...emptyLang]
+      : dd;
+
+  const combinedTitle = combineTitles(selected);
+
+  // ─────────────────────────
+  // Simple external link
+  // ─────────────────────────
+  if (v.url && v.url.includes("http")) {
+    return (
+      <a
+        href={v.url}
+        title={combinedTitle}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open link: ${combinedTitle}`}
+      >
+        {combinedTitle}
+      </a>
+    );
+  }
+
+  // ─────────────────────────
+  // Internal link with “core” icon
+  // ─────────────────────────
+  if (v.url && v.core) {
+    return (
+      <a
+        href={v.url}
+        title={combinedTitle}
+        aria-label={`Open ${combinedTitle}`}
+      >
+        <div className="tags">
+          <span className="tag">
+            <img
+              className="ui image icon--text"
+              src={`/static/icons/${v.core}-record.svg`}
+              alt=""
+              role="presentation"
+            />
+            <span className="sr-only">{settings.CORE_ENTITIES[v.core]}</span>
+          </span>
+          {combinedTitle}
+        </div>
+      </a>
+    );
+  }
+
+  // ─────────────────────────
+  // Internal navigation via CustomEvent
+  // ─────────────────────────
+  if (v.url) {
+    return (
+      <Button
+        className="link-like"
+        data-record-id={v.url}
+        onClick={() => supportRecordHandler(v.url, combinedTitle)}
+        aria-label={`Open modal with record ${combinedTitle}`}
+      >
+        {combinedTitle}
+      </Button>
+    );
+  }
+
+  // ─────────────────────────
+  // Plain text content
+  // ─────────────────────────
+  return <p>{combinedTitle}</p>;
 };
 
 export { DisplayValues, DisplayValue };

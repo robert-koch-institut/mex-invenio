@@ -7,5 +7,10 @@ export const settings = {
         "mex:officialName",
         "mex:email",
         "mex:familyName"
-    ]
+    ],
+    "CORE_ENTITIES": {
+        "resource":  "Data Source or Dataset",
+        "activity": "Project",
+        "bibliographicresource": "Publication"
+    }
 }

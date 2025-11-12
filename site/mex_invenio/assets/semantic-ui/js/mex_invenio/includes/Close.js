@@ -1,19 +1,30 @@
-import React from 'react';
+import React from "react";
+import { Button } from "semantic-ui-react";
 
-const CloseIcon = ({closeModalFn }) => (
-    <button type="button" class="ui button button--close" onClick={closeModalFn}><svg xmlns="http://www.w3.org/2000/svg" 
-        width="24" 
-        height="24" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
-        stroke-linejoin="round" 
-        class="ui icon close">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg></button>
+const CloseIcon = ({ closeModalFn }) => (
+  <Button
+    type="button"
+    aria-label="Close record"
+    onClick={closeModalFn}
+    className="button--close"
+    icon
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="ui icon close"
+    >
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </Button>
 );
 
 export default CloseIcon;
