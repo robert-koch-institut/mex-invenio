@@ -119,7 +119,7 @@ def get_latest_existing_file(payload_folder):
 
 def rename_and_keep_latest_file(existing_file, new_file, payload_folder):
     """Handles file retention based on check flag."""
-    if compare_files(existing_file, new_file):
+    if existing_file and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
         return None  # New file is identical, so discard it
 
@@ -165,6 +165,8 @@ def manage_s3_files(ingest: bool = False):
     # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER")
     os.makedirs(s3_download_folder, exist_ok=True)
+    logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
+    logger.info(f"To download folder: {s3_download_folder}")
 
     # This will be the most recently modified file in the download folder
     existing_file_path = get_latest_existing_file(s3_download_folder)
@@ -179,7 +181,7 @@ def manage_s3_files(ingest: bool = False):
             existing_file_path, new_file_path, s3_download_folder
         )
         if ingest and final_file_path:
-            logger.info(f"importing data using file {final_file_path}")
+            logger.info(f"Importing data using file {final_file_path}")
 
             result = import_data(user_email, final_file_path)
 
