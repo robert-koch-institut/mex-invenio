@@ -7,9 +7,7 @@ pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
 
 ### Parameters
 The script takes the following parameters:
-1. **check** Whether to compare the latest downloaded file with the previous one
- to determine whether an upload is necessary.
-2. **ingest** Whether to import the data after downloading it from S3.
+**initial** Whether to import the data after downloading it from S3.
 
 ### Requirements
 Before running the script, there is a number of environment variables you can set:
@@ -36,6 +34,7 @@ import os
 from dotenv import load_dotenv
 from flask import current_app
 from mex_invenio.scripts.import_data import import_data
+from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import compare_files, diff_files
 from datetime import datetime, timezone
 
@@ -46,7 +45,7 @@ logger = logging.getLogger(__name__)
 envvar_prefix = "MEX_IMPORT_"
 
 
-def load_config(ingest):
+def load_config():
     load_dotenv()
 
     s3_config = {
@@ -67,15 +66,12 @@ def load_config(ingest):
             s3_config["bucket"],
             s3_config["aws_access_key_id"],
             s3_config["aws_secret_access_key"],
+            s3_config["email"],
         ]
     ):
         logger.error(
-            "Missing required configurations (bucket, aws_access_key, aws_secret_key)."
+            "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
         )
-        sys.exit(1)
-
-    if ingest and not s3_config["email"]:
-        logger.error("Can't ingest: email environment variable is not set.")
         sys.exit(1)
 
     return s3_config
@@ -148,11 +144,11 @@ def rename_and_keep_latest_file(existing_file, new_file, payload_folder):
 
 
 @click.command("manage_s3_files")
-@click.option("--ingest", is_flag=True, default=False)
-def manage_s3_files(ingest: bool = False):
+@click.option("--initial", is_flag=True, default=False)
+def manage_s3_files(initial: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
 
-    s3_config = load_config(ingest)
+    s3_config = load_config()
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")
     s3_object_key = s3_config.pop("object_key", None)
@@ -180,10 +176,13 @@ def manage_s3_files(ingest: bool = False):
         final_file_path = rename_and_keep_latest_file(
             existing_file_path, new_file_path, s3_download_folder
         )
-        if ingest and final_file_path:
+        if final_file_path:
             logger.info(f"Importing data using file {final_file_path}")
 
-            result = import_data(user_email, final_file_path)
+            if initial:
+                result = initial_import(user_email, final_file_path)
+            else:
+                result = import_data(user_email, final_file_path)
 
             if not result:
                 logger.error(

@@ -1,15 +1,28 @@
 import datetime
 import os
+from unittest.mock import patch
 
 from mex_invenio.scripts.s3_manager import manage_s3_files, get_latest_file
 
 from freezegun import freeze_time
 
 
+@patch("mex_invenio.scripts.s3_manager.import_data")
+@patch("mex_invenio.scripts.s3_manager.initial_import")
 def test_identical_files(
-    app_config, db, create_file, load_env, mock_s3_client, cli_runner
+    mock_initial_import,
+    mock_import_data,
+    app_config,
+    db,
+    create_file,
+    load_env,
+    mock_s3_client,
+    cli_runner,
 ):
     """Test that the script does not import files that are identical."""
+    # Mock the import functions to return True
+    mock_import_data.return_value = True
+    mock_initial_import.return_value = True
     # download_path is a module scope temp path, so we need to be careful about
     # file names
     download_path = app_config["S3_DOWNLOAD_FOLDER"]
@@ -50,10 +63,22 @@ def test_identical_files(
 
 
 @freeze_time("2023-01-01")
+@patch("mex_invenio.scripts.s3_manager.import_data")
+@patch("mex_invenio.scripts.s3_manager.initial_import")
 def test_replace_file_but_fail_import(
-    app_config, db, create_file, load_env, mock_s3_client, cli_runner
+    mock_initial_import,
+    mock_import_data,
+    app_config,
+    db,
+    create_file,
+    load_env,
+    mock_s3_client,
+    cli_runner,
 ):
     """Test that the script replaces a file but fails to import it."""
+    # Mock the import functions to return True
+    mock_import_data.return_value = True
+    mock_initial_import.return_value = True
     # download_path is a module scope temp path, so we need to be careful about
     # file names
     download_path = app_config["S3_DOWNLOAD_FOLDER"]
