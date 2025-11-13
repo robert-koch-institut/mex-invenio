@@ -358,7 +358,7 @@ aside {
 }
 
 nav#invenio-menu {
-    padding: 0 important!;
+    padding: 0 !important;
 }
 
 .sr-only {

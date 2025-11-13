@@ -125,7 +125,7 @@
                             "mex:accessPlatform": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -145,7 +145,7 @@
                             "mex:accessService": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -165,7 +165,7 @@
                             "mex:affiliation": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -185,7 +185,7 @@
                             "mex:belongsTo": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -205,7 +205,7 @@
                             "mex:contact": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -228,7 +228,7 @@
                             "mex:containedBy": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -248,7 +248,7 @@
                             "mex:contributingUnit": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -268,7 +268,7 @@
                             "mex:contributor": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -288,7 +288,7 @@
                             "mex:creator": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -308,7 +308,7 @@
                             "mex:distribution": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -328,7 +328,7 @@
                             "mex:editor": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -348,7 +348,7 @@
                             "mex:editorOfSeries": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -368,7 +368,7 @@
                             "mex:externalAssociate": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -388,7 +388,7 @@
                             "mex:externalPartner": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -408,7 +408,7 @@
                             "mex:funderOrCommissioner": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -428,7 +428,7 @@
                             "mex:hadPrimarySource": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -448,7 +448,7 @@
                             "mex:hasDataSubject": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -468,7 +468,7 @@
                             "mex:inScheme": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -488,7 +488,7 @@
                             "mex:involvedPerson": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -508,7 +508,7 @@
                             "mex:involvedUnit": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -528,7 +528,7 @@
                             "mex:isPartOf": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -548,7 +548,7 @@
                             "mex:isPartOfActivity": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -568,7 +568,7 @@
                             "mex:memberOf": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -588,7 +588,7 @@
                             "mex:parentUnit": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -608,7 +608,7 @@
                             "mex:publication": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -628,7 +628,7 @@
                             "mex:publisher": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -648,7 +648,7 @@
                             "mex:responsibleUnit": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -668,7 +668,7 @@
                             "mex:succeeds": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -688,7 +688,7 @@
                             "mex:unitInCharge": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -708,7 +708,7 @@
                             "mex:unitOf": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -728,7 +728,7 @@
                             "mex:usedIn": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
@@ -748,7 +748,7 @@
                             "mex:wasGeneratedBy": {
                                 "properties": {
                                     "core": {
-                                        "type": "boolean"
+                                        "type": "text"
                                     },
                                     "display_value": {
                                         "properties": {
