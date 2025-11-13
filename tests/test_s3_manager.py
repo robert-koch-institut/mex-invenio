@@ -86,7 +86,9 @@ def test_replace_file_but_fail_import(
     # Create the existing file in the S3_DOWNLOAD_FOLDER
     existing_file = "test_replace_file_but_fail_import1.json"
     existing_file_path = create_file(
-        f"{download_path}/{existing_file}", '{"s":"a"}', absolute=True
+        f"{download_path}/{existing_file}",
+        '{"identifier": "unique", "b":"a"}',
+        absolute=True,
     )
 
     # Establish the file path of the file to be downloaded from S3
@@ -95,7 +97,9 @@ def test_replace_file_but_fail_import(
 
     # Mock the download_file function to create the file locally
     def download_file(Bucket, Key, Filename):
-        create_file(downloaded_file_path, '{"s":"b"}', absolute=True)
+        create_file(
+            downloaded_file_path, '{"identifier": "unique", "s":"b"}', absolute=True
+        )
 
     mock_s3_client.download_file = download_file
 
@@ -125,4 +129,4 @@ def test_replace_file_but_fail_import(
         os.path.join(download_path, "diffs", "diff_01-01-2023_12_00_00.ndjson"), "r"
     ) as diff_file:
         diff_content = diff_file.read()
-        assert diff_content.strip() == '{"s":"b"}'
+        assert diff_content.strip() == '{"identifier": "unique", "s": "b"}'

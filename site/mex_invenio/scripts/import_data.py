@@ -153,7 +153,7 @@ def process_record_batch(
                 )
                 results.append({"action": "create", "id": published.id})
 
-                for related_id in get_related_mex_ids(mex_data, logger):
+                for related_id in get_related_mex_ids(mex_data):
                     results.append({"action": "related", "id": related_id})
 
             else:
@@ -177,7 +177,7 @@ def process_record_batch(
                     )
                     results.append({"action": "update", "id": new_record.id})
 
-                    for related_id in get_related_mex_ids(mex_data, logger):
+                    for related_id in get_related_mex_ids(mex_data):
                         results.append({"action": "related", "id": related_id})
                 else:
                     results.append({"action": "skip", "id": record_pid})

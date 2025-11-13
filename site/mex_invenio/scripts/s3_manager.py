@@ -1,5 +1,6 @@
 """
 This script fetches the latest file from an S3 store and imports it to the server.
+If more than 20 files are present in the local download folder, the oldest ones are deleted.
 
 ### How to Run
 To execute the script, run:
@@ -100,7 +101,8 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
 
 
 def get_latest_existing_file(payload_folder):
-    """Fetches the most recent file in the payload folder."""
+    """Fetches the most recent file in the payload folder and
+    removes files older than the 20 most recent ones."""
     files = sorted(
         [
             os.path.join(payload_folder, f)
@@ -108,12 +110,21 @@ def get_latest_existing_file(payload_folder):
             if os.path.isfile(os.path.join(payload_folder, f))
         ],
         key=os.path.getmtime,  # Sort by last modified time
+        reverse=True,  # Most recent first
     )
 
-    return files[-1] if files else None
+    if len(files) > 20:
+        for f in files[20:]:
+            try:
+                os.remove(f)
+                logger.info(f"Removed old file: {f}")
+            except OSError as e:
+                logger.warning(f"Could not remove old file {f}: {e}")
+
+    return files[0] if files else None
 
 
-def rename_and_keep_latest_file(existing_file, new_file, payload_folder):
+def get_final_import_file(existing_file, new_file, payload_folder):
     """Handles file retention based on check flag."""
     if existing_file and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
@@ -173,7 +184,7 @@ def manage_s3_files(initial: bool = False):
     )
 
     if new_file_path:
-        final_file_path = rename_and_keep_latest_file(
+        final_file_path = get_final_import_file(
             existing_file_path, new_file_path, s3_download_folder
         )
         if final_file_path:

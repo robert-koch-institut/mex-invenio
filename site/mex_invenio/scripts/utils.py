@@ -1,10 +1,11 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
 import filecmp
+import hashlib
 import html
+import json
 import logging
 import os
-import subprocess
 from datetime import datetime
 from typing import Callable
 
@@ -144,24 +145,111 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
-def diff_files(directory: str, existing_file: str, new_file: str) -> str:
+def diff_files(directory: str, existing_file: str, new_file: str):
+    """Create a diff file containing only new or changed records based on identifier comparison.
+    Optimized for large files by using streaming and hash-based comparison."""
+
     diffdirectory = os.path.join(directory, "diffs")
     os.makedirs(diffdirectory, exist_ok=True)
 
-    awk_pattern = "NR==FNR{seen[$0]=1; next} !($0 in seen)"
     timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
     diff_file = os.path.join(diffdirectory, f"diff_{timestamp}.ndjson")
 
-    comparison_cmd = f"awk '{awk_pattern}' {existing_file} {new_file} > {diff_file}"
+    try:
+        # Read existing records and create hash index (memory efficient)
+        existing_hashes = {}  # identifier -> content_hash
+        existing_count = 0
 
-    result = subprocess.run([comparison_cmd], shell=True, check=True)
+        logger.info(f"Reading existing file: {existing_file}")
+        if os.path.exists(existing_file):
+            with open(existing_file, "r", encoding="utf-8") as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        record = json.loads(line)
+                        record_id = record.get("identifier")
+                        if record_id:
+                            # Create hash of normalized content for efficient comparison
+                            normalized = normalize_record_data(record)
+                            content_hash = hashlib.md5(
+                                json.dumps(normalized, sort_keys=True).encode("utf-8")
+                            ).hexdigest()
+                            existing_hashes[record_id] = content_hash
+                            existing_count += 1
+                    except json.JSONDecodeError as e:
+                        logger.warning(
+                            f"Invalid JSON at line {line_num} in {existing_file}: {e}"
+                        )
 
-    assert result.returncode == 0, "Error during file comparison"
+                    # Log progress for large files
+                    if line_num % 10000 == 0:
+                        logger.info(f"Processed {line_num} lines from existing file")
 
-    return diff_file
+        logger.info(f"Indexed {existing_count} existing records")
+
+        # Stream process new file and write diff directly
+        new_or_changed_count = 0
+        processed_count = 0
+
+        logger.info(f"Processing new file: {new_file}")
+        with (
+            open(new_file, "r", encoding="utf-8") as infile,
+            open(diff_file, "w", encoding="utf-8") as outfile,
+        ):
+            for line_num, line in enumerate(infile, 1):
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
+                    record = json.loads(line)
+                    record_id = record.get("identifier")
+                    if record_id:
+                        # Create hash of new record
+                        normalized = normalize_record_data(record)
+                        content_hash = hashlib.md5(
+                            json.dumps(normalized, sort_keys=True).encode("utf-8")
+                        ).hexdigest()
+
+                        existing_hash = existing_hashes.get(record_id)
+                        if existing_hash is None or existing_hash != content_hash:
+                            # New or changed record - write to diff file immediately
+                            json.dump(record, outfile, ensure_ascii=False)
+                            outfile.write("\n")
+                            new_or_changed_count += 1
+
+                        processed_count += 1
+                    else:
+                        logger.warning(
+                            f"Record without identifier at line {line_num} in {new_file}"
+                        )
+
+                except json.JSONDecodeError as e:
+                    logger.warning(
+                        f"Invalid JSON at line {line_num} in {new_file}: {e}"
+                    )
+
+                # Log progress for large files
+                if line_num % 10000 == 0:
+                    logger.info(
+                        f"Processed {line_num} lines, found {new_or_changed_count} changes"
+                    )
+
+        logger.info(
+            f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
+        )
+        logger.info(f"Created diff file: {diff_file}")
+        return diff_file
+
+    except Exception as e:
+        logger.error(f"Error during JSON-based file comparison: {e}")
+
+        return None
 
 
-def get_related_mex_ids(record: dict, logger) -> list:
+def get_related_mex_ids(record: dict) -> list:
     """Get UUIDs of MEX records that reference this record's identifier in their custom fields."""
     record_id = record.get("custom_fields", {}).get("mex:identifier")
 
@@ -236,5 +324,5 @@ def get_related_mex_ids(record: dict, logger) -> list:
         return [str(uuid) for (uuid,) in record_uuids]
 
     except Exception as e:
-        print(f"Error searching for related MEX IDs for {record_id}: {e}")
+        logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
