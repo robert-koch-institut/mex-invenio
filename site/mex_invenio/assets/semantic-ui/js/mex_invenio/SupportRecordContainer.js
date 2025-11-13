@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
+import './i18n';
 import { SupportRecordData } from "./SupportRecordData";
 
 const SupportRecordRoot = () => {

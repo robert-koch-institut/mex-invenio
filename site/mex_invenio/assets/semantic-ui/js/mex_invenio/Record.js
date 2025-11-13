@@ -1,9 +1,11 @@
 import React from "react";
 import { useData } from "./useData";
 import { DisplayValues } from "./includes/DisplayValue";
-import { Table, Header } from 'semantic-ui-react'
+import { Table, Header } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
 
 export const Record = ({ mexId, title }) => {
+  const { t, i18n } = useTranslation();
   const { data, loading, error } = useData(mexId);
 
   if (loading) return <p role="status">Loading… {mexId}</p>;
@@ -18,6 +20,7 @@ export const Record = ({ mexId, title }) => {
         <a  href={`/api/records/${invenio_id}`} aria-label={`View record ${invenio_id} as JSON`} >{invenio_id}</a>
       </p>
 
+      <Header as="h2">{t('Welcome to React')}</Header>
       <Header as="h3">{title}</Header>
       <Table celled>
         <Table.Header className="sr-only">
