@@ -1,4 +1,5 @@
 import datetime
+import importlib
 import os
 from unittest.mock import patch
 
@@ -119,14 +120,15 @@ def test_replace_file_but_fail_import(
     renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
     directory_contents = os.listdir(download_path)
     diff_directory_contents = os.listdir(os.path.join(download_path, "diffs"))
+    mex_model_version = importlib.metadata.version("mex-model")
+    renamed_downloaded_filename = f"20230101000000_{downloaded_file}"
+    diff_filename = f"{existing_file}-{renamed_downloaded_filename}-{mex_model_version}_01-01-2023_12_00_00.ndjson"
 
     assert result.exit_code == 0
     assert os.path.exists(renamed_downloaded_file)
     assert "diffs" in directory_contents
-    assert "diff_01-01-2023_12_00_00.ndjson" in diff_directory_contents
+    assert diff_filename in diff_directory_contents
 
-    with open(
-        os.path.join(download_path, "diffs", "diff_01-01-2023_12_00_00.ndjson"), "r"
-    ) as diff_file:
+    with open(os.path.join(download_path, "diffs", diff_filename), "r") as diff_file:
         diff_content = diff_file.read()
         assert diff_content.strip() == '{"identifier": "unique", "s": "b"}'

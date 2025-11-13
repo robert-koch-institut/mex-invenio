@@ -3,6 +3,7 @@
 import filecmp
 import hashlib
 import html
+import importlib.metadata
 import json
 import logging
 import os
@@ -153,7 +154,13 @@ def diff_files(directory: str, existing_file: str, new_file: str):
     os.makedirs(diffdirectory, exist_ok=True)
 
     timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
-    diff_file = os.path.join(diffdirectory, f"diff_{timestamp}.ndjson")
+    mex_model_version = importlib.metadata.version("mex-model")
+    existing_basename = os.path.basename(existing_file)
+    new_basename = os.path.basename(new_file)
+    diff_file = os.path.join(
+        diffdirectory,
+        f"{existing_basename}-{new_basename}-{mex_model_version}_{timestamp}.ndjson",
+    )
 
     try:
         # Read existing records and create hash index (memory efficient)
