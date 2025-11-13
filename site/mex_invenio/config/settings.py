@@ -35,7 +35,7 @@ from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
 
-from mex_invenio.records.api import MexRDMRecord, MEXBulkIndexer
+from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
@@ -107,7 +107,6 @@ APP_DEFAULT_SECURE_HEADERS = {
 RDM_RECORD_CLS = MexRDMRecord
 rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
 rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
-rdm_config.RDMRecordServiceConfig.indexer_cls = MEXBulkIndexer
 
 # Flask-Babel
 # ===========

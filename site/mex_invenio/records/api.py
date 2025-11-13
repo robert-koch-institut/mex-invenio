@@ -8,19 +8,9 @@ from invenio_rdm_records.records.dumpers import (
 from invenio_records.dumpers.relations import RelationDumperExt
 from invenio_records_resources.records.dumpers import CustomFieldsDumperExt
 from invenio_records_resources.records.systemfields import IndexField
-from invenio_indexer.api import RecordIndexer
 
 from mex_invenio.services.search import MexDumper
 from mex_invenio.fields.systemfields import DisplayField
-
-
-class MEXBulkIndexer(RecordIndexer):
-    """Custom indexer optimized for MEX record processing."""
-
-    def __init__(self, *args, **kwargs):
-        # Override default batch size from 10,000 to 100 for MEX records
-        kwargs.setdefault("bulk_index_max_items", 100)
-        super().__init__(*args, **kwargs)
 
 
 class MexRDMRecord(RDMRecord):
@@ -40,9 +30,3 @@ class MexRDMRecord(RDMRecord):
             StatisticsDumperExt("stats"),
         ]
     )
-
-    # Use custom indexer for MEX records
-    @classmethod
-    def get_indexer(cls):
-        """Get the indexer for MEX records."""
-        return MEXBulkIndexer(record_cls=cls)

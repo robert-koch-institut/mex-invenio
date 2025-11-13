@@ -50,7 +50,7 @@ from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
 
-from mex_invenio.records.api import MexRDMRecord, MEXBulkIndexer
+from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
@@ -174,7 +174,6 @@ def app_config(app_config, module_tmp_path):
     app_config["RDM_RECORD_CLS"] = MexRDMRecord
     # rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
     # rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
-    # rdm_config.RDMRecordServiceConfig.indexer_cls = MEXBulkIndexer
 
     # add custom fields
     app_config["RDM_NAMESPACES"] = RDM_NAMESPACES
