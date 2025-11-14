@@ -7,6 +7,8 @@ For the full list of settings and their values, see
 https://inveniordm.docs.cern.ch/reference/configuration/.
 """
 
+import os
+
 # Standard library imports
 from datetime import datetime
 
@@ -33,7 +35,7 @@ from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
 
-from mex_invenio.records.api import MexRDMRecord, MEXBulkIndexer
+from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
@@ -105,7 +107,6 @@ APP_DEFAULT_SECURE_HEADERS = {
 RDM_RECORD_CLS = MexRDMRecord
 rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
 rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
-rdm_config.RDMRecordServiceConfig.indexer_cls = MEXBulkIndexer
 
 # Flask-Babel
 # ===========
@@ -256,7 +257,7 @@ USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 
 # S3 config
 
-S3_DOWNLOAD_FOLDER = "s3_downloads"
+S3_DOWNLOAD_FOLDER = os.environ.get("INVENIO_S3_DOWNLOAD_FOLDER", "s3_downloads")
 
 COMMUNITIES_GROUPS_ENABLED = False
 
@@ -361,6 +362,7 @@ UI_SETTINGS = {
                 "icon": "theme.svg",
                 "template": "theme_keywords.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:theme"},
                     {"field": "mex:keyword"},
                 ],
@@ -368,11 +370,11 @@ UI_SETTINGS = {
             "coverage": {
                 "title": _("Data Representation & Coverage"),
                 "icon": "coverage.svg",
+                "template": "coverage.html",
                 "properties": [
                     {"field": "mex:temporal", "label": _("temporal.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "mex:minTypicalAge", "label": _("minTypicalAge.singular")},
-                    {"field": "mex:maxTypicalAge", "label": _("maxTypicalAge.singular")},
+                    {"field": "fn", "label": _("Typical age")},
                     {"field": "mex:populationCoverage", "label": _("populationCoverage.singular")},
                     {"field": "mex:sizeOfDataBasis", "label": _("sizeOfDataBasis.singular")},
                 ],
@@ -410,7 +412,9 @@ UI_SETTINGS = {
             "methodology": {
                 "title": _("Methodology"),
                 "icon": "methodology.svg",
+                "template": "methodology.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:method", "label": _("method.singular")},
                     {"field": "mex:methodDescription", "label": _("methodDescription.singular")},
                 ],
@@ -433,8 +437,7 @@ UI_SETTINGS = {
                 "properties": [
                     {
                         "field": "mex:wasGeneratedBy",
-                        "label": _("Related project/endeavor"),
-                        "is_backwards_linked": True,
+                        "label": _("Related project/endeavor")
                     },
                 ],
             },
@@ -498,6 +501,7 @@ UI_SETTINGS = {
             "variables": {
                 "title": _("Variables"),
                 "icon": "variables.svg",
+                "template": "variables.html",
                 "properties": [
                     {"field": "mex:usedIn", "is_backwards_linked": True},
                 ],
@@ -574,7 +578,7 @@ UI_SETTINGS = {
                     {
                         "title": _("Succeeds"),
                         "properties": [
-                            {"field": "mex:succeeds", "label": _("succeeds.singular")},
+                            {"field": "mex:succeeds"},
                         ],
                     },
                     {
@@ -717,6 +721,27 @@ UI_SETTINGS = {
             },
         },
     },
+    "contact": {
+        "fields": [
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}
+        ]
+    },
+    "organization": {
+        "fields": [
+            {"field": "mex:geprisId", "prefixes": ["https://gepris.dfg.de/gepris/institution/"]},
+            {"field": "mex:gndId", "prefixes": ["https://d-nb.info/gnd/"]},
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:rorId", "prefixes": ["https://ror.org/"]},
+            {"field": "mex:viafId", "prefixes": ["https://viaf.org/viaf/"]},
+            {"field": "mex:wikidataId", "prefixes": ["http://www.wikidata.org/entity/"]}
+        ]
+    },
+    "person": {
+        "fields": [
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]},
+        ]
+    }
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -780,6 +805,10 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = _("No record found")
+
+# how many values displayed initially on the landing page
+VALUES_DISPLAYED_DEFAULT = 3
+
 
 # Celery Configuration for Bulk Indexing
 # =======================================

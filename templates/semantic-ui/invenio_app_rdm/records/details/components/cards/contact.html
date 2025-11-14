@@ -20,21 +20,32 @@
                     <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">
                             {% for value in data[prop.field] %}
-                            {%- if "email" in value %}
-                                <span class="email-container">
-                                  <a href="{{ value.url }}" class="display-text">{{ value.display_value }}</a>
-                                    <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
-                                    <img class="ui image icon"
-                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                                        alt="{{ _('send email') }}"
-                                    />
-                                    </a>
-                                    {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
-                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
-                                    {% endwith %}
-                                </span>
+                                {% set ns = namespace(names=[]) %}
+                                {% for name in value["display_data"] %}
+                                    {% set _ = ns.names.append(name.value) %}
+                                {% endfor %}
+                                {% set combined_names = ns.names | join(', ') %}
+                                {%- if "email" in value and value.email %}
+                                    <span class="email-container">
+                                    <button type="button"
+                                        class="ui button link-like"
+                                        data-record-id="{{ value.url }}"
+                                        onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" >
+                                        {{ combined_names }}
+                                    </button>
+                                        <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
+                                        <img class="ui image icon"
+                                            src="{{ url_for('static', filename='icons/mailto.svg') }}"
+                                            alt="send email"
+                                            title='{{_("Send email") }}'
+                                        />
+                                        </a>
+                                        {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
+                                            {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                                        {% endwith %}
+                                    </span>
                                 {%- else -%}
-                                    {{ display_values([value])}}
+                                    {{ display_values( data[prop.field]) }}
                                 {%- endif -%}
                             {% endfor %}
                         </div>

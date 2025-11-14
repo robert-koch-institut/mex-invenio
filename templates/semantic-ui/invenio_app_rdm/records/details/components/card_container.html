@@ -29,7 +29,7 @@
             {% set current_exists = ns.cards_exist[card.title] %}
             {% set previous_exists = ns.cards_exist[card_container.components[loop.index0 - 1].title] if not loop.first else false %}
             {% if not loop.first and current_exists and previous_exists %}<div class="ui divider"></div>{% endif %}
-            {% if ns.cards_exist[card.title] %}
+            {% if current_exists %}
                 {%- if "title" in card %}
                 <h4>
                     {{ smart_translate(resource_type, card.title) }}

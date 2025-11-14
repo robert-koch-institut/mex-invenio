@@ -1,9 +1,9 @@
 <span class="click-to-copy">
   <button onclick="copyToClipboard('{{ emailAddress }}', this)"
-          aria-label="{{ _('Copy mex email address') }}">
+          aria-label="{{ _('Copy mex email address') }}"  title='{{_("Copy email address") }}'>
     <img class="ui image icon"
          src="{{ url_for('static', filename='icons/copy.svg') }}"
-         alt="{{ _('Click to copy mex email address') }}"
+         alt='{{_("Copy email address") }}'
          />
   </button>
   <span class="copied-msg"

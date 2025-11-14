@@ -1,5 +1,6 @@
 """
-This script fetches the latest file from an S3 store and uploads it to the server.
+This script fetches the latest file from an S3 store and imports it to the server.
+If more than 20 files are present in the local download folder, the oldest ones are deleted.
 
 ### How to Run
 To execute the script, run:
@@ -7,9 +8,7 @@ pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
 
 ### Parameters
 The script takes the following parameters:
-1. **check** Whether to compare the latest downloaded file with the previous one
- to determine whether an upload is necessary.
-2. **ingest** Whether to import the data after downloading it from S3.
+**initial** Whether to import the data after downloading it from S3.
 
 ### Requirements
 Before running the script, there is a number of environment variables you can set:
@@ -36,7 +35,8 @@ import os
 from dotenv import load_dotenv
 from flask import current_app
 from mex_invenio.scripts.import_data import import_data
-from mex_invenio.scripts.utils import compare_files
+from mex_invenio.scripts.initial_import import initial_import
+from mex_invenio.scripts.utils import compare_files, diff_files
 from datetime import datetime, timezone
 
 # Configure logging
@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 envvar_prefix = "MEX_IMPORT_"
 
 
-def load_config(ingest):
+def load_config():
     load_dotenv()
 
     s3_config = {
@@ -67,15 +67,12 @@ def load_config(ingest):
             s3_config["bucket"],
             s3_config["aws_access_key_id"],
             s3_config["aws_secret_access_key"],
+            s3_config["email"],
         ]
     ):
         logger.error(
-            "Missing required configurations (bucket, aws_access_key, aws_secret_key)."
+            "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
         )
-        sys.exit(1)
-
-    if ingest and not s3_config["email"]:
-        logger.error("Can't ingest: email environment variable is not set.")
         sys.exit(1)
 
     return s3_config
@@ -104,7 +101,8 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
 
 
 def get_latest_existing_file(payload_folder):
-    """Fetches the most recent file in the payload folder."""
+    """Fetches the most recent file in the payload folder and
+    removes files older than the 20 most recent ones."""
     files = sorted(
         [
             os.path.join(payload_folder, f)
@@ -112,16 +110,23 @@ def get_latest_existing_file(payload_folder):
             if os.path.isfile(os.path.join(payload_folder, f))
         ],
         key=os.path.getmtime,  # Sort by last modified time
+        reverse=True,  # Most recent first
     )
 
-    return files[-1] if files else None
+    if len(files) > 20:
+        for f in files[20:]:
+            try:
+                os.remove(f)
+                logger.info(f"Removed old file: {f}")
+            except OSError as e:
+                logger.warning(f"Could not remove old file {f}: {e}")
+
+    return files[0] if files else None
 
 
-def rename_and_keep_latest_file(
-    existing_file, new_file, payload_folder, check_comparison: bool
-):
+def get_final_import_file(existing_file, new_file, payload_folder):
     """Handles file retention based on check flag."""
-    if check_comparison and compare_files(existing_file, new_file):
+    if existing_file and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
         return None  # New file is identical, so discard it
 
@@ -132,22 +137,29 @@ def rename_and_keep_latest_file(
 
     os.rename(new_file, final_new_file_path)  # Rename new file
 
-    if existing_file:
-        os.remove(existing_file)
-        logger.info(
-            f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
-        )
+    # Create diff file if both files exist
+    diff_file_path = final_new_file_path
+    if existing_file and os.path.exists(existing_file):
+        try:
+            diff_file_path = diff_files(
+                payload_folder, existing_file, final_new_file_path
+            )
+            # os.remove(existing_file)
+            logger.info(
+                f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
+            )
+        except OSError as e:
+            logger.warning(f"Could not remove existing file {existing_file}: {e}")
 
-    return final_new_file_path
+    return diff_file_path
 
 
 @click.command("manage_s3_files")
-@click.option("--check", is_flag=True, default=False)
-@click.option("--ingest", is_flag=True, default=False)
-def manage_s3_files(check: bool, ingest: bool = False):
+@click.option("--initial", is_flag=True, default=False)
+def manage_s3_files(initial: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
 
-    s3_config = load_config(ingest)
+    s3_config = load_config()
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")
     s3_object_key = s3_config.pop("object_key", None)
@@ -157,8 +169,11 @@ def manage_s3_files(check: bool, ingest: bool = False):
     if not latest_file_key:
         return
 
+    # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER")
     os.makedirs(s3_download_folder, exist_ok=True)
+    logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
+    logger.info(f"To download folder: {s3_download_folder}")
 
     # This will be the most recently modified file in the download folder
     existing_file_path = get_latest_existing_file(s3_download_folder)
@@ -169,13 +184,16 @@ def manage_s3_files(check: bool, ingest: bool = False):
     )
 
     if new_file_path:
-        final_file_path = rename_and_keep_latest_file(
-            existing_file_path, new_file_path, s3_download_folder, check
+        final_file_path = get_final_import_file(
+            existing_file_path, new_file_path, s3_download_folder
         )
-        if ingest and final_file_path:
-            logger.info(f"importing data using file {final_file_path}")
+        if final_file_path:
+            logger.info(f"Importing data using file {final_file_path}")
 
-            result = import_data(user_email, final_file_path)
+            if initial:
+                result = initial_import(user_email, final_file_path)
+            else:
+                result = import_data(user_email, final_file_path)
 
             if not result:
                 logger.error(

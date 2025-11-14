@@ -52,10 +52,10 @@
     {% set loincval_exists = data["mex:loincId"] | length > 0 %}
     {% set meshval_exists = data["mex:meshId"] | length > 0 %}
 
-    {% if icd10val or loincval or meshval %}
+    {% if icd10val_exists or loincval_exists or meshval_exists %}
         <section id="record-ids" aria-label="{{ _('Record IDs') }}">
             <div class="id-tags">
-                {% if icd10val %}
+                {% if icd10val_exists %}
                     <div class="id-tag icd10">
                         <div class="label">
                             <div class="circle"></div>
@@ -64,16 +64,16 @@
                         <span >{{ display_values(data["mex:icd10code"]) }}</span>
                     </div>
                 {% endif %}
-                {% if meshval %}
+                {% if meshval_exists %}
                     <div class="id-tag mesh">
                         <div class="label">
                             <div class="circle"></div>
                             <p class="text" style="margin-left: -3rem">MESH ID</p>
-                            <span >{{ display_values(data["mex:meshId"]) }}</span>
                         </div>
+                        <span >{{ display_values(data["mex:meshId"]) }}</span>
                     </div>
                 {% endif %}
-                {% if loincval %}
+                {% if loincval_exists %}
                     <div class="id-tag loinc">
                         <div class="label">
                             <div class="circle"></div>

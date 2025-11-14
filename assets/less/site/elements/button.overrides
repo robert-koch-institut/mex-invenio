@@ -1,4 +1,25 @@
 .ui.button {
     overflow: hidden;
     text-overflow: ellipsis;
+    &.link-like {
+        background-color: transparent;
+        color: #32008c;
+        font-weight: 400;
+        padding: .5rem 0;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+        text-align: start;
+        &:hover {
+            background-color: transparent;
+            color: #32008c;
+            font-weight: 400;
+            padding: .5rem 0;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            text-align: start;
+            text-decoration: underline;
+        }
+    }
 }

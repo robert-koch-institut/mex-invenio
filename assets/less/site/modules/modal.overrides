@@ -1,0 +1,74 @@
+.ui.modal.custom-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 45vw;
+    min-width: 45vw;
+    @media (max-width: 768px) {
+        width: 90vw;
+    }
+    height: 100vh;
+    padding: 0 !important;
+    background: linear-gradient(180deg, @primaryColor 0.36%, rgba(224, 244, 252, 0.20) 8%), @white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .ui.button.button--close {
+        position: absolute;
+        top: 1.75rem;
+        right: 1.75rem;
+        padding: 0;
+        margin: 0;
+        background-color: transparent;
+        border: none;
+        .close.icon {
+            color: white;
+            width: 24px;
+            height: 24px;
+        }
+    }
+
+
+    .custom-modal-header {
+        height: 8.5rem;
+        button.back {
+            
+            position: relative;
+            top: 6rem;
+            left: 1.25rem;
+            width: 50%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            @media (max-width: 768px) {
+                width: 100%;
+            }
+
+        }
+    }
+
+    .content {
+        background-color: transparent;
+        padding: 0 1.25rem 1.25rem 1.25rem; 
+
+        .user-info {
+        .item {
+            margin-bottom: .5rem;
+
+            strong {
+            color: @mutedTextColor;
+            margin-right: 5px;
+            }
+
+            a {
+            color: @primaryColor;
+
+            &:hover {
+                text-decoration: underline;
+            }
+            }
+        }
+        }
+    }
+    }
