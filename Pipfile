@@ -25,6 +25,7 @@ uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
 boto3 = "*"
 dotenv = "*"
+polib = "*"
 
 [requires]
 python_version = "3.11"

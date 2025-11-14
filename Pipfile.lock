@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "bcc3d790dddbb058b4ae7626089620e169fc73db7a87048767d8e9acf5c38825"
+            "sha256": "887f73e22bcc2d85292b9fe8cca0c8e3cc032f8a8f315a8537b8c268ff298b8d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -2267,6 +2267,14 @@
             ],
             "version": "==3.11"
         },
+        "polib": {
+            "hashes": [
+                "sha256:1c77ee1b81feb31df9bca258cbc58db1bbb32d10214b173882452c73af06d62d",
+                "sha256:f3ef94aefed6e183e342a8a269ae1fc4742ba193186ad76f175938621dbfc26b"
+            ],
+            "index": "pypi",
+            "version": "==1.2.0"
+        },
         "prompt-toolkit": {
             "hashes": [
                 "sha256:28cde192929c8e7321de85de1ddbe736f1375148b02f2e17edd840042b1be855",
@@ -3337,14 +3345,6 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==1.1.11.20250809"
-        },
-        "types-python-dateutil": {
-            "hashes": [
-                "sha256:849d52b737e10a6dc6621d2bd7940ec7c65fcb69e6aa2882acf4e56b2b508ddc",
-                "sha256:84c92c34bd8e68b117bff742bc00b692a1e8531262d4507b33afcc9f7716cd53"
-            ],
-            "markers": "python_version >= '3.9'",
-            "version": "==2.9.0.20250822"
         },
         "types-pyyaml": {
             "hashes": [
