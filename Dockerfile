@@ -17,6 +17,12 @@ RUN dnf -y install python3.11 python3.11-devel python3.11-libs python3.11-pip &&
 
 RUN pip install --upgrade pip pipenv
 
+# Update node to 22.21.1
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install 22.21.1
+
 COPY site ./site
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --deploy --system
@@ -34,6 +40,9 @@ RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
 RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \
     cp -r ./assets/. ${INVENIO_INSTANCE_PATH}/assets/ && \
     invenio collect --verbose  && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm use default && \
     invenio webpack buildall
 
 ENTRYPOINT [ "bash", "-c"]
