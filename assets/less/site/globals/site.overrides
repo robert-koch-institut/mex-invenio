@@ -47,7 +47,7 @@ html {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    &.vertical {
+    &.vertical, &.forced-vertical {
         .card {
             flex: 0 0 100%;
         }
@@ -59,6 +59,7 @@ html {
         background-color: @whiteBackground;
         border: 1px solid @highlightColor;
         box-shadow: 1px 1px 2px 0px rgba(249, 255, 255, 0.30) inset, -1px -1px 2px 0px rgba(199, 217, 217, 0.50) inset, -1px 1px 2px 0px rgba(199, 217, 217, 0.20), 1px -1px 2px 0px rgba(199, 217, 217, 0.20), -1px -1px 2px 0px rgba(249, 255, 255, 0.90), 1px 1px 1px 0px rgba(199, 217, 217, 0.90);
+        max-width: 100%;
         &.views {
             display: flex;
             flex-direction: column;
@@ -77,19 +78,23 @@ html {
                 margin-right: 0.5rem;
             }
         }
+        .additional_info {
+            margin-top: 1rem;
+        }
         .card-props {
             display: grid;
-            gap: 1rem;
             .card-props-p {
                 display: grid;
-                grid-template-columns: 30% auto;
+                grid-template-columns: 30% 1fr;
                 gap: 1rem;
                 align-items: start;
                 .card-prop-label {
                     font-weight: 600;
                 }
-                &.vertical {
+                &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
+                    gap: 0;
+                    margin-bottom: 1rem;
                     .card-prop-label {
                         white-space: nowrap;
                         overflow: hidden;
@@ -101,6 +106,19 @@ html {
                     display: flex;
                     flex-direction: column;
                     gap: .5rem;
+                    min-width: 0;
+                    max-width: 100%;
+                    a.single-word,span.single-word {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    a.multi-word,span.multi-word {
+                        overflow-wrap: break-word;
+                        word-break: break-word;
+                        white-space: normal;
+                        hyphens: auto;
+                    }
                 }
             }
         }
@@ -205,7 +223,8 @@ aside {
     }
 }
 
-.landing_page.resource {
+.landing_page.resource,
+.landing_page.activity {
     margin-top: -0.5rem;
     background-color: rgba(224, 244, 252, 0.20);
     .edit-btn {
@@ -235,12 +254,16 @@ aside {
         display: flex;
         align-items: flex-start;
         gap: 0.625rem;
+        flex-wrap: wrap;
 
         .tag {
-            display: flex;
             background-color: @highlightBackground;
             padding: 0.3rem 0.5rem;
-            justify-content: center;
+            max-width: 100%;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             &.success {
                 background-color: @successBackgroundColor;
             }
@@ -271,7 +294,7 @@ aside {
         h2.alttitle {
             color: #5170C1;
             font-size: 1.125rem;
-            margin-top: 0 !important;
+            margin-top: 1rem;
             font-weight: 600;
             line-height: 1.5rem;
         }
@@ -279,7 +302,7 @@ aside {
 }
 
 .id-tags {
-    margin: 2rem 0.5rem;
+    margin: 2rem 1rem;
     .id-tag {
         display: inline-flex;
         align-items: center;
@@ -807,4 +830,30 @@ aside {
   color : @whiteTextColor;
   padding: 0.5rem 2rem;
   font-size: 0.8rem;
+}
+
+.email-container {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+
+    .display-value {
+        flex: 1 1 0;
+        min-width: max-content;
+    }
+}
+
+.click-to-copy {
+    display: inline-flex;
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+    .copied-msg {
+        margin-left: 5px;
+        color: #32008C;
+    }
 }

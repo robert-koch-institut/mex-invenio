@@ -3,6 +3,7 @@ from typing import List
 from flask import current_app, g
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_rdm_records.services.results import RDMRecordList
 
 
 def _get_records_by_field(field_id: str, value) -> List:
@@ -15,9 +16,24 @@ def _get_records_by_field(field_id: str, value) -> List:
     else:
         search_query = f"custom_fields.{escaped_field}:{value}"
 
-    results = list(current_rdm_records_service.search(g.identity, q=search_query))
+    results: RDMRecordList = current_rdm_records_service.search(
+        g.identity, q=search_query, size=1000
+    )
 
-    return results
+    all_records = []
+
+    # Add records from first page
+    all_records.extend(list(results))
+
+    # Paginate through remaining pages
+    while results.pagination.has_next:
+        next_page_obj = results.pagination.next_page
+        results = current_rdm_records_service.search(
+            g.identity, q=search_query, page=next_page_obj.page, size=next_page_obj.size
+        )
+        all_records.extend(list(results))
+
+    return all_records
 
 
 def _get_record_by_mex_id(mex_id):
@@ -35,7 +51,7 @@ def _get_record_by_mex_id(mex_id):
 
 def _get_linked_records(record, field_items):
     records_fields = {}
-    cf = record["custom_fields"]
+    cf = record.data["custom_fields"]
     linked_record_ids = []
 
     for f in field_items:
@@ -47,14 +63,17 @@ def _get_linked_records(record, field_items):
             else:
                 linked_record_ids.append(linked_ids)
 
-    linked_records = _get_record_by_mex_id(linked_record_ids)
+    # Remove duplicates and batch fetch all linked records at once
+    unique_linked_ids = list(set(linked_record_ids))
+    linked_records = (
+        _get_record_by_mex_id(unique_linked_ids) if unique_linked_ids else []
+    )
 
     linked_records_map = {
         r["custom_fields"]["mex:identifier"]: r for r in linked_records
     }
 
     for field, props in field_items:
-        current_app.logger.debug(f"Getting {field}")
         raw_value = record["custom_fields"].get(field)
 
         if not raw_value:
@@ -84,14 +103,27 @@ def _get_linked_records(record, field_items):
                     current_app.config.get("NO_RECORD_STRING", "No record found")
                 ]
 
-            field_values.append(
-                {
-                    "display_value": display_value
-                    if isinstance(display_value, list)
-                    else [display_value],
-                    "link_id": linked_record_id,
-                }
-            )
+            field_value = {
+                "display_value": display_value
+                if isinstance(display_value, list)
+                else [display_value],
+                "link_id": linked_record_id,
+            }
+
+            # Only check for email if the field is "mex:contact" and there is a linked record
+            if linked_record and field == "mex:contact":
+                flattened = [item for items in props.values() for item in items]
+
+                if "mex:email" in flattened:
+                    email = linked_record["custom_fields"].get("mex:email", "")
+
+                    if email:
+                        # If the field is an email, we add the email address to the field value
+                        field_value["email"] = linked_record["custom_fields"].get(
+                            "mex:email", ""
+                        )
+
+            field_values.append(field_value)
 
         records_fields[field] = field_values
 
@@ -138,9 +170,9 @@ def _get_records_linked_backwards(mex_id, field_items):
     return records_fields
 
 
-def _get_linked_records_data(record, mex_id):
+def _get_linked_records_data(record, mex_id) -> dict:
     """Fetch metadata about linked records for a given record."""
-    record_type = record["metadata"]["resource_type"]["id"]
+    record_type = record.data["metadata"]["resource_type"]["id"]
     linked_records_fields = current_app.config.get("LINKED_RECORDS_FIELDS", {})
     records_linked_backwards = current_app.config.get("RECORDS_LINKED_BACKWARDS", {})
     linked_records_data = {}

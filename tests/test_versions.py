@@ -50,7 +50,7 @@ def test_import_person_skipped(
 
 
 def test_import_person_2nd_version(
-    db, location, resource_type_v, contributors_role_v, import_file
+    db, location, resource_type_v, contributors_role_v, import_file, client
 ):
     """Test that the CLI command imports the contact point data correctly."""
     service = current_rdm_records.records_service
@@ -84,7 +84,7 @@ def test_import_person_2nd_version(
     # Remove the email to trigger an update.
     person_data["email"].pop()
 
-    # Reimport the same person data to test the "Skipped" case.
+    # Reimport modified person data to test the "Updated" case.
     messages = import_file("person_2", person_data)
     match = search_messages(messages, created_regex)
 
@@ -93,7 +93,20 @@ def test_import_person_2nd_version(
     search_obj = service.search(system_identity)
     record = list(search_obj.hits)[0]
 
-    # Verify that the record is still the same and has not been modified.
+    # Verify that the record is not the same and has been modified.
     assert record["id"] is not published_record_id
     assert record["versions"]["index"] == 2
     assert len(record["custom_fields"]["mex:email"]) == 1
+
+    # Verify versioned redirects
+    mex_id = record["custom_fields"]["mex:identifier"]
+
+    new_version_resp = client.get(f"/records/pid/{record['id']}")
+    assert new_version_resp.status_code == 302
+    assert f"/records/mex/{mex_id}" in new_version_resp.data.decode("utf-8")
+
+    older_version_resp = client.get(f"/records/pid/{published_record_id}")
+    assert older_version_resp.status_code == 302
+    assert f"/records/mex/{mex_id}?version_id=1" in older_version_resp.data.decode(
+        "utf-8"
+    )

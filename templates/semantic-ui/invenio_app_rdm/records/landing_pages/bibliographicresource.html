@@ -1,0 +1,41 @@
+{% extends "invenio_app_rdm/records/landing_pages/core_landing_page.html" -%}
+{% set resource_type = "bibliographicresource" %}
+    {%- block toptags -%}
+        <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
+            <div class="tags top-tags">
+                <span class="tag">{{ _(config.CORE_ENTITIES_LABELS.get(record.metadata.resource_type.title.get('en'))) }}</span>
+
+                {% set bibliographicresource_type_general = val(config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.BIBLIOGRAPHICRESOURCE_TYPE], resource_type) %}
+                {% if bibliographicresource_type_general %}
+                    <span class="tag" title="Resource type">{{bibliographicresource_type_general}}{%- if bibliographicresource_type_specific -%}/{{bibliographicresource_type_specific}}{%- endif -%}</span>
+                {% endif %}
+
+                {%- set status = val(config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION], resource_type) -%}
+                <span class="tag {%- if config.IS_ACCESS_STATUS_OPEN[record.custom_fields[config.RECORD_SPECIAL_FIELDS.ACCESS_RESTRICTION]] %} success {%- else %} error {%- endif -%}">{{ status }}</span>
+            </div>
+        </section>
+    {%- endblock -%}
+
+    {%- block description -%}
+        {% set abstract = val(config.RECORD_SPECIAL_FIELDS.ABSTRACT, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ABSTRACT], resource_type) %}
+        {% if abstract %}
+            <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
+                <p>{{ abstract }}</p>
+            </section>
+        {% endif %}
+    {%- endblock -%}
+
+    {%- block lang_and_date -%}
+        {% set language = val(config.RECORD_SPECIAL_FIELDS.LANGUAGE, record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.LANGUAGE], resource_type) %}
+        {% set issued = val(config.RECORD_SPECIAL_FIELDS.ISSUED,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ISSUED], resource_type) %}
+        {% if language or issued %}
+            <section class="detail">
+                {% if language %}
+                    <p class="muted"><b>{{ _('Language') }}:</b> {{ language }}</p>
+                {% endif %}
+                {% if issued %}
+                    <p class="muted"><b>{{ _('Issued') }}:</b>{{ issued }}</p>
+                {% endif %}
+            </section>
+        {% endif %}
+    {%- endblock -%}
