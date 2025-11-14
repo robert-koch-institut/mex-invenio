@@ -1,0 +1,37 @@
+{%- extends "invenio_theme/page.html" %} {% block page_body %}
+<style></style>
+
+<div id="variable-page" class="ui container search_page">
+  <section class="banner">
+    <small>Search our</small>
+    <h1>Variables</h1>
+  </section>
+  {% block root_section %}
+  <div id="root-container" class="panel-body ui grid container">
+    <div id="resources-container" class="five wide column"></div>
+    <div id="variables-container" class="eleven wide column"></div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %} {% block javascript %} {{ super() }} {{ webpack['i18next.js'] }}
+{% set static="/static/js" %} {% set edges=static ~ "/edges" %} {% set vendor =
+edges ~ "/vendor" %} {% set src=edges ~ "/src" %} {% set components=src ~
+"/components" %} {% set bs3=src ~"/renderers/bs3" %}
+
+<script src="{{ vendor }}/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="{{ src }}/datasources/es7x.js"></script>
+<script src="{{ src }}/edges.js"></script>
+
+<script src="{{ src }}/templates/bs3/Facetview.js"></script>
+
+<script src="{{ components }}/FullSearchController.js"></script>
+<script src="{{ components }}/ResultsDisplay.js"></script>
+<script src="{{ components }}/Pager.js"></script>
+
+<script src="{{ bs3 }}/FullSearchController.js"></script>
+<script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
+
+<script src="{{ static }}/edges.common.js"></script>
+<script src="{{ static }}/variables.js"></script>
+
+{% endblock %}
