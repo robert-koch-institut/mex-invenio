@@ -3,6 +3,8 @@ import { useData } from "./useData";
 import { DisplayValues } from "./includes/DisplayValue";
 import { Table, Header } from 'semantic-ui-react';
 import { useTranslation } from 'react-i18next';
+// import { i18next } from "@translations/invenio_rdm_records/i18next"
+
 
 export const Record = ({ mexId, title }) => {
   const { t, i18n } = useTranslation();
@@ -21,6 +23,7 @@ export const Record = ({ mexId, title }) => {
       </p>
 
       {/* <Header as="h2">{t('Welcome to React')}</Header> */}
+      {/* <Header as="h2">{i18next.t('Welcome to React')}</Header> */}
       <Header as="h3">{title}</Header>
       <Table celled>
         <Table.Header className="sr-only">

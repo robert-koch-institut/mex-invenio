@@ -30,9 +30,8 @@ const initializeI18n =() => {
 };
 
 const intervalId = setInterval(() => {
-    console.log("check! ")
-        if (window.APP_CONFIG && window.APP_CONFIG["current_lang"]) {
-            clearInterval(intervalId);
-            initializeI18n()
-        }
+    if (window.APP_CONFIG && window.APP_CONFIG["current_lang"]) {
+        clearInterval(intervalId);
+        initializeI18n()
+    }
 }, 100);
