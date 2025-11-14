@@ -362,6 +362,7 @@ UI_SETTINGS = {
                 "icon": "theme.svg",
                 "template": "theme_keywords.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:theme"},
                     {"field": "mex:keyword"},
                 ],
@@ -369,11 +370,11 @@ UI_SETTINGS = {
             "coverage": {
                 "title": "Data Representation & Coverage",
                 "icon": "coverage.svg",
+                "template": "coverage.html",
                 "properties": [
                     {"field": "mex:temporal", "label": "Temporal coverage"},
                     {"field": "mex:spatial", "label": "Spatial"},
-                    {"field": "mex:minTypicalAge", "label": "Min. typical age"},
-                    {"field": "mex:maxTypicalAge", "label": "Max. typical age"},
+                    {"field": "fn", "label": "Typical age"},
                     {"field": "mex:populationCoverage", "label": "Population coverage"},
                     {"field": "mex:sizeOfDataBasis", "label": "Size of data basis"},
                 ],
@@ -411,7 +412,9 @@ UI_SETTINGS = {
             "methodology": {
                 "title": "Methodology",
                 "icon": "methodology.svg",
+                "template": "methodology.html",
                 "properties": [
+                    # overwritten in the template
                     {"field": "mex:method", "label": "Method"},
                     {"field": "mex:methodDescription", "label": "Method description"},
                 ],
@@ -435,7 +438,6 @@ UI_SETTINGS = {
                     {
                         "field": "mex:wasGeneratedBy",
                         "label": "Related project/endeavor",
-                        "is_backwards_linked": True,
                     },
                 ],
             },
@@ -499,6 +501,7 @@ UI_SETTINGS = {
             "variables": {
                 "title": "Variables",
                 "icon": "variables.svg",
+                "template": "variables.html",
                 "properties": [
                     {"field": "mex:usedIn", "is_backwards_linked": True},
                 ],
@@ -575,7 +578,7 @@ UI_SETTINGS = {
                     {
                         "title": "Succeeds",
                         "properties": [
-                            {"field": "mex:succeeds", "label": "Succeeds"},
+                            {"field": "mex:succeeds"},
                         ],
                     },
                     {
@@ -718,6 +721,27 @@ UI_SETTINGS = {
             },
         },
     },
+    "contact": {
+        "fields": [
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}
+        ]
+    },
+    "organization": {
+        "fields": [
+            {"field": "mex:geprisId", "prefixes": ["https://gepris.dfg.de/gepris/institution/"]},
+            {"field": "mex:gndId", "prefixes": ["https://d-nb.info/gnd/"]},
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:rorId", "prefixes": ["https://ror.org/"]},
+            {"field": "mex:viafId", "prefixes": ["https://viaf.org/viaf/"]},
+            {"field": "mex:wikidataId", "prefixes": ["http://www.wikidata.org/entity/"]}
+        ]
+    },
+    "person": {
+        "fields": [
+            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
+            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]},
+        ]
+    }
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
@@ -781,6 +805,10 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = "No record found"
+
+# how many values displayed initially on the landing page
+VALUES_DISPLAYED_DEFAULT = 3
+
 
 # Celery Configuration for Bulk Indexing
 # =======================================

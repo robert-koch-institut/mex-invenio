@@ -118,5 +118,4 @@ def get_field_types() -> dict:
         except Exception as e:
             print(f"Error processing entity {entity_name}: {e}")
             continue
-
     return field_types

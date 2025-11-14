@@ -25,9 +25,9 @@ class DisplayField(SystemField):
     #
     def __get__(self, record, owner=None):
         """Get the display data."""
-        # print(
-        #    f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
-        # )
+        print(
+           f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
+        )
 
         if record is None:
             # returns the field itself.

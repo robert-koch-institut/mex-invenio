@@ -14,7 +14,8 @@
   color: white;
 }
 
-.landing_page > .ui.container {
+.landing_page > .ui.container,
+nav.ui.container {
     margin-left: auto !important;
     margin-right: auto !important;
     width: 85vw;
@@ -24,19 +25,20 @@
     margin-top: 1rem;
     display: flex;
     gap: 1rem;
+    height: 1.4rem;
 }
 
 .record-cards {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1.4rem;
     &.vertical, &.forced-vertical {
         .card {
             flex: 0 0 100%;
         }
     }
     .card {
-        flex: 1 1 calc(50% - 0.25rem);
+        flex: 1 1 calc(50% - 0.7rem);
         box-sizing: border-box;
         padding: 1rem 0.5rem 0.5rem 0.5rem;
         background-color: @whiteBackground;
@@ -66,6 +68,7 @@
         }
         .card-props {
             display: grid;
+            row-gap: 1rem;
             .card-props-p {
                 display: grid;
                 grid-template-columns: 30% 1fr;
@@ -73,6 +76,8 @@
                 align-items: start;
                 .card-prop-label {
                     font-weight: 600;
+                    margin-top: 0;
+                    margin-bottom: 0;
                 }
                 &.vertical, &.forced-vertical {
                     grid-template-columns: 100%;
@@ -338,4 +343,31 @@ aside {
         margin-left: 5px;
         color: #32008C;
     }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+nav#invenio-menu {
+    padding: 0 !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }

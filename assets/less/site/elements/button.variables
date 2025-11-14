@@ -2,3 +2,4 @@
 
 @searchButtonColor: @core-color-blue-default;
 @searchButtonColorTextColor: @core-color-black-default;
+@basicBoxShadow: none;
