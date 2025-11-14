@@ -17,7 +17,8 @@ class MultiLanguageTextCF(BaseListCF):
             field_args=dict(
                 nested=dict(
                     language=SanitizedUnicode(
-                        validate=validate.OneOf(choices=["en", "de"])
+                        # validate=validate.OneOf(choices=["en", "de"])
+                        validate=validate.Length(min=2, max=2)
                     ),
                     value=SanitizedUnicode(
                         required=True, validate=validate.Length(min=1)

@@ -33,7 +33,7 @@ from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
 
-from mex_invenio.records.api import MexRDMRecord
+from mex_invenio.records.api import MexRDMRecord, MEXBulkIndexer
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
@@ -105,6 +105,7 @@ APP_DEFAULT_SECURE_HEADERS = {
 RDM_RECORD_CLS = MexRDMRecord
 rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
 rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
+rdm_config.RDMRecordServiceConfig.indexer_cls = MEXBulkIndexer
 
 # Flask-Babel
 # ===========
@@ -779,3 +780,24 @@ CUSTOM_TYPES = field_types.CUSTOM_TYPES
 
 # string to use when linked record is not found, must be something to not mix up with properties without value
 NO_RECORD_STRING = _("No record found")
+
+# Celery Configuration for Bulk Indexing
+# =======================================
+# Increase task timeouts for heavy MEX record indexing with MexDumper
+
+# Set task timeout to 30 minutes (1800 seconds) for bulk indexing operations
+CELERY_TASK_TIME_LIMIT = 1800  # Hard limit - kills task after 30 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 1500  # Soft limit - sends warning after 25 minutes
+
+# Enable late acknowledgment to prevent lost tasks on timeout
+CELERY_TASK_ACKS_LATE = True
+
+# Reject tasks when worker is lost to prevent zombie tasks
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+
+# Indexer Configuration for MEX Records
+# ====================================
+# Override default bulk indexing settings to handle MEX record complexity
+
+# Increase bulk request timeout from 10s to 10 minutes for heavy MEX operations
+INDEXER_BULK_REQUEST_TIMEOUT = 600
