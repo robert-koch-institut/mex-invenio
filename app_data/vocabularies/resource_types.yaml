@@ -34,12 +34,12 @@
   tags:
     - depositable
     - linkable
-- id: access-platform
+- id: accessplatform
   icon: code
   title:
     en: Access platform
   props:
-    type: accessp-latform
+    type: accessplatform
     subtype: ""
   tags:
     - depositable
@@ -54,22 +54,22 @@
   tags:
     - depositable
     - linkable
-- id: organizational-unit
+- id: organizationalunit
   icon: code
   title:
     en: Organizational unit
   props:
-    type: organizational-unit
+    type: organizationalunit
     subtype: ""
   tags:
     - depositable
     - linkable
-- id: contact-point
+- id: contactpoint
   icon: code
   title:
     en: Contact point
   props:
-    type: contact-point
+    type: contactpoint
     subtype: ""
   tags:
     - depositable
@@ -84,22 +84,22 @@
   tags:
     - depositable
     - linkable
-- id: variable-group
+- id: variablegroup
   icon: code
   title:
     en: Variable group
   props:
-    type: variable-group
+    type: variablegroup
     subtype: ""
   tags:
     - depositable
     - linkable
-- id: bibliographic-resource
+- id: bibliographicresource
   icon: code
   title:
     en: Bibliographic resource
   props:
-    type: bibliographic-resource
+    type: bibliographicresource
     subtype: ""
   tags:
     - depositable

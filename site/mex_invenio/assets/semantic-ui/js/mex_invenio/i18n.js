@@ -2,7 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-import deTranslations from "./locales/de/translation.json";
+import deTranslations from "./locales/de/translations.json";
 
 const resources = {
     de: { translation: deTranslations },
