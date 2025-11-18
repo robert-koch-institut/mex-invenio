@@ -81,3 +81,11 @@ payload
 *.patch
 s3_downloads/
 tmp/
+
+# Node modules
+node_modules/
+site/mex_invenio/node_modules
+
+# package-locks
+package-lock.json
+site/mex_invenio/package-lock.json
