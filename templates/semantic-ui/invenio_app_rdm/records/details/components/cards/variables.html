@@ -2,20 +2,60 @@
 {% set cards = config.UI_SETTINGS.resource[column] %}
 {% set card = config.UI_SETTINGS.resource[column][card_name] %}
 {% set max_visible = config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+{% set record_data = data["backwards_linked"] %}
 {%- set lang = current_i18n.language -%}
 
 {% set ns = namespace(prop_exist=false) %}
 
 {% for prop in card.properties %}
-    {% if "is_backwards_linked" in prop %}
-        {% set record_data = data["backwards_linked"] %}
-    {% else %}
-        {% set record_data = data %}
-    {% endif %}
     {% if prop.field in record_data %}
         {% set ns.prop_exist = true %}
     {% endif %}
 {% endfor %}
+
+<style>
+    .link-like-button {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+        padding-top: .5rem;
+        padding-bottom: .5rem;
+        border: 1px solid #cccccc;
+        background-color: #cccccc;
+        color: #666666;
+        cursor: not-allowed;
+    }
+    .link-like-button:hover {
+        text-decoration: none;
+        border: 1px solid #cccccc;
+        background-color: #cccccc;
+        color: #666666;
+    }
+</style>
+
+{% macro display(values) %}
+    {%- for v in values  -%}
+        {%- set lang = current_i18n.language -%}
+        {%- set dd = v["display_data"] -%}
+        {%- if dd[0].language -%}
+            {%- set correct_lang = dd | selectattr("language", "equalto", lang) | list -%}
+            {%- if correct_lang | length > 0 -%}
+                {%- set empty_lang = dd | selectattr("language", "equalto", "") | list -%}
+                {%- set selected = correct_lang  + empty_lang -%}
+            {%- else -%}
+                {%- set selected = dd -%}
+            {%- endif -%}
+        {%- else -%}
+            {%- set selected = dd -%}
+        {%- endif -%}
+        {% set ns = namespace(titles=[]) %}
+        {% for s in selected %}
+            {% set _ = ns.titles.append(s.value) %}
+        {% endfor %}
+        {% set combined_title = ns.titles | join(', ') %}
+        <p>{{combined_title }}</p>
+    {%- endfor -%}
+{% endmacro %}
 
 {% if ns.prop_exist %}
     <div class="card">
@@ -27,12 +67,36 @@
         </h3>
         <div class="card-props">
             {% for prop in card.properties %}
-                {% if prop.field in data.backwards_linked %}
-                    {% set var_data = data["backwards_linked"][prop.field] %}
+                {% if prop.field in record_data %}
+                    {% set values = record_data[prop.field] %}
                     <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">
-                            {{ display_values(var_data)}}
+                            {% set total = values | length %}
+                            {% set visible = values[:max_visible] %}
+                            {% set hidden = values[max_visible:] %}
+
+                            {{ display(visible) }}
+
+                            {# If there are more, show "Add more" button #}
+                            {% if hidden %}
+                                <div class="more-values" style="display: none;">
+                                    {{ display(hidden) }}
+                                </div>
+                                <button
+                                    type="button"
+                                    class="ui button link-like"
+                                    onclick="
+                                        const hidden = this.previousElementSibling;
+                                        const isHidden = hidden.style.display === 'none';
+                                        hidden.style.display = isHidden ? 'block' : 'none';
+                                        this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                                    "
+                                >
+                                    Show all ({{ total }}) &#x25BE;
+                                </button>
+                            {% endif %}
                         </div>
+                        <a href="/variables-search" class="ui btn primary link-like-button" disabled>{{ _("Explore variables for chosen datasets") }}</a>
                     </div>
                 {% endif %}
             {% endfor %}

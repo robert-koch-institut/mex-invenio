@@ -890,3 +890,31 @@ nav#invenio-menu {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+.mex-main-search-template_middle {
+  width: 100%;
+}
+
+.search-specific-types-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: flex-start;
+}
+
+.button-like {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  background-color: #e0f4fc;
+  border: 1px solid #a5aac3;
+  color: #000;
+  text-decoration: none;
+  padding: .5rem 1rem;
+  &:hover {
+    background: #32008c;
+    color: #fff;
+    text-decoration: none;
+  }
+}

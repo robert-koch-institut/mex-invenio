@@ -22,8 +22,6 @@ export const Record = ({ mexId, title }) => {
         <a  href={`/api/records/${invenio_id}`} aria-label={`View record ${invenio_id} as JSON`} >{invenio_id}</a>
       </p>
 
-      <Header as="h2">{t('Welcome Home')}</Header>
-      <Header as="h2">{t('Welcome to React')}</Header>
       {/* <Header as="h2">{i18next.t('Welcome to React')}</Header> */}
       <Header as="h3">{t(title)}</Header>
       <Table celled>

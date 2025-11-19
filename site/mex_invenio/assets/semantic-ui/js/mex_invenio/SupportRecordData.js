@@ -46,7 +46,7 @@ export const SupportRecordData = ({
 
             <Modal.Content className="content">
                 <div className="scrolling" 
-                    style={{ maxHeight: '90vh' }}
+                    style={{ maxHeight: '85vh', overflowY: "scroll" }}
                     role="region"
                     tabIndex={-1}
                     aria-label="Record content"

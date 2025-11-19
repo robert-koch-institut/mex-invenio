@@ -1075,10 +1075,10 @@ edges.mex.components.TypeSpecificJumpOff = class extends edges.Component {
             return;
         }
 
-        let frag = `<p>${this.preamble}</p>
-                            <ul>
+        let frag = `<div class="search-specific-types-container">
+        <p>${this.preamble}</p>
                                 ${this.renderTargets()}
-                            </ul>`;
+                            </div>`;
         this.context.html(frag);
     }
 
@@ -1087,7 +1087,7 @@ edges.mex.components.TypeSpecificJumpOff = class extends edges.Component {
         let frag = ``;
         for (let url in this.targets) {
             let display = this.targets[url];
-            frag += `<li><a href="${url}?${qs}">${display}</a></li>`;
+            frag += `<a href="${url}?${qs}" class="button-like">${display}</a>`;
         }
         return frag;
     }
@@ -4415,6 +4415,13 @@ edges.mex.renderers.CompactResourcesResults = class extends (
 
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
+        const _setupAriaLabel = (title) => {
+            let ariaLabelVerb = (selectState == "unselected" ? _("add") : _("remove")) + _("record");
+            let ariaLabelPreposition = (selectState == "unselected" ? _("to") : _("from")) + _("variables filter");
+            let ariaLabel = ariaLabelVerb + " " + title + " " + ariaLabelPreposition;
+            return ariaLabel
+        }
+        
 
         let frag = `
             <div class="selected-list">
@@ -4424,6 +4431,10 @@ edges.mex.renderers.CompactResourcesResults = class extends (
                             id="${buttonId}"
                             data-id="${record.id}"
                             data-state="${selectState}"
+                            title="${_("Select")}
+                            aria-label="${_setupAriaLabel(title)}"
+                            aria-selected="${_(selectState)}"
+                            aria-live="polite"
                             >${selectButtonText}</button>
                         <span title="${title}">
                             ${truncated}

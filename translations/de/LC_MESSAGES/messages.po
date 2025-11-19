@@ -239,6 +239,12 @@ msgstr "Letzte Änderung"
 msgid "Record IDs"
 msgstr ""
 
+msgid "Search our"
+msgstr "Unsere"
+
+msgid "Entire Database"
+msgstr "Gesamte Datenbank"
+
 #~ msgid "Access"
 #~ msgstr "Zugriff"
 
