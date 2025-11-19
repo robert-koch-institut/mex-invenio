@@ -56,7 +56,7 @@ under the terms of the MIT License; see LICENSE file for more details.
                         <nav
                                 id="invenio-menu"
                                 aria-labelledby="rdm-burger-menu-icon"
-                                class="ui fluid menu borderless mobile-hidden"
+                                class="ui fluid menu borderless mobile-hidden p-0"
                         >
                             <button
                                     id="rdm-close-burger-menu-icon"
@@ -65,9 +65,10 @@ under the terms of the MIT License; see LICENSE file for more details.
                             >
                                 <span class="navicon" aria-hidden="true"></span>
                             </button>
-                            {% if with_search %}
-                                {%- include "invenio_app_rdm/searchbar.html" %}
-                            {% endif %}
+                                
+                            {%- block searchbar -%}
+                            {%- include "invenio_app_rdm/searchbar.html" %}
+                            {%- endblock -%}
 
                             {%- block navbar_nav %}
                                 {% set resource_types = {

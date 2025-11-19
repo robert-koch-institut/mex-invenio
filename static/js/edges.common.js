@@ -1581,7 +1581,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vCount = variables.length;
-            let vFrag = variables.length > 0 ? `${vCount} ${edges.mex._("Variable Groups")}` : "No Variable Groups"
+            let vFrag = variables.length > 0 ? `${vCount} ${edges.mex._("Variable Groups")}` : `${edges.mex._("No Variable Groups")}`
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1592,9 +1592,9 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <div>
                         <div class="selected-list-item">
                             ${title}
-                        </div>
-                        <div class="muted">
-                            ${vFrag}
+                            <span class="muted">
+                                ${vFrag}
+                            </span>
                         </div>
                     </div>
                 </div>`;
@@ -1820,7 +1820,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
             }
 
             recordsFrag += `
-                <div class="resource-card card-shadow">
+                <div class="card">
                     <div class="selected-list-item">
                         <button class="img-button">
                         <img
@@ -4110,7 +4110,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
 
 
             frag = `
-            <div class="resource-card card-shadow">
+            <div class="card">
                 <div class="card-header ${created ? "" : "hide"}" style="width: 100%">
                     <div class="ui grid">
                         <div class="ten wide column">
@@ -4128,7 +4128,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                     </div>
                 </div>
 
-                <div class="title">
+                <h4 class="title">
                     <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
                 </div>
 
@@ -4137,7 +4137,8 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 </div>
 
                 <div class="description ${desc ? "" : "hide"}">
-                    ${desc}
+                    ${desc.slice(0,600)}
+                    ${desc.length > 600 ? "..." : ""}
                 </div>
 
                 <div class="tags ${keywords ? "" : "hide"}">
@@ -4416,16 +4417,16 @@ edges.mex.renderers.CompactResourcesResults = class extends (
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
         const _setupAriaLabel = (title) => {
-            let ariaLabelVerb = (selectState == "unselected" ? _("add") : _("remove")) + _("record");
-            let ariaLabelPreposition = (selectState == "unselected" ? _("to") : _("from")) + _("variables filter");
-            let ariaLabel = ariaLabelVerb + " " + title + " " + ariaLabelPreposition;
+            let ariaLabelVerb = selectState == "unselected" ? edges.mex._("add") : edges.mex._("remove");
+            let ariaLabelPreposition = selectState == "unselected" ? edges.mex. _("to") : edges.mex. _("from");
+            let ariaLabel = [ariaLabelVerb, edges.mex._("record"), title, ariaLabelPreposition, edges.mex._("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
         
 
         let frag = `
             <div class="selected-list">
-                <div class="resource-card card-shadow">
+                <div class="card">
                     <div class="selected-list-item">
                         <button class="${selectClass} ui icon button ${selectState}"
                             id="${buttonId}"
@@ -4433,7 +4434,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
                             data-state="${selectState}"
                             title="${_("Select")}
                             aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${_(selectState)}"
+                            aria-selected="${edges.mex_(selectState)}"
                             aria-live="polite"
                             >${selectButtonText}</button>
                         <span title="${title}">
@@ -4499,7 +4500,7 @@ edges.mex.renderers.activitiesResultView = function(res, highlights, include_res
 
     function resourceType() {
         if (include_resource_type) {
-            return `<div class="resource-type">${edges.mex._('ACTIVITY')}</div>`
+            return `<div class="tags"><div class="tag resource-type">${edges.mex._('ACTIVITY')}</div></div>`
         }
         return "";
     }
@@ -4588,12 +4589,12 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights, inclu
 
     function resourceType() {
         if (include_resource_type) {
-            return `<div class="resource-type">${edges.mex._('PUBLICATION')}</div>`
+            return `<div class="tags"><div class="tag resource-type">${edges.mex._('PUBLICATION')}</div><div class="tags">`
         }
         return "";
     }
 
-    let frag = `<div class="biblo-resource-card card-shadow">
+    let frag = `<div class="card">
             ${resourceType()}
             <div class="title ${title ? "" : "hide"}">
                  <span>
@@ -5257,9 +5258,9 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let frag = `
-            <div class="resource-card card-shadow">
-                <div class="resource-type">${edges.mex._('DATA SOURCE OR DATASET')}</div>
-                <div class="title">
+            <div class="card">
+                <div class="tags"><div class="tag resource-type">${edges.mex._('DATA SOURCE OR DATASET')}</div></div>
+                <h4 class="title">
                     <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
                 </div>
 
@@ -5331,9 +5332,9 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
         // );
 
         let frag = `
-            <div class="resource-card card-shadow">
-                <div class="resource-type">${edges.mex._('VARIABLE')}</div>
-                <div class="title">
+            <div class="card">
+                <div class="tag">${edges.mex._('VARIABLE')}</div>
+                <h4 class="title">
                     <a href="/records/${res.id}" target="_blank">${label ? label : res.id}</a>
                 </div>
 
