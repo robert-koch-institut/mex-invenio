@@ -15,7 +15,7 @@ hooks:
 install: setup hooks
 	# install packages from lock file in local virtual environment
 	@ echo installing package; \
-	pipenv install --dev; \
+	PIPENV_VENV_IN_PROJECT=1 pipenv install --dev; \
 
 lint:
 	# run the linter hooks from pre-commit on all files
