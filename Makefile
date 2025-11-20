@@ -17,7 +17,7 @@ install: setup hooks
 	@ echo installing package; \
 	pipenv install --dev; \
 	pipenv run pybabel compile --directory=translations; \
-	pipenv run invenio collect --verbose; \
+	pipenv run invenio collect; \
 	pipenv run invenio webpack buildall; \
 	pipenv run invenio webpack install; \
 
