@@ -12,6 +12,7 @@ on:
   workflow_dispatch:
 
 env:
+  INVENIO_INSTANCE_PATH: ${{ github.workspace }}
   PIP_DISABLE_PIP_VERSION_CHECK: on
   PIP_NO_CLEAN: on
   PIP_NO_INPUT: on
@@ -24,7 +25,9 @@ concurrency:
 
 jobs:
   test:
-    runs-on: registry.cern.ch/inveniosoftware/almalinux:1
+    runs-on: almalinux
+    container:
+      image: registry.cern.ch/inveniosoftware/almalinux:1
     timeout-minutes: 10
 
     steps:
