@@ -18,8 +18,8 @@ install: setup hooks
 	pipenv install --dev; \
 	pipenv run pybabel compile --directory=translations; \
 	pipenv run invenio collect; \
-	pipenv run invenio webpack buildall; \
 	pipenv run invenio webpack install; \
+	pipenv run invenio webpack buildall; \
 
 lint:
 	# run the linter hooks from pre-commit on all files

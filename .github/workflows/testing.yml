@@ -65,8 +65,8 @@ jobs:
         run: pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq
 
       - name: Run test suite
-        run:
-          eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)" && \
+        run: |
+          eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"
           pipenv run python -m pytest -W ignore
 
       - name: Stop services
