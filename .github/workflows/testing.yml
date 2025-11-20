@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: registry.cern.ch/inveniosoftware/almalinux:1
     timeout-minutes: 10
 
     steps:
