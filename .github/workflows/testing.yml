@@ -25,10 +25,6 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container:
-      image: registry.cern.ch/inveniosoftware/almalinux:1
-    env:
-      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
     timeout-minutes: 10
 
     steps:
@@ -57,14 +53,21 @@ jobs:
           restore-keys: |
             ${{ env.cache-name }}-
 
-      - name: Setup docker
-        run: dnf -y install docker
+      - name: Setup system
+        run: apt update && apt install -y cairo-devel dejavu-sans-fonts glibc-common \
+          glibc-langpack-en glibc-locale-source ImageMagick libffi-devel libpq-devel \
+          libxml2-devel libxslt-devel openssl-devel sqlite-devel xmlsec1-devel \
+          xz-devel zip2-devel
 
       - name: Setup python
-        run: |
-          dnf -y install python3.11 python3.11-devel python3.11-libs python3.11-pip
-          alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-          alternatives --set python3 /usr/bin/python3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 16
 
       - name: Install requirements
         run: make install
