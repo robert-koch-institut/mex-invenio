@@ -1,5 +1,5 @@
 .PHONY: all setup hooks install lint test
-all: install lint
+all: install lint test
 
 setup:
 	# install meta requirements system-wide

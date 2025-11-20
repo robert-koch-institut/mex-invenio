@@ -1,9 +1,9 @@
 import datetime
 import os
 
-from mex_invenio.scripts.s3_manager import manage_s3_files
-
 from freezegun import freeze_time
+
+from mex_invenio.scripts.s3_manager import manage_s3_files
 
 
 def test_identical_files(
