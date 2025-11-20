@@ -14,8 +14,6 @@ flask-pytest = "*"
 pytest = "<8"
 freezegun = "*"
 docker-services-cli = "*"
-ruff = ">=0.14"
-pytest-cov = ">=6"
 
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}
@@ -27,7 +25,6 @@ uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
 boto3 = "*"
 dotenv = "*"
-werkzeug = "*"
 
 [requires]
 python_version = "3.11"
