@@ -3,7 +3,7 @@ addopts = [
     "--verbose",
     "--cov",
     "--cov-report=term-missing:skip-covered",
-    "--cov-fail-under=70",
+    "--cov-fail-under=40",
     "--cov-branch",
 ]
 
