@@ -15,7 +15,11 @@ hooks:
 install: setup hooks
 	# install packages from lock file in local virtual environment
 	@ echo installing package; \
-	PIPENV_VENV_IN_PROJECT=1 pipenv install --dev; \
+	pipenv install --verbose --dev; \
+	pipenv run pybabel compile --directory=translations; \
+	pipenv run invenio collect --verbose; \
+	pipenv run invenio webpack buildall; \
+	pipenv run invenio webpack install; \
 
 lint:
 	# run the linter hooks from pre-commit on all files
