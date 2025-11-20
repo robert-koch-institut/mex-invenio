@@ -48,7 +48,7 @@ jobs:
         env:
           cache-name: cache-environment
         with:
-          path: ~/.cache/pip
+          path: ~/.cache/pipenv
           key: ${{ env.cache-name }}-${{ hashFiles('*.lock') }}
           restore-keys: |
             ${{ env.cache-name }}-
@@ -61,5 +61,17 @@ jobs:
       - name: Install requirements
         run: make install
 
+      - name: Start services
+        run: docker compose up -d
+
       - name: Run test suite
-        run: make test
+        env:
+          SEARCH_HOSTS: "[{'host': 'localhost', 'port': 9200}]"
+          SQLALCHEMY_DATABASE_URI: postgresql+psycopg2://invenio:invenio@localhost:5432/invenio
+          CACHE_TYPE: redis
+          BROKER_URL: amqp://localhost:5672//
+        run: pipenv run python -m pytest -W ignore -s
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
