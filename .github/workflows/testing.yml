@@ -26,6 +26,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
 
     steps:
       - name: Checkout repo
