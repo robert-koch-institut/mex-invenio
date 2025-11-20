@@ -15,7 +15,7 @@ hooks:
 install: setup hooks
 	# install packages from lock file in local virtual environment
 	@ echo installing package; \
-	pipenv install --verbose --dev; \
+	pipenv install --dev; \
 	pipenv run pybabel compile --directory=translations; \
 	pipenv run invenio collect --verbose; \
 	pipenv run invenio webpack buildall; \
@@ -29,7 +29,6 @@ lint:
 test:
 	# run the unit and integration test suites
 	@ echo running all tests; \
-	pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq; \
 	eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"; \
 	pipenv run python -m pytest -W ignore -s; \
 	EXIT_CODE=$$?; \
