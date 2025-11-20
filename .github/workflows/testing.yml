@@ -54,10 +54,10 @@ jobs:
             ${{ env.cache-name }}-
 
       - name: Setup system
-        run: apt update && apt install -y cairo-devel dejavu-sans-fonts glibc-common \
-          glibc-langpack-en glibc-locale-source ImageMagick libffi-devel libpq-devel \
-          libxml2-devel libxslt-devel openssl-devel sqlite-devel xmlsec1-devel \
-          xz-devel zip2-devel
+        run: sudo apt update && sudo apt install -y cairo-devel dejavu-sans-fonts \
+          glibc-common glibc-langpack-en glibc-locale-source ImageMagick libffi-devel \
+          libpq-devel libxml2-devel libxslt-devel openssl-devel sqlite-devel \
+          xmlsec1-devel xz-devel zip2-devel
 
       - name: Setup python
         uses: actions/setup-python@v6
