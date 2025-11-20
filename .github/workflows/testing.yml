@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   test:
-    runs-on: almalinux
+    runs-on: ubuntu-latest
     container:
       image: registry.cern.ch/inveniosoftware/almalinux:1
     timeout-minutes: 10
