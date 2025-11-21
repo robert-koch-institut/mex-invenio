@@ -320,6 +320,7 @@ edges.mex.dateHistogram = function (params) {
             useCheckboxes: params.useCheckboxes ?? false,
             showSelected: params.showSelected ?? true,
             countFormat: edges.mex.countFormat,
+            shortDisplay: 10
         }),
     });
 };
@@ -3359,6 +3360,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
             let longClass = edges.util.allClasses(namespace, "long", this);
             let short = true;
 
+            let displayedCount = -1;    // start counting from -1 to account 0-based index
             for (let i = 0; i < ts.values.length; i++) {
                 let val = ts.values[i];
 
@@ -3366,6 +3368,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 if (this.hideEmptyDateBin && val.count === 0) {
                     continue;
                 }
+                displayedCount += 1;
 
                 let checked = filterTerms.includes(val.display) ? "checked" : "";
                 // This will allow us to remove filter if already selected this can seamlessly work for checkboxes and button
@@ -3375,7 +3378,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 let myLongClass = "";
                 let styles = "";
 
-                if (this.shortDisplay && this.shortDisplay <= i) {
+                if (this.shortDisplay && this.shortDisplay <= displayedCount) {
                     myLongClass = longClass;
                     styles = 'style="display:none"';
                     short = false;
