@@ -1818,6 +1818,8 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                                 <span class="dir">▾</span></a>
                           <div style="display:none;">`;
                 for (let vg of vgs) {
+                    const inputName = edges.util.htmlID(this.namespace, `vg-input-${vg.mex_id}`, this.component.id);
+
                     let vgshort = vg.value;
                     if (vgshort.length > 30) {
                         vgshort = vgshort.substring(0, 27) + "...";
@@ -1828,8 +1830,8 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                     if (selected) {
                         selectedFrag = 'checked="checked"';
                     }
-                    vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                                <label for="" title="${vg}">${vgshort}</label><br>`;
+                    vgFrag += `<input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                                <label for="${inputName}" title="${vg.value}">${vgshort}</label><br>`;
                 }
                 vgFrag += `</div>`;
             }
