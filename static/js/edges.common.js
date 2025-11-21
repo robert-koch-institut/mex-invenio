@@ -785,7 +785,7 @@ edges.mex.selectedFilters = function (params) {
 
     return new edges.components.SelectedFilters({
         id: params.id || "selected-filters",
-        category: "full",
+        category: "middle-top",
         fieldDisplays: params.fieldDisplays || defaultFieldDisplays,
         valueFunctions: params.valueFunctions || defaultValueFunctions,
         rangeFunctions: params.rangeFunctions || defaultRangeFunctions,
@@ -844,6 +844,18 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
             for (let i = 0; i < facets.length; i++) {
                 let container = `<div class="${facetClass}"><div id="${facets[i].id}"></div></div>`;
                 facetContainers += container;
+            }
+        }
+
+        ///////////////////////////////////
+        // top middle components
+        let topMiddle = edge.category("middle-top")
+        let topMiddleClass = edges.util.styleClasses(this.namespace, "top-middle");
+        let topMiddleContainers = "";
+
+        if (topMiddle.length > 0) {
+            for (let i = 0; i < topMiddle.length; i++) {
+                topMiddleContainers += `<div class="${topMiddleClass}"><div id="${topMiddle[i].id}"></div></div>`;
             }
         }
 
@@ -933,6 +945,9 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 ${facetSidebar}
                 <div class="wide column" style="flex: 1;">
                     <div class="ui grid container">
+                        <div class="ui grid container">
+                            ${topMiddleContainers}
+                        </div>
                         <div class="eight wide column">
                             ${leftMiddleTopContainers}
                         </div>
