@@ -4434,7 +4434,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
                             data-state="${selectState}"
                             title="${_("Select")}
                             aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${edges.mex_(selectState)}"
+                            aria-selected="${edges.mex._(selectState)}"
                             aria-live="polite"
                             >${selectButtonText}</button>
                         <span title="${title}">
@@ -4836,25 +4836,17 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
           <thead>
             <tr>
                 <th style="width:20px;"></th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Variables"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Data Source"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Variable Group"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Data Type"
-        )}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Variables")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Data Source")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Variable Group")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Data Type")}</th>
             </tr>
           </thead>
           <tbody>
             ${frag}
           </tbody>
         </table>
-    `;
+        `;
 
         // render
         this.component.context.html(container);

@@ -2,7 +2,15 @@
     border-collapse: separate;
     border-spacing: 12px 8px;
     margin-left: -12px;
-    
+
+    .mex-variables-results_container {
+        border-spacing: 0;
+
+        td {
+            display: table-cell;
+        }
+    }
+
     & > caption {
         margin-bottom: 2rem;
         & > h2 {
