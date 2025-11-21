@@ -4159,9 +4159,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 };
 
-edges.mex.renderers.CompactResourcesResults = class extends (
-    edges.mex.renderers.ResourcesResults
-) {
+edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.ResourcesResults {
     constructor(params) {
         super(params);
 
@@ -4366,46 +4364,32 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._(
-                "Variable Groups"
-            )}
+            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._("Variable Groups")}
                             <span class="dir">▾</span></a>
-                      <div id="${variableGroupsId}" style="display:none;">`;
+                      <div id="${variableGroupsId}" style="display:none;">
+                        <ul>`;
             for (let vg of vgs) {
                 let vgshort = vg.value;
                 if (vgshort.length > 30) {
                     vgshort = vgshort.substring(0, 27) + "...";
                 }
 
-                let selectedFrag = "";
-                let disabledFrag = "";
-                if (selectState === "unselected") {
-                    // If a record has not been selected, then we are going to check all the variable groups,
-                    // AND disable them (so you cannot interact with them while the record is unselected).
-                    // THEN if the variable group is known to the selector (e.g. by some other resource with the same
-                    // group) AND it has been unchecked elsewhere, then uncheck it here too.
-                    disabledFrag = "disabled";
-                    selectedFrag = 'checked="checked"';
-                    let isKnown = this.selector.variableGroupRecorded(vg.mex_id);
-                    if (isKnown) {
-                        let selected = this.selector.variableGroupSelected(vg.mex_id);
-                        if (!selected) {
-                            selectedFrag = "";
-                        }
-                    }
-                } else {
-                    // If a record has been selected, then we should show all the variable groups according
-                    // to their current state in the selector, and allow interaction.
-                    let selected = this.selector.variableGroupSelected(vg.mex_id);
-                    if (selected) {
-                        selectedFrag = 'checked="checked"';
-                    }
-                }
-
-                vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag} ${disabledFrag}/>
-                            <label for="" title="${vg}">${vgshort}</label><br>`;
+                // if (selectState === "unselected") {
+                    // If a record has not been selected, then we render just the variable group name
+                vgFrag += `<li><span title="${vg}">${vgshort}</span></li>`;
+                // } else {
+                //     // If a record has been selected, then we should show all the variable groups according
+                //     // to their current state in the selector, and allow interaction.
+                //     let selectedFrag = "";
+                //     let selected = this.selector.variableGroupSelected(vg.mex_id);
+                //     if (selected) {
+                //         selectedFrag = 'checked="checked"';
+                //     }
+                //     vgFrag += `<li><input type="checkbox" name="" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                //             <label for="" title="${vg}">${vgshort}</label></li>`;
+                // }
             }
-            vgFrag += `</div>`;
+            vgFrag += `</ul></div>`;
         }
 
         let selectClass = edges.util.jsClasses(

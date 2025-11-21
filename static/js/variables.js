@@ -46,7 +46,7 @@ edges.instances.variables.init = function () {
             edges.mex.recordSelectorCompact({
                 category: "column",
                 title : "All Data Sources & Datasets",
-                resourceComponentIds: ["all-resources", "selected-filtered"],
+                resourceComponentIds: ["all-resources"], //, "selected-filtered"
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
@@ -76,16 +76,16 @@ edges.instances.variables.init = function () {
                 compactDesign : true,
             }),
 
-            edges.mex.resourceDisplayCompact({
-                id: "selected-filtered",
-                category: "column",
-                secondaryResults: "selected-filter",
-                title: edges.mex._(" "),
-                hideIfNoResults: true,
-                onSelectToggle: function (params) {
-                    edges.instances.variables.propagateSelection();
-                }
-            }),
+            // edges.mex.resourceDisplayCompact({
+            //     id: "selected-filtered",
+            //     category: "column",
+            //     secondaryResults: "selected-filter",
+            //     title: edges.mex._(" "),
+            //     hideIfNoResults: true,
+            //     onSelectToggle: function (params) {
+            //         edges.instances.variables.propagateSelection();
+            //     }
+            // }),
             edges.mex.resourceDisplayCompact({
                 id: "all-resources",
                 category: "column",
@@ -102,28 +102,28 @@ edges.instances.variables.init = function () {
             }),
         ],
         callbacks: {
-            "edges:pre-render": function () {
-                // TODO: when there are no selected resources and no search, we should show the search rather
-                // than the empty selection
-
-                // sort out the view state of the two exclusive components
-                let sc = edges.active["variables-resources"].getComponent({
-                    id: "search_controller",
-                });
-                if (sc.searchString) {
-                    // if a search string is set, show the search results and hide the selector
-                    $("#selector").hide();
-                    $("#selected-filtered").show();
-                    // $("#all-resources").show();
-                    // $("#resource-pager").show();
-                } else {
-                    // if no search string is set, show the selector and hide the results
-                    $("#selected-filtered").hide();
-                    $("#all-resources").show();
-                    // $("#resource-pager").show();
-                    // $("#selector").show();
-                }
-            },
+            // "edges:pre-render": function () {
+            //     // TODO: when there are no selected resources and no search, we should show the search rather
+            //     // than the empty selection
+            //
+            //     // sort out the view state of the two exclusive components
+            //     let sc = edges.active["variables-resources"].getComponent({
+            //         id: "search_controller",
+            //     });
+            //     if (sc.searchString) {
+            //         // if a search string is set, show the search results and hide the selector
+            //         $("#selector").hide();
+            //         // $("#selected-filtered").show();
+            //         // $("#all-resources").show();
+            //         // $("#resource-pager").show();
+            //     } else {
+            //         // if no search string is set, show the selector and hide the results
+            //         // $("#selected-filtered").hide();
+            //         $("#all-resources").show();
+            //         // $("#resource-pager").show();
+            //         // $("#selector").show();
+            //     }
+            // },
         },
     });
 
