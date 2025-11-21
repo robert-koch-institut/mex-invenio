@@ -4498,21 +4498,31 @@ edges.mex.renderers.activitiesResultView = function(res, highlights, include_res
     let end = edges.mex._("Unknown end date");
     end = edges.mex.extractMultiDate(edges.mex.constants.END, res, end);
 
-    function resourceType() {
+    function resourceTypeMacro() {
         if (include_resource_type) {
             return `<div class="tags"><div class="tag resource-type">${edges.mex._('ACTIVITY')}</div></div>`
         }
         return "";
     }
 
+    function titleMacro(title, id) {
+        if (!title) {
+            return ""
+        }
+
+        return `
+        <div class="title">
+                 <span>
+                    <a href="/records/${id}" target="_blank">${title}</a>
+                </span>
+        </div>`;
+    }
+
+
     let frag = `
         <div class="activity-card card-shadow">
-            ${resourceType()}
-            <div class="title ${title ? "" : "hide"}">
-                <span>
-                    ${title}
-                </span>
-            </div>
+            ${resourceTypeMacro()}
+            ${titleMacro(title, res.id)}
 
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
@@ -4587,21 +4597,30 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights, inclu
         ""
     );
 
-    function resourceType() {
+    function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${edges.mex._('PUBLICATION')}</div><div class="tags">`
+            return `<div class="tags"><div class="tag resource-type">${edges.mex._('PUBLICATION')}</div></div>`
         }
         return "";
     }
 
-    let frag = `<div class="card">
-            ${resourceType()}
-            <div class="title ${title ? "" : "hide"}">
-                 <span>
-                    ${title}
-                </span>
-            </div>
+    function titleMacro(title, id) {
+        if (!title) {
+            return ""
+        }
 
+        return `
+        <div class="title">
+             <span>
+                <a href="/records/${id}" target="_blank">${title}</a>
+            </span>
+        </div>`;
+    }
+
+    const frag = `<div class="card">
+            ${resourceTypeMacro()}
+            ${titleMacro(title, res.id)}
+            
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
             </div>
