@@ -320,6 +320,7 @@ edges.mex.dateHistogram = function (params) {
             useCheckboxes: params.useCheckboxes ?? false,
             showSelected: params.showSelected ?? true,
             countFormat: edges.mex.countFormat,
+            shortDisplay: 10
         }),
     });
 };
@@ -785,7 +786,7 @@ edges.mex.selectedFilters = function (params) {
 
     return new edges.components.SelectedFilters({
         id: params.id || "selected-filters",
-        category: "full",
+        category: "middle-top",
         fieldDisplays: params.fieldDisplays || defaultFieldDisplays,
         valueFunctions: params.valueFunctions || defaultValueFunctions,
         rangeFunctions: params.rangeFunctions || defaultRangeFunctions,
@@ -844,6 +845,18 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
             for (let i = 0; i < facets.length; i++) {
                 let container = `<div class="${facetClass}"><div id="${facets[i].id}"></div></div>`;
                 facetContainers += container;
+            }
+        }
+
+        ///////////////////////////////////
+        // top middle components
+        let topMiddle = edge.category("middle-top")
+        let topMiddleClass = edges.util.styleClasses(this.namespace, "top-middle");
+        let topMiddleContainers = "";
+
+        if (topMiddle.length > 0) {
+            for (let i = 0; i < topMiddle.length; i++) {
+                topMiddleContainers += `<div class="${topMiddleClass}"><div id="${topMiddle[i].id}"></div></div>`;
             }
         }
 
@@ -933,6 +946,9 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 ${facetSidebar}
                 <div class="wide column" style="flex: 1;">
                     <div class="ui grid container">
+                        <div class="ui grid container">
+                            ${topMiddleContainers}
+                        </div>
                         <div class="eight wide column">
                             ${leftMiddleTopContainers}
                         </div>
@@ -1803,6 +1819,8 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                                 <span class="dir">▾</span></a>
                           <div style="display:none;">`;
                 for (let vg of vgs) {
+                    const inputName = edges.util.htmlID(this.namespace, `vg-input-${vg.mex_id}`, this.component.id);
+
                     let vgshort = vg.value;
                     if (vgshort.length > 30) {
                         vgshort = vgshort.substring(0, 27) + "...";
@@ -1813,8 +1831,8 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                     if (selected) {
                         selectedFrag = 'checked="checked"';
                     }
-                    vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                                <label for="" title="${vg}">${vgshort}</label><br>`;
+                    vgFrag += `<input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                                <label for="${inputName}" title="${vg.value}">${vgshort}</label><br>`;
                 }
                 vgFrag += `</div>`;
             }
@@ -3342,6 +3360,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
             let longClass = edges.util.allClasses(namespace, "long", this);
             let short = true;
 
+            let displayedCount = -1;    // start counting from -1 to account 0-based index
             for (let i = 0; i < ts.values.length; i++) {
                 let val = ts.values[i];
 
@@ -3349,6 +3368,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 if (this.hideEmptyDateBin && val.count === 0) {
                     continue;
                 }
+                displayedCount += 1;
 
                 let checked = filterTerms.includes(val.display) ? "checked" : "";
                 // This will allow us to remove filter if already selected this can seamlessly work for checkboxes and button
@@ -3358,7 +3378,7 @@ edges.mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 let myLongClass = "";
                 let styles = "";
 
-                if (this.shortDisplay && this.shortDisplay <= i) {
+                if (this.shortDisplay && this.shortDisplay <= displayedCount) {
                     myLongClass = longClass;
                     styles = 'style="display:none"';
                     short = false;
@@ -4159,9 +4179,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 };
 
-edges.mex.renderers.CompactResourcesResults = class extends (
-    edges.mex.renderers.ResourcesResults
-) {
+edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.ResourcesResults {
     constructor(params) {
         super(params);
 
@@ -4366,46 +4384,32 @@ edges.mex.renderers.CompactResourcesResults = class extends (
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._(
-                "Variable Groups"
-            )}
+            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._("Variable Groups")}
                             <span class="dir">▾</span></a>
-                      <div id="${variableGroupsId}" style="display:none;">`;
+                      <div id="${variableGroupsId}" style="display:none;">
+                        <ul>`;
             for (let vg of vgs) {
                 let vgshort = vg.value;
                 if (vgshort.length > 30) {
                     vgshort = vgshort.substring(0, 27) + "...";
                 }
 
-                let selectedFrag = "";
-                let disabledFrag = "";
-                if (selectState === "unselected") {
-                    // If a record has not been selected, then we are going to check all the variable groups,
-                    // AND disable them (so you cannot interact with them while the record is unselected).
-                    // THEN if the variable group is known to the selector (e.g. by some other resource with the same
-                    // group) AND it has been unchecked elsewhere, then uncheck it here too.
-                    disabledFrag = "disabled";
-                    selectedFrag = 'checked="checked"';
-                    let isKnown = this.selector.variableGroupRecorded(vg.mex_id);
-                    if (isKnown) {
-                        let selected = this.selector.variableGroupSelected(vg.mex_id);
-                        if (!selected) {
-                            selectedFrag = "";
-                        }
-                    }
-                } else {
-                    // If a record has been selected, then we should show all the variable groups according
-                    // to their current state in the selector, and allow interaction.
-                    let selected = this.selector.variableGroupSelected(vg.mex_id);
-                    if (selected) {
-                        selectedFrag = 'checked="checked"';
-                    }
-                }
-
-                vgFrag += `<input type="checkbox" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag} ${disabledFrag}/>
-                            <label for="" title="${vg}">${vgshort}</label><br>`;
+                // if (selectState === "unselected") {
+                    // If a record has not been selected, then we render just the variable group name
+                vgFrag += `<li><span title="${vg}">${vgshort}</span></li>`;
+                // } else {
+                //     // If a record has been selected, then we should show all the variable groups according
+                //     // to their current state in the selector, and allow interaction.
+                //     let selectedFrag = "";
+                //     let selected = this.selector.variableGroupSelected(vg.mex_id);
+                //     if (selected) {
+                //         selectedFrag = 'checked="checked"';
+                //     }
+                //     vgFrag += `<li><input type="checkbox" name="" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                //             <label for="" title="${vg}">${vgshort}</label></li>`;
+                // }
             }
-            vgFrag += `</div>`;
+            vgFrag += `</ul></div>`;
         }
 
         let selectClass = edges.util.jsClasses(
@@ -4434,7 +4438,7 @@ edges.mex.renderers.CompactResourcesResults = class extends (
                             data-state="${selectState}"
                             title="${_("Select")}
                             aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${edges.mex_(selectState)}"
+                            aria-selected="${edges.mex._(selectState)}"
                             aria-live="polite"
                             >${selectButtonText}</button>
                         <span title="${title}">
@@ -4498,21 +4502,31 @@ edges.mex.renderers.activitiesResultView = function(res, highlights, include_res
     let end = edges.mex._("Unknown end date");
     end = edges.mex.extractMultiDate(edges.mex.constants.END, res, end);
 
-    function resourceType() {
+    function resourceTypeMacro() {
         if (include_resource_type) {
             return `<div class="tags"><div class="tag resource-type">${edges.mex._('ACTIVITY')}</div></div>`
         }
         return "";
     }
 
+    function titleMacro(title, id) {
+        if (!title) {
+            return ""
+        }
+
+        return `
+        <div class="title">
+                 <span>
+                    <a href="/records/${id}" target="_blank">${title}</a>
+                </span>
+        </div>`;
+    }
+
+
     let frag = `
         <div class="activity-card card-shadow">
-            ${resourceType()}
-            <div class="title ${title ? "" : "hide"}">
-                <span>
-                    ${title}
-                </span>
-            </div>
+            ${resourceTypeMacro()}
+            ${titleMacro(title, res.id)}
 
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
@@ -4587,21 +4601,30 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights, inclu
         ""
     );
 
-    function resourceType() {
+    function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${edges.mex._('PUBLICATION')}</div><div class="tags">`
+            return `<div class="tags"><div class="tag resource-type">${edges.mex._('PUBLICATION')}</div></div>`
         }
         return "";
     }
 
-    let frag = `<div class="card">
-            ${resourceType()}
-            <div class="title ${title ? "" : "hide"}">
-                 <span>
-                    ${title}
-                </span>
-            </div>
+    function titleMacro(title, id) {
+        if (!title) {
+            return ""
+        }
 
+        return `
+        <div class="title">
+             <span>
+                <a href="/records/${id}" target="_blank">${title}</a>
+            </span>
+        </div>`;
+    }
+
+    const frag = `<div class="card">
+            ${resourceTypeMacro()}
+            ${titleMacro(title, res.id)}
+            
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
             </div>
@@ -4817,25 +4840,17 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
           <thead>
             <tr>
                 <th style="width:20px;"></th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Variables"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Data Source"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Variable Group"
-        )}</th>
-              <th style="border:none; font-weight:600">${edges.mex._(
-            "Data Type"
-        )}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Variables")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Data Source")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Variable Group")}</th>
+                <th style="border:none; font-weight:600">${edges.mex._("Data Type")}</th>
             </tr>
           </thead>
           <tbody>
             ${frag}
           </tbody>
         </table>
-    `;
+        `;
 
         // render
         this.component.context.html(container);
