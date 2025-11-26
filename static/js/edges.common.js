@@ -930,7 +930,7 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<div id="vertical-tab" class="vertical-tab ${verticalTabClass}"></div>`;
+            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
         }
 
         let facetSidebar = "";
@@ -939,14 +939,14 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
         }
 
         let frag = `
-            <div class="ui grid container">
+            <div class="ui grid" style="position: relative">
                 <div class="sixteen wide column">
                     ${fullContainers}
                 </div>
                 ${facetSidebar}
                 <div class="wide column" style="flex: 1;">
-                    <div class="ui grid container">
-                        <div class="ui grid container">
+                    <div class="ui grid">
+                        <div class="ui grid">
                             ${topMiddleContainers}
                         </div>
                         <div class="eight wide column">
@@ -956,7 +956,7 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                             ${rightMiddleTopContainers}
                         </div>
                     </div>
-                    <div class="ui grid container">
+                    <div class="ui grid">
                         ${middleContainers}
                     </div>
                 </div>
@@ -1047,10 +1047,10 @@ edges.mex.templates.SingleColumnTemplate = class extends edges.Template {
         }
 
         let frag = `
-            <div class="ui grid container">
+            <div class="ui grid" style="margin-left: 0">
                 <div class="sixteen wide column">
                     ${preambleFrag}
-                    <div class="ui grid container">
+                    <div class="ui grid">
                         <div class="three wide column">
                             ${leftMiddleTopContainers}
                         </div>
@@ -1591,13 +1591,21 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                 edges.mex._("No title")
             );
 
-            let variables = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_DE, record, []);
+            let variableGroups = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_DE, record, []);
             if (edges.mex.state.lang === "en") {
-                variables = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_EN, record, []);
+                variableGroups = edges.util.pathValue(edges.mex.constants.VARIABLE_GROUPS_EN, record, []);
             }
 
-            let vCount = variables.length;
-            let vFrag = variables.length > 0 ? `${vCount} ${edges.mex._("Variable Groups")}` : `${edges.mex._("No Variable Groups")}`
+            let vgCount = variableGroups.length;
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${edges.mex._("Variable Groups")}` : `${edges.mex._("No Variable Groups")}`
+
+            let vCount = 0;
+            if ("backwards_linked" in record["display_data"]["linked_records"]) {
+                if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
+                    vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
+                }
+            }
+            let vFrag = vCount ? `${vCount} ${edges.mex._("Variables")}` : `${edges.mex._("No Variables")}`
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1608,9 +1616,12 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <div>
                         <div class="selected-list-item">
                             ${title}
-                            <span class="muted">
+                            <p class="muted" style="margin-bottom: 0">
+                                ${vgFrag}
+                            </p>
+                            <p class="muted">
                                 ${vFrag}
-                            </span>
+                            </p>
                         </div>
                     </div>
                 </div>`;
@@ -1630,7 +1641,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                     <div class="divider">
                     </div>
-                    <div class="title-container">
+                    <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                       <h4 class="title" style="margin:0px">${this.title}</h4>
                       <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
                     </div>
@@ -2915,14 +2926,13 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
 
                 if (this.useCheckboxes) {
                     results += `
-                        <div class="${resultClass} checkbox">
-                            <label>
+                            <label class="checkbox">
                                 <input type="checkbox" class="${activeClass}" data-key="${escapedTerm}" ${checked}/>
                                 ${edges.util.escapeHtml(
                         escapedDisplay
                     )} (${count})
                             </label>
-                        </div>`;
+                        `;
                 } else {
                     results += `
                         <div class="${resultClass}">
@@ -3002,10 +3012,10 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
 
         // Final HTML fragment
         let frag = `
-            <div class="ui ${facetClass}" style="margin-bottom:15px">
+            <div class="ui ${facetClass}" style="margin-bottom: 1rem">
                 <div class="${headerClass}">
                     <div class="ui grid">
-                        <div class="sixteen wide column">${tog}</div>
+                        <div class="sixteen wide column .search-facets-container">${tog}</div>
                     </div>
                 </div>
                 ${tooltipFrag}
@@ -4026,11 +4036,9 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (state === "unselected") {
             this.selector.selectRecord(id);
             el.attr("data-state", "selected");
-            el.html("-");
         } else {
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            el.html("+");
         }
 
         if (this.onSelectToggle) {
@@ -4100,17 +4108,15 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
-        keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-        if (keywords !== "") {
-            keywords = `<span class="tag">${keywords}</span>`;
-        }
+        // keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
+        // if (keywords !== "") {
+        //     keywords = `<span class="tag">${keywords}</span>`;
+        // }
 
         let selectState = "unselected";
-        let current = "+";
 
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
-            current = '-'
             // currentImage = "/static/images/selected.svg";
             // selectText = edges.mex._("Remove");
         }
@@ -4126,46 +4132,53 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = ""
+        let frag = `<div class="card"><div class="card-header" style="width: 100%">`
 
+        if (created) {
+            frag += `
+                <span class="date muted">${created}</span>
+            `
+        }
 
-            frag = `
-            <div class="card">
-                <div class="card-header ${created ? "" : "hide"}" style="width: 100%">
-                    <div class="ui grid">
-                        <div class="ten wide column">
-                            <span class="date">${created}</span>
-                        </div>
-                        <div class="six wide column" style="text-align: right">
-                            <button type="button" class="ui icon button ${selectState} ${selectClass}"
-                                data-id="${res.id}"
-                                data-state="${selectState}"
-                                      title="${selectState}"
-                                      aria-label="${selectState}">
-                                  ${current}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        frag += `
+        <button type="button" class="ui icon button ${selectState} ${selectClass}"
+                data-id="${res.id}"
+                data-state="${selectState}"
+                    title="${selectState}"
+                    aria-label="${selectState}">
+            </button></div>
+        `
 
-                <h4 class="title">
+            frag += `
+
+                <h3 class="title">
                     <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
-                </div>
+                </h3>`
 
-                <div class="subtitle ${alt ? "" : "hide"}">
-                    <strong>${alt}</strong>
-                </div>
+            if (alt) {
+                frag += `<p class="subtitle">${alt}</strong>`
+            }
 
-                <div class="description ${desc ? "" : "hide"}">
+            if (desc) {
+                `<p class="description">
                     ${desc.slice(0,600)}
                     ${desc.length > 600 ? "..." : ""}
-                </div>
+                </p>`
+            }
 
-                <div class="tags ${keywords ? "" : "hide"}">
-                    ${keywords}
-                </div>
-            </div>
-        `;
+            if (keywords.length > 0) {
+                frag += `<div class="tags">`
+                for (let key of keywords)
+                {
+                    frag += `
+                        <span class="tag">${key}</span>
+                    `
+                }
+                frag += `</div>`
+            }
+            
+            frag += `</div>`
+        ;
 
         return frag;
     }
@@ -4205,7 +4218,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             let frag = `<div class="">
                 <div class="divider"></div>
 
-                <h4 class="title" style="margin:0px">${this.title}</h4>
+                <h3 class="title" style="margin:0px">${this.title}</h4>
                 <div>
                     <p>${this.noResultsText}</p>
                 </div>
@@ -4275,8 +4288,6 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             // we are selecting the resource
             this.selector.selectRecord(id);
             el.attr("data-state", "selected");
-            let selectButtonText = "-";
-            el.html(selectButtonText);
             el.removeClass("unselected").addClass("selected");
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", false);
@@ -4284,8 +4295,6 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             // we are unselecting the resource
             this.selector.unselectRecord(id);
             el.attr("data-state", "unselected");
-            let selectButtonText = "+";
-            el.html(selectButtonText);
             el.removeClass("selected").addClass("unselected");
 
             $(vgsSelector).find("input[type='checkbox']").prop("disabled", true);
@@ -4355,10 +4364,8 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
         }
 
         let selectState = "unselected";
-        let selectButtonText = "+"
         if (this.selector && this.selector.isSelected(record.id)) {
             selectState = "selected";
-            selectButtonText = "-"
         }
 
         // Variable groups
@@ -4440,7 +4447,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
                             aria-label="${_setupAriaLabel(title)}"
                             aria-selected="${edges.mex._(selectState)}"
                             aria-live="polite"
-                            >${selectButtonText}</button>
+                            ></button>
                         <span title="${title}">
                             ${truncated}
                         </span>
@@ -4839,7 +4846,6 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         <table class="${containerClasses} ui celled table" style="border: none;background: transparent !important;">
           <thead>
             <tr>
-                <th style="width:20px;"></th>
                 <th style="border:none; font-weight:600">${edges.mex._("Variables")}</th>
                 <th style="border:none; font-weight:600">${edges.mex._("Data Source")}</th>
                 <th style="border:none; font-weight:600">${edges.mex._("Variable Group")}</th>
@@ -4879,34 +4885,58 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     }
 
     _renderResult(res) {
+    
+
         // get fields (escaped)
         let label = edges.util.escapeHtml(
             this._getLangVal(edges.mex.constants.LABEL_CONTAINER, res, "No label")
         );
 
         let langPrefix = edges.mex.state.lang;
-        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
-        let resources = edges.util.pathValue(
-            rpath,
-            res,
-            []
-        );
-        let resourceFrag = "";
-        if (resources.length > 1) {
-            resourceFrag =
-                "<ul><li>" +
-                resources.map((r) => edges.util.escapeHtml(r)).join("</li><li>") +
-                "</li></ul>";
+        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
+        // let resources = edges.util.pathValue(
+        //     rpath,
+        //     res,
+        //     []
+        // );
+
+        const getTitle = (v) => {
+            let langPrefix = edges.mex.state.lang;
+            const combineTitles = (items) => items.map(d => d.value).join(', ');
+
+            const dd = v.display_value || [];
+            const correctLang = dd.filter(d => d.language === langPrefix);
+            const emptyLang = dd.filter(d => d.language === '');
+
+            const selected =
+                correctLang.length > 0
+                ? [...correctLang, ...emptyLang]
+                : dd;
+
+            return combineTitles(selected);
         }
 
-        let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_LABEL, res, []);
-        let groupFrag = "";
-        if (groups.length > 1) {
-            groupFrag =
-                "<ul><li>" +
-                groups.map((g) => edges.util.escapeHtml(g)).join("</li><li>") +
-                "</li></ul>";
+        let resources = res["display_data"]["linked_records"]["mex:usedIn"] ?? []
+        
+        let resourceFrag = "";
+        if (resources) {
+            for (let r of resources){
+                
+                resourceFrag += `<a href=${r.link_id} target="_blank" class="resource-title">${getTitle(r)}</a>`
+            }
         }
+
+
+        let groups = res["display_data"]["linked_records"]["mex:belongsTo"] ?? []
+        
+        let groupFrag = ``;
+        if (groups) {
+            for (let g of groups){
+                
+                groupFrag += `<span class="variable-group">${getTitle(g)}</span>`
+            }
+        }
+        groupFrag += `</ul>`
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
@@ -5010,21 +5040,26 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             //               </div>`;
         }
 
+
+        // removed from now.
+   
+
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
+                <td></td>
+                <td class="${collapsedClass}">${label}</td>
+                <td class="${collapsedClass}">${resourceFrag}</td>
+                <td class="${collapsedClass}">${groupFrag}</td>
+                <td class="${collapsedClass}">${dataType}</td>
+            </tr>
+
+            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
                     <button class="img-button ${collapsedClass}">
                       <img
                         class="controls" src="/static/images/expand.svg" alt="expand icon" />
                     </button>
                 </td>
-                <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${label}</td>
-              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${resourceFrag}</td>
-              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${groupFrag}</td>
-              <td class="${collapsedClass}" style="border-left: 0; border-right: 0">${dataType}</td>
-            </tr>
-
-            <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
                     <button class="img-button ${expandedClass}">
                       <img
@@ -5265,11 +5300,9 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let selectState = "unselected";
-        let current = "+";
 
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
-            current = '-'
         }
 
         let frag = `
@@ -5317,7 +5350,7 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
             res,
             []
         );
-        let resourceFrag = "";
+        
         if (resources.length > 1) {
             resourceFrag =
                 "<ul><li>" +

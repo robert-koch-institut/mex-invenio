@@ -24,7 +24,7 @@ export const Record = ({ mexId, title }) => {
 
       {/* <Header as="h2">{i18next.t('Welcome to React')}</Header> */}
       <Header as="h3">{t(title)}</Header>
-      <Table celled>
+      <Table celled className="record-modal">
         <Table.Header className="sr-only">
           <Table.Row verticalAlign='top'>
             <Table.HeaderCell>Field</Table.HeaderCell>

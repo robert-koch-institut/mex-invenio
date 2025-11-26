@@ -6,10 +6,12 @@
 @successBackgroundColor: #D2EBD3;
 @errorBackgroundColor: #FCD0CD;
 
-@lightBackground: rgba(224, 244, 252, 0.20);
+@lightBackground: rgba(224, 244, 252, 0.2);
 @highlightBackground: @highlightColor;
 @whiteBackground: @core-color-white-default;
 @mutedBackground: #F7F7F9;
+
+@lightGrey: #a5aac3;
 
 @pageFont: "FiraSans", sans-serif;
 
@@ -18,7 +20,7 @@
 @frontendHeaderBackgroundColor: @core-color-white-default;
 
 @searchButtonColor: @core-color-white-default;
-@searchButtonColorTextColor: @primaryColor
+@searchButtonColorTextColor: @primaryColor;
 
 @navbarBackgroundColor: transparent;
 @navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
@@ -39,4 +41,14 @@
 @whiteTextColor: @core-color-white-default;
 @blackTextColor: #000000;
 
+@font-face {
+  font-family: 'FiraSans';
+  src: url('../fonts/FiraSans-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 @fontFamily: "FiraSans";
+@fontSize: 1rem;
+
+@borderColor: @core-color-blue-default;

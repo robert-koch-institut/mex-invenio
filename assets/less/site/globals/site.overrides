@@ -1,14 +1,10 @@
-@font-face {
-  font-family: 'FiraSans';
-  src: url('../fonts/FiraSans-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-
 html {
     font-size: 100%;
     background : @lightBackground;
+}
+
+body {
+  background: transparent;
 }
 
 .muted {
@@ -16,6 +12,12 @@ html {
     color: @mutedTextColor;
     font-weight: 400;
 }
+
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
 ::selection {
   background-color: @primaryColor;
@@ -64,6 +66,18 @@ html {
           margin-right: 0.5rem;
       }
   }
+  .card-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    .date {
+      font-size: 1.1rem;
+      align-self: center;
+    }
+    &:has(:only-child) {
+      align-self: flex-end;
+    }
+  }
 
   h4:has(a) {
     color: @primaryColor;
@@ -90,10 +104,10 @@ html {
               gap: 0;
               margin-bottom: 1rem;
               .card-prop-label {
-                  white-space: nowrap;
+                  margin-bottom: 0;
                   overflow: hidden;
                   text-overflow: ellipsis;
-                  margin-bottom: 0;
+                  white-space: nowrap;
               }
           }
           .card-prop-value {
@@ -103,9 +117,9 @@ html {
               min-width: 0;
               max-width: 100%;
               a.single-word,span.single-word {
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
               a.multi-word,span.multi-word {
                   overflow-wrap: break-word;
@@ -121,6 +135,29 @@ html {
       .card-props > .card-props-p {
           grid-template-columns: 100%;
           grid-template-rows: auto 1fr
+      }
+  }
+}
+
+.tags {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+
+  .tag {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background-color: @highlightBackground;
+      padding: 0.3rem 0.5rem;
+      max-width: 100%;
+      min-width: 0;
+      &.success {
+          background-color: @successBackgroundColor;
+      }
+      &.error {
+          background-color: @errorBackgroundColor;
       }
   }
 }
@@ -234,7 +271,6 @@ aside {
 .landing_page.resource,
 .landing_page.activity {
     margin-top: -0.5rem;
-    background-color: rgba(224, 244, 252, 0.20);
     .edit-btn {
         background-color: @mutedBackground;
         color: @mutedTextColor;
@@ -257,28 +293,6 @@ aside {
     }
     .record-ids {
         margin-bottom: 2rem;
-    }
-    .tags {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.625rem;
-        flex-wrap: wrap;
-
-        .tag {
-            background-color: @highlightBackground;
-            padding: 0.3rem 0.5rem;
-            max-width: 100%;
-            min-width: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            &.success {
-                background-color: @successBackgroundColor;
-            }
-            &.error {
-                background-color: @errorBackgroundColor;
-            }
-        }
     }
     .top-tags {
         margin-bottom: 3rem;
@@ -338,9 +352,18 @@ aside {
     }
 }
 
+.selected-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+
 .search_page {
 
-  background : @lightBackground;
+  &.ui.container {
+    width: calc(90vw - 3.5rem);
+  }
 
   .banner {
     background-color: #e9ecf3;
@@ -373,37 +396,7 @@ aside {
     align-content: center;
   }
 
-  .card {
-    display: flex;
-    min-width: 23.75rem;
-    padding: 0.94rem 0.63rem 0.63rem 0.63rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.56rem;
-    background: @whiteTextColor;
-
-    &-shadow {
-      box-shadow:
-        0.06rem 0.06rem 0.13rem 0 rgba(249, 255, 255, 0.3) inset,
-        -0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.5) inset,
-        -0.06rem 0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
-        0.06rem -0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
-        -0.06rem -0.06rem 0.13rem 0 rgba(249, 255, 255, 0.9),
-        0.06rem 0.06rem 0.19rem 0 rgba(199, 217, 217, 0.9);
-    }
-
-    &-header {
-      color: var(--layout-text-muted, @mutedTextColor);
-      font-family: "FiraSans";
-      font-size: 1.12rem;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 1.5rem;
-    }
-  }
-
     .variable-row{
-    background: @whiteBackground;
 
     &-shadow {
       box-shadow:
@@ -428,27 +421,6 @@ aside {
     -0.06rem 0.06rem 0.13rem 0 rgba(199, 217, 217, 0.2),
     0.06rem 0.06rem 0.13rem 0 rgba(249, 255, 255, 0.3) inset;
     }
-  }
-
-  .title {
-    color: @primaryColor;
-    font-size: 1.25rem;
-    font-style: normal;
-    font-weight: bold;
-    line-height: 1.5;
-
-    img {
-      margin-top: 0.31rem;
-    }
-  }
-
-  .ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-    min-width: 0;
-    flex: 1;
   }
 
   .subtitle {
@@ -532,10 +504,6 @@ aside {
       line-height: var(--text-line-height-body-small, 1.25rem);
       letter-spacing: var(--space-none, 0);
     }
-  }
-
-  body {
-    background-color: #f9fdfe;
   }
 
   .divider {
@@ -636,34 +604,6 @@ aside {
     line-height: 1.5rem;
   }
 
-  .vertical-tab {
-    writing-mode: sideways-lr;
-    transform: rotate(180deg);
-    background-color: #f5f9fc;
-    border: 0.06rem solid #dbe5ef;
-    padding: 1rem 0.63rem;
-    color: @blackTextColor;
-    font-family: "FiraSans";
-    font-size: var(--text-size-body-small, 1rem);
-    font-style: normal;
-    font-weight: var(--text-weight-regular, 400);
-    line-height: var(--text-line-height-body-small, 1.25rem);
-    letter-spacing: var(--space-none, 0);
-    box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.1);
-    height: fit-content;
-    position: relative;
-    cursor: pointer;
-
-    clip-path: polygon(
-      0.63rem 0%,
-      100% 0%,
-      100% 100%,
-      0.63rem 100%,
-      0% calc(100% - 0.63rem),
-      0% 0.63rem
-    );
-  }
-
   .cursor-pointer {
     cursor: pointer;
   }
@@ -673,42 +613,37 @@ aside {
   }
 
   .facet-title {
-    color: var(--layout-text-default, #171a2b);
-    font-family: "FiraSans";
-    font-size: var(--text-size-body-default, 1.12rem);
-    font-style: normal;
-    font-weight: bold;
-    line-height: var(--text-line-height-body-default, 1.5rem);
-    letter-spacing: var(--space-none, 0);
+    color: @primaryColor;
+    font-size: 1.1rem;
+  }
+
+  .search-facets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .checkbox {
     display: flex;
     min-height: 2rem;
-    padding-right: var(--space-default, 1rem);
+    padding-right: 1rem;
     align-items: flex-start;
     gap: var(--space-default, 1rem);
     align-self: stretch;
 
     label {
       color: @blackTextColor;
-      font-family: @fontFamily;
-      font-size: 1.12rem;
-      font-weight: 400;
-      line-height: 1.5rem;
-      letter-spacing: 0;
+      font-size: 1.1rem;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 1rem;
       cursor: pointer;
-      flex: 1;
     }
 
     input[type="checkbox"] {
       flex-shrink: 0;
       width: 1.5rem;
       height: 1.5rem;
-      margin: 0;
     }
   }
 
@@ -723,13 +658,6 @@ aside {
     background: @whiteBackground;
     margin: 0.625rem 0; // 10 0
 
-    .selected-list-item {
-      display: flex;
-  justify-content: revert;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.625rem;
-    }
   }
 
   input,
@@ -758,25 +686,6 @@ aside {
     align-items: center;
     justify-content: center;
   }
-
-  .button {
-    &.unselected {
-      background: @highlightColor;
-      color: @blackTextColor;
-
-      &:hover,
-      &:focus {
-        outline: 0.19rem solid @secondaryColor !important;
-        background: @primaryColor;
-        color: @whiteTextColor;
-      }
-  }
-
-  &.selected {
-    background: @primaryColor;
-    color: @whiteTextColor;
-  }
-}
 
   .close-icon {
     width: 1.5rem;
@@ -871,14 +780,14 @@ aside {
   display: flex;
   flex-wrap: wrap;
   align-content: center;
-  background-color: #e0f4fc;
-  border: 1px solid #a5aac3;
-  color: #000;
+  background-color: @lightBackground;
+  border: 1px solid @borderColor;
+  color:@black;
   text-decoration: none;
   padding: .5rem 1rem;
   &:hover {
-    background: #32008c;
-    color: #fff;
+    background: @primaryColor;
+    color: @white;
     text-decoration: none;
   }
 }

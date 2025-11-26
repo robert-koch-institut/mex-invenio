@@ -1,6 +1,11 @@
+button {
+    cursor: pointer;
+}
+
 .ui.button {
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
     &.link-like {
         background-color: transparent;
         color: #32008c;
@@ -23,3 +28,48 @@
         }
     }
 }
+
+.js-mex-resources-results_select {
+    &[data-state="selected"] {
+        background-image: url('../images/add-resource-button-selected.svg');
+        &:hover {
+            background-image: url('../images/add-resource-button-unselected.svg');
+        }
+    }
+
+  &[data-state="unselected"] {
+    background-image: url('../images/add-resource-button-unselected.svg');
+    &:hover {
+        background-image: url('../images/add-resource-button-selected.svg');
+    }
+  }
+}
+
+.vertical-tab {
+    position: absolute;
+    top: 1rem;
+    right: -1rem;
+    transform: rotate(180deg) translateX(-100%);
+    
+    background: @lightBackground;
+    outline: 1px solid @borderColor;
+    padding: 1rem .75rem;
+    color: @black;
+    font-size: 1rem;
+    width: 3.5rem;
+
+    cursor: pointer;
+    writing-mode: sideways-lr;
+
+    border: 1px solid @lightBackground;
+    box-shadow: inset -1px -1px 2px 0 rgba(249, 255, 255, .3), inset 1px 4px 2px 0 rgba(199, 217, 217, .5), 1px -1px 2px 0 rgba(199, 217, 217, .2), -1px 1px 2px 0 rgba(199, 217, 217, .2), 1px 1px 2px 0 rgba(249, 255, 255, .9), -1px -1px 1px 0 rgba(199, 217, 217, .9);
+
+    clip-path: polygon(
+      0.63rem 0%,
+      100% 0%,
+      100% 100%,
+      0.63rem 100%,
+      0% calc(100% - 0.63rem),
+      0% 0.63rem
+    );
+  }
