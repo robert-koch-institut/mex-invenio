@@ -795,7 +795,7 @@ aside {
 }
 
 #variable-page {
-  #resource-container {
+  #resources-container {
     .ui.form.form--long-search {
       align-items: flex-end;
       .field--search-input {

@@ -13,26 +13,6 @@
     {% endif %}
 {% endfor %}
 
-<style>
-    .link-like-button {
-        display: flex;
-        justify-content: center;
-        margin-top: 1rem;
-        padding-top: .5rem;
-        padding-bottom: .5rem;
-        border: 1px solid #cccccc;
-        background-color: #cccccc;
-        color: #666666;
-        cursor: not-allowed;
-    }
-    .link-like-button:hover {
-        text-decoration: none;
-        border: 1px solid #cccccc;
-        background-color: #cccccc;
-        color: #666666;
-    }
-</style>
-
 {% macro display(values) %}
     {%- for v in values  -%}
         {%- set lang = current_i18n.language -%}
@@ -96,7 +76,8 @@
                                 </button>
                             {% endif %}
                         </div>
-                        <a href="/variables-search" class="ui btn primary link-like-button" disabled>{{ _("Explore variables for chosen datasets") }}</a>
+                        {% set mex_id = data["mex:identifier"][0]["display_data"][0]["value"] %}
+                        <a href="/search/variables?resource={{ mex_id }}" target="_blank" class="ui button primary link-like-button" style="margin-top: 1rem;">{{ _("Explore variables for chosen datasets") }}</a>
                     </div>
                 {% endif %}
             {% endfor %}

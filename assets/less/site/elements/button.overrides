@@ -6,6 +6,8 @@ button {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border-radius: 0;
+    font-weight: normal;
     &.primary {
         background-color: @primaryColor;
         border: 1px solid @primaryColor;
