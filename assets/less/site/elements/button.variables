@@ -3,15 +3,3 @@
 @searchButtonColor: @core-color-blue-default;
 @searchButtonColorTextColor: @core-color-black-default;
 @basicBoxShadow: none;
-
-@primaryBackground: @primaryColor;
-@primaryBorder: @primaryColor;
-@primaryText: @white;
-
-@secondaryBackground: @highlightBackground;
-@secondaryBorder: @highlightColor;
-@secondaryText: @black;
-
-@tertiaryBackground: transparent;
-@tertiaryBorder: @lightGrey;
-@tertiaryText: @black;

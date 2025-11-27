@@ -340,7 +340,8 @@ edges.mex.fullSearchController = function (params) {
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
             searchTitle: params.searchTitle || edges.mex._("Search"),
             compactDesign : params.compactDesign ?? false,
-            label: params.label ?? edges.mex._("Search")
+            label: params.label ?? edges.mex._("Search"),
+            inlineLabel: params.inlineLabel || false
         }),
     });
 };
@@ -363,7 +364,7 @@ edges.mex.pager = function (params) {
         renderer: new edges.mex.renderers.Pager({
             showSizeSelector: false,
             showPageNavigation: params.showPageNavigation ?? true,
-            showRecordCount: false,
+            showRecordCount: true,
         }),
     });
 };
@@ -377,7 +378,7 @@ edges.mex.pagerSelector = function (params) {
             sizePrefix: edges.mex._("Show"),
             sizeSuffix: edges.mex._("results per page"),
             showPageNavigation: params.showPageNavigation ?? false,
-            showRecordCount: false,
+            showRecordCount: true,
             customClassForSizeSelector: "page-size-selector",
         }),
     });
@@ -893,7 +894,7 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
 
         if (mid.length > 0) {
             for (let i = 0; i < mid.length; i++) {
-                middleContainers += `<div class="${midClass}"><div id="${mid[i].id}"></div></div>`;
+                middleContainers += `<div class="${midClass} px-0"><div id="${mid[i].id}"></div></div>`;
             }
         }
 
@@ -936,32 +937,32 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
 
         let facetSidebar = "";
         if (facets.length > 0) {
-            facetSidebar = `<div class="three wide column">${facetContainers}</div>`;
+            facetSidebar = `<div class="three wide column pl-0">${facetContainers}</div>`;
         }
 
         let frag = `
             <div class="ui grid" style="position: relative">
-                <div class="sixteen wide column">
+                <div class="sixteen wide column px-0">
                     ${fullContainers}
                 </div>
                 ${facetSidebar}
-                <div class="wide column" style="flex: 1;">
-                    <div class="ui grid">
+                <div class="wide column pr-0" style="flex: 1;">
+                    <div class="ui grid" style="margin-left: 0">
                         <div class="ui grid">
                             ${topMiddleContainers}
                         </div>
-                        <div class="eight wide column">
+                        <div class="eight wide column" style="padding-left: 0">
                             ${leftMiddleTopContainers}
                         </div>
-                        <div class="eight wide column">
+                        <div class="eight wide column" style="padding-right: 0">
                             ${rightMiddleTopContainers}
                         </div>
                     </div>
-                    <div class="ui grid">
+                    <div class="ui grid" style="margin-left:0">
                         ${middleContainers}
                     </div>
                 </div>
-                <div id="right-col" class="five wide column" style=${rightContainerStyle}>
+                <div id="right-col" class="five wide column" style="${rightContainerStyle} padding-right:0">
                     ${rightContainers}
                 </div>
                 ${verticalTabFrag}
@@ -1628,33 +1629,35 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                 </div>`;
         }
 
-        let frag = "";
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
+        
+        let frag = `
+            <div class="card card-shadow">
+                <div id="control-section">
+                    <button class="img-button">
+                    <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="Slide right" />
+                    </button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
+                    <h4 class="title" style="margin:0px">${this.title}</h4>
+                    <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                </div>`
         if (recordsFrag) {
-            frag = `
-                <div class="card card-shadow">
-
-                    <div id="control-section">
-                      <button class="img-button">
-                        <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="Slide right" />
-                      </button>
-                    </div>
-
-                    <div class="divider">
-                    </div>
-                    <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
-                      <h4 class="title" style="margin:0px">${this.title}</h4>
-                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
-                    </div>
-                    <div>
+            frag += `<div>
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
                         ${edges.mex._("Explore Variables for Chosen Datasets")}
                     </a>
-                </div>
-                `;
+        `;
         }
+        else {
+            frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter</p>`
+        }
+        frag += `</div>`
 
         let verticalBar = document.getElementById("vertical-tab");
         if (verticalBar) {
@@ -2138,6 +2141,12 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             false
         )
 
+        this.inlineLabel = edges.util.getParam(
+            params,
+            "inlineLabel",
+            false
+        )
+
         // amount of time between finishing typing and when a query is executed from the search box
         this.freetextSubmitDelay = edges.util.getParam(
             params,
@@ -2181,16 +2190,17 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 )}</option>`;
             }
 
+            let sortId = edges.util.htmlID(this.namespace, "sort", this);
+
             sortFrag = `<div class="ui form">
-                <div class="field">
-                    <select class="ui fluid dropdown ${sortFieldClass}">
-                        <option value="_score">${edges.mex._(
-                "Relevance"
-            )}</option>
-                        ${sortOptions}
-                    </select>
-                </div>
-            </div>`;
+                            <div class="field">
+                                <label for="${sortId} class="sr-only"> Sort by </label>
+                                <select class="ui fluid dropdown ${sortFieldClass}">
+                                    <option value="_score">${edges.mex._("Relevance")}</option>
+                                    ${sortOptions}
+                                </select>
+                            </div>
+                        </div>`;
         }
 
         // select box for fields to search on
@@ -2203,6 +2213,8 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 this
             );
 
+            let selectId = edges.util.htmlID(this.namespace, "selectId", this);
+
             let fieldOptions = "";
             for (let i = 0; i < comp.fieldOptions.length; i++) {
                 let obj = comp.fieldOptions[i];
@@ -2211,12 +2223,13 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 }">${edges.util.escapeHtml(obj["display"])}</option>`;
             }
 
-            field_select += `<select class="ui fluid dropdown ${searchFieldClass}">
-                                <option value="*">${edges.mex._(
-                "search all"
-            )}</option>
-                                ${fieldOptions}
-                            </select>`;
+            field_select += `<div class="field">
+                                <label for="${selectId}" class="sr-only">Search by</label>
+                                <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
+                                    <option value="*">${edges.mex._("all fields")}</option>
+                                    ${fieldOptions}
+                                </select>
+                                </div>`;
         }
 
         // more classes that we'll use
@@ -2230,35 +2243,40 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let clearFrag = "";
         if (this.clearButton) {
             clearFrag = `<div class="field">
-                <button type="button" class="ui button ${resetClass} black basic" title="${edges.mex._(
-                "Clear all search and sort parameters and start again"
-            )}">
-                    ${edges.mex._("Clear")}
-                </button>
-            </div>`;
+                            <button type="button" class="ui button ${resetClass} black basic" title="${edges.mex._(
+                                "Clear all search and sort parameters and start again"
+                            )}">
+                                ${edges.mex._("Clear")}
+                            </button>
+                        </div>`;
         }
 
-        let searchFrag = "";
+        let searchBtn = "";
         if (this.searchButton) {
             let text = '<span class="icon search"></span>';
             if (this.searchButtonText !== false) {
                 text = this.searchButtonText;
             }
-            searchFrag = `<div class="ui form"><div class="field"><button type="button" class="button ${searchClass} search-button">${text}</button></div></div>`;
+            searchBtn = `<div class="field"><button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button></div>`;
         }
 
-        let searchBox = `
-            <div class="ui form" style="display: flex;">
-                ${clearFrag}
-                <div class="field" style="flex-grow: 1;">`
-        
-        if (!this.labelInvisible) {
-            searchBox += `<label for="${textId}" class="ui label"> ${this.label} </label>`
+        let inline = "";
+        if (this.inlineLabel) {
+            inline = "inline";
         }
-
-        searchBox += `<input aria-label="${this.label}" type="text" id="${textId}" class="ui input ${textClass}" name="q" placeholder="${this.searchPlaceholder}" style="width: 100%;" />
-                </div>
-            </div>`;
+        let searchBox = `<div class="${inline} field field--search-input">`
+        let srOnly = "";
+        if (this.labelInvisible) {
+            srOnly = `sr-only`;
+        }
+        searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
+        searchBox += `<input type="text" 
+                            id="${textId}" 
+                            class="ui input input--search ${textClass}" 
+                            name="q" 
+                            placeholder="${this.searchPlaceholder}" 
+                        />
+                        </div>`;
 
         // assemble the final fragment and render it into the component's context
         let containerClass = edges.util.styleClasses(
@@ -2287,57 +2305,54 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         // Upgrading the search UI as per sematic ui
         let frag = ""
 
-        if(this.compactDesign) {
-            frag = `
-                <div class="ui grid ${containerClass}">
-                <div style="flex:1">
-                    <div class="one wide column">
-                        <div class="search-label">
-                            <h4>
-                              ${this.searchTitle}
-                            </h4>
-                        </div>
-                    </div>
-                    <br/>
-                    <div class="ui grid row middle aligned">
-                        <div class="${searchBoxWidth} wide column" style="padding-right:0rem">
-                            ${searchBox}
-                        </div>
-                        ${fieldSelectFrag}
-                        <div class="one wide column" style="padding-left:0rem">
-                            ${searchFrag}
-                        </div>
-                    </div>
-                </div>
-                <div class="row right aligned">
-                    ${sortFrag}
-                </div>
-            </div>
-            `
-        } else {
-            frag  = `
-            <div class="ui grid ${containerClass}">
-                <div class="row middle aligned">
-                    <div class="${titleWidth} wide column">
-                        <div class="search-label">
-                            <h4>
-                              ${this.searchTitle}
-                            </h4>
-                        </div>
-                    </div>
-                    <div class="${searchBoxWidth} wide column">
-                        ${searchBox}
-                    </div>
-                    ${fieldSelectFrag}
-                    <div class="one wide column">
-                        ${searchFrag}
-                    </div>
-                </div>
-                <div class="row right aligned">
-                    ${sortFrag}
-                </div>
-            </div>`;
+        // if(this.compactDesign) {
+        //     frag = `
+        //         <div class="ui grid ${containerClass}">
+        //         <div style="flex:1">
+        //             <div class="ui grid row left aligned">
+        //                 <div class="${searchBoxWidth} wide column" style="padding-right:0rem">
+        //                     ${searchBox}
+        //                 </div>
+        //                 ${fieldSelectFrag}
+        //                 <div class="one wide column" style="padding-left:0rem">
+        //                     ${searchBtn}
+        //                 </div>
+        //             </div>
+        //         </div>
+        //         <div class="row right aligned">
+        //             ${sortFrag}
+        //         </div>
+        //     </div>
+        //     `
+        // } else {
+        //     frag  = `
+        //     <div class="ui grid ${containerClass}">
+        //         <div class="row middle aligned">
+        //             <div class="${searchBoxWidth} wide column">
+        //                 ${searchBox}
+        //             </div>
+        //             ${fieldSelectFrag}
+        //             <div class="one wide column">
+        //                 ${searchBtn}
+        //             </div>
+        //         </div>
+        //         <div class="row right aligned">
+        //             ${sortFrag}
+        //         </div>
+        //     </div>`;
+        // }
+        let longClass = "";
+        if (!this.compactDesign){
+            longClass = "form--long-search";
         }
+
+        frag = `
+            <form class="ui form form--long-search">
+                ${searchBox}
+                ${field_select}
+                ${searchBtn}
+            </form>
+        `
 
         comp.context.html(frag);
 
@@ -2582,7 +2597,7 @@ edges.mex.renderers.Sorter = class extends edges.Renderer {
         // Upgrading the search UI as per sematic ui
         let frag = `
             <div class="ui grid ${containerClass}">
-                <div class="ui right aligned column" style="text-align: right;">
+                <div class="ui right aligned column" style="padding-right: 0;">
                 ${sortFrag}
                 </div>
             </div>`;
@@ -2717,8 +2732,8 @@ edges.mex.renderers.Sorter = class extends edges.Renderer {
 
         // Upgrading the search UI as per sematic ui
         let frag = `
-            <div class="ui grid ${containerClass}">
-                <div class="ui right aligned column" style="text-align: right;">
+            <div class="ui grid ${containerClass}" style="margin-left:0;">
+                <div class="ui right aligned column" style="padding-right: 0;">
                 ${sortFrag}
                 </div>
             </div>`;
@@ -3873,10 +3888,10 @@ edges.mex.renderers.Pager = class extends edges.Renderer {
                    </div>`;
         }
 
-        let frag = `<div class="ui grid ${containerClass}">`;
+        let frag = `<div class="ui grid ${containerClass}" style="margin-left: 0">`;
 
         if (this.showPageNavigation) {
-            frag += `<div class="sixteen wide column">${nav}</div>`;
+            frag += `<div class="sixteen wide column px-0">${nav}</div>`;
         }
 
         frag += `<div class="sixteen wide column">${sizer}</div>`;
@@ -4861,7 +4876,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         var container = `
         ${expandAllCheckbox}
 
-        <table class="${containerClasses} ui celled table" style="border: none;background: transparent !important;">
+        <table class="${containerClasses} ui celled table unstackable" style="border: none;background: transparent !important;">
           <thead>
             <tr>
                 <th></th>

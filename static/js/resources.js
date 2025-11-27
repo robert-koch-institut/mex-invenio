@@ -26,6 +26,8 @@ edges.instances.resources.init = function() {
                     {field: edges.mex.constants.ICD10, "display": edges.mex._("ICD-10 Code")},
                 ],
                 searchPlaceholder: edges.mex._("Search resources..."),
+                label: "Search",
+                inlineLabel: true
             }),
             edges.mex.selectedFilters(),
 

@@ -70,6 +70,7 @@ edges.instances.variables.init = function () {
                 category: "column",
                 searchPlaceholder: edges.mex._("Find resources..."),
                 label: "Search Data Sources & Datasets by Title",
+                inlineLabel: false,
                 searchTitle: edges.mex._(" "),
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: false,

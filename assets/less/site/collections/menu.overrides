@@ -1,0 +1,11 @@
+#invenio-nav.ui.menu {
+
+    &:not(.active) #invenio-menu.ui.menu {
+        padding: 0;
+    }
+
+    &.active #invenio-menu.ui.menu {
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+
+}

@@ -19,6 +19,18 @@ body {
     white-space: nowrap;
   }
 
+.px-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.pl-0 {
+  padding-left: 0 !important;
+}
+
+.pr-0 {
+  padding-right: 0 !important;
+}
+
 ::selection {
   background-color: @primaryColor;
   color: white;
@@ -366,6 +378,7 @@ aside {
   }
 
   .banner {
+    background-image: url('../images/dna.svg');
     background-color: #e9ecf3;
     padding: 1.25rem 3.12rem;
     display: flex;
@@ -771,6 +784,30 @@ aside {
   gap: 1rem;
   align-items: baseline;
   justify-content: flex-start;
+}
+
+.search-page-- {
+  #selector {
+    .selected-list-item {
+      flex-direction: column;
+    }
+  }
+}
+
+#variable-page {
+  #resource-container {
+    .ui.form.form--long-search {
+      align-items: flex-end;
+      .field--search-input {
+        display: flex;
+        flex-direction: column;
+        label.label--search {
+          line-height: 1.1;
+          margin-bottom: .5rem;
+        }
+      }
+    }
+  }
 }
 
 .button-like {

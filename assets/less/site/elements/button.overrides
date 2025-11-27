@@ -6,6 +6,33 @@ button {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    &.primary {
+        background-color: @primaryColor;
+        border: 1px solid @primaryColor;
+        color: @white;
+        &:hover {
+            background-color: @white;
+            color: @primaryColor;
+        }
+    }
+    &.secondary {
+        background-color: @highlightBackground;
+        border: 1px solid @highlightColor;
+        color: @black;
+        &:hover {
+            background-color: @primaryColor;
+            color: @white;
+        }
+    }
+    &.tetriary {
+        background-color: transparent;
+        border: 1px solid @lightGrey;
+        color: @black;
+        &:hover {
+            background-color: @highlightBackground;
+            color: @black;
+        }
+    }
     &.link-like {
         background-color: transparent;
         color: #32008c;
@@ -47,12 +74,11 @@ button {
 
 .vertical-tab {
     position: absolute;
-    top: 1rem;
-    right: -1rem;
+    top: 9.5rem;
+    right: -0;
     transform: rotate(180deg) translateX(-100%);
     
-    background: @lightBackground;
-    outline: 1px solid @borderColor;
+    background: @white;
     padding: 1rem .75rem;
     color: @black;
     font-size: 1rem;
@@ -61,15 +87,15 @@ button {
     cursor: pointer;
     writing-mode: sideways-lr;
 
-    border: 1px solid @lightBackground;
+    border: none;
     box-shadow: inset -1px -1px 2px 0 rgba(249, 255, 255, .3), inset 1px 4px 2px 0 rgba(199, 217, 217, .5), 1px -1px 2px 0 rgba(199, 217, 217, .2), -1px 1px 2px 0 rgba(199, 217, 217, .2), 1px 1px 2px 0 rgba(249, 255, 255, .9), -1px -1px 1px 0 rgba(199, 217, 217, .9);
 
-    clip-path: polygon(
-      0.63rem 0%,
-      100% 0%,
-      100% 100%,
-      0.63rem 100%,
-      0% calc(100% - 0.63rem),
-      0% 0.63rem
-    );
+    // clip-path: polygon(
+    //   0.63rem 0%,
+    //   100% 0%,
+    //   100% 100%,
+    //   0.63rem 100%,
+    //   0% calc(100% - 0.63rem),
+    //   0% 0.63rem
+    // );
   }
