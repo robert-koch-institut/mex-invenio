@@ -526,14 +526,11 @@ aside {
       margin-bottom: 0.63rem;
     }
 
-    &-sub-item {
-      color:  @primaryColor;
-      font-family: "FiraSans";
-      font-size: var(--text-size-heading-medium, 1.31rem);
-      font-style: normal;
-      font-weight: 400;
-      line-height: var(--text-line-height-heading-large, 2rem);
-      letter-spacing: var(--space-none, 0);
+    ul {
+      padding-inline-start: 0;
+      li {
+        list-style: none;
+      }
     }
   }
 

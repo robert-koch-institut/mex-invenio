@@ -340,6 +340,7 @@ edges.mex.fullSearchController = function (params) {
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
             searchTitle: params.searchTitle || edges.mex._("Search"),
             compactDesign : params.compactDesign ?? false,
+            label: params.label ?? edges.mex._("Search")
         }),
     });
 };
@@ -1824,10 +1825,10 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._(
+                vgFrag = `<button class="${variableToggleClass} ui button link-like">${edges.mex._(
                     "Variable Groups"
                 )}
-                                <span class="dir">▾</span></a>
+                                <span class="dir">▾</span></button>
                           <div style="display:none;">`;
                 for (let vg of vgs) {
                     const inputName = edges.util.htmlID(this.namespace, `vg-input-${vg.mex_id}`, this.component.id);
@@ -2125,6 +2126,18 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             edges.mex._("Search")
         );
 
+        this.label = edges.util.getParam(
+            params,
+            "label",
+            "Search"
+        )
+
+        this.labelInvisible = edges.util.getParam(
+            params,
+            "labelInvisible",
+            false
+        )
+
         // amount of time between finishing typing and when a query is executed from the search box
         this.freetextSubmitDelay = edges.util.getParam(
             params,
@@ -2237,8 +2250,13 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let searchBox = `
             <div class="ui form" style="display: flex;">
                 ${clearFrag}
-                <div class="field" style="flex-grow: 1;">
-                    <input type="text" id="${textId}" class="ui input ${textClass}" name="q" placeholder="${this.searchPlaceholder}" style="width: 100%;" />
+                <div class="field" style="flex-grow: 1;">`
+        
+        if (!this.labelInvisible) {
+            searchBox += `<label for="${textId}" class="ui label"> ${this.label} </label>`
+        }
+
+        searchBox += `<input aria-label="${this.label}" type="text" id="${textId}" class="ui input ${textClass}" name="q" placeholder="${this.searchPlaceholder}" style="width: 100%;" />
                 </div>
             </div>`;
 
@@ -4391,19 +4409,19 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<a href="#" class="${variableToggleClass}">${edges.mex._("Variable Groups")}
-                            <span class="dir">▾</span></a>
+            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${edges.mex._("Variable Groups")}
+                            <span class="dir">▾</span></button>
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
             for (let vg of vgs) {
-                let vgshort = vg.value;
-                if (vgshort.length > 30) {
-                    vgshort = vgshort.substring(0, 27) + "...";
-                }
+                // let vgshort = vg.value;
+                // if (vgshort.length > 30) {
+                //     vgshort = vgshort.substring(0, 27) + "...";
+                // }
 
                 // if (selectState === "unselected") {
                     // If a record has not been selected, then we render just the variable group name
-                vgFrag += `<li><span title="${vg}">${vgshort}</span></li>`;
+                vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
                 // } else {
                 //     // If a record has been selected, then we should show all the variable groups according
                 //     // to their current state in the selector, and allow interaction.
@@ -4846,10 +4864,11 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         <table class="${containerClasses} ui celled table" style="border: none;background: transparent !important;">
           <thead>
             <tr>
-                <th style="border:none; font-weight:600">${edges.mex._("Variables")}</th>
-                <th style="border:none; font-weight:600">${edges.mex._("Data Source")}</th>
-                <th style="border:none; font-weight:600">${edges.mex._("Variable Group")}</th>
-                <th style="border:none; font-weight:600">${edges.mex._("Data Type")}</th>
+                <th></th>
+                <th>${edges.mex._("Variables")}</th>
+                <th>${edges.mex._("Data Source")}</th>
+                <th>${edges.mex._("Variable Group")}</th>
+                <th>${edges.mex._("Data Type")}</th>
             </tr>
           </thead>
           <tbody>
@@ -5046,7 +5065,12 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
-                <td></td>
+                <td class="${collapsedClass}">
+                    <button class="img-button ${collapsedClass}">
+                      <img
+                        class="controls" src="/static/images/expand.svg" alt="expand icon" />
+                    </button>
+                </td>
                 <td class="${collapsedClass}">${label}</td>
                 <td class="${collapsedClass}">${resourceFrag}</td>
                 <td class="${collapsedClass}">${groupFrag}</td>
@@ -5055,21 +5079,15 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
-                    <button class="img-button ${collapsedClass}">
-                      <img
-                        class="controls" src="/static/images/expand.svg" alt="expand icon" />
-                    </button>
-                </td>
-                <td>
                     <button class="img-button ${expandedClass}">
                       <img
                         class="controls" src="/static/images/shrink.svg" alt="shrink icon" />
                     </button>
                 </td>
-                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${label}</strong></td>
-                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${resourceFrag}</strong></td>
-                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${groupFrag}</strong></td>
-                <td class="${expandedClass}" style="border-left: 0; border-right: 0"><strong>${dataType}</strong></td>
+                <td class="${expandedClass}"><strong>${label}</strong></td>
+                <td class="${expandedClass}"><strong>${resourceFrag}</strong></td>
+                <td class="${expandedClass}"><strong>${groupFrag}</strong></td>
+                <td class="${expandedClass}"><strong>${dataType}</strong></td>
             </tr>
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-bottom" role="row" style="display:none; border-top: 0;">

@@ -55,7 +55,6 @@
     table-layout: fixed;
     th, tr, td {
         background: transparent;
-        border: none;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -63,7 +62,15 @@
     tr {
         border-bottom: 1px solid @borderColor;
     }
+    tr td:first-child {
+        width: 3rem;
+    }
     th, td {
-        border: none;
+        border-left: none !important;
+    }
+    .js-mex-variables-results_variables-results_expanded-row {
+        a.resource-title {
+            white-space: normal;
+        }
     }
 }

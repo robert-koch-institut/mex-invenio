@@ -56,19 +56,20 @@ edges.instances.variables.init = function () {
                 id:"all-resources-heading",
                 category: "column",
                 staticTitle : "All Data Sources & Datasets",
-                fontStyle : "tiny"
-            }),
-
-            edges.mex.staticHeading ({
-                id:"all-resources-search-heading",
-                category: "column",
-                staticTitle : "Search Data Sources & Datasets by Title",
                 fontStyle : "small"
             }),
+
+            // edges.mex.staticHeading ({
+            //     id:"all-resources-search-heading",
+            //     category: "column",
+            //     staticTitle : "Search Data Sources & Datasets by Title",
+            //     fontStyle : "small"
+            // }),
 
             edges.mex.fullSearchController({
                 category: "column",
                 searchPlaceholder: edges.mex._("Find resources..."),
+                label: "Search Data Sources & Datasets by Title",
                 searchTitle: edges.mex._(" "),
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: false,
