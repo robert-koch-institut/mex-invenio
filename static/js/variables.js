@@ -11,15 +11,23 @@ if (!edges.hasOwnProperty("active")) {
 edges.instances.variables = {};
 edges.instances.variables.init = function () {
 
-    // There are two main ways that the page needs to load for the variables search
+    // There are three main ways that the page needs to load for the variables search
     // * There may be selected resources in the local store.  If this is the case, then we can use them directly
     // * There may be no resources selected, in which case we start from an empty search
-
-    // A case which has not been addressed, and which is not clear if a need exists is:
-    // * They may be mexIds in in the URL.  In which case we need to read them, fetch the details of the resources (which
+    // * They may be mexIds in the URL.  In which case we need to read them, fetch the details of the resources (which
     // can be done easily enough with an ES query with the identifiers provided), and put them into local store.
-    //      - In this case, what happens if there is data in the local store and data in the URL?  Do we prefer
-    //        the local store or the URL?
+    //      - This data replaces the existing local store data
+
+    // see if we have any resources in the URL
+    const params = new URLSearchParams(window.location.search);
+    const resourceId = params.get("resource") ?? "";
+    let preSeed = [];
+    if (resourceId !== "") {
+        preSeed.push(resourceId);
+        const url = new URL(window.location.href);
+        url.search = "";
+        window.history.replaceState("", "", url.toString());
+    }
 
     edges.active["variables-resources"] = edges.mex.makeEdge({
         selector: "#resources-container",
@@ -46,6 +54,8 @@ edges.instances.variables.init = function () {
             edges.mex.recordSelectorCompact({
                 category: "column",
                 title : "All Data Sources & Datasets",
+                preSeed: preSeed,
+                preSeedLoadedCallback: edges.instances.variables.selectionLoaded,
                 resourceComponentIds: ["all-resources"], //, "selected-filtered"
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
@@ -127,6 +137,13 @@ edges.instances.variables.init = function () {
         },
     });
 
+    if (preSeed.length === 0) {
+        // no pre-seed, so we can load directly
+        edges.instances.variables.selectionLoaded();
+    }
+};
+
+edges.instances.variables.selectionLoaded = function() {
     // to prepare the initial variables search, we need to see if anything has been
     // selected already, and set the opening query
     let selectedMexIds = edges.instances.variables.getSelectedMexIds();
