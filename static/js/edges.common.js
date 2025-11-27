@@ -412,6 +412,8 @@ edges.mex.recordSelectorCompact = function (params) {
         id: params.id || "selector",
         category: params.category || "right",
         secondaryResults: params.secondaryResults || false,
+        preSeed: params.preSeed || false,
+        preSeedLoadedCallback: params.preSeedLoadedCallback || false,
         renderer: new edges.mex.renderers.CompactSelectedRecords({
             showIfEmpty: false,
             title: edges.mex._("Selected Data Sources & Datasets"),
@@ -1138,27 +1140,99 @@ edges.mex.components.Selector = class extends edges.Component {
         this._resources = {};
         this._variable_groups = {};
 
-        let ids = window.localStorage.getItem("selection");
-        ids = JSON.parse(ids);
-        if (ids) {
-            for (let id of ids) {
-                let object = window.localStorage.getItem(id);
-                if (object) {
-                    object = JSON.parse(object);
-                    this._resources[id] = object;
+        this.preSeed = edges.util.getParam(params, "preSeed", false);
+        this.preSeedLoadedCallback = edges.util.getParam(
+            params,
+            "preSeedLoadedCallback",
+            function () {}
+        );
+    }
+
+    init(edge) {
+        super.init(edge);
+
+        if (this.preSeed && this.preSeed.length > 0) {
+            this.clearAll(false);
+            this.loadPreSeed();
+        } else {
+
+            let ids = window.localStorage.getItem("selection");
+            ids = JSON.parse(ids);
+            if (ids) {
+                for (let id of ids) {
+                    let object = window.localStorage.getItem(id);
+                    if (object) {
+                        object = JSON.parse(object);
+                        this._resources[id] = object;
+                    }
+                }
+            }
+
+            let vgs = window.localStorage.getItem("variable_groups");
+            vgs = JSON.parse(vgs);
+            if (vgs) {
+                for (let vg of vgs) {
+                    let sel = window.localStorage.getItem(vg);
+                    this._variable_groups[vg] = sel === "t";
                 }
             }
         }
-
-        let vgs = window.localStorage.getItem("variable_groups");
-        vgs = JSON.parse(vgs);
-        if (vgs) {
-            for (let vg of vgs) {
-                let sel = window.localStorage.getItem(vg);
-                this._variable_groups[vg] = sel === "t";
-            }
-        }
     }
+
+    loadPreSeed() {
+        // register blank records for the moment, so downstream
+        // queries can use the ids
+        // for (let id of this.preSeed) {
+        //     this.registerRecord(id, {});
+        // }
+
+        let resourceQuery = new es.Query({size: this.preSeed.length});
+        resourceQuery.addMust(
+            new es.TermsFilter({
+                field: "custom_fields.mex:identifier.keyword",
+                values: this.preSeed,
+            })
+        );
+
+        // issue the query to elasticsearch
+        this.edge.queryAdapter.doQuery({
+            edge: this.edge,
+            query: resourceQuery,
+            success: edges.util.objClosure(this, "preSeedQuerySuccess", ["result"]),
+            error: edges.util.objClosure(this, "preSeedQueryFail")
+        });
+    }
+
+    preSeedQuerySuccess(params) {
+        let hits = params.result.results();
+        if (hits == null || hits.length === 0) {
+            // no resources found, so just init normally
+            alert("No matching resources found for pre-selection");
+            this.preSeedLoadedCallback();
+            return;
+        }
+
+        // we have found the resource, so set it into local storage
+        for (let hit of hits) {
+            this.registerRecord(hit.id, hit);
+        }
+
+        this.preSeedLoaded = true;
+        this.draw();
+        this.preSeedLoadedCallback();
+    }
+
+    preSeedQueryFail() {
+        alert("Failed to load resource details for pre-selection");
+    }
+
+    // isSeedLoaded() {
+    //     let hadSeed = this.preSeed && this.preSeed.length > 0;
+    //     if (!hadSeed) {
+    //         return true;
+    //     }
+    //     return this.preSeedLoaded;
+    // }
 
     ////////////////////////////////////////
     // pure data access functions
@@ -1183,11 +1257,13 @@ edges.mex.components.Selector = class extends edges.Component {
         window.localStorage.setItem("selection", JSON.stringify(this.ids()));
     }
 
-    clearAll() {
+    clearAll(draw=true) {
         this._resources = {};
         this._variable_groups = {};
         window.localStorage.clear();
-        this.draw();
+        if (draw) {
+            this.draw();
+        }
     }
 
     ids() {
@@ -1198,32 +1274,35 @@ edges.mex.components.Selector = class extends edges.Component {
         return this._resources.hasOwnProperty(id);
     }
 
+    registerRecord(id, data) {
+        this.set(id, data);
+
+        let en = edges.util.pathValue(
+            edges.mex.constants.VARIABLE_GROUPS_EN,
+            data,
+            []
+        );
+        for (let group of en) {
+            this.recordVariableGroup(group.mex_id, true);
+        }
+
+        let de = edges.util.pathValue(
+            edges.mex.constants.VARIABLE_GROUPS_DE,
+            data,
+            []
+        );
+        for (let group of de) {
+            this.recordVariableGroup(group.mex_id, true);
+        }
+    }
+
     //////////////////////////////////////
     // component behavioural functions
 
     selectRecord(id) {
         for (let hit of this.edge.result.data.hits.hits) {
             if (id === hit._source.id) {
-                this.set(id, hit._source);
-
-                let en = edges.util.pathValue(
-                    edges.mex.constants.VARIABLE_GROUPS_EN,
-                    hit._source,
-                    []
-                );
-                for (let group of en) {
-                    this.recordVariableGroup(group.mex_id, true);
-                }
-
-                let de = edges.util.pathValue(
-                    edges.mex.constants.VARIABLE_GROUPS_DE,
-                    hit._source,
-                    []
-                );
-                for (let group of de) {
-                    this.recordVariableGroup(group.mex_id, true);
-                }
-
+                this.registerRecord(id, hit._source);
                 break;
             }
         }
