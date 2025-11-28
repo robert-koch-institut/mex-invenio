@@ -84,6 +84,8 @@ APP_DEFAULT_SECURE_HEADERS = {
             "data:",  # for fonts
             "'unsafe-inline'",  # for inline scripts and styles
             "blob:",  # for pdf preview
+            "fonts.googleapis.com",  # for Google Fonts
+            "fonts.gstatic.com",  # for Google Fonts
             # Add your own policies here (e.g. analytics)
         ],
     },
