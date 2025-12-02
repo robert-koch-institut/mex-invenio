@@ -16,10 +16,10 @@ const DisplayValues = ({
 
   return (
     <div className="card-prop-value"
-      style={{ 
-        display: 'flex', 
+      style={{
+        display: 'flex',
         flexDirection: "column",
-        gap: "1rem" 
+        gap: "1rem"
       }}
     >
       {visible.map((v, index) => (
@@ -44,7 +44,7 @@ const DisplayValues = ({
             className="link-like"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? 'Show less ▲' : `Show all (${total}) ▼`}
+            {showAll ? `_("Show less") ▲` : `_("Show all") (${total}) ▼`}
           </Button>
         </>
       )}

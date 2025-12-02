@@ -1493,13 +1493,13 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
                         filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                                        <img src="/static/images/close.svg" alt='{{_("Remove")}}' title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
                         filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                                        <img src="/static/images/close.svg" alt='{{_("Remove")}}' title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     }
                 }
@@ -1692,7 +1692,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <button class="img-button">
                       <img
                         data-id="${id}"
-                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt="Slide right" />
+                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='{{_("Slide right")}}' />
                     </button>
                     <div>
                         <div class="selected-list-item">
@@ -1714,7 +1714,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             <div class="card card-shadow">
                 <div id="control-section">
                     <button class="img-button">
-                    <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="Slide right" />
+                    <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt='{{_("Slide right")}}' />
                     </button>
                 </div>
 
@@ -1937,7 +1937,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                         <button class="img-button">
                         <img
                         data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                        class="${selectClass} controls" src="/static/images/close.svg" alt='{{_("Slide right")}}' width="24px" height="32px"/>
                         </button>
                             <span title="${title}">${truncated}</span>
                         </div>
@@ -5162,7 +5162,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
                 <td class="${collapsedClass}">
                     <button class="img-button ${collapsedClass}">
                       <img
-                        class="controls" src="/static/images/expand.svg" alt="expand icon" />
+                        class="controls" src="/static/images/expand.svg" alt='{{_("expand icon" )}}' />
                     </button>
                 </td>
                 <td class="${collapsedClass}">${label}</td>
@@ -5175,7 +5175,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
                 <td>
                     <button class="img-button ${expandedClass}">
                       <img
-                        class="controls" src="/static/images/shrink.svg" alt="shrink icon" />
+                        class="controls" src="/static/images/shrink.svg" alt='{{"shrink icon"}}' />
                     </button>
                 </td>
                 <td class="${expandedClass}"><strong>${label}</strong></td>
