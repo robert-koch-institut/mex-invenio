@@ -1510,8 +1510,8 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="Clear all search and sort parameters and start again">
-                    Clear all
+            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${edges.mex._("Clear all search and sort parameters and start again")}">
+                    ${edges.mex._("Clear all")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1709,7 +1709,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
-        
+
         let frag = `
             <div class="card card-shadow">
                 <div id="control-section">
@@ -1722,7 +1722,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    <button class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1777,7 +1777,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
     }
 
     clearAllRecords() {
-        let conf = confirm("Are you sure you want to remove all the selected resources?")
+        let conf = confirm(edges.mex._("Are you sure you want to remove all the selected resources?"))
 
         if(conf) {
             this.component.clearAll();
@@ -1954,7 +1954,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                     ${expandAllCheckbox}
                     ${header}
                     <div class="" style="margin-top:1.625rem">
-                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                      <button class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -2032,7 +2032,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
     }
 
     clearAllRecords() {
-        let conf = confirm("Are you sure you want to remove all the selected resources?")
+        let conf = confirm(edges.mex._("Are you sure you want to remove all the selected resources?"))
 
         if(conf) {
             this.component.clearAll();
@@ -2349,11 +2349,11 @@ edges.mex.renderers.SidebarSearchController = class extends edges.Renderer {
             srOnly = `sr-only`;
         }
         searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
-        searchBox += `<input type="text" 
-                            id="${textId}" 
-                            class="ui input input--search ${textClass}" 
-                            name="q" 
-                            placeholder="${this.searchPlaceholder}" 
+        searchBox += `<input type="text"
+                            id="${textId}"
+                            class="ui input input--search ${textClass}"
+                            name="q"
+                            placeholder="${this.searchPlaceholder}"
                         />
                         </div>`;
 
@@ -4288,7 +4288,7 @@ edges.mex.renderers.ResourcesResults = class extends edges.Renderer {
                 }
                 frag += `</div>`
             }
-            
+
             frag += `</div>`
         ;
 
@@ -4545,7 +4545,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             let ariaLabel = [ariaLabelVerb, edges.mex._("record"), title, ariaLabelPreposition, edges.mex._("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
-        
+
 
         let frag = `
             <div class="selected-list">
@@ -4743,7 +4743,7 @@ edges.mex.renderers.bibliographicResourcesView = function(res, highlights, inclu
     const frag = `<div class="card">
             ${resourceTypeMacro()}
             ${titleMacro(title, res.id)}
-            
+
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
             </div>
@@ -4998,7 +4998,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
     }
 
     _renderResult(res) {
-    
+
 
         // get fields (escaped)
         let label = edges.util.escapeHtml(
@@ -5030,22 +5030,22 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let resources = res["display_data"]["linked_records"]["mex:usedIn"] ?? []
-        
+
         let resourceFrag = "";
         if (resources) {
             for (let r of resources){
-                
+
                 resourceFrag += `<a href=${r.link_id} target="_blank" class="resource-title">${getTitle(r)}</a>`
             }
         }
 
 
         let groups = res["display_data"]["linked_records"]["mex:belongsTo"] ?? []
-        
+
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                
+
                 groupFrag += `<span class="variable-group">${getTitle(g)}</span>`
             }
         }
@@ -5155,7 +5155,7 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
 
         // removed from now.
-   
+
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
@@ -5462,7 +5462,7 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
             res,
             []
         );
-        
+
         if (resources.length > 1) {
             resourceFrag =
                 "<ul><li>" +
