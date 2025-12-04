@@ -17,29 +17,23 @@ import invenio_rdm_records.services.config as rdm_config
 from invenio_app_rdm.config import OAISERVER_METADATA_FORMATS
 from invenio_i18n import lazy_gettext as _
 from invenio_oauthclient.views.client import auto_redirect_login
-from invenio_rdm_records.config import RDM_SEARCH, RDM_FACETS
+from invenio_rdm_records.config import RDM_FACETS, RDM_SEARCH
 from invenio_vocabularies.services.facets import VocabularyLabels
 
 # Local imports
 from mex_invenio.custom_facets import RestrictedTermsFacet
 from mex_invenio.custom_fields import field_types
-from mex_invenio.custom_fields.custom_fields import (
-    RDM_NAMESPACES,
-    RDM_CUSTOM_FIELDS,
-    RDM_CUSTOM_FIELDS_UI,
-)
-from mex_invenio.custom_fields.field_types import get_field_types
-from mex_invenio.custom_fields.pref_labels import get_pref_labels
-from mex_invenio.custom_fields.ext_ids import get_ext_ids
 from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
-
+from mex_invenio.custom_fields.ext_ids import get_ext_ids
+from mex_invenio.custom_fields.field_types import get_field_types
+from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
-def _(x):  # needed to avoid start time failure with lazy strings
+def _(x):  # needed to avoid start time failure with lazy strings  # noqa: F811
     return x
 
 
@@ -437,9 +431,7 @@ UI_SETTINGS = {
                 "title": _("Related Projects"),
                 "icon": "relatedProjects.svg",
                 "properties": [
-                    {
-                        "field": "mex:wasGeneratedBy"
-                    },
+                    {"field": "mex:wasGeneratedBy"},
                 ],
             },
             "relatedResources": {
@@ -722,18 +714,22 @@ UI_SETTINGS = {
         },
     },
     "contact": {
-        "fields": [
-            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}
-        ]
+        "fields": [{"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}]
     },
     "organization": {
         "fields": [
-            {"field": "mex:geprisId", "prefixes": ["https://gepris.dfg.de/gepris/institution/"]},
+            {
+                "field": "mex:geprisId",
+                "prefixes": ["https://gepris.dfg.de/gepris/institution/"],
+            },
             {"field": "mex:gndId", "prefixes": ["https://d-nb.info/gnd/"]},
             {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
             {"field": "mex:rorId", "prefixes": ["https://ror.org/"]},
             {"field": "mex:viafId", "prefixes": ["https://viaf.org/viaf/"]},
-            {"field": "mex:wikidataId", "prefixes": ["http://www.wikidata.org/entity/"]}
+            {
+                "field": "mex:wikidataId",
+                "prefixes": ["http://www.wikidata.org/entity/"],
+            },
         ]
     },
     "person": {
@@ -741,7 +737,7 @@ UI_SETTINGS = {
             {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
             {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]},
         ]
-    }
+    },
 }
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [

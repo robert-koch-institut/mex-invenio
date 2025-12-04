@@ -25,19 +25,18 @@ import time
 import click
 from dictdiffer import diff
 from flask import current_app
+from invenio_db import db
+from invenio_pidstore.models import PersistentIdentifier
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
-from invenio_db import db
-from invenio_pidstore.models import PersistentIdentifier
 from sqlalchemy import text
 
 from mex_invenio.scripts.utils import (
+    get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
-    get_related_mex_ids,
 )
-
 
 # Configure logging
 logging.basicConfig(

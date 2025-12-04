@@ -3,9 +3,9 @@ import importlib
 import os
 from unittest.mock import patch
 
-from mex_invenio.scripts.s3_manager import manage_s3_files, get_latest_file
-
 from freezegun import freeze_time
+
+from mex_invenio.scripts.s3_manager import manage_s3_files
 
 
 @patch("mex_invenio.scripts.s3_manager.import_data")
@@ -86,7 +86,7 @@ def test_replace_file_but_fail_import(
 
     # Create the existing file in the S3_DOWNLOAD_FOLDER
     existing_file = "test_replace_file_but_fail_import1.json"
-    existing_file_path = create_file(
+    existing_file_path = create_file(  # noqa: F841
         f"{download_path}/{existing_file}",
         '{"identifier": "unique", "b":"a"}',
         absolute=True,
