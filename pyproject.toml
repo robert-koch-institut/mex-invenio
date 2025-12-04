@@ -2,9 +2,11 @@
 addopts = [
     "--verbose",
     "--cov",
+    "--no-cov-on-fail",
     "--cov-report=term-missing:skip-covered",
-    "--cov-fail-under=40",
+    "--cov-fail-under=65",
     "--cov-branch",
+    "--pdbcls=IPython.terminal.debugger:TerminalPdb",
 ]
 
 [tool.ruff]
