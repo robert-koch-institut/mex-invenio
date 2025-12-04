@@ -86,7 +86,7 @@ def test_replace_file_but_fail_import(
 
     # Create the existing file in the S3_DOWNLOAD_FOLDER
     existing_file = "test_replace_file_but_fail_import1.json"
-    existing_file_path = create_file(  # noqa: F841
+    existing_file_path = create_file(
         f"{download_path}/{existing_file}",
         '{"identifier": "unique", "b":"a"}',
         absolute=True,

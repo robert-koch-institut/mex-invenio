@@ -3,9 +3,7 @@
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
 
-from mex_invenio.records.api import MexRDMRecord
-from mex_invenio.services.search import MexDumper
-from tests.data import resource_data, person_data, org_unit_data
+from tests.data import org_unit_data, person_data, resource_data
 
 
 def get_record(records, identifier):
@@ -119,7 +117,7 @@ def test_display_data_contact_creator(
         assert "display_value" in contributor, "display_value not found in contributor"
         assert "link_id" in contributor, "link_id not found in contributor"
         assert "core" in contributor, "core not found in contributor"
-        assert contributor["core"] == False, "core is true, expected false"
+        assert contributor["core"] is False, "core is true, expected false"
 
         # Extract display values
         for display_val in contributor["display_value"]:

@@ -76,10 +76,9 @@ import { useTranslation } from 'react-i18next';
 
 export const Record = ({ mexId, title }) => {
   const { t, i18n } = useTranslation();
-  
+
   return (
       <h2>{t('Welcome to React')}</h2>
   );
 };
 ```
-

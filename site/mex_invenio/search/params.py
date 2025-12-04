@@ -1,5 +1,4 @@
 from invenio_records_resources.services.records.params import ParamInterpreter
-import json
 
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
@@ -14,9 +13,13 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         resource_type = params.get("resource_type")
         if resource_type:
             if isinstance(resource_type, list):
-                search = search.filter("terms", metadata__resource_type__id=resource_type)
+                search = search.filter(
+                    "terms", metadata__resource_type__id=resource_type
+                )
             else:
-                search = search.filter("term", metadata__resource_type__id=resource_type)
+                search = search.filter(
+                    "term", metadata__resource_type__id=resource_type
+                )
         # Uncomment this to get a view on the query in development
         # print("#####################################")
         # print(json.dumps(search.to_dict()))
@@ -29,7 +32,7 @@ class HighlightParamsInterpreter(ParamInterpreter):
         search = search.highlight(
             "custom_fields.mex:description.value",
             "custom_fields.mex:abstract.value",
-            "custom_fields.mex:title.value"
+            "custom_fields.mex:title.value",
         )
 
         # Uncomment this to get a view on the query in development

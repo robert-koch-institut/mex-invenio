@@ -3,7 +3,6 @@
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
 
-from mex_invenio.record.record import MexRecord
 from tests.conftest import created_regex, search_messages
 from tests.data import person_data
 

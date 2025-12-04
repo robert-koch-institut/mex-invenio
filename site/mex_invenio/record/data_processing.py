@@ -1,5 +1,5 @@
 from flask import current_app
-from typing import Any, List, Dict, TypedDict
+from typing import Any, List, TypedDict
 from typing_extensions import NotRequired
 
 
@@ -9,37 +9,50 @@ class NormalisedValue(TypedDict):
     email: NotRequired[str]
     core: NotRequired[str]
 
+
 def create_display_data_obj(value, language):
     return {"value": value, "language": language}
 
 
-def normalised_value(display_value: str = "", url: str = "", language: str = "en", email: str = "", core: str = ""
+def normalised_value(
+    display_value: str = "",
+    url: str = "",
+    language: str = "en",
+    email: str = "",
+    core: str = "",
 ) -> NormalisedValue:
     return {
         "url": url,
-        "display_data": create_display_data_obj(display_value if display_value else url, language),
+        "display_data": create_display_data_obj(
+            display_value if display_value else url, language
+        ),
         "email": email,
-        "core": core
+        "core": core,
     }
 
-def group_values(normalised_values: list) -> list[NormalisedValue] :
+
+def group_values(normalised_values: list) -> list[NormalisedValue]:
     grouped = {}
     for v in normalised_values:
-        url = v['url']
+        url = v["url"]
         if url not in grouped:
-            grouped[url] = {'display_data': [], 'email': None, 'core': None}
-        grouped[url]['display_data'].append(v['display_data'])
-        if grouped[url]['email'] is None:
-            grouped[url]['email'] = v.get('email')
-        if grouped[url]['core'] is None:
-            grouped[url]['core'] = v.get('core')
+            grouped[url] = {"display_data": [], "email": None, "core": None}
+        grouped[url]["display_data"].append(v["display_data"])
+        if grouped[url]["email"] is None:
+            grouped[url]["email"] = v.get("email")
+        if grouped[url]["core"] is None:
+            grouped[url]["core"] = v.get("core")
 
     return [
-        {'url': url,
-         'display_data': data['display_data'],
-         'email': data['email'],
-         'core': data['core']} for url, data in grouped.items()
+        {
+            "url": url,
+            "display_data": data["display_data"],
+            "email": data["email"],
+            "core": data["core"],
+        }
+        for url, data in grouped.items()
     ]
+
 
 def normalise_record_data(record: dict) -> dict:
     data = {}
@@ -54,7 +67,7 @@ def normalise_record_data(record: dict) -> dict:
             print("normalised value: ", normalised_value)
         if normalised_value:
             data.update({field: normalised_value})
-        
+
     if record["display_data"]:
         for field in record["display_data"]["linked_records"]:
             if field == "backwards_linked":
@@ -78,7 +91,7 @@ def normalise_record_data(record: dict) -> dict:
 
 def _normalise_value(field_name: str, field_raw_value: Any, resource_type: str) -> list:
     if field_name == "mex:minTypicalAge":
-            print("raw value: ", field_raw_value)
+        print("raw value: ", field_raw_value)
     if not field_raw_value or current_app.config.get("FIELD_TYPES") is None:
         return []
 
@@ -95,7 +108,7 @@ def _normalise_value(field_name: str, field_raw_value: Any, resource_type: str) 
     ftype = field_types.get(field_name)
 
     if field_name == "mex:minTypicalAge":
-            print("ftype: ", ftype)
+        print("ftype: ", ftype)
 
     # --- type handlers ---
     if field_name in current_app.config.get("EXT_IDS", {}):
@@ -140,7 +153,7 @@ def _normalise_linked_data(values: list) -> list[NormalisedValue]:
                 language=dv.get("language", ""),
                 url=url,
                 email=v.get("email", ""),
-                core=v.get("core", "")
+                core=v.get("core", ""),
             )
             normalised.append(nvalue)
     return group_values(normalised)

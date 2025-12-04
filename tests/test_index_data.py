@@ -5,9 +5,7 @@ from invenio_rdm_records.proxies import current_rdm_records
 from invenio_search import current_search_client
 from invenio_search.utils import build_alias_name
 
-from mex_invenio.records.api import MexRDMRecord
-from mex_invenio.services.search import MexDumper
-from tests.data import resource_data, person_data
+from tests.data import person_data, resource_data
 
 
 def test_index_data_creator_contributor(
