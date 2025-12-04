@@ -10,7 +10,7 @@ def test_import_org_unit(
     """Test that the CLI command imports the org unit data correctly"""
     service = current_rdm_records.records_service
 
-    _ = import_file("org-unit", org_unit_data)
+    messages = import_file("org-unit", org_unit_data)
 
     search_obj = service.search(system_identity)
     record = list(search_obj.hits)[0]

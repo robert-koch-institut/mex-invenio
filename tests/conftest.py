@@ -41,7 +41,7 @@ from mex_invenio.config import (
 from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
-from mex_invenio.fields.custom_fields import (
+from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
