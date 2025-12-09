@@ -8,6 +8,8 @@ const resources = {
     de: { translation: deTranslations },
 };
 
+console.log("i18n.js")
+
 const initializeI18n =() => {
     i18n
     .use(LanguageDetector)

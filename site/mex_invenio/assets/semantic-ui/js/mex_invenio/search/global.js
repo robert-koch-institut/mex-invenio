@@ -1,6 +1,6 @@
-if (!window.hasOwnProperty("edges")) {
-    edges = {};
-}
+import { edges } from "../search/edges.common"
+import { es } from "../search/edges.common"
+
 if (!edges.hasOwnProperty("instances")) {
     edges.instances = {};
 }
@@ -22,16 +22,16 @@ edges.instances.global.init = function () {
         openingQuery: openingQuery,
         components: [
             edges.mex.fullSearchController({
-                searchPlaceholder: edges.mex._("Search across all resource types..."),
+                searchPlaceholder: edges.$.t("Search across all resource types..."),
             }),
 
             edges.mex.typeSpecificJumpOff({
-                preamble: edges.mex._("Search on specific resource type: "),
+                preamble: edges.$.t("Search on specific resource type: "),
                 targets: {
-                    "/search/resources": edges.mex._("Data Sources & Datasets"),
-                    "/search/variables": edges.mex._("Variables"),
-                    "/search/activities": edges.mex._("Activities"),
-                    "/search/bibliographic-resources": edges.mex._("Publications")
+                    "/search/resources": edges.$.t("Data Sources & Datasets"),
+                    "/search/variables": edges.$.t("Variables"),
+                    "/search/activities": edges.$.t("Activities"),
+                    "/search/bibliographic-resources": edges.$.t("Publications")
                 }
             }),
 
@@ -39,8 +39,8 @@ edges.instances.global.init = function () {
             edges.mex.resultCount(),
             edges.mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.mex._("Created (newest first)"), order: "desc"},
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.mex._("Title"), order: "desc"}
+                    {field: edges.mex.constants.CREATED, display: edges.$.t("Created (newest first)"), order: "desc"},
+                    {field: edges.mex.constants.TITLE_KW, "display": edges.$.t("Title"), order: "desc"}
                 ]
             }),
             edges.mex.defaultPager(),

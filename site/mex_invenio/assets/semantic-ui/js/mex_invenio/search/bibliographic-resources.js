@@ -1,6 +1,6 @@
-if (!window.hasOwnProperty("edges")) {
-    edges = {};
-}
+import { edges } from "../search/edges.common"
+import { es } from "../search/edges.common"
+
 if (!edges.hasOwnProperty("instances")) {
     edges.instances = {};
 }
@@ -23,14 +23,14 @@ edges.instances.bibliographicResources.init = function () {
         components: [
             edges.mex.fullSearchController({
                 fieldOptions: [
-                    {field: edges.mex.constants.TITLE, "display": edges.mex._("Title")},
-                    {field: edges.mex.constants.ALT_TITLE, "display": edges.mex._("Alternative Title")},
-                    {field: edges.mex.constants.SUBTITLE, "display": edges.mex._("Involved Person")},
-                    {field: edges.mex.constants.ABSTRACT, "display": edges.mex._("Abstract")},
-                    {field: edges.mex.constants.CREATOR, "display": edges.mex._("Short Name")},
-                    {field: edges.mex.constants.KEYWORD, "display": edges.mex._("External Associate")}
+                    {field: edges.mex.constants.TITLE, "display": edges.$.t("Title")},
+                    {field: edges.mex.constants.ALT_TITLE, "display": edges.$.t("Alternative Title")},
+                    {field: edges.mex.constants.SUBTITLE, "display": edges.$.t("Involved Person")},
+                    {field: edges.mex.constants.ABSTRACT, "display": edges.$.t("Abstract")},
+                    {field: edges.mex.constants.CREATOR, "display": edges.$.t("Short Name")},
+                    {field: edges.mex.constants.KEYWORD, "display": edges.$.t("External Associate")}
                 ],
-                searchPlaceholder: edges.mex._("Search bibliographic resources..."),
+                searchPlaceholder: edges.$.t("Search bibliographic resources..."),
             }),
             edges.mex.selectedFilters(),
 
@@ -44,13 +44,13 @@ edges.instances.bibliographicResources.init = function () {
             edges.mex.resultCount(),
             edges.mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.mex._("Created (newest first)"), order: "desc"},
+                    {field: edges.mex.constants.CREATED, display: edges.$.t("Created (newest first)"), order: "desc"},
                     {
                         field: edges.mex.constants.PUBLICATION_YEAR,
-                        display: edges.mex._("Publication Year (newest first)"),
+                        display: edges.$.t("Publication Year (newest first)"),
                         order: "desc"
                     },
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.mex._("Title"), order: "desc"}
+                    {field: edges.mex.constants.TITLE_KW, "display": edges.$.t("Title"), order: "desc"}
                 ]
             }),
             edges.mex.defaultPager(),
