@@ -20,14 +20,14 @@ edges.instances.resources.init = function() {
         components: [
             edges.mex.fullSearchController({
                 fieldOptions: [
-                    {field: edges.mex.constants.TITLE, "display": edges.$.t("Title")},
-                    {field: edges.mex.constants.ALT_TITLE, "display": edges.$.t("Alternative Title")},
-                    {field: edges.mex.constants.CONTRIBUTORS, "display": edges.$.t("Contributor")},
-                    {field: edges.mex.constants.DESCRIPTION, "display": edges.$.t("Description")},
-                    {field: edges.mex.constants.EXTERNAL_PARTNERS, "display": edges.$.t("External Partner")},
-                    {field: edges.mex.constants.ICD10, "display": edges.$.t("ICD-10 Code")},
+                    {field: edges.mex.constants.TITLE, "display": edges.i18next.t("Title")},
+                    {field: edges.mex.constants.ALT_TITLE, "display": edges.i18next.t("Alternative Title")},
+                    {field: edges.mex.constants.CONTRIBUTORS, "display": edges.i18next.t("Contributor")},
+                    {field: edges.mex.constants.DESCRIPTION, "display": edges.i18next.t("Description")},
+                    {field: edges.mex.constants.EXTERNAL_PARTNERS, "display": edges.i18next.t("External Partner")},
+                    {field: edges.mex.constants.ICD10, "display": edges.i18next.t("ICD-10 Code")},
                 ],
-                searchPlaceholder: edges.$.t("Search resources..."),
+                searchPlaceholder: edges.i18next.t("Search resources..."),
                 label: "Search",
                 inlineLabel: true
             }),
@@ -45,8 +45,8 @@ edges.instances.resources.init = function() {
             edges.mex.resultCount(),
             edges.mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.$.t("Created (newest first)"), order: "desc"},
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.$.t("Title"), order: "desc"}
+                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
+                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
                 ]
             }),
             edges.mex.defaultPager(),

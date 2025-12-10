@@ -20,7 +20,7 @@
 {% block javascript %}
     {{ super() }}
     <!-- Adding i18next.js so it can be used by files import this -->
-    {{ webpack['i18next.js'] }}
+    <!-- {{ webpack['i18next.js'] }} -->
 
     {% set static="/static/js" %}
     {% set edges=static ~ "/edges" %}

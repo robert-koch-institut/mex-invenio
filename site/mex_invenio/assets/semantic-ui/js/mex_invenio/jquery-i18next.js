@@ -14,9 +14,8 @@ var defaults = {
   parseDefaultValueFromContent: true
 };
 
-function init(i18next, $) {
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
+export function init(i18next, $, options = {}) {
+  // var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   options = _extends({}, defaults, options);
 
@@ -108,16 +107,10 @@ function init(i18next, $) {
     });
   };
 
-  // $.t $.i18n shortcut
+  // i18next.t $.i18n shortcut
   $[options.tName] = i18next.t.bind(i18next);
   $[options.i18nName] = i18next;
 
   // selector function $(mySelector).localize(opts);
   $.fn[options.handleName] = handle;
 }
-
-var index = {
-  init: init
-};
-
-export default { init };

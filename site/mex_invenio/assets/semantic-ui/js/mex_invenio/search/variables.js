@@ -33,7 +33,7 @@ edges.instances.variables.init = function () {
         selector: "#resources-container",
         openingQuery: new es.Query({size: 10}),
         template: new edges.mex.templates.SingleColumnTemplate({
-            preamble: `<a class="link-button" href="/search/resources">${edges.$.t("Back to Data Sources &amp; Datasets Search")}</a>`,
+            preamble: `<a class="link-button" href="/search/resources">${edges.i18next.t("Back to Data Sources &amp; Datasets Search")}</a>`,
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -78,10 +78,10 @@ edges.instances.variables.init = function () {
 
             edges.mex.fullSearchController({
                 category: "column",
-                searchPlaceholder: edges.$.t("Find resources..."),
+                searchPlaceholder: edges.i18next.t("Find resources..."),
                 label: "Search Data Sources & Datasets by Title",
                 inlineLabel: false,
-                searchTitle: edges.$.t(" "),
+                searchTitle: edges.i18next.t(" "),
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: false,
                 searchButton : true,
@@ -92,7 +92,7 @@ edges.instances.variables.init = function () {
             //     id: "selected-filtered",
             //     category: "column",
             //     secondaryResults: "selected-filter",
-            //     title: edges.$.t(" "),
+            //     title: edges.i18next.t(" "),
             //     hideIfNoResults: true,
             //     onSelectToggle: function (params) {
             //         edges.instances.variables.propagateSelection();
@@ -101,7 +101,7 @@ edges.instances.variables.init = function () {
             edges.mex.resourceDisplayCompact({
                 id: "all-resources",
                 category: "column",
-                title: edges.$.t(" "),
+                title: edges.i18next.t(" "),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
@@ -173,7 +173,7 @@ edges.instances.variables.selectionLoaded = function() {
 
             edges.mex.fullSearchController({
                 category: "right-middle-top",
-                searchPlaceholder: edges.$.t("Find variables..."),
+                searchPlaceholder: edges.i18next.t("Find variables..."),
                 searchTitle: "Search Variable By Name",
             }),
             edges.mex.variablesDisplay(),

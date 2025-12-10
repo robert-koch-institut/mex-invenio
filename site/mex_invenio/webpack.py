@@ -10,9 +10,6 @@ edges_components = edges_src + "components/"
 # Define BASE search entries
 search_base = [
     "jquery",
-    "i18next",
-    f"{mex_js}i18n.js",
-    f"{mex_js}jquery-i18next.init.js",
     f"{edges_src}datasources/es7x.js",
     f"{edges_src}edges.js",
     f"{edges_components}RefiningANDTermSelector.js",
@@ -41,7 +38,6 @@ theme = WebpackThemeBundle(
         "semantic-ui": dict(
             entry={
                 "support-record": "./js/mex_invenio/SupportRecordContainer.js",
-                "i18next": "./js/mex_invenio/i18next.js",
                 "search": search_all,
             },
         ),

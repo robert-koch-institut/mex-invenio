@@ -22,16 +22,16 @@ edges.instances.global.init = function () {
         openingQuery: openingQuery,
         components: [
             edges.mex.fullSearchController({
-                searchPlaceholder: edges.$.t("Search across all resource types..."),
+                searchPlaceholder: edges.i18next.t("Search across all resource types..."),
             }),
 
             edges.mex.typeSpecificJumpOff({
-                preamble: edges.$.t("Search on specific resource type: "),
+                preamble: edges.i18next.t("Search on specific resource type: "),
                 targets: {
-                    "/search/resources": edges.$.t("Data Sources & Datasets"),
-                    "/search/variables": edges.$.t("Variables"),
-                    "/search/activities": edges.$.t("Activities"),
-                    "/search/bibliographic-resources": edges.$.t("Publications")
+                    "/search/resources": edges.i18next.t("Data Sources & Datasets"),
+                    "/search/variables": edges.i18next.t("Variables"),
+                    "/search/activities": edges.i18next.t("Activities"),
+                    "/search/bibliographic-resources": edges.i18next.t("Publications")
                 }
             }),
 
@@ -39,8 +39,8 @@ edges.instances.global.init = function () {
             edges.mex.resultCount(),
             edges.mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.$.t("Created (newest first)"), order: "desc"},
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.$.t("Title"), order: "desc"}
+                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
+                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
                 ]
             }),
             edges.mex.defaultPager(),

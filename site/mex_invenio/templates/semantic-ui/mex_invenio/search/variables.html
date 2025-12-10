@@ -14,7 +14,8 @@
   </div>
   {% endblock %}
 </div>
-{% endblock %} {% block javascript %} {{ super() }} {{ webpack['i18next.js'] }}
+{% endblock %} {% block javascript %} {{ super() }} 
+<!-- {{ webpack['i18next.js'] }} -->
 {% set static="/static/js" %} {% set edges=static ~ "/edges" %} {% set vendor =
 edges ~ "/vendor" %} {% set src=edges ~ "/src" %} {% set components=src ~
 "/components" %} {% set bs3=src ~"/renderers/bs3" %}

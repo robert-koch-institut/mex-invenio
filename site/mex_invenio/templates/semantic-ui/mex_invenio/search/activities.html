@@ -30,10 +30,11 @@
 
 {% block javascript %}
     {{ super() }}
-
+    <script>
+        window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
+    </script>
     {{ webpack['search.js'] }}
 
-    <!-- {{ webpack['i18next.js'] }} -->
 <!-- 
     {% set static="/static/js" %}
     {% set edges=static ~ "/edges" %}

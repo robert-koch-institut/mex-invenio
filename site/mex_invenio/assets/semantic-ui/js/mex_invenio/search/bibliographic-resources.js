@@ -23,14 +23,14 @@ edges.instances.bibliographicResources.init = function () {
         components: [
             edges.mex.fullSearchController({
                 fieldOptions: [
-                    {field: edges.mex.constants.TITLE, "display": edges.$.t("Title")},
-                    {field: edges.mex.constants.ALT_TITLE, "display": edges.$.t("Alternative Title")},
-                    {field: edges.mex.constants.SUBTITLE, "display": edges.$.t("Involved Person")},
-                    {field: edges.mex.constants.ABSTRACT, "display": edges.$.t("Abstract")},
-                    {field: edges.mex.constants.CREATOR, "display": edges.$.t("Short Name")},
-                    {field: edges.mex.constants.KEYWORD, "display": edges.$.t("External Associate")}
+                    {field: edges.mex.constants.TITLE, "display": edges.i18next.t("Title")},
+                    {field: edges.mex.constants.ALT_TITLE, "display": edges.i18next.t("Alternative Title")},
+                    {field: edges.mex.constants.SUBTITLE, "display": edges.i18next.t("Involved Person")},
+                    {field: edges.mex.constants.ABSTRACT, "display": edges.i18next.t("Abstract")},
+                    {field: edges.mex.constants.CREATOR, "display": edges.i18next.t("Short Name")},
+                    {field: edges.mex.constants.KEYWORD, "display": edges.i18next.t("External Associate")}
                 ],
-                searchPlaceholder: edges.$.t("Search bibliographic resources..."),
+                searchPlaceholder: edges.i18next.t("Search bibliographic resources..."),
             }),
             edges.mex.selectedFilters(),
 
@@ -44,13 +44,13 @@ edges.instances.bibliographicResources.init = function () {
             edges.mex.resultCount(),
             edges.mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.$.t("Created (newest first)"), order: "desc"},
+                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
                     {
                         field: edges.mex.constants.PUBLICATION_YEAR,
-                        display: edges.$.t("Publication Year (newest first)"),
+                        display: edges.i18next.t("Publication Year (newest first)"),
                         order: "desc"
                     },
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.$.t("Title"), order: "desc"}
+                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
                 ]
             }),
             edges.mex.defaultPager(),

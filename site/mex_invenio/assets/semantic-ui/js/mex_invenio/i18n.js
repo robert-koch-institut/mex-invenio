@@ -1,3 +1,4 @@
+/* global $ */
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -7,8 +8,6 @@ import deTranslations from "./locales/de/translations.json";
 const resources = {
     de: { translation: deTranslations },
 };
-
-console.log("i18n.js")
 
 const initializeI18n =() => {
     i18n
@@ -31,9 +30,6 @@ const initializeI18n =() => {
 });
 };
 
-const intervalId = setInterval(() => {
-    if (window.APP_CONFIG && window.APP_CONFIG["current_lang"]) {
-        clearInterval(intervalId);
-        initializeI18n()
-    }
-}, 100);
+initializeI18n();
+
+export default i18n;

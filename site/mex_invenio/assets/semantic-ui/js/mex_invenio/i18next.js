@@ -1,7 +1,7 @@
-import { i18next } from "@translations/invenio_app_rdm/i18next";
+/* global $, i18n */
 
 // Expose i18next globally for vanilla JavaScript
-window.i18next = i18next;
+window.i18next = i18n;
 
 // Optional helper functions for easier DOM translations
 window.translateById = (id, key, options = {}) => {

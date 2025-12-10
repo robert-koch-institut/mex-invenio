@@ -1,14 +1,17 @@
-/* global $, jQuery */
+/* global $ */
+import i18n from "./../i18n"
 
 // Ensure global edges exists (library must already have created window.edges or this creates it)
 
 window.edges = window.edges || {};
 var edges = window.edges;
 
+edges.instances = edges.instances || {};
+edges.active = edges.active || {};
+edges.es = edges.es || {};
+
 window.es = window.es || {};
 var es = window.es;
-
-if (!edges.hasOwnProperty("es")) { edges.es = {}}
 
 // Ensure mex namespace lives under edges, not as a random global
 edges.mex = edges.mex || {};
@@ -154,11 +157,11 @@ mex._keymode = false;
 //         mex._register.push(key);
 //     }
 //     // FIXME: embedding this here probably doesn't help with extracting the translation keys,
-//     // need to replace calls to mex._ with i18next.t directly in the source code
+//     // need to replace calls to mex._ with i18n.t directly in the source code
 //     // but want to see how key extraction works first
-//     return i18next.t(key);
+//     return i18n.t(key);
 //     // if (mex._keymode === false) {
-//     //     return i18next.t(key);
+//     //     return i18n.t(key);
 //     //     if (key in mex.babel) {
 //     //         return mex.babel[key];
 //     //     }
@@ -277,7 +280,7 @@ mex.extractMultiDate = function(path, res, def) {
     let out = def;
     let dates = edges.util.pathValue(path, res, []);
     if (dates.length > 0) {
-        out = dates.map((d) => { return d.date }).join($.t(" or "));
+        out = dates.map((d) => { return d.date }).join(i18n.t(" or "));
         if (dates.length > 1) {
             out = `(${out})`;
         }
@@ -327,7 +330,7 @@ mex.dateHistogram = function (params) {
             return values;
         },
         renderer: new mex.renderers.DateHistogramSelector({
-            title: params.title || $.t("Date Histogram"),
+            title: params.title || i18n.t("Date Histogram"),
             open: true,
             togglable: false,
             useCheckboxes: params.useCheckboxes ?? false,
@@ -348,12 +351,12 @@ mex.fullSearchController = function (params) {
         renderer: new mex.renderers.SidebarSearchController({
             searchButton: params.searchButton ?? true,
             clearButton: params.clearButton ?? false,
-            searchPlaceholder: params.searchPlaceholder || $.t("Search..."),
-            searchButtonText: params.searchButtonText || $.t("Search"),
+            searchPlaceholder: params.searchPlaceholder || i18n.t("Search..."),
+            searchButtonText: params.searchButtonText || i18n.t("Search"),
             freetextSubmitDelay: params.freetextSubmitDelay || -1,
-            searchTitle: params.searchTitle || $.t("Search"),
+            searchTitle: params.searchTitle || i18n.t("Search"),
             compactDesign : params.compactDesign ?? false,
-            label: params.label ?? $.t("Search"),
+            label: params.label ?? i18n.t("Search"),
             inlineLabel: params.inlineLabel || false
         }),
     });
@@ -388,8 +391,8 @@ mex.pagerSelector = function (params) {
         category: params.category || "middle",
         renderer: new mex.renderers.Pager({
             showSizeSelector: true,
-            sizePrefix: $.t("Show"),
-            sizeSuffix: $.t("results per page"),
+            sizePrefix: i18n.t("Show"),
+            sizeSuffix: i18n.t("results per page"),
             showPageNavigation: params.showPageNavigation ?? false,
             showRecordCount: true,
             customClassForSizeSelector: "page-size-selector",
@@ -414,7 +417,7 @@ mex.recordSelector = function (params) {
     id: params.id || "selector",
     category: params.category || "right",
     renderer: new mex.renderers.SelectedRecords({
-      title: $.t("Datasets for Variables Search"),
+      title: i18n.t("Datasets for Variables Search"),
     }),
   });
 };
@@ -431,7 +434,7 @@ mex.recordSelectorCompact = function (params) {
         preSeedLoadedCallback: params.preSeedLoadedCallback || false,
         renderer: new mex.renderers.CompactSelectedRecords({
             showIfEmpty: false,
-            title: $.t("Selected Data Sources & Datasets"),
+            title: i18n.t("Selected Data Sources & Datasets"),
             onSelectToggle: params.onSelectToggle || false,
             resourceComponentIds: params.resourceComponentIds || ["results"],
         }),
@@ -443,7 +446,7 @@ mex.typeSpecificJumpOff = function(params) {
     return new mex.components.TypeSpecificJumpOff({
         id: params.id || "jump-off",
         category: params.category || "full",
-        preamble: params.preamble || $.t("Search on specific resource type: "),
+        preamble: params.preamble || i18n.t("Search on specific resource type: "),
         targets: params.targets || { },
     });
 }
@@ -492,7 +495,7 @@ mex.resourceDisplay = function (params) {
         id: params.id || "results",
         category: params.category || "middle",
         renderer: new mex.renderers.ResourcesResults({
-            noResultsText: params.noResultsText || $.t("No resources found."),
+            noResultsText: params.noResultsText || i18n.t("No resources found."),
             onSelectToggle: params.onSelectToggle || false,
         }),
     });
@@ -507,8 +510,8 @@ mex.resourceDisplayCompact = function (params) {
         category: params.category || "middle",
         secondaryResults: params.secondaryResults || false,
         renderer: new mex.renderers.CompactResourcesResults({
-            title: params.title || $.t("Resources"),
-            noResultsText: params.noResultsText || $.t("No resources that match your search were found."),
+            title: params.title || i18n.t("Resources"),
+            noResultsText: params.noResultsText || i18n.t("No resources that match your search were found."),
             onSelectToggle: params.onSelectToggle || false,
             hideIfNoResults: params.hideIfNoResults || false,
         }),
@@ -534,7 +537,7 @@ mex.activitiesDisplay = function (params) {
         category: params.category || "middle",
         renderer: new mex.renderers.ActivitiesResults({
             // noResultsText:
-            //     params.noResultsText || $.t("No activities found."),
+            //     params.noResultsText || i18n.t("No activities found."),
         }),
     });
 };
@@ -556,7 +559,7 @@ mex.bibliographicResourcesDisplay = function (params) {
         renderer: new mex.renderers.BibliographicResourcesResults({
             noResultsText:
                 params.noResultsText ||
-                $.t("No bibliographic resources found."),
+                i18n.t("No bibliographic resources found."),
         }),
     });
 };
@@ -576,7 +579,7 @@ mex.variablesDisplay = function (params) {
         id: params.id || "variables-results",
         category: params.category || "column",
         renderer: new mex.renderers.VariablesResults({
-            noResultsText: params.noResultsText || $.t("No variables found."),
+            noResultsText: params.noResultsText || i18n.t("No variables found."),
         }),
     });
 };
@@ -593,7 +596,7 @@ mex.globalDisplay = function (params) {
         category: params.category || "middle",
         renderer: new mex.renderers.GlobalResults({
             noResultsText:
-                params.noResultsText || $.t("No results found."),
+                params.noResultsText || i18n.t("No results found."),
         }),
     });
 };
@@ -604,7 +607,7 @@ mex.accessRestrictionFacet = function () {
     return mex.refiningAndFacet({
         id: "access_restriction",
         field: mex.constants.ACCESS_RESTRICTION_KW,
-        title: $.t("Access Restriction"),
+        title: i18n.t("Access Restriction"),
         valueFunction: mex.vocabularyLookup,
         category: "left",
     });
@@ -614,7 +617,7 @@ mex.createdFacet = function () {
     return mex.dateHistogram({
         id: "created",
         field: mex.constants.CREATED_RANGE,
-        title: $.t("Created"),
+        title: i18n.t("Created"),
         category: "left",
         interval: "month",
         useCheckboxes: true,
@@ -626,7 +629,7 @@ mex.endFacet = function () {
     return mex.dateHistogram({
         id: "end",
         field: mex.constants.END_RANGE,
-        title: $.t("Activity End"),
+        title: i18n.t("Activity End"),
         category: "left",
         interval: "year",
         useCheckboxes: true,
@@ -638,7 +641,7 @@ mex.startFacet = function () {
     return mex.dateHistogram({
         id: "start",
         field: mex.constants.START_RANGE,
-        title: $.t("Activity Start"),
+        title: i18n.t("Activity Start"),
         category: "left",
         interval: "year",
         useCheckboxes: true,
@@ -650,7 +653,7 @@ mex.publicationYearFacet = function () {
     return mex.dateHistogram({
         id: "publication_year",
         field: mex.constants.PUBLICATION_YEAR_RANGE,
-        title: $.t("Publication Year"),
+        title: i18n.t("Publication Year"),
         category: "left",
         interval: "year",
         useCheckboxes: true,
@@ -662,7 +665,7 @@ mex.journalFacet = function () {
     return mex.refiningAndFacet({
         id: "journal",
         field: mex.constants.JOURNAL_KW,
-        title: $.t("Journal"),
+        title: i18n.t("Journal"),
         category: "left",
     });
 };
@@ -671,7 +674,7 @@ mex.keywordFacet = function () {
     return mex.refiningAndFacet({
         id: "keyword",
         field: mex.constants.KEYWORD_KW,
-        title: $.t("Keyword"),
+        title: i18n.t("Keyword"),
         size: 5,
         category: "left",
     });
@@ -681,7 +684,7 @@ mex.activityTypeFacet = function () {
     return mex.refiningAndFacet({
         id: "activity_type",
         field: mex.constants.ACTIVITY_TYPE_KW,
-        title: $.t("Activity Type"),
+        title: i18n.t("Activity Type"),
         category: "left",
         valueFunction: mex.vocabularyLookup,
     });
@@ -695,7 +698,7 @@ mex.funderOrCommissionerFacet = function () {
     return mex.refiningAndFacet({
         id: "funder_or_commissioner",
         field: field,
-        title: $.t("Funder or Commissioner"),
+        title: i18n.t("Funder or Commissioner"),
         category: "left",
     });
 };
@@ -704,7 +707,7 @@ mex.themeFacet = function () {
     return mex.refiningAndFacet({
         id: "theme",
         field: mex.constants.THEME_KW,
-        title: $.t("Theme"),
+        title: i18n.t("Theme"),
         category: "left",
         valueFunction: mex.vocabularyLookup,
     });
@@ -714,7 +717,7 @@ mex.hasPersonalDataFacet = function () {
     return mex.refiningAndFacet({
         id: "has_personal_data",
         field: mex.constants.PERSONAL_DATA_KW,
-        title: $.t("Has Personal Data"),
+        title: i18n.t("Has Personal Data"),
         category: "left",
         valueFunction: mex.vocabularyLookup,
     });
@@ -724,7 +727,7 @@ mex.resourceCreationMethodFacet = function () {
     return mex.refiningAndFacet({
         id: "resource_creation_method",
         field: mex.constants.CREATION_METHOD_KW,
-        title: $.t("Resource Creation Method"),
+        title: i18n.t("Resource Creation Method"),
         category: "left",
         valueFunction: mex.vocabularyLookup,
     });
@@ -770,19 +773,19 @@ mex.selectedFilters = function (params) {
         params = {};
     }
     let defaultFieldDisplays = {}
-    defaultFieldDisplays[mex.constants.ACCESS_RESTRICTION_KW] = $.t("Access Restriction")
-    defaultFieldDisplays[mex.constants.JOURNAL_KW] = $.t("Journal")
-    defaultFieldDisplays[mex.constants.KEYWORD_KW] = $.t("Keyword")
-    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = $.t("Activity Type")
-    defaultFieldDisplays[mex.constants.THEME_KW] = $.t("Theme")
-    defaultFieldDisplays[mex.constants.PERSONAL_DATA_KW] = $.t("Personal Data")
-    defaultFieldDisplays[mex.constants.CREATION_METHOD_KW] = $.t("Resource Creation Method")
-    defaultFieldDisplays[mex.constants.FUNDER_DE_KW] = $.t("Funder or Commissioner")
-    defaultFieldDisplays[mex.constants.FUNDER_EN_KW] = $.t("Funder or Commissioner")
-    defaultFieldDisplays[mex.constants.CREATED_RANGE] = $.t("Created")
-    defaultFieldDisplays[mex.constants.START_RANGE] = $.t("Activity Start")
-    defaultFieldDisplays[mex.constants.END_RANGE] = $.t("Activity End")
-    defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = $.t("tPublication Year")
+    defaultFieldDisplays[mex.constants.ACCESS_RESTRICTION_KW] = i18n.t("Access Restriction")
+    defaultFieldDisplays[mex.constants.JOURNAL_KW] = i18n.t("Journal")
+    defaultFieldDisplays[mex.constants.KEYWORD_KW] = i18n.t("Keyword")
+    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = i18n.t("Activity Type")
+    defaultFieldDisplays[mex.constants.THEME_KW] = i18n.t("Theme")
+    defaultFieldDisplays[mex.constants.PERSONAL_DATA_KW] = i18n.t("Personal Data")
+    defaultFieldDisplays[mex.constants.CREATION_METHOD_KW] = i18n.t("Resource Creation Method")
+    defaultFieldDisplays[mex.constants.FUNDER_DE_KW] = i18n.t("Funder or Commissioner")
+    defaultFieldDisplays[mex.constants.FUNDER_EN_KW] = i18n.t("Funder or Commissioner")
+    defaultFieldDisplays[mex.constants.CREATED_RANGE] = i18n.t("Created")
+    defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Activity Start")
+    defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("Activity End")
+    defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = i18n.t("tPublication Year")
 
     let defaultValueFunctions = {}
     defaultValueFunctions[mex.constants.ACCESS_RESTRICTION_KW] = mex.vocabularyLookup
@@ -792,8 +795,8 @@ mex.selectedFilters = function (params) {
     defaultValueFunctions[mex.constants.THEME_KW] = mex.vocabularyLookup
     defaultValueFunctions[mex.constants.PERSONAL_DATA_KW] = mex.vocabularyLookup
     defaultValueFunctions[mex.constants.CREATION_METHOD_KW] = mex.vocabularyLookup
-    // defaultValueFunctions[mex.constants.FUNDER_DE_KW] = $.t("Funder or Commissioner")
-    // defaultValueFunctions[mex.constants.FUNDER_EN_KW] = $.t("Funder or Commissioner")
+    // defaultValueFunctions[mex.constants.FUNDER_DE_KW] = i18n.t("Funder or Commissioner")
+    // defaultValueFunctions[mex.constants.FUNDER_EN_KW] = i18n.t("Funder or Commissioner")
 
     let defaultRangeFunctions = {}
     defaultRangeFunctions[mex.constants.CREATED_RANGE] = mex.displayYearMonthPeriod
@@ -1647,7 +1650,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <h4 class="title" style="margin:0px">${this.title}</h4>
                 <div>
-                    <p>${$.t(
+                    <p>${i18n.t(
                 "Select resources from the search results to save them here."
             )}</p>
                 </div>
@@ -1680,7 +1683,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             let title = mex.getLangVal(
                 mex.constants.TITLE_CONTAINER,
                 record,
-                $.t("No title")
+                i18n.t("No title")
             );
 
             let variableGroups = edges.util.pathValue(mex.constants.VARIABLE_GROUPS_DE, record, []);
@@ -1689,7 +1692,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${$.t("Variable Groups")}` : `${$.t("No Variable Groups")}`
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${i18n.t("No Variable Groups")}`
 
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
@@ -1697,7 +1700,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-            let vFrag = vCount ? `${vCount} ${$.t("Variables")}` : `${$.t("No Variables")}`
+            let vFrag = vCount ? `${vCount} ${i18n.t("Variables")}` : `${i18n.t("No Variables")}`
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1740,7 +1743,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
-                        ${$.t("Explore Variables for Chosen Datasets")}
+                        ${i18n.t("Explore Variables for Chosen Datasets")}
                     </a>
         `;
         }
@@ -1752,7 +1755,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         let verticalBar = document.getElementById("vertical-tab");
         if (verticalBar) {
             const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${$.t(
+            verticalBar.innerHTML = `<span> ${i18n.t(
                 "Variables Filter"
             )} ${length > 0 ? `(${length})` : ""} </span>`;
         }
@@ -1857,7 +1860,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         let expandAllCheckbox = `
                 <div class="checkbox" style="margin:1rem 0rem;">
                     <label>
-                        ${$.t("Expand all")}
+                        ${i18n.t("Expand all")}
                         <input type="checkbox" class="${expandAllClass}"/>
                     </label>
                 </div>`
@@ -1868,7 +1871,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 <div>
                 ${header}
                 <div>
-                    <p>${$.t(
+                    <p>${i18n.t(
                 `Search for resources here.  Selecting a resource will limit the variables displayed to
                         those associated with the selected resources.`
             )}</p>
@@ -1896,7 +1899,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             let title = mex.getLangVal(
                 mex.constants.TITLE_CONTAINER,
                 record,
-                $.t("No title")
+                i18n.t("No title")
             );
 
             let truncated = title;
@@ -1921,7 +1924,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button class="${variableToggleClass} ui button link-like">${$.t(
+                vgFrag = `<button class="${variableToggleClass} ui button link-like">${i18n.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
@@ -2132,7 +2135,7 @@ mex.renderers.RecordPreview = class extends edges.Renderer {
             return;
         }
 
-        let fieldsFrag = `<h2>${$.t("Preview")}</h2>`;
+        let fieldsFrag = `<h2>${i18n.t("Preview")}</h2>`;
         for (let fieldDef of this.component.fields) {
             let field = "custom_fields." + fieldDef.field;
             let display = fieldDef.name;
@@ -2223,7 +2226,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         this.searchPlaceholder = edges.util.getParam(
             params,
             "searchPlaceholder",
-            $.t("Search")
+            i18n.t("Search")
         );
 
         this.label = edges.util.getParam(
@@ -2293,7 +2296,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
                             <div class="field">
                                 <label for="${sortId} class="sr-only"> Sort by </label>
                                 <select class="ui fluid dropdown ${sortFieldClass}">
-                                    <option value="_score">${$.t("Relevance")}</option>
+                                    <option value="_score">${i18n.t("Relevance")}</option>
                                     ${sortOptions}
                                 </select>
                             </div>
@@ -2323,7 +2326,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             field_select += `<div class="field">
                                 <label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
-                                    <option value="*">${$.t("all fields")}</option>
+                                    <option value="*">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
                                 </select>
                                 </div>`;
@@ -2340,10 +2343,10 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let clearFrag = "";
         if (this.clearButton) {
             clearFrag = `<div class="field">
-                            <button type="button" class="ui button ${resetClass} black basic" title="${$.t(
+                            <button type="button" class="ui button ${resetClass} black basic" title="${i18n.t(
                                 "Clear all search and sort parameters and start again"
                             )}">
-                                ${$.t("Clear")}
+                                ${i18n.t("Clear")}
                             </button>
                         </div>`;
         }
@@ -2556,16 +2559,16 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         );
         let el = this.component.jq(directionSelector);
         if (this.component.sortDir === "asc") {
-            el.html(`<i class="icon sort up"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort up"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order ascending. Click to change to descending")
+                i18n.t("Current order ascending. Click to change to descending")
             );
         } else {
-            el.html(`<i class="icon sort down"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort down"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order descending. Click to change to ascending")
+                i18n.t("Current order descending. Click to change to ascending")
             );
         }
     }
@@ -2675,9 +2678,9 @@ mex.renderers.Sorter = class extends edges.Renderer {
 
             sortFrag = `<div class="form">
                 <div class="field">
-                    ${$.t("Sort by")}
+                    ${i18n.t("Sort by")}
                     <select class="ui dropdown ${sortFieldClass}">
-                        <option value="_score">${$.t("Relevance")}</option>
+                        <option value="_score">${i18n.t("Relevance")}</option>
                         ${sortOptions}
                     </select>
                 </div>
@@ -2736,16 +2739,16 @@ mex.renderers.Sorter = class extends edges.Renderer {
         );
         let el = this.component.jq(directionSelector);
         if (this.component.sortDir === "asc") {
-            el.html(`<i class="icon sort up"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort up"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order ascending. Click to change to descending")
+                i18n.t("Current order ascending. Click to change to descending")
             );
         } else {
-            el.html(`<i class="icon sort down"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort down"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order descending. Click to change to ascending")
+                i18n.t("Current order descending. Click to change to ascending")
             );
         }
     }
@@ -2811,9 +2814,9 @@ mex.renderers.Sorter = class extends edges.Renderer {
 
             sortFrag = `<div class="form">
                 <div class="field">
-                    ${$.t("Sort by")}
+                    ${i18n.t("Sort by")}
                     <select class="ui dropdown ${sortFieldClass}">
-                        <option value="_score">${$.t("Relevance")}</option>
+                        <option value="_score">${i18n.t("Relevance")}</option>
                         ${sortOptions}
                     </select>
                 </div>
@@ -2872,16 +2875,16 @@ mex.renderers.Sorter = class extends edges.Renderer {
         );
         let el = this.component.jq(directionSelector);
         if (this.component.sortDir === "asc") {
-            el.html(`<i class="icon sort up"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort up"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order ascending. Click to change to descending")
+                i18n.t("Current order ascending. Click to change to descending")
             );
         } else {
-            el.html(`<i class="icon sort down"></i> ${$.t("sort by")}`);
+            el.html(`<i class="icon sort down"></i> ${i18n.t("sort by")}`);
             el.attr(
                 "title",
-                $.t("Current order descending. Click to change to ascending")
+                i18n.t("Current order descending. Click to change to ascending")
             );
         }
     }
@@ -2920,7 +2923,7 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         ///////////////////////////////////////
         // parameters that can be passed in
 
-        this.title = edges.util.getParam(params, "title", $.t("Select"));
+        this.title = edges.util.getParam(params, "title", i18n.t("Select"));
 
         // whether to hide or just disable the facet if not active
         this.hideInactive = edges.util.getParam(params, "hideInactive", false);
@@ -3037,7 +3040,7 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
             return;
         }
 
-        let results = showFacet ? "" : $.t("No data available");
+        let results = showFacet ? "" : i18n.t("No data available");
         let filterTerms = ts.filters.map((f) => f.term.toString());
 
         if (showFacet) {
@@ -3315,9 +3318,9 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
 
     changeSize(element) {
         let newSize = prompt(
-            `${$.t("Currently displaying")} ${
+            `${i18n.t("Currently displaying")} ${
                 this.component.size
-            } ${$.t("results per page. How many would you like instead?")}`
+            } ${i18n.t("results per page. How many would you like instead?")}`
         );
         if (newSize) {
             this.component.changeSize(parseInt(newSize));
@@ -3402,7 +3405,7 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
         );
         tt = `<span id="${tooltipSpan}">${
             this.tooltip
-        } <a id="${tooltipLinkId}" class="${tooltipLinkClass}" href="#">${$.t(
+        } <a id="${tooltipLinkId}" class="${tooltipLinkClass}" href="#">${i18n.t(
             "less"
         )}</a></span>`;
         return tt;
@@ -3431,7 +3434,7 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
         this.title = edges.util.getParam(
             params,
             "title",
-            $.t("Select Date Range")
+            i18n.t("Select Date Range")
         );
 
         // a short tooltip and a fuller explanation
@@ -3488,9 +3491,9 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
         let toggleId = edges.util.htmlID(namespace, "toggle", this);
         let resultsId = edges.util.htmlID(namespace, "results", this);
 
-        let results = $.t("Loading...");
+        let results = i18n.t("Loading...");
         if (ts.values !== false) {
-            results = $.t("No data available");
+            results = i18n.t("No data available");
         }
 
         if (ts.values && ts.values.length > 0) {
@@ -3562,7 +3565,7 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 results += `<div class="${showClass}" id="${showId}">
                     <a href="#" id="${slToggleId}">
                         <span class="all">show all</span>
-                        <span class="less" style="display:none">${$.t(
+                        <span class="less" style="display:none">${i18n.t(
                     "show less"
                 )}</span>
                     </a>
@@ -3818,7 +3821,7 @@ mex.renderers.Pager = class extends edges.Renderer {
         this.sizeSuffix = edges.util.getParam(
             params,
             "sizeSuffix",
-            $.t(" per page")
+            i18n.t(" per page")
         );
 
         this.showRecordCount = edges.util.getParam(params, "showRecordCount", true);
@@ -3872,7 +3875,7 @@ mex.renderers.Pager = class extends edges.Renderer {
             recordCount = `
                 <div class="result-counter">
                     <div class="value ${totalClass}"> ${total} </div>
-                    <div class="label">${$.t("results")}</div>
+                    <div class="label">${i18n.t("results")}</div>
                 </div>
             `;
         }
@@ -3923,33 +3926,33 @@ mex.renderers.Pager = class extends edges.Renderer {
 
         let nav = "";
         if (this.showPageNavigation) {
-            let first = `<a href="#" class="${firstClass} cursor-pointer">${$.t(
+            let first = `<a href="#" class="${firstClass} cursor-pointer">${i18n.t(
                 "First"
             )}</a>`;
-            let prev = `<a href="#" class="${prevClass} cursor-pointer">${$.t(
+            let prev = `<a href="#" class="${prevClass} cursor-pointer">${i18n.t(
                 "Prev"
             )}</a>`;
             if (this.component.page === 1) {
-                first = `<span class="${firstClass} disabled cursor-not-allowed">${$.t(
+                first = `<span class="${firstClass} disabled cursor-not-allowed">${i18n.t(
                     "First"
                 )}</span>`;
-                prev = `<span class="${prevClass} disabled cursor-not-allowed">${$.t(
+                prev = `<span class="${prevClass} disabled cursor-not-allowed">${i18n.t(
                     "Prev"
                 )}</span>`;
             }
 
-            let next = `<a href="#" class="${nextClass} cursor-pointer">${$.t(
+            let next = `<a href="#" class="${nextClass} cursor-pointer">${i18n.t(
                 "Next"
             )}</a>`;
-            let last = `<a href="#" class="${lastClass} cursor-pointer">${$.t(
+            let last = `<a href="#" class="${lastClass} cursor-pointer">${i18n.t(
                 "Last"
             )}</a>`;
 
             if (this.component.page === this.component.totalPages) {
-                next = `<span class="${nextClass} disabled cursor-not-allowed">${$.t(
+                next = `<span class="${nextClass} disabled cursor-not-allowed">${i18n.t(
                     "Next"
                 )}</a>`;
-                last = `<span class="${lastClass} disabled cursor-not-allowed">${$.t(
+                last = `<span class="${lastClass} disabled cursor-not-allowed">${i18n.t(
                     "Last"
                 )}</a>`;
             }
@@ -3970,9 +3973,9 @@ mex.renderers.Pager = class extends edges.Renderer {
                             ${prev}
                         </div>
                         <div class="four wide column pagination-item" style="display: flex;justify-content: center;">
-                            <span class="${pageClass}">${$.t(
+                            <span class="${pageClass}">${i18n.t(
                 "Page"
-            )} ${pageNum} ${$.t("of")} ${totalPages}</span>
+            )} ${pageNum} ${i18n.t("of")} ${totalPages}</span>
                         </div>
                         <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
                             ${next}
@@ -4099,7 +4102,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         this.noResultsText = edges.util.getParam(
             params,
             "noResultsText",
-            $.t("No results to display")
+            i18n.t("No results to display")
         );
 
         // callback to trigger when resource is selected or unselected
@@ -4192,7 +4195,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
     _renderResult(res) {
         let title = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.TITLE_CONTAINER, res, $.t("No title"))
+            this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
         );
 
         let alt = this._getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
@@ -4248,7 +4251,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
             // currentImage = "/static/images/selected.svg";
-            // selectText = $.t("Remove");
+            // selectText = i18n.t("Remove");
         }
 
         let previewClass = edges.util.jsClasses(
@@ -4326,7 +4329,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
     constructor(params) {
         super(params);
 
-        this.title = edges.util.getParam(params, "title", $.t("Resources"));
+        this.title = edges.util.getParam(params, "title", i18n.t("Resources"));
 
         this.hideIfNoResults = edges.util.getParam(
             params,
@@ -4485,7 +4488,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let title = mex.getLangVal(
             mex.constants.TITLE_CONTAINER,
             record,
-            $.t("No title")
+            i18n.t("No title")
         );
 
         let truncated = title;
@@ -4521,7 +4524,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${$.t("Variable Groups")}
+            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
                             <span class="dir">▾</span></button>
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
@@ -4558,9 +4561,9 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
         const _setupAriaLabel = (title) => {
-            let ariaLabelVerb = selectState == "unselected" ? $.t("add") : $.t("remove");
+            let ariaLabelVerb = selectState == "unselected" ? i18n.t("add") : i18n.t("remove");
             let ariaLabelPreposition = selectState == "unselected" ? mex. _("to") : mex. _("from");
-            let ariaLabel = [ariaLabelVerb, $.t("record"), title, ariaLabelPreposition, $.t("variables filter")].join(`&nbsp;`);
+            let ariaLabel = [ariaLabelVerb, i18n.t("record"), title, ariaLabelPreposition, i18n.t("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
         
@@ -4576,7 +4579,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                             data-state="${selectState}"
                             title="${_("Select")}
                             aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${$.t(selectState)}"
+                            aria-selected="${i18n.t(selectState)}"
                             aria-live="polite"
                             ></button>
                         <span title="${title}">
@@ -4634,15 +4637,15 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         }
     }
 
-    let start = $.t("Unknown start date");
+    let start = i18n.t("Unknown start date");
     start = mex.extractMultiDate(mex.constants.START, res, start);
 
-    let end = $.t("Unknown end date");
+    let end = i18n.t("Unknown end date");
     end = mex.extractMultiDate(mex.constants.END, res, end);
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${$.t('ACTIVITY')}</div></div>`
+            return `<div class="tags"><div class="tag resource-type">${i18n.t('ACTIVITY')}</div></div>`
         }
         return "";
     }
@@ -4680,7 +4683,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
                 </span>
 
                 <span class="${start && end ? "" : "hide"}">
-                    ${$.t("to")}
+                    ${i18n.t("to")}
                 </span>
 
                 <span class="${end ? "" : "hide"}">
@@ -4741,7 +4744,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${$.t('PUBLICATION')}</div></div>`
+            return `<div class="tags"><div class="tag resource-type">${i18n.t('PUBLICATION')}</div></div>`
         }
         return "";
     }
@@ -4792,7 +4795,7 @@ mex.renderers.ActivitiesResults = class extends edges.Renderer {
         // parameters that can be passed in
 
         // what to display when there are no results
-        this.noResultsText = edges.util.getParam(params, "noResultsText", $.t("No results to display"));
+        this.noResultsText = edges.util.getParam(params, "noResultsText", i18n.t("No results to display"));
 
         this.namespace = "mex-activities-results";
     }
@@ -4859,7 +4862,7 @@ mex.renderers.BibliographicResourcesResults = class extends edges.Renderer {
         this.noResultsText = edges.util.getParam(
             params,
             "noResultsText",
-            $.t("No results to display")
+            i18n.t("No results to display")
         );
 
         this.namespace = "mex-bibliographic-resources-results";
@@ -4927,7 +4930,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         this.noResultsText = edges.util.getParam(
             params,
             "noResultsText",
-            $.t("No results to display")
+            i18n.t("No results to display")
         );
 
         this.namespace = "mex-variables-results";
@@ -4962,7 +4965,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let expandAllCheckbox = `
                 <div class="checkbox" style="float:right;">
                     <label>
-                        ${$.t("Expand all")}
+                        ${i18n.t("Expand all")}
                         <input type="checkbox" class="${expandAllClass}"/>
                     </label>
                 </div>
@@ -4978,10 +4981,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
           <thead>
             <tr>
                 <th></th>
-                <th>${$.t("Variables")}</th>
-                <th>${$.t("Data Source")}</th>
-                <th>${$.t("Variable Group")}</th>
-                <th>${$.t("Data Type")}</th>
+                <th>${i18n.t("Variables")}</th>
+                <th>${i18n.t("Data Source")}</th>
+                <th>${i18n.t("Variable Group")}</th>
+                <th>${i18n.t("Data Type")}</th>
             </tr>
           </thead>
           <tbody>
@@ -5074,7 +5077,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                $.t("Unknown")
+                i18n.t("Unknown")
             )
         );
 
@@ -5134,12 +5137,12 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let detailFrag = $.t("No additional details");
+        let detailFrag = i18n.t("No additional details");
         if (desc || codingFrag) {
             let descFrag = `<p class="details-desc">${desc}</p>`;
             if (codingFrag) {
                 codingFrag = `<div class="coding-system">
-                      <div class="coding-title"><strong>${$.t(
+                      <div class="coding-title"><strong>${i18n.t(
                     "Coding System"
                 )}</strong></div>
                       ${codingFrag}
@@ -5149,16 +5152,16 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
   <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
     <h4 style="margin-top:0; font-weight:600;">${label}</h4>
     ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
-    <p><strong>${$.t("Data Source")}:</strong> ${
+    <p><strong>${i18n.t("Data Source")}:</strong> ${
                 resourceFrag || "-"
             }</p>
-    <p><strong>${$.t("Variable Group")}:</strong> ${
+    <p><strong>${i18n.t("Variable Group")}:</strong> ${
                 groupFrag || "-"
             }</p>
-    <p><strong>${$.t("Data type")}:</strong> ${dataType}</p>
+    <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
     ${
                 codingFrag
-                    ? `<div class="coding-system" style="margin-top:0.5rem;"><strong>${$.t(
+                    ? `<div class="coding-system" style="margin-top:0.5rem;"><strong>${i18n.t(
                         "Coding System"
                     )}:</strong> ${codingFrag}</div>`
                     : ""
@@ -5324,7 +5327,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         this.noResultsText = edges.util.getParam(
             params,
             "noResultsText",
-            $.t("No results to display")
+            i18n.t("No results to display")
         );
 
         this.namespace = "mex-global-results";
@@ -5379,7 +5382,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
     _renderResource(res) {
         let title = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.TITLE_CONTAINER, res, $.t("No title"))
+            mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
         );
 
         let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
@@ -5438,7 +5441,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let frag = `
             <div class="card">
-                <div class="tags"><div class="tag resource-type">${$.t('DATA SOURCE OR DATASET')}</div></div>
+                <div class="tags"><div class="tag resource-type">${i18n.t('DATA SOURCE OR DATASET')}</div></div>
                 <h4 class="title">
                     <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
                 </div>
@@ -5503,7 +5506,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                $.t("Unknown")
+                i18n.t("Unknown")
             )
         );
 
@@ -5513,7 +5516,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let frag = `
             <div class="card">
-                <div class="tag">${$.t('VARIABLE')}</div>
+                <div class="tag">${i18n.t('VARIABLE')}</div>
                 <h4 class="title">
                     <a href="/records/${res.id}" target="_blank">${label ? label : res.id}</a>
                 </div>
