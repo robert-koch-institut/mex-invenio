@@ -934,7 +934,7 @@ edges.mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}" type="button" aria-label='{{_("Open selected datasets section")}}'></button>`;
         }
 
         let facetSidebar = "";
@@ -1478,7 +1478,7 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
             }
 
             for (var j = 0; j < def.values.length; j++) {
-                filters += `<span class="filters ${fieldClass}">`;
+                filters += `<div class="filters ${fieldClass}"><span>`;
                 if (this.showFilterField) {
                     filters += `<span class="${fieldNameClass}">${def.display}:&nbsp;</span>`;
                 }
@@ -1487,24 +1487,24 @@ edges.mex.renderers.SelectedFilters = class extends edges.Renderer {
                 if ($.inArray(field, this.hideValues) > -1) {
                     valDisplay = "";
                 }
-                filters += `<span class="${valClass}">${val.display}</span>`;
+                filters += `<span class="${valClass}">${val.display}</span></span>`;
 
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt='{{_("Remove")}}' title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                        filters += `<button class="${removeClass} img-button" aria-label='{{_("Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
+                                        <img src="/static/images/close.svg" class="img-button-icon" title="Remove"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt='{{_("Remove")}}' title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                        filters += `<button class="${removeClass} img-button" aria-label='{{_("Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
+                                        <img src="/static/images/close.svg" class="img-button-icon"  title="Remove"/>
                                     </button>`;
                     }
                 }
 
-                filters += "</span>";
+                filters += "</div>";
             }
         }
 

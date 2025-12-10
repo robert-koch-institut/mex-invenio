@@ -689,31 +689,16 @@ aside {
     }
   }
 
-  .img-button {
-    all: unset;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .close-icon {
-    width: 1.5rem;
-    height: 2rem;
-  }
-
-  .slide-icon {
-    width: 1rem;
-    height: 1.05rem;
-  }
-
   .filters {
     border: 1px solid #A5AAC3;
     border-radius: 1.5rem;
     padding: 0.30rem 0.65rem;
     background-color: @highlightColor;
 
+
     &.edges-mex-selected-filters_field{
+      display: inline-flex;
+      align-items: center;
       margin-right: 1.5rem;
     }
   }
