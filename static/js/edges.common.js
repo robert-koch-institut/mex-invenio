@@ -1689,10 +1689,10 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
             let vFrag = vCount ? `${vCount} ${edges.mex._("Variables")}` : `${edges.mex._("No Variables")}`
             recordsFrag += `
                 <div class="selected-list">
-                    <button class="img-button">
+                    <button class="img-button" aria-label='{{_("Remove selected dataset")}}'>
                       <img
                         data-id="${id}"
-                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='{{_("Slide right")}}' />
+                        class="${selectClass} controls close-icon" src="/static/images/close.svg" />
                     </button>
                     <div>
                         <div class="selected-list-item">
@@ -1713,8 +1713,8 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
         let frag = `
             <div class="card card-shadow">
                 <div id="control-section">
-                    <button class="img-button">
-                    <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt='{{_("Slide right")}}' />
+                    <button type="button" class="img-button" aria-label='{{_("Close selected dataset section")}}'>
+                        <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="" />
                     </button>
                 </div>
 
@@ -1722,7 +1722,7 @@ edges.mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
+                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1907,7 +1907,7 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button class="${variableToggleClass} ui button link-like">${edges.mex._(
+                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${edges.mex._(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
@@ -1934,10 +1934,10 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
             recordsFrag += `
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="img-button">
-                        <img
-                        data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt='{{_("Slide right")}}' width="24px" height="32px"/>
+                        <button class="img-button" type="button" aria-label='{{_("Remove")}}'>
+                            <img
+                            data-id="${id}"
+                            class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='' />
                         </button>
                             <span title="${title}">${truncated}</span>
                         </div>
@@ -1950,11 +1950,11 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
         let frag = "";
         if (recordsFrag) {
             frag = `
-                <div class="">
+                <div>
                     ${expandAllCheckbox}
                     ${header}
-                    <div class="" style="margin-top:1.625rem">
-                      <button class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
+                    <div style="margin-top:1.625rem">
+                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -3089,8 +3089,8 @@ edges.mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                     <div class="ui grid">
                         <div class="sixteen wide column">
                             <div class="ui buttons">
-                                <button type="button" class="ui button mini" id="${sizeId}" title="List Size" href="#">0</button>
-                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" href="#"></button>
+                                <button type="button" class="ui button mini" id="${sizeId}" title="List Size">0</button>
+                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" aria-label='{{_("List Order")}}'></button>
                             </div>
                         </div>
                     </div>
@@ -4503,7 +4503,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${edges.mex._("Variable Groups")}
+            vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${edges.mex._("Variable Groups")}
                             <span class="dir">▾</span></button>
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
@@ -4552,6 +4552,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
                 <div class="card">
                     <div class="selected-list-item">
                         <button class="${selectClass} ui icon button ${selectState}"
+                            type="button"
                             id="${buttonId}"
                             data-id="${record.id}"
                             data-state="${selectState}"
@@ -5160,9 +5161,9 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
                 <td class="${collapsedClass}">
-                    <button class="img-button ${collapsedClass}">
+                    <button type="button" aria-label='{{_("Expand")}}' class="img-button ${collapsedClass}">
                       <img
-                        class="controls" src="/static/images/expand.svg" alt='{{_("expand icon" )}}' />
+                        class="controls" src="/static/images/expand.svg" alt='' />
                     </button>
                 </td>
                 <td class="${collapsedClass}">${label}</td>
@@ -5173,9 +5174,9 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
-                    <button class="img-button ${expandedClass}">
+                    <button type="button" aria-label='{{_("Shrink")}}' class="img-button ${expandedClass}">
                       <img
-                        class="controls" src="/static/images/shrink.svg" alt='{{"shrink icon"}}' />
+                        class="controls" src="/static/images/shrink.svg" alt='' />
                     </button>
                 </td>
                 <td class="${expandedClass}"><strong>${label}</strong></td>
