@@ -1,59 +1,57 @@
-import { edges } from "../search/edges.common"
-import { es } from "../search/edges.common"
+/* global $ */
 
-if (!edges.hasOwnProperty("instances")) {
-    edges.instances = {};
-}
-if (!edges.hasOwnProperty("active")) {
-    edges.active = {};
-}
+import i18n from "./../i18n"
+import { edges, es, mex } from "../search/edges.common";
 
-edges.instances.global = {};
+edges.instances = edges.instances || {};
+edges.instances.global = edges.instances.global || {};
+edges.active = edges.active || {};
+
 edges.instances.global.init = function () {
-    const openingQuery = edges.mex.resolveOpeningQuery(
+    const openingQuery = mex.resolveOpeningQuery(
         new es.Query({
             size: 50,
-            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+            sort: [{field: mex.constants.CREATED, order: "desc"}]
         })
     );
 
-    edges.active["global"] = edges.mex.makeEdge({
+    edges.active["global"] = mex.makeEdge({
         resourceType: "global",
         openingQuery: openingQuery,
         components: [
-            edges.mex.fullSearchController({
-                searchPlaceholder: edges.i18next.t("Search across all resource types..."),
+            mex.fullSearchController({
+                searchPlaceholder: i18n.t("Search across all resource types..."),
             }),
 
-            edges.mex.typeSpecificJumpOff({
-                preamble: edges.i18next.t("Search on specific resource type: "),
+            mex.typeSpecificJumpOff({
+                preamble: i18n.t("Search on specific resource type: "),
                 targets: {
-                    "/search/resources": edges.i18next.t("Data Sources & Datasets"),
-                    "/search/variables": edges.i18next.t("Variables"),
-                    "/search/activities": edges.i18next.t("Activities"),
-                    "/search/bibliographic-resources": edges.i18next.t("Publications")
+                    "/search/resources": i18n.t("Data Sources & Datasets"),
+                    "/search/variables": i18n.t("Variables"),
+                    "/search/activities": i18n.t("Activities"),
+                    "/search/bibliographic-resources": i18n.t("Publications")
                 }
             }),
 
             // Stuff above the results
-            edges.mex.resultCount(),
-            edges.mex.sorter({
+            mex.resultCount(),
+            mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
+                    {field: mex.constants.CREATED, display: i18n.t("Created (newest first)"), order: "desc"},
+                    {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            edges.mex.defaultPager(),
+            mex.defaultPager(),
 
             //  The results
-            edges.mex.globalDisplay(),
+            mex.globalDisplay(),
 
             // Stuff below the results
-            edges.mex.bottomPager(),
+            mex.bottomPager(),
         ],
     });
 };
 
-jQuery(document).ready(function ($) {
+$(document).ready(function ($) {
     edges.instances.global.init();
 });

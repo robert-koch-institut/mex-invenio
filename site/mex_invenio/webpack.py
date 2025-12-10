@@ -24,10 +24,10 @@ search_base = [
 # SINGLE search bundle with ALL pages (recommended)
 search_all = search_base + [
     f"{search}activities.js",
-    # f"{search}bibliographic-resources.js",  # Fixed typo
-    # f"{search}global.js",
-    # f"{search}resources.js",
-    # f"{search}variables.js"
+    f"{search}bibliographic-resources.js",
+    f"{search}global.js",
+    f"{search}resources.js",
+    f"{search}variables.js"
 ]
 
 theme = WebpackThemeBundle(

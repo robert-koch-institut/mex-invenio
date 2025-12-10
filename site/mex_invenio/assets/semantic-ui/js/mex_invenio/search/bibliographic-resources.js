@@ -1,69 +1,67 @@
-import { edges } from "../search/edges.common"
-import { es } from "../search/edges.common"
+/* global $ */
 
-if (!edges.hasOwnProperty("instances")) {
-    edges.instances = {};
-}
-if (!edges.hasOwnProperty("active")) {
-    edges.active = {};
-}
+import i18n from "./../i18n"
+import { edges, es, mex } from "../search/edges.common";
 
-edges.instances.bibliographicResources = {};
+edges.instances = edges.instances || {};
+edges.instances.bibliographicResources = edges.instances.bibliographicResources || {};
+edges.active = edges.active || {};
+
 edges.instances.bibliographicResources.init = function () {
-    const openingQuery = edges.mex.resolveOpeningQuery(
+    const openingQuery = mex.resolveOpeningQuery(
         new es.Query({
             size: 50,
-            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+            sort: [{field: mex.constants.CREATED, order: "desc"}]
         })
     );
 
-    edges.active["bibliographic-resources"] = edges.mex.makeEdge({
+    edges.active["bibliographic-resources"] = mex.makeEdge({
         resourceType: "bibliographic-resources",
         openingQuery: openingQuery,
         components: [
-            edges.mex.fullSearchController({
+            mex.fullSearchController({
                 fieldOptions: [
-                    {field: edges.mex.constants.TITLE, "display": edges.i18next.t("Title")},
-                    {field: edges.mex.constants.ALT_TITLE, "display": edges.i18next.t("Alternative Title")},
-                    {field: edges.mex.constants.SUBTITLE, "display": edges.i18next.t("Involved Person")},
-                    {field: edges.mex.constants.ABSTRACT, "display": edges.i18next.t("Abstract")},
-                    {field: edges.mex.constants.CREATOR, "display": edges.i18next.t("Short Name")},
-                    {field: edges.mex.constants.KEYWORD, "display": edges.i18next.t("External Associate")}
+                    {field: mex.constants.TITLE, "display": i18n.t("Title")},
+                    {field: mex.constants.ALT_TITLE, "display": i18n.t("Alternative Title")},
+                    {field: mex.constants.SUBTITLE, "display": i18n.t("Involved Person")},
+                    {field: mex.constants.ABSTRACT, "display": i18n.t("Abstract")},
+                    {field: mex.constants.CREATOR, "display": i18n.t("Short Name")},
+                    {field: mex.constants.KEYWORD, "display": i18n.t("External Associate")}
                 ],
-                searchPlaceholder: edges.i18next.t("Search bibliographic resources..."),
+                searchPlaceholder: i18n.t("Search bibliographic resources..."),
             }),
-            edges.mex.selectedFilters(),
+            mex.selectedFilters(),
 
             // facets
-            edges.mex.accessRestrictionFacet(),
-            edges.mex.journalFacet(),
-            edges.mex.keywordFacet(),
-            edges.mex.publicationYearFacet(),
+            mex.accessRestrictionFacet(),
+            mex.journalFacet(),
+            mex.keywordFacet(),
+            mex.publicationYearFacet(),
 
             // Stuff above the results
-            edges.mex.resultCount(),
-            edges.mex.sorter({
+            mex.resultCount(),
+            mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
+                    {field: mex.constants.CREATED, display: i18n.t("Created (newest first)"), order: "desc"},
                     {
-                        field: edges.mex.constants.PUBLICATION_YEAR,
-                        display: edges.i18next.t("Publication Year (newest first)"),
+                        field: mex.constants.PUBLICATION_YEAR,
+                        display: i18n.t("Publication Year (newest first)"),
                         order: "desc"
                     },
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
+                    {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            edges.mex.defaultPager(),
+            mex.defaultPager(),
 
             //  The results
-            edges.mex.bibliographicResourcesDisplay(),
+            mex.bibliographicResourcesDisplay(),
 
             // Stuff below the results
-            edges.mex.bottomPager(),
+            mex.bottomPager(),
         ],
     });
 };
 
-jQuery(document).ready(function ($) {
+$(document).ready(function ($) {
     edges.instances.bibliographicResources.init();
 });

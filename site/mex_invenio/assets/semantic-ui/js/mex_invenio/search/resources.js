@@ -1,68 +1,70 @@
-import { edges } from "../search/edges.common"
-import { es } from "../search/edges.common"
+/* global $ */
 
-if (!edges.hasOwnProperty("instances")) { edges.instances = {}}
-if (!edges.hasOwnProperty("active")) { edges.active = {}}
+import i18n from "./../i18n"
+import { edges, es, mex } from "../search/edges.common";
 
-edges.instances.resources = {};
+edges.instances = edges.instances || {};
+edges.instances.resources = edges.instances.resources || {};
+edges.active = edges.active || {};
+
 edges.instances.resources.init = function() {
-    const openingQuery = edges.mex.resolveOpeningQuery(
+    const openingQuery = mex.resolveOpeningQuery(
         new es.Query({
             size: 50,
-            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+            sort: [{field: mex.constants.CREATED, order: "desc"}]
         })
     );
 
-    edges.active["resources"] = edges.mex.makeEdge({
+    edges.active["resources"] = mex.makeEdge({
         resourceType: "resources",
         includeVerticalTab: true,
         openingQuery: openingQuery,
         components: [
-            edges.mex.fullSearchController({
+            mex.fullSearchController({
                 fieldOptions: [
-                    {field: edges.mex.constants.TITLE, "display": edges.i18next.t("Title")},
-                    {field: edges.mex.constants.ALT_TITLE, "display": edges.i18next.t("Alternative Title")},
-                    {field: edges.mex.constants.CONTRIBUTORS, "display": edges.i18next.t("Contributor")},
-                    {field: edges.mex.constants.DESCRIPTION, "display": edges.i18next.t("Description")},
-                    {field: edges.mex.constants.EXTERNAL_PARTNERS, "display": edges.i18next.t("External Partner")},
-                    {field: edges.mex.constants.ICD10, "display": edges.i18next.t("ICD-10 Code")},
+                    {field: mex.constants.TITLE, "display": i18n.t("Title")},
+                    {field: mex.constants.ALT_TITLE, "display": i18n.t("Alternative Title")},
+                    {field: mex.constants.CONTRIBUTORS, "display": i18n.t("Contributor")},
+                    {field: mex.constants.DESCRIPTION, "display": i18n.t("Description")},
+                    {field: mex.constants.EXTERNAL_PARTNERS, "display": i18n.t("External Partner")},
+                    {field: mex.constants.ICD10, "display": i18n.t("ICD-10 Code")},
                 ],
-                searchPlaceholder: edges.i18next.t("Search resources..."),
+                searchPlaceholder: i18n.t("Search resources..."),
                 label: "Search",
                 inlineLabel: true
             }),
-            edges.mex.selectedFilters(),
+            mex.selectedFilters(),
 
             // facets
-            edges.mex.accessRestrictionFacet(),
-            edges.mex.createdFacet(),
-            edges.mex.hasPersonalDataFacet(),
-            edges.mex.keywordFacet(),
-            edges.mex.resourceCreationMethodFacet(),
-            edges.mex.themeFacet(),
+            mex.accessRestrictionFacet(),
+            mex.createdFacet(),
+            mex.hasPersonalDataFacet(),
+            mex.keywordFacet(),
+            mex.resourceCreationMethodFacet(),
+            mex.themeFacet(),
 
             // Stuff above the results
-            edges.mex.resultCount(),
-            edges.mex.sorter({
+            mex.resultCount(),
+            mex.sorter({
                 sortOptions: [
-                    {field: edges.mex.constants.CREATED, display: edges.i18next.t("Created (newest first)"), order: "desc"},
-                    {field: edges.mex.constants.TITLE_KW, "display": edges.i18next.t("Title"), order: "desc"}
+                    {field: mex.constants.CREATED, display: i18n.t("Created (newest first)"), order: "desc"},
+                    {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            edges.mex.defaultPager(),
+            mex.defaultPager(),
 
             // The results
-            edges.mex.resourceDisplay(),
+            mex.resourceDisplay(),
 
             // right side resource selector
-            edges.mex.resourceSelector(),
+            mex.resourceSelector(),
 
             // Stuff below the results
-            edges.mex.bottomPager(),
+            mex.bottomPager(),
         ]
     })
 }
 
-jQuery(document).ready(function($) {
+$(document).ready(function($) {
     edges.instances.resources.init();
 });

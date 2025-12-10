@@ -1,14 +1,12 @@
-import { edges } from "../search/edges.common"
-import { es } from "../search/edges.common"
+/* global $ */
 
-if (!edges.hasOwnProperty("instances")) {
-    edges.instances = {};
-}
-if (!edges.hasOwnProperty("active")) {
-    edges.active = {};
-}
+import i18n from "./../i18n"
+import { edges, es, mex } from "../search/edges.common";
 
-edges.instances.variables = {};
+edges.instances = edges.instances || {};
+edges.instances.variables = edges.instances.variables || {};
+edges.active = edges.active || {};
+
 edges.instances.variables.init = function () {
 
     // There are three main ways that the page needs to load for the variables search
@@ -29,11 +27,11 @@ edges.instances.variables.init = function () {
         window.history.replaceState("", "", url.toString());
     }
 
-    edges.active["variables-resources"] = edges.mex.makeEdge({
+    edges.active["variables-resources"] = mex.makeEdge({
         selector: "#resources-container",
         openingQuery: new es.Query({size: 10}),
-        template: new edges.mex.templates.SingleColumnTemplate({
-            preamble: `<a class="link-button" href="/search/resources">${edges.i18next.t("Back to Data Sources &amp; Datasets Search")}</a>`,
+        template: new mex.templates.SingleColumnTemplate({
+            preamble: `<a class="link-button" href="/search/resources">${i18n.t("Back to Data Sources &amp; Datasets Search")}</a>`,
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -51,7 +49,7 @@ edges.instances.variables.init = function () {
             }
         },
         components: [
-            edges.mex.recordSelectorCompact({
+            mex.recordSelectorCompact({
                 category: "column",
                 title : "All Data Sources & Datasets",
                 preSeed: preSeed,
@@ -62,52 +60,52 @@ edges.instances.variables.init = function () {
                 }
             }),
 
-            edges.mex.staticHeading ({
+            mex.staticHeading ({
                 id:"all-resources-heading",
                 category: "column",
                 staticTitle : "All Data Sources & Datasets",
                 fontStyle : "small"
             }),
 
-            // edges.mex.staticHeading ({
+            // mex.staticHeading ({
             //     id:"all-resources-search-heading",
             //     category: "column",
             //     staticTitle : "Search Data Sources & Datasets by Title",
             //     fontStyle : "small"
             // }),
 
-            edges.mex.fullSearchController({
+            mex.fullSearchController({
                 category: "column",
-                searchPlaceholder: edges.i18next.t("Find resources..."),
+                searchPlaceholder: i18n.t("Find resources..."),
                 label: "Search Data Sources & Datasets by Title",
                 inlineLabel: false,
-                searchTitle: edges.i18next.t(" "),
+                searchTitle: i18n.t(" "),
                 defaultField: "custom_fields.mex:title.value",
                 clearButton: false,
                 searchButton : true,
                 compactDesign : true,
             }),
 
-            // edges.mex.resourceDisplayCompact({
+            // mex.resourceDisplayCompact({
             //     id: "selected-filtered",
             //     category: "column",
             //     secondaryResults: "selected-filter",
-            //     title: edges.i18next.t(" "),
+            //     title: i18n.t(" "),
             //     hideIfNoResults: true,
             //     onSelectToggle: function (params) {
             //         edges.instances.variables.propagateSelection();
             //     }
             // }),
-            edges.mex.resourceDisplayCompact({
+            mex.resourceDisplayCompact({
                 id: "all-resources",
                 category: "column",
-                title: edges.i18next.t(" "),
+                title: i18n.t(" "),
                 onSelectToggle: function (params) {
                     edges.instances.variables.propagateSelection();
                 }
             }),
 
-            edges.mex.pagerSelector({
+            mex.pagerSelector({
                 category: "column",
                 id: "resource-pager",
                 showPageNavigation: true,
@@ -151,33 +149,33 @@ edges.instances.variables.selectionLoaded = function() {
     let selectedMexIds = edges.instances.variables.getSelectedMexIds();
 
     // get any query constraints from the URL
-    let openingQuery = edges.mex.resolveOpeningQuery(
+    let openingQuery = mex.resolveOpeningQuery(
         new es.Query({
             size: 50,
-            sort: [{field: edges.mex.constants.CREATED, order: "desc"}]
+            sort: [{field: mex.constants.CREATED, order: "desc"}]
         })
     );
 
     // update the query with the resources constraints
     openingQuery = edges.instances.variables.buildVariablesQuery(openingQuery, selectedMexIds);
 
-    edges.active["variables"] = edges.mex.makeEdge({
+    edges.active["variables"] = mex.makeEdge({
         selector: "#variables-container",
-        template: new edges.mex.templates.SingleColumnTemplate(),
+        template: new mex.templates.SingleColumnTemplate(),
         resourceType: "variables",
         openingQuery: openingQuery,
         components: [
-            edges.mex.resultCount({
+            mex.resultCount({
                 category: "left-middle-top",
             }),
 
-            edges.mex.fullSearchController({
+            mex.fullSearchController({
                 category: "right-middle-top",
-                searchPlaceholder: edges.i18next.t("Find variables..."),
+                searchPlaceholder: i18n.t("Find variables..."),
                 searchTitle: "Search Variable By Name",
             }),
-            edges.mex.variablesDisplay(),
-            edges.mex.pagerSelector({
+            mex.variablesDisplay(),
+            mex.pagerSelector({
                 category: "column",
                 showPageNavigation: true,
             }),
@@ -271,6 +269,6 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
     return query;
 }
 
-jQuery(document).ready(function ($) {
+$(document).ready(function ($) {
     edges.instances.variables.init();
 });

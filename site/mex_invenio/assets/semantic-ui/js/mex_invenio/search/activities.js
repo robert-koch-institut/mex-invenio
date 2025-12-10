@@ -4,8 +4,8 @@ import i18n from "./../i18n"
 import { edges, es, mex } from "../search/edges.common";
 
 edges.instances = edges.instances || {};
-
-edges.instances.activities = {};
+edges.instances.activities = edges.instances.activities || {};
+edges.active = edges.active || {};
 edges.instances.activities.init = function () {
     const openingQuery = mex.resolveOpeningQuery(
         new es.Query({

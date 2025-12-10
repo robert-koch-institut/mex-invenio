@@ -4562,7 +4562,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
         const _setupAriaLabel = (title) => {
             let ariaLabelVerb = selectState == "unselected" ? i18n.t("add") : i18n.t("remove");
-            let ariaLabelPreposition = selectState == "unselected" ? mex. _("to") : mex. _("from");
+            let ariaLabelPreposition = selectState == "unselected" ? i18n.t("to") : i18n.t("from");
             let ariaLabel = [ariaLabelVerb, i18n.t("record"), title, ariaLabelPreposition, i18n.t("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
