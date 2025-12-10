@@ -369,6 +369,10 @@ aside {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.625rem;
+
+  &.selected-list-item{
+    flex-direction: column;
+  }
 }
 
 .search_page {
@@ -769,14 +773,6 @@ aside {
   gap: 1rem;
   align-items: baseline;
   justify-content: flex-start;
-}
-
-.search-page-- {
-  #selector {
-    .selected-list-item {
-      flex-direction: column;
-    }
-  }
 }
 
 #variable-page {
