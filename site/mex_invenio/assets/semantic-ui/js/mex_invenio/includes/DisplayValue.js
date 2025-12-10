@@ -41,6 +41,7 @@ const DisplayValues = ({
           </div>
 
           <Button
+            type="button"
             className="link-like"
             onClick={() => setShowAll(!showAll)}
           >
