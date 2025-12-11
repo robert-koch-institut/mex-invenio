@@ -135,30 +135,26 @@ edges.mex.displayYearMonthPeriod = function (params) {
 }
 
 edges.mex._register = [];
-edges.mex._keymode = false;
+edges.mex._regmode = false;
+edges.mex._transmode = false;
 edges.mex._ = function (key) {
-    if (!edges.mex._register.includes(key)) {
+    if (edges.mex._regmode && !edges.mex._register.includes(key)) {
         edges.mex._register.push(key);
     }
-    // FIXME: embedding this here probably doesn't help with extracting the translation keys,
-    // need to replace calls to edges.mex._ with i18next.t directly in the source code
-    // but want to see how key extraction works first
-    return i18next.t(key);
-    // if (edges.mex._keymode === false) {
-    //     return i18next.t(key);
-    //     if (key in edges.mex.babel) {
-    //         return edges.mex.babel[key];
-    //     }
-    //     return key;
-    // } else {
-    //     let val = key;
-    //     if (key in edges.mex.babel) {
-    //         val = `*${val}*`;
-    //     } else {
-    //         val = `~~${val}~~`;
-    //     }
-    //     return val;
-    // }
+    if (edges.mex._transmode === false) {
+        if (key in edges.mex.babel) {
+            return edges.mex.babel[key];
+        }
+        return key;
+    } else {
+        let val = key;
+        if (key in edges.mex.babel) {
+            val = `*${val}*`;
+        } else {
+            val = `~~${val}~~`;
+        }
+        return val;
+    }
 };
 
 edges.mex._jinja_babel = function () {
@@ -166,6 +162,7 @@ edges.mex._jinja_babel = function () {
     for (let r in edges.mex._register) {
         temp += `"${edges.mex._register[r]}": "{{ _("${edges.mex._register[r]}") }}",\n`;
     }
+    return temp;
 };
 
 edges.mex.getLangVal = function (path, res, def) {
@@ -5462,7 +5459,8 @@ edges.mex.renderers.GlobalResults = class extends edges.Renderer {
             res,
             []
         );
-        
+
+        let resourceFrag = "";
         if (resources.length > 1) {
             resourceFrag =
                 "<ul><li>" +
