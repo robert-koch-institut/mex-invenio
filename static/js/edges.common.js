@@ -1882,6 +1882,19 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 edges.mex._("No title")
             );
 
+            let hits = this.component.edge.result.data.hits.hits;
+            for (let hit of hits) {
+                if (record.uuid === hit._id) {
+                    if (hit.highlight) {
+                        if (hit.highlight[edges.mex.constants.TITLE]) {
+                            title = hit.highlight[edges.mex.constants.TITLE][0];
+                            title = title.replace(/<em>/g, "<code>");
+                            title = title.replace(/<\/em>/g, "</code>");
+                        }
+                    }
+                }
+            }
+
             let truncated = title;
             if (truncated.length > 50) {
                 truncated = truncated.substring(0, 47) + "...";
