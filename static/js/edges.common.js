@@ -4956,37 +4956,38 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         `
 
         let sortClasses = edges.util.jsClasses(this.namespace, "sort-button", this.component.id)
+
+        function currentDir(field, short=true) {
+            let longs = {"asc": "ascending", "desc": "descending"};
+            for (let s of sort) {
+                if (s.field === field) {
+                    return short ? s.order : longs[s.order];
+                }
+            }
+            return short ? "" : "none";
+        }
+
         function sortButtonMacro(field) {
             function iconMacro() {
                 for (let s of sort) {
                     if (s.field === field) {
                         if (s.order === "asc") {
-                            return `&#9660;`;
-                        } else if (s.order === "desc") {
                             return `&#9650;`;
+                        } else if (s.order === "desc") {
+                            return `&#9660;`;
                         }
                     }
                 }
                 return `&#9651;&#9661`
             }
 
-            function currentDir() {
-                for (let s of sort) {
-                    if (s.field === field) {
-                        return s.order;
-                    }
-                }
-                return "";
-            }
-
-            let frag = `
+            return `
                 <button 
-                    class="${sortClasses}"
+                    class="img-button ${sortClasses}"
                     data-field="${field}"
-                    data-dir="${currentDir()}">
+                    data-dir="${currentDir(field)}">
                     ${iconMacro()}
                 </button>`;
-            return frag;
         }
 
         let langPrefix = edges.mex.state.lang;
@@ -4999,15 +5000,15 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
           <thead>
             <tr>
                 <th></th>
-                <th>
+                <th aria-sort="${currentDir(edges.mex.constants.LABEL_KW, false)}">
                     ${edges.mex._("Variables")}
                     ${sortButtonMacro(edges.mex.constants.LABEL_KW)}
                 </th>
-                <th>
+                <th aria-sort="${currentDir(rpath, false)}">
                     ${edges.mex._("Data Source")}
                     ${sortButtonMacro(rpath)}
                 </th>
-                <th>
+                <th aria-sort="${currentDir(edges.mex.constants.BELONGS_TO_LABEL_KW, false)}">
                     ${edges.mex._("Variable Group")}
                     ${sortButtonMacro(edges.mex.constants.BELONGS_TO_LABEL_KW)}
                 </th>
