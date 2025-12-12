@@ -23,9 +23,15 @@ edges.mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 edges.mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 edges.mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 edges.mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
+edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 
 edges.mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 edges.mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+// FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
+// isn't indexed to be used this way, so this will sort by whatever the first value is
+edges.mex.constants.LABEL_KW = "custom_fields.mex:label.value.keyword"
+edges.mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
+edges.mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
 edges.mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
@@ -54,7 +60,9 @@ edges.mex.constants.END = "custom_fields.mex:end.date"
 edges.mex.constants.PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
 edges.mex.constants.USED_IN_EN = "index_data.enUsedInResource"
 edges.mex.constants.USED_IN_DE = "index_data.deUsedInResource"
+edges.mex.constants.USED_IN_DISPLAY = "display_data.linked_records.mex:usedIn"
 edges.mex.constants.BELONGS_TO_LABEL = "index_data.belongsToLabel"
+edges.mex.constants.BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
 edges.mex.constants.DATA_TYPE = "custom_fields.mex:dataType"
 edges.mex.constants.CODING_SYSTEM = "custom_fields.mex:codingSystem"
 edges.mex.constants.TITLE = "custom_fields.mex:title.value"
@@ -168,22 +176,19 @@ edges.mex._jinja_babel = function () {
 edges.mex.getLangVal = function (path, res, def) {
     let preferred = "";
     let field = edges.util.pathValue(path, res, []);
-    for (let i = 0; i < field.length; i++) {
-        let lang = field[i].language;
-        if (lang === edges.mex.state.lang) {
-            return field[i].value;
-        }
-        if (lang === "en" && preferred === "") {
-            preferred = field[i].value;
-        }
-        if (lang === "de") {
-            preferred = field[i].value;
+    if (field.length === 0) {
+        return def;
+    }
+    let priority = [edges.mex.state.lang, "de", "en"];
+    for (let p of priority) {
+        for (let i = 0; i < field.length; i++) {
+            if (p === field[i].language) {
+                return field[i].value;
+            }
         }
     }
-    if (preferred !== "") {
-        return preferred;
-    }
-    return def;
+
+    return field[0].value;
 };
 
 edges.mex.getAllLangVals = function (path, res) {
@@ -1882,14 +1887,16 @@ edges.mex.renderers.CompactSelectedRecords = class extends edges.mex.renderers.S
                 edges.mex._("No title")
             );
 
-            let hits = this.component.edge.result.data.hits.hits;
-            for (let hit of hits) {
-                if (record.uuid === hit._id) {
-                    if (hit.highlight) {
-                        if (hit.highlight[edges.mex.constants.TITLE]) {
-                            title = hit.highlight[edges.mex.constants.TITLE][0];
-                            title = title.replace(/<em>/g, "<code>");
-                            title = title.replace(/<\/em>/g, "</code>");
+            if (this.component.edge.result) {
+                let hits = this.component.edge.result.data.hits.hits;
+                for (let hit of hits) {
+                    if (record.uuid === hit._id) {
+                        if (hit.highlight) {
+                            if (hit.highlight[edges.mex.constants.TITLE]) {
+                                title = hit.highlight[edges.mex.constants.TITLE][0];
+                                title = title.replace(/<em>/g, "<code>");
+                                title = title.replace(/<\/em>/g, "</code>");
+                            }
                         }
                     }
                 }
@@ -4915,16 +4922,21 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         // parameters that can be passed in
 
         // what to display when there are no results
-        this.noResultsText = edges.util.getParam(
-            params,
-            "noResultsText",
-            edges.mex._("No results to display")
-        );
+        this.noResultsText = edges.util.getParam(params, "noResultsText", edges.mex._("No results to display"));
+
+        this.sortCycle = ["asc", "desc"];
 
         this.namespace = "mex-variables-results";
     }
 
     draw() {
+
+        // obtain the current sort state from the query
+        let sort = [];
+        if (this.component.edge.currentQuery) {
+            sort = this.component.edge.currentQuery.getSortBy();
+        }
+
         let frag = `<div class="ui message">${this.noResultsText}</div>`;
         if (this.component.results === false) {
             frag = `<div class="ui active inline loader"></div>`;
@@ -4938,17 +4950,8 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             }
         }
 
-        let containerClasses = edges.util.allClasses(
-            this.namespace,
-            "container",
-            this.component.id
-        );
-
-        let expandAllClass = edges.util.jsClasses(
-            this.namespace,
-            "expand-all",
-            this.component.id
-        );
+        let containerClasses = edges.util.allClasses(this.namespace, "container", this.component.id);
+        let expandAllClass = edges.util.jsClasses(this.namespace, "expand-all", this.component.id);
 
         let expandAllCheckbox = `
                 <div class="checkbox" style="float:right;">
@@ -4958,20 +4961,64 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
                     </label>
                 </div>
                 <br/>
-
         `
+
+        let sortClasses = edges.util.jsClasses(this.namespace, "sort-button", this.component.id)
+        function sortButtonMacro(field) {
+            function iconMacro() {
+                for (let s of sort) {
+                    if (s.field === field) {
+                        if (s.order === "asc") {
+                            return `&#9660;`;
+                        } else if (s.order === "desc") {
+                            return `&#9650;`;
+                        }
+                    }
+                }
+                return `&#9651;&#9661`
+            }
+
+            function currentDir() {
+                for (let s of sort) {
+                    if (s.field === field) {
+                        return s.order;
+                    }
+                }
+                return "";
+            }
+
+            let frag = `
+                <button 
+                    class="${sortClasses}"
+                    data-field="${field}"
+                    data-dir="${currentDir()}">
+                    ${iconMacro()}
+                </button>`;
+            return frag;
+        }
+
+        let langPrefix = edges.mex.state.lang;
+        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN_KW : edges.mex.constants.USED_IN_DE_KW;
 
         // Main table
         var container = `
         ${expandAllCheckbox}
-
         <table class="${containerClasses} ui celled table unstackable" style="border: none;background: transparent !important;">
           <thead>
             <tr>
                 <th></th>
-                <th>${edges.mex._("Variables")}</th>
-                <th>${edges.mex._("Data Source")}</th>
-                <th>${edges.mex._("Variable Group")}</th>
+                <th>
+                    ${edges.mex._("Variables")}
+                    ${sortButtonMacro(edges.mex.constants.LABEL_KW)}
+                </th>
+                <th>
+                    ${edges.mex._("Data Source")}
+                    ${sortButtonMacro(rpath)}
+                </th>
+                <th>
+                    ${edges.mex._("Variable Group")}
+                    ${sortButtonMacro(edges.mex.constants.BELONGS_TO_LABEL_KW)}
+                </th>
                 <th>${edges.mex._("Data Type")}</th>
             </tr>
           </thead>
@@ -4985,43 +5032,24 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         this.component.context.html(container);
 
         // event bindings
-        let collapsedViewSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "collapsed-view",
-            this.component.id
-        );
+        let collapsedViewSelector = edges.util.jsClassSelector(this.namespace, "collapsed-view", this.component.id);
         edges.on(collapsedViewSelector, "click", this, "showExpanded");
 
-        let expandedViewSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "expanded-view",
-            this.component.id
-        );
+        let expandedViewSelector = edges.util.jsClassSelector(this.namespace, "expanded-view", this.component.id);
         edges.on(expandedViewSelector, "click", this, "hideExpanded");
 
-        let expandAllSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "expand-all",
-            this.component.id
-        );
+        let expandAllSelector = edges.util.jsClassSelector(this.namespace, "expand-all", this.component.id);
         edges.on(expandAllSelector, "change", this, "toggleExpandAll");
+
+        let sortSelector = edges.util.jsClassSelector(this.namespace, "sort-button", this.component.id);
+        edges.on(sortSelector, "click", this, "applySort");
     }
 
     _renderResult(res) {
-    
-
         // get fields (escaped)
         let label = edges.util.escapeHtml(
             this._getLangVal(edges.mex.constants.LABEL_CONTAINER, res, "No label")
         );
-
-        let langPrefix = edges.mex.state.lang;
-        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
-        // let resources = edges.util.pathValue(
-        //     rpath,
-        //     res,
-        //     []
-        // );
 
         const getTitle = (v) => {
             let langPrefix = edges.mex.state.lang;
@@ -5039,23 +5067,21 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             return combineTitles(selected);
         }
 
-        let resources = res["display_data"]["linked_records"]["mex:usedIn"] ?? []
-        
+        // let langPrefix = edges.mex.state.lang;
+        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
+        let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
+        // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
         if (resources) {
-            for (let r of resources){
-                
+            for (let r of resources) {
                 resourceFrag += `<a href=${r.link_id} target="_blank" class="resource-title">${getTitle(r)}</a>`
             }
         }
 
-
-        let groups = res["display_data"]["linked_records"]["mex:belongsTo"] ?? []
-        
+        let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                
                 groupFrag += `<span class="variable-group">${getTitle(g)}</span>`
             }
         }
@@ -5083,89 +5109,44 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
         }
         let codingFrag = "";
         if (codingSystem.length > 0) {
-            codingFrag =
-                `<ul><li>` +
-                codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>") +
-                "</li></ul>";
+            codingFrag = `
+                <ul>
+                    <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
+                </ul>`;
         }
 
-        let collapsedClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-view",
-            this.component.id
-        );
-
-        let expandedClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-view",
-            this.component.id
-        );
-
-        let collapsedRowIdClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-row-" + res.id,
-            this.component.id
-        );
-
-        let expandedRowIdClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-row-" + res.id,
-            this.component.id
-        );
-
-        let collapsedRowClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-row",
-            this.component.id
-        );
-
-        let expandedRowClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-row",
-            this.component.id
-        );
+        let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
+        let expandedClass = edges.util.jsClasses(this.namespace, "expanded-view", this.component.id);
+        let collapsedRowIdClass = edges.util.jsClasses(this.namespace, "collapsed-row-" + res.id, this.component.id);
+        let expandedRowIdClass = edges.util.jsClasses(this.namespace, "expanded-row-" + res.id, this.component.id);
+        let collapsedRowClass = edges.util.jsClasses(this.namespace, "collapsed-row", this.component.id);
+        let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
         let detailFrag = edges.mex._("No additional details");
         if (desc || codingFrag) {
-            let descFrag = `<p class="details-desc">${desc}</p>`;
             if (codingFrag) {
                 codingFrag = `<div class="coding-system">
-                      <div class="coding-title"><strong>${edges.mex._(
-                    "Coding System"
-                )}</strong></div>
+                      <div class="coding-title">
+                        <strong>${edges.mex._("Coding System")}</strong>
+                      </div>
                       ${codingFrag}
                     </div>`;
             }
             detailFrag = `
-  <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
-    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
-    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
-    <p><strong>${edges.mex._("Data Source")}:</strong> ${
-                resourceFrag || "-"
-            }</p>
-    <p><strong>${edges.mex._("Variable Group")}:</strong> ${
-                groupFrag || "-"
-            }</p>
-    <p><strong>${edges.mex._("Data type")}:</strong> ${dataType}</p>
-    ${
-                codingFrag
-                    ? `<div class="coding-system" style="margin-top:0.5rem;"><strong>${edges.mex._(
-                        "Coding System"
-                    )}:</strong> ${codingFrag}</div>`
-                    : ""
-            }
-  </div>
-`;
-
-            //   detailFrag = `<div class="details-extra">
-            //                 ${descFrag}
-            //                 ${codingFrag}
-            //               </div>`;
+                <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
+                    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
+                    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
+                    <p><strong>${edges.mex._("Data Source")}:</strong> ${resourceFrag || "-"}</p>
+                    <p><strong>${edges.mex._("Variable Group")}:</strong> ${groupFrag || "-"}</p>
+                    <p><strong>${edges.mex._("Data type")}:</strong> ${dataType}</p>
+                    ${codingFrag
+                        ? `<div class="coding-system" style="margin-top:0.5rem;">
+                                <strong>${edges.mex._("Coding System")}:</strong> 
+                        ${codingFrag}
+                        </div>`
+                    : ""}
+                </div>`;
         }
-
-
-        // removed from now.
-   
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
@@ -5268,6 +5249,24 @@ edges.mex.renderers.VariablesResults = class extends edges.Renderer {
             $ctx.find(collapsedSelector).show();
             $ctx.find(expandedSelector).hide();
         }
+    }
+
+    applySort(element) {
+        let el = $(element);
+        let field = el.attr("data-field");
+        let dir = el.attr("data-dir");
+
+        let currentIndex = this.sortCycle.indexOf(dir);
+        let nextIndex = 0;
+        if (currentIndex > -1) {
+            nextIndex = (currentIndex + 1) % this.sortCycle.length;
+        }
+        let nextDir = this.sortCycle[nextIndex];
+
+        let nq = this.component.edge.cloneQuery();
+        nq.setSortBy(new es.Sort({field: field, order: nextDir}));
+        this.component.edge.pushQuery(nq);
+        this.component.edge.cycle();
     }
 
     toggleRow(evOrEl) {
