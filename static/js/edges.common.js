@@ -146,23 +146,24 @@ edges.mex._register = [];
 edges.mex._regmode = false;
 edges.mex._transmode = false;
 edges.mex._ = function (key) {
-    if (edges.mex._regmode && !edges.mex._register.includes(key)) {
-        edges.mex._register.push(key);
-    }
-    if (edges.mex._transmode === false) {
-        if (key in edges.mex.babel) {
-            return edges.mex.babel[key];
-        }
-        return key;
-    } else {
-        let val = key;
-        if (key in edges.mex.babel) {
-            val = `*${val}*`;
-        } else {
-            val = `~~${val}~~`;
-        }
-        return val;
-    }
+    return i18next.t(key);
+    // if (edges.mex._regmode && !edges.mex._register.includes(key)) {
+    //     edges.mex._register.push(key);
+    // }
+    // if (edges.mex._transmode === false) {
+    //     if (key in edges.mex.babel) {
+    //         return edges.mex.babel[key];
+    //     }
+    //     return key;
+    // } else {
+    //     let val = key;
+    //     if (key in edges.mex.babel) {
+    //         val = `*${val}*`;
+    //     } else {
+    //         val = `~~${val}~~`;
+    //     }
+    //     return val;
+    // }
 };
 
 edges.mex._jinja_babel = function () {
