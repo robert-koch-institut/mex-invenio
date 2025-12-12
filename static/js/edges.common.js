@@ -4481,15 +4481,26 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
     }
 
     _renderResult(record) {
-        let title = edges.mex.getLangVal(
-            edges.mex.constants.TITLE_CONTAINER,
-            record,
-            edges.mex._("No title")
-        );
-
-        let truncated = title;
+        let fullTitle = edges.mex.getLangVal(edges.mex.constants.TITLE_CONTAINER, record, edges.mex._("No title"));
+        let truncated = fullTitle;
         if (truncated.length > 50) {
             truncated = truncated.substring(0, 47) + "...";
+        }
+
+        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
+        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
+        // great, and will slow down large result sets
+        let hits = this.component.edge.result.data.hits.hits;
+        for (let hit of hits) {
+            if (record.uuid === hit._id) {
+                if (hit.highlight) {
+                    if (hit.highlight[edges.mex.constants.TITLE]) {
+                        truncated = hit.highlight[edges.mex.constants.TITLE][0];
+                        truncated = truncated.replace(/<em>/g, "<code>");
+                        truncated = truncated.replace(/<\/em>/g, "</code>");
+                    }
+                }
+            }
         }
 
         let selectState = "unselected";
@@ -4525,25 +4536,7 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
             for (let vg of vgs) {
-                // let vgshort = vg.value;
-                // if (vgshort.length > 30) {
-                //     vgshort = vgshort.substring(0, 27) + "...";
-                // }
-
-                // if (selectState === "unselected") {
-                    // If a record has not been selected, then we render just the variable group name
                 vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
-                // } else {
-                //     // If a record has been selected, then we should show all the variable groups according
-                //     // to their current state in the selector, and allow interaction.
-                //     let selectedFrag = "";
-                //     let selected = this.selector.variableGroupSelected(vg.mex_id);
-                //     if (selected) {
-                //         selectedFrag = 'checked="checked"';
-                //     }
-                //     vgFrag += `<li><input type="checkbox" name="" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                //             <label for="" title="${vg}">${vgshort}</label></li>`;
-                // }
             }
             vgFrag += `</ul></div>`;
         }
@@ -4557,12 +4550,11 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
         const _setupAriaLabel = (title) => {
-            let ariaLabelVerb = selectState == "unselected" ? edges.mex._("add") : edges.mex._("remove");
-            let ariaLabelPreposition = selectState == "unselected" ? edges.mex. _("to") : edges.mex. _("from");
-            let ariaLabel = [ariaLabelVerb, edges.mex._("record"), title, ariaLabelPreposition, edges.mex._("variables filter")].join(`&nbsp;`);
+            let ariaLabelVerb = selectState === "unselected" ? edges.mex._("add") : edges.mex._("remove");
+            let ariaLabelPreposition = selectState === "unselected" ? edges.mex. _("to") : edges.mex. _("from");
+            let ariaLabel = [ariaLabelVerb, edges.mex._("record"), edges.util.escapeHtml(title), ariaLabelPreposition, edges.mex._("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
-        
 
         let frag = `
             <div class="selected-list">
@@ -4573,11 +4565,11 @@ edges.mex.renderers.CompactResourcesResults = class extends edges.mex.renderers.
                             data-id="${record.id}"
                             data-state="${selectState}"
                             title="${_("Select")}
-                            aria-label="${_setupAriaLabel(title)}"
+                            aria-label="${_setupAriaLabel(fullTitle)}"
                             aria-selected="${edges.mex._(selectState)}"
                             aria-live="polite"
                             ></button>
-                        <span title="${title}">
+                        <span title="${edges.util.escapeHtml(fullTitle)}">
                             ${truncated}
                         </span>
                     </div>
