@@ -33,6 +33,46 @@ edges ~ "/vendor" %} {% set src=edges ~ "/src" %} {% set components=src ~
 <script src="{{ bs3 }}/ResultsFieldsByRow.js"></script>
 
 <script src="{{ static }}/edges.common.js"></script>
+    <script>
+    edges.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    edges.mex.state.lang = "{{ current_i18n.language }}"
+    </script>
+    <script>
+edges.mex.babel = {
+    "Back to Data Sources &amp; Datasets Search": "{{ _("Back to Data Sources &amp; Datasets Search") }}",
+    "Selected Data Sources & Datasets": "{{ _("Selected Data Sources & Datasets") }}",
+    "Find resources...": "{{ _("Find resources...") }}",
+    " ": "{{ _(" ") }}",
+    "Search": "{{ _("Search") }}",
+    "No resources that match your search were found.": "{{ _("No resources that match your search were found.") }}",
+    "No results to display": "{{ _("No results to display") }}",
+    "Resources": "{{ _("Resources") }}",
+    "Show": "{{ _("Show") }}",
+    "results per page": "{{ _("results per page") }}",
+    " per page": "{{ _(" per page") }}",
+    "Expand all": "{{ _("Expand all") }}",
+    "Find variables...": "{{ _("Find variables...") }}",
+    "No variables found.": "{{ _("No variables found.") }}",
+    "Variables": "{{ _("Variables") }}",
+    "Data Source": "{{ _("Data Source") }}",
+    "Variable Group": "{{ _("Variable Group") }}",
+    "Data Type": "{{ _("Data Type") }}",
+    "results": "{{ _("results") }}",
+    "No title": "{{ _("No title") }}",
+    "Variable Groups": "{{ _("Variable Groups") }}",
+    "add": "{{ _("add") }}",
+    "to": "{{ _("to") }}",
+    "record": "{{ _("record") }}",
+    "variables filter": "{{ _("variables filter") }}",
+    "unselected": "{{ _("unselected") }}",
+    "First": "{{ _("First") }}",
+    "Prev": "{{ _("Prev") }}",
+    "Next": "{{ _("Next") }}",
+    "Last": "{{ _("Last") }}",
+    "Page": "{{ _("Page") }}",
+    "of": "{{ _("of") }}"
+};
+</script>
 <script src="{{ static }}/variables.js"></script>
 
 {% endblock %}

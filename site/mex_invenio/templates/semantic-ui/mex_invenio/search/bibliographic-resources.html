@@ -57,7 +57,54 @@
     edges.mex.state.lang = "{{ current_i18n.language }}"
     </script>
 
-    {%  include "mex_invenio/search/_edges_babel.html" %}
+<script>
+edges.mex.babel = {
+    "Title": "{{ _("Title") }}",
+    "Alternative Title": "{{ _("Alternative Title") }}",
+    "Involved Person": "{{ _("Involved Person") }}",
+    "Abstract": "{{ _("Abstract") }}",
+    "Short Name": "{{ _("Short Name") }}",
+    "External Associate": "{{ _("External Associate") }}",
+    "Search bibliographic resources...": "{{ _("Search bibliographic resources...") }}",
+    "Search": "{{ _("Search") }}",
+    "Access Restriction": "{{ _("Access Restriction") }}",
+    "Journal": "{{ _("Journal") }}",
+    "Keyword": "{{ _("Keyword") }}",
+    "Activity Type": "{{ _("Activity Type") }}",
+    "Theme": "{{ _("Theme") }}",
+    "Has Personal Data": "{{ _("Has Personal Data") }}",
+    "Resource Creation Method": "{{ _("Resource Creation Method") }}",
+    "Funder or Commissioner": "{{ _("Funder or Commissioner") }}",
+    "Created": "{{ _("Created") }}",
+    "Activity Start": "{{ _("Activity Start") }}",
+    "Activity End": "{{ _("Activity End") }}",
+    "Publication Year": "{{ _("Publication Year") }}",
+    "Select": "{{ _("Select") }}",
+    "Select Date Range": "{{ _("Select Date Range") }}",
+    " per page": "{{ _(" per page") }}",
+    "Created (newest first)": "{{ _("Created (newest first)") }}",
+    "Publication Year (newest first)": "{{ _("Publication Year (newest first)") }}",
+    "No bibliographic resources found.": "{{ _("No bibliographic resources found.") }}",
+    "No results to display": "{{ _("No results to display") }}",
+    "Show": "{{ _("Show") }}",
+    "results per page": "{{ _("results per page") }}",
+    "all fields": "{{ _("all fields") }}",
+    "Loading...": "{{ _("Loading...") }}",
+    "No data available": "{{ _("No data available") }}",
+    "Sort by": "{{ _("Sort by") }}",
+    "Relevance": "{{ _("Relevance") }}",
+    "sort by": "{{ _("sort by") }}",
+    "Current order descending. Click to change to ascending": "{{ _("Current order descending. Click to change to ascending") }}",
+    "results": "{{ _("results") }}",
+    "First": "{{ _("First") }}",
+    "Prev": "{{ _("Prev") }}",
+    "Next": "{{ _("Next") }}",
+    "Last": "{{ _("Last") }}",
+    "Page": "{{ _("Page") }}",
+    "of": "{{ _("of") }}"
+};
+</script>
+
     <script src="{{ static }}/bibliographic-resources.js"></script>
 
 {% endblock %}

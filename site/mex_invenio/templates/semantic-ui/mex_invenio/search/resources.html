@@ -47,7 +47,58 @@
     edges.mex.state.lang = "{{ current_i18n.language }}";
     </script>
 
-    {%  include "mex_invenio/search/_edges_babel.html" %}
+    <script>
+        edges.mex.babel = {
+            "Title": "{{ _("Title") }}",
+            "Alternative Title": "{{ _("Alternative Title") }}",
+            "Contributor": "{{ _("Contributor") }}",
+            "Description": "{{ _("Description") }}",
+            "External Partner": "{{ _("External Partner") }}",
+            "ICD-10 Code": "{{ _("ICD-10 Code") }}",
+            "Search resources...": "{{ _("Search resources...") }}",
+            "Search": "{{ _("Search") }}",
+            "Access Restriction": "{{ _("Access Restriction") }}",
+            "Journal": "{{ _("Journal") }}",
+            "Keyword": "{{ _("Keyword") }}",
+            "Activity Type": "{{ _("Activity Type") }}",
+            "Theme": "{{ _("Theme") }}",
+            "Has Personal Data": "{{ _("Has Personal Data") }}",
+            "Resource Creation Method": "{{ _("Resource Creation Method") }}",
+            "Funder or Commissioner": "{{ _("Funder or Commissioner") }}",
+            "Created": "{{ _("Created") }}",
+            "Activity Start": "{{ _("Activity Start") }}",
+            "Activity End": "{{ _("Activity End") }}",
+            "Publication Year": "{{ _("Publication Year") }}",
+            "Select": "{{ _("Select") }}",
+            "Select Date Range": "{{ _("Select Date Range") }}",
+            " per page": "{{ _(" per page") }}",
+            "Created (newest first)": "{{ _("Created (newest first)") }}",
+            "No resources found.": "{{ _("No resources found.") }}",
+            "No results to display": "{{ _("No results to display") }}",
+            "Datasets for Variables Search": "{{ _("Datasets for Variables Search") }}",
+            "Show": "{{ _("Show") }}",
+            "results per page": "{{ _("results per page") }}",
+            "all fields": "{{ _("all fields") }}",
+            "Loading...": "{{ _("Loading...") }}",
+            "No data available": "{{ _("No data available") }}",
+            "Sort by": "{{ _("Sort by") }}",
+            "Relevance": "{{ _("Relevance") }}",
+            "sort by": "{{ _("sort by") }}",
+            "Current order descending. Click to change to ascending": "{{ _("Current order descending. Click to change to ascending") }}",
+            "Variables Filter": "{{ _("Variables Filter") }}",
+            "show less": "{{ _("show less") }}",
+            "results": "{{ _("results") }}",
+            "First": "{{ _("First") }}",
+            "Prev": "{{ _("Prev") }}",
+            "Next": "{{ _("Next") }}",
+            "Last": "{{ _("Last") }}",
+            "Page": "{{ _("Page") }}",
+            "of": "{{ _("of") }}",
+            "No title": "{{ _("No title") }}"
+        };
+    </script>
+
+{#    {%  include "mex_invenio/search/_edges_babel.html" %}#}
 
     <script src="{{ static }}/resources.js"></script>
 
