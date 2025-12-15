@@ -11,6 +11,7 @@ from invenio_records_resources.records.systemfields import IndexField
 
 from mex_invenio.services.search import MexDumper
 from mex_invenio.fields.systemfields import DisplayField
+from mex_invenio.fields.systemfields import IndexField as MexIndexField
 
 
 class MexRDMRecord(RDMRecord):
@@ -19,6 +20,7 @@ class MexRDMRecord(RDMRecord):
     )
 
     display_data = DisplayField()
+    index_data = MexIndexField()
 
     dumper = MexDumper(
         extensions=[

@@ -1,8 +1,16 @@
-.ui.table {
+.ui.table.record-modal {
     border-collapse: separate;
     border-spacing: 12px 8px;
     margin-left: -12px;
-    
+
+    .mex-variables-results_container {
+        border-spacing: 0;
+
+        td {
+            display: table-cell;
+        }
+    }
+
     & > caption {
         margin-bottom: 2rem;
         & > h2 {
@@ -13,8 +21,7 @@
     }
 
     td {
-        display: flex;
-        flex-direction: column;
+        display: table-cell;
         padding-left: 1.5rem;
         &.key {
             padding-left: 0;
@@ -37,5 +44,33 @@
         border: none !important;
         padding: 0 0 1rem 0;
         vertical-align: top;
+    }
+}
+
+.search_page .ui.table {
+    background: transparent;
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    th, tr, td {
+        background: transparent;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    tr {
+        border-bottom: 1px solid @borderColor;
+    }
+    tr td:first-child {
+        width: 3rem;
+    }
+    th, td {
+        border-left: none !important;
+    }
+    .js-mex-variables-results_variables-results_expanded-row {
+        a.resource-title {
+            white-space: normal;
+        }
     }
 }

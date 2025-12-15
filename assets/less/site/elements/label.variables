@@ -1,0 +1,3 @@
+@backgroundColor: transparent;
+@verticalPadding: 0;
+@horizontalPadding: 0;

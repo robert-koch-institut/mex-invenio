@@ -1,0 +1,37 @@
+.ui.form.form--long-search {
+    display: flex;
+    gap: .25rem;
+    margin-top: 2rem;
+    .field{
+        input, select, button {
+            height:100%;
+            border: 1px solid @borderColor;
+            font-size: 1rem;
+            line-height: 2;
+            padding: 0.5rem;
+            font-weight: normal;
+            border-radius: 0;
+        }
+        flex: 0 0 fit-content;
+        &:last-child {
+            margin-bottom: 1rem;
+        }
+        &.field--search-input {
+            display: inline-flex;
+            flex: 1 1 0;
+            label.label--search {
+                margin: 0 .5rem 0 0;
+                padding: 0;
+                font-size: 1.1rem;
+                line-height: 3;
+            }
+            input.input--search {
+                flex: 1 1 0;
+            }
+
+        }
+        button.search-button {
+            margin-right: 0;
+        }
+    }
+}

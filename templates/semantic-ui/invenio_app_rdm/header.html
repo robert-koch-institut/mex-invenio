@@ -56,7 +56,7 @@ under the terms of the MIT License; see LICENSE file for more details.
                         <nav
                                 id="invenio-menu"
                                 aria-labelledby="rdm-burger-menu-icon"
-                                class="ui fluid menu borderless mobile-hidden"
+                                class="ui fluid menu borderless mobile-hidden p-0"
                         >
                             <button
                                     id="rdm-close-burger-menu-icon"
@@ -65,20 +65,31 @@ under the terms of the MIT License; see LICENSE file for more details.
                             >
                                 <span class="navicon" aria-hidden="true"></span>
                             </button>
-
+                                
+                            {%- block searchbar -%}
                             {%- include "invenio_app_rdm/searchbar.html" %}
+                            {%- endblock -%}
 
                             {%- block navbar_nav %}
                                 {% set resource_types = {
-                                  'resource': _('Data Sources & Datasets'),
-                                  'variable': _('Variables'),
-                                  'activity': _('Projects'),
-                                  'bibliographicresource': _('Publications')
+                                  'resources': _('Data Sources & Datasets'),
+                                  'variables': _('Variables'),
+                                  'activities': _('Projects'),
+                                  'bibliographic-resources': _('Publications')
+                                } %}
+                                {% set resource_icons = {
+                                  'resources': "resource",
+                                  'variables': "variable",
+                                  'activities': "activity" ,
+                                  'bibliographic-resources': "bibliographicresource"
                                 } %}
                                 {% for type, label in resource_types.items() %}
                                 <div class="item">
-                                    <a href="/search?q=&f=restricted_resource_type%3A{{ type }}&l=list&p=1&s=10&sort=newest">
-                                        {{ label }}
+                                    <a href="/search/{{ type }}">
+                                        <img class="ui image icon--text"
+                                            src="{{ url_for('static', filename='icons/' ~ resource_icons[type] ~ '-record.svg') }}"
+                                            style="height: 1rem; margin-bottom: .125rem"
+                                            role="presentation"/>&nbsp;{{ label }}
                                     </a>
                                 </div>
                                 {% endfor %}

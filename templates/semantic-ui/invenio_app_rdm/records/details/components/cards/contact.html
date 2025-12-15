@@ -1,6 +1,47 @@
 {% set card_name = "contact" -%}
 {% set card = config.UI_SETTINGS.resource.side_bar[card_name] %}
 {% set ns = namespace(prop_exist=false) %}
+{% set max_visible = config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+
+{% macro display(values) %}
+    {% for value in values %}
+        {% set ns = namespace(names=[]) %}
+        {% for name in value["display_data"] %}
+            {% set _ = ns.names.append(name.value) %}
+        {% endfor %}
+        {% set combined_names = ns.names | join(', ') %}
+        {%- if "email" in value and value.email %}
+            <span class="email-container">
+            <button type="button" 
+                class="ui button link-like" 
+                data-record-id="{{ value.url }}" 
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+                style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
+                {{ combined_names }}
+            </button>
+                <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
+                <img class="ui image icon"
+                    src="{{ url_for('static', filename='icons/mailto.svg') }}"
+                    alt="send email"
+                    title='{{_("Send email") }}'
+                />
+                </a>
+                {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
+                    {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
+                {% endwith %}
+            </span>
+        {%- else -%}
+            <button type="button" 
+                class="ui button link-like" 
+                data-record-id="{{ value.url }}" 
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+                style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
+                {{ combined_names }}
+            </button>
+        {%- endif -%}
+    {% endfor %}
+
+{% endmacro %}
 
 {% for prop in card.properties %}
     {% if prop.field in data %}
@@ -19,35 +60,28 @@
             {% for prop in card.properties %}
                     <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">
-                            {% for value in data[prop.field] %}
-                                {% set ns = namespace(names=[]) %}
-                                {% for name in value["display_data"] %}
-                                    {% set _ = ns.names.append(name.value) %}
-                                {% endfor %}
-                                {% set combined_names = ns.names | join(', ') %}
-                                {%- if "email" in value and value.email %}
-                                    <span class="email-container">
-                                    <button type="button"
-                                        class="ui button link-like"
-                                        data-record-id="{{ value.url }}"
-                                        onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" >
-                                        {{ combined_names }}
-                                    </button>
-                                        <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
-                                        <img class="ui image icon"
-                                            src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                                            alt="send email"
-                                            title='{{_("Send email") }}'
-                                        />
-                                        </a>
-                                        {% with emailAddress = value.email[loop.index0] ~ "?cc=mex\@rki.de" %}
-                                            {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
-                                        {% endwith %}
-                                    </span>
-                                {%- else -%}
-                                    {{ display_values( data[prop.field]) }}
-                                {%- endif -%}
-                            {% endfor %}
+                            {% set values = data[prop.field] %}
+                            {% set total = values | length %}
+                            {% set visible = values[:max_visible] %}
+                            {% set hidden = values[max_visible:] %}
+                            {{ display(visible) }}
+                            {% if hidden %}
+                                <div class="more-values" style="display: none;">
+                                    {{ display(hidden) }}
+                                </div>
+                                <button
+                                    type="button"
+                                    class="ui button link-like"
+                                    onclick="
+                                        const hidden = this.previousElementSibling;
+                                        const isHidden = hidden.style.display === 'none';
+                                        hidden.style.display = isHidden ? 'block' : 'none';
+                                        this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                                    "
+                                >
+                                    Show all ({{ total }}) &#x25BE;
+                                </button>
+                            {% endif %}
                         </div>
                     </div>
             {% endfor %}
