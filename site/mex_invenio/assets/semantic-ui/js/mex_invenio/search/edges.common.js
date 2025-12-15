@@ -39,9 +39,15 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
+edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+// FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
+// isn't indexed to be used this way, so this will sort by whatever the first value is
+mex.constants.LABEL_KW = "custom_fields.mex:label.value.keyword"
+mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
+mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
 mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
@@ -70,7 +76,9 @@ mex.constants.END = "custom_fields.mex:end.date"
 mex.constants.PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
 mex.constants.USED_IN_EN = "index_data.enUsedInResource"
 mex.constants.USED_IN_DE = "index_data.deUsedInResource"
+mex.constants.USED_IN_DISPLAY = "display_data.linked_records.mex:usedIn"
 mex.constants.BELONGS_TO_LABEL = "index_data.belongsToLabel"
+mex.constants.BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
 mex.constants.DATA_TYPE = "custom_fields.mex:dataType"
 mex.constants.CODING_SYSTEM = "custom_fields.mex:codingSystem"
 mex.constants.TITLE = "custom_fields.mex:title.value"
@@ -182,27 +190,25 @@ mex._jinja_babel = function () {
     for (let r in mex._register) {
         temp += `"${mex._register[r]}": "{{ _("${mex._register[r]}") }}",\n`;
     }
+    return temp;
 };
 
 mex.getLangVal = function (path, res, def) {
     let preferred = "";
     let field = edges.util.pathValue(path, res, []);
-    for (let i = 0; i < field.length; i++) {
-        let lang = field[i].language;
-        if (lang === mex.state.lang) {
-            return field[i].value;
-        }
-        if (lang === "en" && preferred === "") {
-            preferred = field[i].value;
-        }
-        if (lang === "de") {
-            preferred = field[i].value;
+    if (field.length === 0) {
+        return def;
+    }
+    let priority = [edges.mex.state.lang, "de", "en"];
+    for (let p of priority) {
+        for (let i = 0; i < field.length; i++) {
+            if (p === field[i].language) {
+                return field[i].value;
+            }
         }
     }
-    if (preferred !== "") {
-        return preferred;
-    }
-    return def;
+
+    return field[0].value;
 };
 
 mex.getAllLangVals = function (path, res) {
@@ -1901,6 +1907,21 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 record,
                 i18n.t("No title")
             );
+
+            if (this.component.edge.result) {
+                let hits = this.component.edge.result.data.hits.hits;
+                for (let hit of hits) {
+                    if (record.uuid === hit._id) {
+                        if (hit.highlight) {
+                            if (hit.highlight[edges.mex.constants.TITLE]) {
+                                title = hit.highlight[edges.mex.constants.TITLE][0];
+                                title = title.replace(/<em>/g, "<code>");
+                                title = title.replace(/<\/em>/g, "</code>");
+                            }
+                        }
+                    }
+                }
+            }
 
             let truncated = title;
             if (truncated.length > 50) {
@@ -4496,6 +4517,22 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             truncated = truncated.substring(0, 47) + "...";
         }
 
+        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
+        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
+        // great, and will slow down large result sets
+        let hits = this.component.edge.result.data.hits.hits;
+        for (let hit of hits) {
+            if (record.uuid === hit._id) {
+                if (hit.highlight) {
+                    if (hit.highlight[edges.mex.constants.TITLE]) {
+                        truncated = hit.highlight[edges.mex.constants.TITLE][0];
+                        truncated = truncated.replace(/<em>/g, "<code>");
+                        truncated = truncated.replace(/<\/em>/g, "</code>");
+                    }
+                }
+            }
+        }
+
         let selectState = "unselected";
         if (this.selector && this.selector.isSelected(record.id)) {
             selectState = "selected";
@@ -4529,25 +4566,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
             for (let vg of vgs) {
-                // let vgshort = vg.value;
-                // if (vgshort.length > 30) {
-                //     vgshort = vgshort.substring(0, 27) + "...";
-                // }
-
-                // if (selectState === "unselected") {
-                    // If a record has not been selected, then we render just the variable group name
                 vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
-                // } else {
-                //     // If a record has been selected, then we should show all the variable groups according
-                //     // to their current state in the selector, and allow interaction.
-                //     let selectedFrag = "";
-                //     let selected = this.selector.variableGroupSelected(vg.mex_id);
-                //     if (selected) {
-                //         selectedFrag = 'checked="checked"';
-                //     }
-                //     vgFrag += `<li><input type="checkbox" name="" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                //             <label for="" title="${vg}">${vgshort}</label></li>`;
-                // }
             }
             vgFrag += `</ul></div>`;
         }
@@ -4561,13 +4580,11 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
         const _setupAriaLabel = (title) => {
-            let ariaLabelVerb = selectState == "unselected" ? i18n.t("add") : i18n.t("remove");
-            let ariaLabelPreposition = selectState == "unselected" ? i18n.t("to") : i18n.t("from");
-            let ariaLabel = [ariaLabelVerb, i18n.t("record"), title, ariaLabelPreposition, i18n.t("variables filter")].join(`&nbsp;`);
+            let ariaLabelVerb = selectState === "unselected" ? i18n.t("add") : i18n.t("remove");
+            let ariaLabelPreposition = selectState === "unselected" ? i18n.t("to") : i18n.t("from");
+            let ariaLabel = [ariaLabelVerb, i18n.t("record"), edges.util.escapeHtml(title), ariaLabelPreposition, i18n.t("variables filter")].join(`&nbsp;`);
             return ariaLabel
         }
-        
-        const _ = () => {return}
 
         let frag = `
             <div class="selected-list">
@@ -4582,7 +4599,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                             aria-selected="${i18n.t(selectState)}"
                             aria-live="polite"
                             ></button>
-                        <span title="${title}">
+                        <span title="${edges.util.escapeHtml(fullTitle)}">
                             ${truncated}
                         </span>
                     </div>
@@ -4927,16 +4944,21 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         // parameters that can be passed in
 
         // what to display when there are no results
-        this.noResultsText = edges.util.getParam(
-            params,
-            "noResultsText",
-            i18n.t("No results to display")
-        );
+        this.noResultsText = edges.util.getParam(params, "noResultsText", i18n.t("No results to display"));
+
+        this.sortCycle = ["asc", "desc"];
 
         this.namespace = "mex-variables-results";
     }
 
     draw() {
+
+        // obtain the current sort state from the query
+        let sort = [];
+        if (this.component.edge.currentQuery) {
+            sort = this.component.edge.currentQuery.getSortBy();
+        }
+
         let frag = `<div class="ui message">${this.noResultsText}</div>`;
         if (this.component.results === false) {
             frag = `<div class="ui active inline loader"></div>`;
@@ -4950,17 +4972,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             }
         }
 
-        let containerClasses = edges.util.allClasses(
-            this.namespace,
-            "container",
-            this.component.id
-        );
-
-        let expandAllClass = edges.util.jsClasses(
-            this.namespace,
-            "expand-all",
-            this.component.id
-        );
+        let containerClasses = edges.util.allClasses(this.namespace, "container", this.component.id);
+        let expandAllClass = edges.util.jsClasses(this.namespace, "expand-all", this.component.id);
 
         let expandAllCheckbox = `
                 <div class="checkbox" style="float:right;">
@@ -4970,20 +4983,65 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     </label>
                 </div>
                 <br/>
-
         `
+
+        let sortClasses = edges.util.jsClasses(this.namespace, "sort-button", this.component.id)
+
+        function currentDir(field, short=true) {
+            let longs = {"asc": "ascending", "desc": "descending"};
+            for (let s of sort) {
+                if (s.field === field) {
+                    return short ? s.order : longs[s.order];
+                }
+            }
+            return short ? "" : "none";
+        }
+
+        function sortButtonMacro(field) {
+            function iconMacro() {
+                for (let s of sort) {
+                    if (s.field === field) {
+                        if (s.order === "asc") {
+                            return `&#9650;`;
+                        } else if (s.order === "desc") {
+                            return `&#9660;`;
+                        }
+                    }
+                }
+                return `&#9651;&#9661`
+            }
+
+            return `
+                <button 
+                    class="img-button ${sortClasses}"
+                    data-field="${field}"
+                    data-dir="${currentDir(field)}">
+                    ${iconMacro()}
+                </button>`;
+        }
+
+        let langPrefix = edges.mex.state.lang;
+        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN_KW : edges.mex.constants.USED_IN_DE_KW;
 
         // Main table
         var container = `
         ${expandAllCheckbox}
-
         <table class="${containerClasses} ui celled table unstackable" style="border: none;background: transparent !important;">
           <thead>
             <tr>
                 <th></th>
-                <th>${i18n.t("Variables")}</th>
-                <th>${i18n.t("Data Source")}</th>
-                <th>${i18n.t("Variable Group")}</th>
+                <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
+                    ${i18n.t("Variables")}
+                    ${sortButtonMacro(mex.constants.LABEL_KW)}
+                </th>
+                <th aria-sort="${currentDir(rpath, false)}">
+                    ${i18n.t("Data Source")}
+                    ${sortButtonMacro(rpath)}
+                </th>
+                <th aria-sort="${currentDir(mex.constants.BELONGS_TO_LABEL_KW, false)}">
+                    ${i18n.t("Variable Group")}
+                    ${sortButtonMacro(mex.constants.BELONGS_TO_LABEL_KW)}
+                </th>
                 <th>${i18n.t("Data Type")}</th>
             </tr>
           </thead>
@@ -4997,43 +5055,24 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         this.component.context.html(container);
 
         // event bindings
-        let collapsedViewSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "collapsed-view",
-            this.component.id
-        );
+        let collapsedViewSelector = edges.util.jsClassSelector(this.namespace, "collapsed-view", this.component.id);
         edges.on(collapsedViewSelector, "click", this, "showExpanded");
 
-        let expandedViewSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "expanded-view",
-            this.component.id
-        );
+        let expandedViewSelector = edges.util.jsClassSelector(this.namespace, "expanded-view", this.component.id);
         edges.on(expandedViewSelector, "click", this, "hideExpanded");
 
-        let expandAllSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "expand-all",
-            this.component.id
-        );
+        let expandAllSelector = edges.util.jsClassSelector(this.namespace, "expand-all", this.component.id);
         edges.on(expandAllSelector, "change", this, "toggleExpandAll");
+
+        let sortSelector = edges.util.jsClassSelector(this.namespace, "sort-button", this.component.id);
+        edges.on(sortSelector, "click", this, "applySort");
     }
 
     _renderResult(res) {
-    
-
         // get fields (escaped)
         let label = edges.util.escapeHtml(
             this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
         );
-
-        let langPrefix = mex.state.lang;
-        // let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
-        // let resources = edges.util.pathValue(
-        //     rpath,
-        //     res,
-        //     []
-        // );
 
         const getTitle = (v) => {
             let langPrefix = mex.state.lang;
@@ -5051,23 +5090,21 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             return combineTitles(selected);
         }
 
-        let resources = res["display_data"]["linked_records"]["mex:usedIn"] ?? []
-        
+        // let langPrefix = edges.mex.state.lang;
+        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
+        let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
+        // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
         if (resources) {
-            for (let r of resources){
-                
+            for (let r of resources) {
                 resourceFrag += `<a href=${r.link_id} target="_blank" class="resource-title">${getTitle(r)}</a>`
             }
         }
 
-
-        let groups = res["display_data"]["linked_records"]["mex:belongsTo"] ?? []
-        
+        let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                
                 groupFrag += `<span class="variable-group">${getTitle(g)}</span>`
             }
         }
@@ -5095,56 +5132,26 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
         let codingFrag = "";
         if (codingSystem.length > 0) {
-            codingFrag =
-                `<ul><li>` +
-                codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>") +
-                "</li></ul>";
+            codingFrag = `
+                <ul>
+                    <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
+                </ul>`;
         }
 
-        let collapsedClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-view",
-            this.component.id
-        );
-
-        let expandedClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-view",
-            this.component.id
-        );
-
-        let collapsedRowIdClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-row-" + res.id,
-            this.component.id
-        );
-
-        let expandedRowIdClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-row-" + res.id,
-            this.component.id
-        );
-
-        let collapsedRowClass = edges.util.jsClasses(
-            this.namespace,
-            "collapsed-row",
-            this.component.id
-        );
-
-        let expandedRowClass = edges.util.jsClasses(
-            this.namespace,
-            "expanded-row",
-            this.component.id
-        );
+        let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
+        let expandedClass = edges.util.jsClasses(this.namespace, "expanded-view", this.component.id);
+        let collapsedRowIdClass = edges.util.jsClasses(this.namespace, "collapsed-row-" + res.id, this.component.id);
+        let expandedRowIdClass = edges.util.jsClasses(this.namespace, "expanded-row-" + res.id, this.component.id);
+        let collapsedRowClass = edges.util.jsClasses(this.namespace, "collapsed-row", this.component.id);
+        let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
         let detailFrag = i18n.t("No additional details");
         if (desc || codingFrag) {
-            let descFrag = `<p class="details-desc">${desc}</p>`;
             if (codingFrag) {
                 codingFrag = `<div class="coding-system">
-                      <div class="coding-title"><strong>${i18n.t(
-                    "Coding System"
-                )}</strong></div>
+                      <div class="coding-title">
+                        <strong>${i18n.t("Coding System")}</strong>
+                      </div>
                       ${codingFrag}
                     </div>`;
             }
@@ -5280,6 +5287,24 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             $ctx.find(collapsedSelector).show();
             $ctx.find(expandedSelector).hide();
         }
+    }
+
+    applySort(element) {
+        let el = $(element);
+        let field = el.attr("data-field");
+        let dir = el.attr("data-dir");
+
+        let currentIndex = this.sortCycle.indexOf(dir);
+        let nextIndex = 0;
+        if (currentIndex > -1) {
+            nextIndex = (currentIndex + 1) % this.sortCycle.length;
+        }
+        let nextDir = this.sortCycle[nextIndex];
+
+        let nq = this.component.edge.cloneQuery();
+        nq.setSortBy(new es.Sort({field: field, order: nextDir}));
+        this.component.edge.pushQuery(nq);
+        this.component.edge.cycle();
     }
 
     toggleRow(evOrEl) {
@@ -5484,7 +5509,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             res,
             []
         );
-        
+
         let resourceFrag = "";
         if (resources.length > 1) {
             resourceFrag =
