@@ -39,7 +39,7 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
-edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -199,7 +199,7 @@ mex.getLangVal = function (path, res, def) {
     if (field.length === 0) {
         return def;
     }
-    let priority = [edges.mex.state.lang, "de", "en"];
+    let priority = [mex.state.lang, "de", "en"];
     for (let p of priority) {
         for (let i = 0; i < field.length; i++) {
             if (p === field[i].language) {
@@ -1530,8 +1530,8 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${edges.mex._("Clear all search and sort parameters and start again")}">
-                    ${edges.mex._("Clear all")}
+            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${i18next.t("Clear all search and sort parameters and start again")}">
+                    ${i18next.t("Clear all")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1742,7 +1742,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
+                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18next.t("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1913,8 +1913,8 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 for (let hit of hits) {
                     if (record.uuid === hit._id) {
                         if (hit.highlight) {
-                            if (hit.highlight[edges.mex.constants.TITLE]) {
-                                title = hit.highlight[edges.mex.constants.TITLE][0];
+                            if (hit.highlight[mex.constants.TITLE]) {
+                                title = hit.highlight[mex.constants.TITLE][0];
                                 title = title.replace(/<em>/g, "<code>");
                                 title = title.replace(/<\/em>/g, "</code>");
                             }
@@ -1945,7 +1945,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${edges.mex._(
+                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${i18next.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
@@ -1992,7 +1992,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                     ${expandAllCheckbox}
                     ${header}
                     <div style="margin-top:1.625rem">
-                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${edges.mex._("Clear All")} </button>
+                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18next.t("Clear All")} </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -4524,8 +4524,8 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         for (let hit of hits) {
             if (record.uuid === hit._id) {
                 if (hit.highlight) {
-                    if (hit.highlight[edges.mex.constants.TITLE]) {
-                        truncated = hit.highlight[edges.mex.constants.TITLE][0];
+                    if (hit.highlight[mex.constants.TITLE]) {
+                        truncated = hit.highlight[mex.constants.TITLE][0];
                         truncated = truncated.replace(/<em>/g, "<code>");
                         truncated = truncated.replace(/<\/em>/g, "</code>");
                     }
@@ -5021,8 +5021,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 </button>`;
         }
 
-        let langPrefix = edges.mex.state.lang;
-        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN_KW : edges.mex.constants.USED_IN_DE_KW;
+        let langPrefix = mex.state.lang;
+        let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN_KW : mex.constants.USED_IN_DE_KW;
 
         // Main table
         var container = `
@@ -5091,8 +5091,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             return combineTitles(selected);
         }
 
-        // let langPrefix = edges.mex.state.lang;
-        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
+        // let langPrefix = mex.state.lang;
+        // let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
         let resources = edges.util.pathValue(mex.constants.USED_IN_DISPLAY, res, []);
         // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
