@@ -4594,12 +4594,12 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                             id="${buttonId}"
                             data-id="${record.id}"
                             data-state="${selectState}"
-                            title="${_("Select")}
+                            title="${i18n.t("Select")}
                             aria-label="${_setupAriaLabel(title)}"
                             aria-selected="${i18n.t(selectState)}"
                             aria-live="polite"
                             ></button>
-                        <span title="${edges.util.escapeHtml(fullTitle)}">
+                        <span title="${edges.util.escapeHtml(title)}">
                             ${truncated}
                         </span>
                     </div>
