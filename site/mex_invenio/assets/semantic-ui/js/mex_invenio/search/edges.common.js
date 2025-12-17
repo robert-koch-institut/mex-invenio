@@ -2347,7 +2347,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             field_select += `<div class="field">
                                 <label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
-                                    <option value="*">${i18n.t("all fields")}</option>
+                                    <option value="">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
                                 </select>
                                 </div>`;
