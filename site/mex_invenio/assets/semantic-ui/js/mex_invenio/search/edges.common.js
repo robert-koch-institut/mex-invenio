@@ -5107,7 +5107,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                groupFrag += `<<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
+                groupFrag += `<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
             }
         }
         groupFrag += `</ul>`
