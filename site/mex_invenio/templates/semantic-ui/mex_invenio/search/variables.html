@@ -14,6 +14,7 @@
   </div>
   {% endblock %}
 </div>
+{% endblock %}
 
 {% block javascript %}
     {{ super() }}
@@ -36,7 +37,6 @@
     <script src="{{ mex_js }}/jquery-i18next.js"></script>
     <script src="{{ mex_js }}/jquery-i18next.init.js"></script>
 
-
 <script src="{{ src }}/datasources/es7x.js"></script>
 <script src="{{ src }}/edges.js"></script>
 
@@ -56,5 +56,4 @@
     window.mex.state.lang = "{{ current_i18n.language }}"
 </script>
 
-{% endblock %}
-
+{% endblock javascript %}
