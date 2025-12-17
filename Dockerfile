@@ -34,7 +34,10 @@ COPY ./app_data/ ${INVENIO_INSTANCE_PATH}/app_data/
 COPY ./translations/ ${INVENIO_INSTANCE_PATH}/translations/
 COPY ./ .
 
-# Run the translations
+# Merge translations
+RUN python ./site/mex_invenio/scripts/merge_translations.py ${INVENIO_INSTANCE_PATH}
+
+# Compile the translations
 RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
 
 RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \
