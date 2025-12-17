@@ -353,7 +353,7 @@ mex.fullSearchController = function (params) {
         category: params.category || "full",
         sortOptions: params.sortOptions || [],
         fieldOptions: params.fieldOptions || [],
-        defaultField: params.defaultField || "*",
+        defaultField: params.defaultField || false,
         renderer: new mex.renderers.SidebarSearchController({
             searchButton: params.searchButton ?? true,
             clearButton: params.clearButton ?? false,
@@ -5133,9 +5133,14 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let codingFrag = "";
         if (codingSystem.length > 0) {
             codingFrag = `
-                <ul>
-                    <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
-                </ul>`;
+                <div class="coding-system">
+                  <div class="coding-title">
+                    <strong>${i18n.t("Coding System")}</strong>
+                  </div>
+                    <ul>
+                        <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
+                    </ul>
+                </div>`;
         }
 
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
@@ -5145,46 +5150,16 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let collapsedRowClass = edges.util.jsClasses(this.namespace, "collapsed-row", this.component.id);
         let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
-        let detailFrag = i18n.t("No additional details");
-        if (desc || codingFrag) {
-            if (codingFrag) {
-                codingFrag = `<div class="coding-system">
-                      <div class="coding-title">
-                        <strong>${i18n.t("Coding System")}</strong>
-                      </div>
-                      ${codingFrag}
-                    </div>`;
-            }
-            detailFrag = `
-  <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
-    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
-    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
-    <p><strong>${i18n.t("Data Source")}:</strong> ${
-                resourceFrag || "-"
-            }</p>
-    <p><strong>${i18n.t("Variable Group")}:</strong> ${
-                groupFrag || "-"
-            }</p>
-    <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
-    ${
-                codingFrag
-                    ? `<div class="coding-system" style="margin-top:0.5rem;"><strong>${i18n.t(
-                        "Coding System"
-                    )}:</strong> ${codingFrag}</div>`
-                    : ""
-            }
-  </div>
-`;
-
-            //   detailFrag = `<div class="details-extra">
-            //                 ${descFrag}
-            //                 ${codingFrag}
-            //               </div>`;
-        }
-
-
-        // removed from now.
-   
+        let detailFrag = `
+            <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
+                <h4 style="margin-top:0; font-weight:600;">${label}</h4>
+                ${desc ? `<p style="margin:0 0 0.5rem 0; text-wrap: wrap">${desc}</p>` : ""}
+                <p><strong>${i18n.t("Data Source")}:</strong> ${resourceFrag || "-"}</p>
+                <p><strong>${i18n.t("Variable Group")}:</strong> ${groupFrag || "-"}</p>
+                <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
+                ${codingFrag}
+            </div>
+        `;
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
