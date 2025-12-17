@@ -29,6 +29,11 @@ search_all = search_base + [
     f"{search}resources.js",
     f"{search}variables.js"
 ]
+search_activities = search_base + [f"{search}activities.js"]
+search_bibliographicresources = search_base + [f"{search}bibliographic-resources.js"]
+search_global = search_base + [f"{search}global.js"]
+search_resources = search_base + [f"{search}resources.js"]
+search_variables = search_base + [f"{search}variables.js"]
 
 theme = WebpackThemeBundle(
     __name__,
@@ -38,7 +43,11 @@ theme = WebpackThemeBundle(
         "semantic-ui": dict(
             entry={
                 "support-record": "./js/mex_invenio/SupportRecordContainer.js",
-                "search": search_all,
+                "search_activities": search_activities, 
+                "search_bibliographicresources": search_bibliographicresources, 
+                "search_global": search_global, 
+                "search_resources": search_resources, 
+                "search_variables": search_variables, 
             },
         ),
     },
