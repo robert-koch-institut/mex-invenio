@@ -25,6 +25,7 @@ boto3 = "*"
 dotenv = "*"
 # mex-model version has implications for rendering so breaking changes should be considered carefully
 mex-model = "==4.4.0"
+polib = "*"
 
 [requires]
 python_version = "3.11"

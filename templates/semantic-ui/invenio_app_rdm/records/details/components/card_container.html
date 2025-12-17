@@ -1,3 +1,4 @@
+{% from "invenio_app_rdm/records/macros/mex_detail.html" import smart_translate %}
 {% set card_container = config.UI_SETTINGS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false, cards_exist={}, show_container=false) %}
@@ -5,10 +6,10 @@
     {% set ns.prop_exist = false %}
     {% for prop in card.properties %}
         {% if "is_backwards_linked" in prop %}
-            {%- set record_data = data.backwards_linked -%}
-        {%- else -%}
-            {%- set record_data = data -%}
-        {%- endif -%}
+            {% set record_data = data.backwards_linked %}
+        {% else %}
+            {% set record_data = data %}
+        {% endif %}
         {% if prop.field in record_data %}
             {% set ns.prop_exist = true %}
         {% endif %}
@@ -22,7 +23,7 @@
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card_container.icon) }}"
                  alt=""/>
-            {{ _(card_container.title) }}
+            {{ smart_translate(resource_type, card_container.title) }}
         </h3>
         {% for card in card_container.components %}
             {% set current_exists = ns.cards_exist[card.title] %}
@@ -31,25 +32,26 @@
             {% if current_exists %}
                 {%- if "title" in card %}
                 <h4>
-                    {{ _(card.title) }}
+                    {{ smart_translate(resource_type, card.title) }}
                 </h4>
                 {% endif %}
                 <div class="card-props">
                     {% for prop in card.properties %}
-                        {% if "is_backwards_linked" in prop%}
+                        {% if "is_backwards_linked" in prop %}
                             {% set record_data = data["backwards_linked"] %}
                         {% else %}
                             {% set record_data = data %}
                         {% endif %}
                         {% if prop.field in record_data %}
                             <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
-                            {%- if 'label' in prop %}
-                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p>
-                            {%- endif -%}
-                            <div class="card-prop-value">
-                                {{ display_values(record_data[prop.field]) }}
+                                {%- if 'label' in prop %}
+                                    {% set label = smart_translate(resource_type, prop.label) %}
+                                    <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
+                                {%- endif -%}
+                                <div class="card-prop-value">
+                                    {{ display_values(record_data[prop.field]) }}
+                                </div>
                             </div>
-                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>
