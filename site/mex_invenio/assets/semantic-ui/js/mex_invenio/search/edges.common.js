@@ -1698,8 +1698,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${i18n.t("No Variable Groups")}`
-
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : i18n.t("No Variable Groups");
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
@@ -1707,6 +1706,8 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                 }
             }
             let vFrag = vCount ? `${vCount} ${i18n.t("Variables")}` : `${i18n.t("No Variables")}`
+            let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button">
@@ -1716,12 +1717,9 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     </button>
                     <div>
                         <div class="selected-list-item">
-                            ${title}
+                            <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
                             <p class="muted" style="margin-bottom: 0">
-                                ${vgFrag}
-                            </p>
-                            <p class="muted">
-                                ${vFrag}
+                                ${frag}
                             </p>
                         </div>
                     </div>
