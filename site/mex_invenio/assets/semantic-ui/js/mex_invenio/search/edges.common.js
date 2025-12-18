@@ -2075,34 +2075,12 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         this.component.clearAll();
         this._resourceComponentsRefresh();
 
-        // let conf = confirm("Are you sure you want to remove all the selected resources?")
-
-        // if(conf) {
-        //     this.component.clearAll();
-        //     this._resourceComponentsRefresh();
-
-            // if(this.resourceComponent) {
-            //     this.resourceComponent.renderer.draw();
-            // }
-        // }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this});
+        }
     }
 
     selectResource(element) {
-        // let el = $(element);
-        // let id = el.attr("data-id");
-        //
-        // // Syncing this with resource result component.
-        // let doc = document.getElementById(`resource-list-${id}`);
-        //
-        // if (doc) {
-        //     this._resourceComponentsSelectResource(doc);
-        //     // this.resourceComponent.renderer.selectResource(doc);
-        // } else {
-        //     this.component.unselectRecord(id);
-        //     this._resourceComponentsRefresh();
-        //     // this.resourceComponent.renderer.draw();
-        // }
-
         let el = $(element);
         let id = el.attr("data-id");
 
