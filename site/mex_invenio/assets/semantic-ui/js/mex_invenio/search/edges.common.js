@@ -40,6 +40,9 @@ mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
 edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
+mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
+mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -5107,7 +5110,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                groupFrag += `<<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
+                groupFrag += `<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
             }
         }
         groupFrag += `</ul>`
