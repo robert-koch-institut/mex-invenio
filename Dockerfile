@@ -34,7 +34,18 @@ COPY ./app_data/ ${INVENIO_INSTANCE_PATH}/app_data/
 COPY ./translations/ ${INVENIO_INSTANCE_PATH}/translations/
 COPY ./ .
 
-# Run the translations
+# Merge translations
+RUN python ./site/mex_invenio/scripts/merge_translations.py ${INVENIO_INSTANCE_PATH}
+
+# Install npm dependencies and compile JS translations
+RUN cd site/mex_invenio && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm use default && \
+    npm install && \
+    npm run convert-po
+
+# Compile Py translations
 RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
 
 RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \

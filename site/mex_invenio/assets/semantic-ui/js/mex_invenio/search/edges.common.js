@@ -1698,8 +1698,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${i18n.t("No Variable Groups")}`
-
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : i18n.t("No Variable Groups");
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
@@ -1707,6 +1706,8 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                 }
             }
             let vFrag = vCount ? `${vCount} ${i18n.t("Variables")}` : `${i18n.t("No Variables")}`
+            let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+
             recordsFrag += `
                 <div class="selected-list">
                     <button class="img-button" aria-label='{{_("Remove selected dataset")}}'>
@@ -1716,12 +1717,9 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     </button>
                     <div>
                         <div class="selected-list-item">
-                            ${title}
+                            <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
                             <p class="muted" style="margin-bottom: 0">
-                                ${vgFrag}
-                            </p>
-                            <p class="muted">
-                                ${vFrag}
+                                ${frag}
                             </p>
                         </div>
                     </div>
@@ -5013,7 +5011,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             }
 
             return `
-                <button 
+                <button
                     class="img-button ${sortClasses}"
                     data-field="${field}"
                     data-dir="${currentDir(field)}">
@@ -5075,6 +5073,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
         );
 
+        const labelFrag = `
+            <div class="col--fixed-width" style="max-width: 50rem"><p class="max-line-1">${label}</p></div>
+        `
+
         const getTitle = (v) => {
             let langPrefix = mex.state.lang;
             const combineTitles = (items) => items.map(d => d.value).join(', ');
@@ -5097,9 +5099,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
         if (resources) {
-            for (let r of resources){
-
-                resourceFrag += `<a href=${r.link_id} target="_blank" class="resource-title">${getTitle(r)}</a>`
+            for (let r of resources) {
+                resourceFrag += `<div class="col--fixed-width" style="max-width: 50rem"><a href="/records/mex/${r.link_id}" target="_blank" class="resource-title">${getTitle(r)}</a></div>`
             }
         }
 
@@ -5107,7 +5108,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                groupFrag += `<span class="variable-group">${getTitle(g)}</span>`
+                groupFrag += `<<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
             }
         }
         groupFrag += `</ul>`
@@ -5149,34 +5150,16 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
         let detailFrag = i18n.t("No additional details");
         if (desc || codingFrag) {
-            if (codingFrag) {
-                codingFrag = `<div class="coding-system">
-                      <div class="coding-title">
-                        <strong>${i18n.t("Coding System")}</strong>
-                      </div>
-                      ${codingFrag}
-                    </div>`;
-            }
             detailFrag = `
-  <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
-    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
-    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
-    <p><strong>${i18n.t("Data Source")}:</strong> ${
-                resourceFrag || "-"
-            }</p>
-    <p><strong>${i18n.t("Variable Group")}:</strong> ${
-                groupFrag || "-"
-            }</p>
-    <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
-    ${
-                codingFrag
-                    ? `<div class="coding-system" style="margin-top:0.5rem;"><strong>${i18n.t(
-                        "Coding System"
-                    )}:</strong> ${codingFrag}</div>`
-                    : ""
-            }
-  </div>
-`;
+                <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
+                    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
+                    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
+                    <p><strong>${i18n.t("Data Source")}:</strong> ${resourceFrag}</p>
+                    <p><strong>${i18n.t("Variable Group")}:</strong> ${groupFrag}</p>
+                    <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
+                    <p><strong>${i18n.t("Coding system")}:</strong> ${codingFrag}</p>
+                </div>
+                `;
 
             //   detailFrag = `<div class="details-extra">
             //                 ${descFrag}
@@ -5196,10 +5179,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                         class="controls" src="/static/images/expand.svg" alt='' />
                     </button>
                 </td>
-                <td class="${collapsedClass}">${label}</td>
-                <td class="${collapsedClass}">${resourceFrag}</td>
-                <td class="${collapsedClass}">${groupFrag}</td>
-                <td class="${collapsedClass}">${dataType}</td>
+                <td class="${collapsedRowClass}${collapsedRowClass}--label">${label}</td>
+                <td class="${collapsedRowClass}${collapsedRowClass}--resource">${resourceFrag}</td>
+                <td class="${collapsedRowClass}${collapsedRowClass}--group">${groupFrag}</td>
+                <td class="${collapsedRowClass}${collapsedRowClass}--data-type">${dataType}</td>
             </tr>
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
@@ -5209,10 +5192,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                         class="controls" src="/static/images/shrink.svg" alt='' />
                     </button>
                 </td>
-                <td class="${expandedClass}"><strong>${label}</strong></td>
-                <td class="${expandedClass}"><strong>${resourceFrag}</strong></td>
-                <td class="${expandedClass}"><strong>${groupFrag}</strong></td>
-                <td class="${expandedClass}"><strong>${dataType}</strong></td>
+                <td class="${collapsedRowClass}${expandedRowClass}--label"><strong>${label}</strong></td>
+                <td class="${collapsedRowClass}${expandedRowClass}--resource"><strong>${resourceFrag}</strong></td>
+                <td class="${collapsedRowClass}${expandedRowClass}--group"><strong>${groupFrag}</strong></td>
+                <td class="${collapsedRowClass}${expandedRowClass}--data-type"><strong>${dataType}</strong></td>
             </tr>
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-bottom" role="row" style="display:none; border-top: 0;">
