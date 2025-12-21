@@ -188,7 +188,7 @@ mex._keymode = false;
 mex._jinja_babel = function () {
     let temp = "";
     for (let r in mex._register) {
-        temp += `"${mex._register[r]}": "{{ _("${mex._register[r]}") }}",\n`;
+        temp += `"${mex._register[r]}": "{{ i18n.t(${mex._register[r]}") }}",\n`;
     }
     return temp;
 };
@@ -954,7 +954,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}" type="button" aria-label='{{_("Open selected datasets section")}}'></button>`;
+            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}" type="button" aria-label='{{i18n.t(Open selected datasets section")}}'></button>`;
         }
 
         let facetSidebar = "";
@@ -1512,13 +1512,13 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<button class="${removeClass} img-button" aria-label='{{_("Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
+                        filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
                                         <img src="/static/images/close.svg" class="img-button-icon" title="Remove"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<button class="${removeClass} img-button" aria-label='{{_("Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
+                        filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
                                         <img src="/static/images/close.svg" class="img-button-icon"  title="Remove"/>
                                     </button>`;
                     }
@@ -1710,7 +1710,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
             recordsFrag += `
                 <div class="selected-list">
-                    <button class="img-button" aria-label='{{_("Remove selected dataset")}}'>
+                    <button class="img-button" aria-label='{{i18n.t(Remove selected dataset")}}'>
                       <img
                         data-id="${id}"
                         class="${selectClass} controls close-icon" src="/static/images/close.svg" />
@@ -1731,7 +1731,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         let frag = `
             <div class="card card-shadow">
                 <div id="control-section">
-                    <button type="button" class="img-button" aria-label='{{_("Close selected dataset section")}}'>
+                    <button type="button" class="img-button" aria-label='{{i18n.t(Close selected dataset section")}}'>
                         <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="" />
                     </button>
                 </div>
@@ -1970,7 +1970,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             recordsFrag += `
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="img-button" type="button" aria-label='{{_("Remove")}}'>
+                        <button class="img-button" type="button" aria-label='{{i18n.t(Remove")}}'>
                             <img
                             data-id="${id}"
                             class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='' />
@@ -3130,7 +3130,7 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                         <div class="sixteen wide column">
                             <div class="ui buttons">
                                 <button type="button" class="ui button mini" id="${sizeId}" title="List Size">0</button>
-                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" aria-label='{{_("List Order")}}'></button>
+                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" aria-label='{{i18n.t(List Order")}}'></button>
                             </div>
                         </div>
                     </div>
@@ -5174,7 +5174,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
                 <td class="${collapsedClass}">
-                    <button type="button" aria-label='{{_("Expand")}}' class="img-button ${collapsedClass}">
+                    <button type="button" aria-label='{{i18n.t(Expand")}}' class="img-button ${collapsedClass}">
                       <img
                         class="controls" src="/static/images/expand.svg" alt='' />
                     </button>
@@ -5187,7 +5187,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
-                    <button type="button" aria-label='{{_("Shrink")}}' class="img-button ${expandedClass}">
+                    <button type="button" aria-label='{{i18n.t(Shrink")}}' class="img-button ${expandedClass}">
                       <img
                         class="controls" src="/static/images/shrink.svg" alt='' />
                     </button>

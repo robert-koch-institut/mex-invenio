@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from 'semantic-ui-react';
 import { settings } from './settings';
+import { useTranslation } from 'react-i18next';
+
+const { t, i18n } = useTranslation();
 
 const DisplayValues = ({
   values,
@@ -45,7 +48,7 @@ const DisplayValues = ({
             className="link-like"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? `_("Show less") ▲` : `_("Show all") (${total}) ▼`}
+            {showAll ? `t("Show less") ▲` : `t("Show all") (${total}) ▼`}
           </Button>
         </>
       )}
