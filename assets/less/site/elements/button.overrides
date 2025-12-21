@@ -120,7 +120,7 @@ button {
     height: 1.05rem;
   }
 
-  img-button-icon {
+  .img-button-icon {
     width:1.5rem;
     height:1.5rem;
     vertical-align:middle

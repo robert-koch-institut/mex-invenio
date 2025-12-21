@@ -18,13 +18,7 @@ const DisplayValues = ({
   }
 
   return (
-    <div className="card-prop-value"
-      style={{
-        display: 'flex',
-        flexDirection: "column",
-        gap: "1rem"
-      }}
-    >
+    <div className="card-prop-value">
       {visible.map((v, index) => (
         <DisplayValue
           key={index}
