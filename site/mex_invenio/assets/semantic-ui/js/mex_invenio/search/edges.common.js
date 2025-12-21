@@ -1530,8 +1530,8 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${i18next.t("Clear all search and sort parameters and start again")}">
-                    ${i18next.t("Clear all")}
+            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${i18n.t("Clear all search and sort parameters and start again")}">
+                    ${i18n.t("Clear all")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1740,7 +1740,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18next.t("Clear All")} </button>
+                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1943,7 +1943,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${i18next.t(
+                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${i18n.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
@@ -1990,7 +1990,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                     ${expandAllCheckbox}
                     ${header}
                     <div style="margin-top:1.625rem">
-                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18next.t("Clear All")} </button>
+                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                     </div>
                     <div>
                         ${recordsFrag}
