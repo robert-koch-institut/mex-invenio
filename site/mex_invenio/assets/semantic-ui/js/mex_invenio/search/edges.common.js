@@ -1513,13 +1513,13 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
                         filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
-                                        <img src="/static/images/close.svg" class="img-button-icon" title="Remove"/>
+                                        <img src="/static/images/close.svg" alt='{{i18n.t(Remove")}}' class="img-button-icon" title="Remove"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
                         filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
-                                        <img src="/static/images/close.svg" class="img-button-icon"  title="Remove"/>
+                                        <img src="/static/images/close.svg" alt='{{i18n.t(Remove")}}'s class="img-button-icon"  title="Remove"/>
                                     </button>`;
                     }
                 }
@@ -1713,6 +1713,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <button class="img-button" aria-label='{{i18n.t(Remove selected dataset")}}'>
                       <img
                         data-id="${id}"
+                        alt='{{i18n.t(Remove selected dataset")}}'
                         class="${selectClass} controls close-icon" src="/static/images/close.svg" />
                     </button>
                     <div>
@@ -1732,7 +1733,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             <div class="card card-shadow">
                 <div id="control-section">
                     <button type="button" class="img-button" aria-label='{{i18n.t(Close selected dataset section")}}'>
-                        <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="" />
+                        <img class="${hideClass} controls slide-icon" alt='{{i18n.t(Close selected dataset section")}}' src="/static/images/slide-right.svg" alt="" />
                     </button>
                 </div>
 
@@ -1973,6 +1974,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                         <button class="img-button" type="button" aria-label='{{i18n.t(Remove")}}'>
                             <img
                             data-id="${id}"
+                            alt='{{i18n.t(Remove")}}'
                             class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='' />
                         </button>
                             <span title="${title}">${truncated}</span>
@@ -5176,6 +5178,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 <td class="${collapsedClass}">
                     <button type="button" aria-label='{{i18n.t(Expand")}}' class="img-button ${collapsedClass}">
                       <img
+                        alt='{{i18n.t(Expand")}}'
                         class="controls" src="/static/images/expand.svg" alt='' />
                     </button>
                 </td>
@@ -5189,6 +5192,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 <td>
                     <button type="button" aria-label='{{i18n.t(Shrink")}}' class="img-button ${expandedClass}">
                       <img
+                        alt='{{i18n.t(Shrink")}}'
                         class="controls" src="/static/images/shrink.svg" alt='' />
                     </button>
                 </td>
