@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import re
 from unittest.mock import patch, MagicMock
 
@@ -16,7 +17,6 @@ except ImportError:
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
-import invenio_rdm_records.services.config as rdm_config
 from invenio_app.factory import create_ui
 from invenio_rdm_records.cli import (
     create_records_custom_field,
@@ -40,7 +40,7 @@ from mex_invenio.config import (
     ENTITIES,
     DISCLAIMER,
 )
-from mex_invenio.fields.custom_fields import (
+from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
