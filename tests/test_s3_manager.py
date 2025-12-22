@@ -89,7 +89,6 @@ def test_replace_file_but_fail_import(
     existing_file_path = create_file(
         f"{download_path}/{existing_file}",
         '{"identifier": "unique", "b":"a"}',
-        absolute=True,
     )
 
     # Establish the file path of the file to be downloaded from S3
@@ -99,7 +98,7 @@ def test_replace_file_but_fail_import(
     # Mock the download_file function to create the file locally
     def download_file(Bucket, Key, Filename):
         create_file(
-            downloaded_file_path, '{"identifier": "unique", "s":"b"}', absolute=True
+            downloaded_file_path, '{"identifier": "unique", "s":"b"}'
         )
 
     mock_s3_client.download_file = download_file

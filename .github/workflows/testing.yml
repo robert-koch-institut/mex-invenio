@@ -28,6 +28,10 @@ jobs:
     timeout-minutes: 10
     env:
       INVENIO_INSTANCE_PATH: ${{ github.workspace }}
+      MEX_IMPORT_BUCKET: placeholder
+      MEX_IMPORT_AWS_KEY_ID: placeholder
+      MEX_IMPORT_AWS_SECRET: placeholder
+      MEX_IMPORT_EMAIL: placeholder
 
     steps:
       - name: Checkout repo
