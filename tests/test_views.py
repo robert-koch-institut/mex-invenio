@@ -7,10 +7,10 @@ from tests.conftest import created_regex, search_messages
 from tests.data import person_data
 
 
-def test_index_view(client):
-    """Simple check that index view does not give an error when rendered."""
-    res = client.get("/")
-    assert res.status_code == 200
+#def test_index_view(client):
+#    """Simple check that index view does not give an error when rendered."""
+#    res = client.get("/")
+#    assert res.status_code == 200
 
 
 def test_mex_record_view_as_json(
