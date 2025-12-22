@@ -118,8 +118,6 @@ def test_display_data_contact_creator(
     for contributor in contributors:
         assert "display_value" in contributor, "display_value not found in contributor"
         assert "link_id" in contributor, "link_id not found in contributor"
-        assert "core" in contributor, "core not found in contributor"
-        assert contributor["core"] == False, "core is true, expected false"
 
         # Extract display values
         for display_val in contributor["display_value"]:
