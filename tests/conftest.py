@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 import sqlalchemy as sa
@@ -26,29 +26,32 @@ from invenio_rdm_records.proxies import current_rdm_records
 from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
+from mex_invenio.scripts.import_data import _import_data
+from mex_invenio.scripts.initial_import import _initial_import
 from mex_invenio.config import (
-    DISCLAIMER,
-    ENTITIES,
-    FIELD_TYPES,
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
     RECORD_METADATA_CREATOR,
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
-    TITLE_FIELDS,
+    FIELD_TYPES,
     UI_SETTINGS,
-)
-from mex_invenio.custom_fields.backwards_linked_records import (
-    get_fields_linked_backwards,
+    TITLE_FIELDS,
+    ENTITIES,
+    DISCLAIMER,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
+from mex_invenio.custom_fields.backwards_linked_records import (
+    get_fields_linked_backwards,
+)
+
 from mex_invenio.records.api import MexRDMRecord
-from mex_invenio.scripts.import_data import _import_data
-from mex_invenio.scripts.initial_import import _initial_import
+from mex_invenio.services.schema import MexRDMRecordSchema
+
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
