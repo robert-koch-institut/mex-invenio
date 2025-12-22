@@ -50,7 +50,6 @@ from mex_invenio.custom_fields.backwards_linked_records import (
 )
 
 from mex_invenio.records.api import MexRDMRecord
-from mex_invenio.services.schema import MexRDMRecordSchema
 
 
 created_regex = (

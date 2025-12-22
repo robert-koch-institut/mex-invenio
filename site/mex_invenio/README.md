@@ -37,7 +37,7 @@ python ./site/mex_invenio/scripts/merge_translations.py ${INVENIO_INSTANCE_PATH}
 - Merges mex-model base translations with UI-specific translations
 - UI translations take precedence over base translations, the lookup is done by a combination of
   `msgctxt` (if available) and `msgid`, for example: `publisher.singular` has different translations depending
-  on context, 
+  on context,
 - Creates backup files before overwriting
 
 ### Step 2: Install npm dependencies
