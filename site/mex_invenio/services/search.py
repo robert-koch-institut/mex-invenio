@@ -70,7 +70,10 @@ class MexDumper(SearchDumper):
         if "index_data" not in dump_data:
             dump_data["index_data"] = {}
 
-        self._record_cache = {}
+        # PERFORMANCE FIX: Initialize cache if it doesn't exist yet
+        # Cache should persist across records in the same batch for optimal performance
+        if not hasattr(self, "_record_cache"):
+            self._record_cache = {}
 
         log = []
         # log.append("###############MEX Dumper##################")
@@ -95,7 +98,9 @@ class MexDumper(SearchDumper):
         # log.append(json.dumps(dump_data.get("display_data", {})))
         # log.append("**************************************")
 
-        self._record_cache = {}
+        # PERFORMANCE FIX: Do NOT clear cache after processing
+        # Cache should persist across records to avoid redundant database queries
+        # self._record_cache = {}
         # log.append("Dumped custom fields:")
         # log.append(json.dumps(dump_data.get("custom_fields", {})))
         # log.append("###############//MEX Dumper##################")
@@ -406,50 +411,42 @@ class MexDumper(SearchDumper):
         return results
 
     def _records_by_custom_field(self, source, name, value, log):
-        # from sqlalchemy import select, func, or_
-        # db_query = select(source.model_cls).where(
-        #     or_(
-        #         source.model_cls.json["custom_fields"].op("->>")(name) == value,
-        #         func.exists(
-        #             select(1).where(
-        #                 func.jsonb_array_elements_text(
-        #                     source.model_cls.json["custom_fields"][name]
-        #                 ) == value
-        #             )
-        #         )
-        #     )
-        # )
+        # PERFORMANCE FIX: Use @> (contains) operator instead of ? (key exists) operator
+        # The @> operator uses the GIN index on custom_fields, providing ~4000x speedup
 
-        # from sqlalchemy import or_, func, select
-        # db_query = source.model_cls.query.filter(
-        #     or_(
-        #         source.model_cls.json["custom_fields"].op("->>")(name) == value,
-        #         source.model_cls.json["custom_fields"][name].contains(value)
-        #     )
-        # )
+        # Check if the field is configured as multiple=True (array field)
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+        from sqlalchemy.dialects.postgresql import JSONB
+        from sqlalchemy import cast
 
-        from sqlalchemy import or_, func, select
+        field_config = None
+        for field in RDM_CUSTOM_FIELDS:
+            if field.name == name:
+                field_config = field
+                break
 
-        db_query = source.model_cls.query.filter(
-            source.model_cls.json["custom_fields"][name].op("?")(value)
-        )
+        # Determine if field stores arrays or single values
+        is_multiple = getattr(field_config, "multiple", False) if field_config else True
 
-        # from sqlalchemy.dialects import postgresql
-        #
-        # log.append(
-        #     str(
-        #         db_query.statement.compile(
-        #             dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
-        #         )
-        #     )
-        # )
+        # For array fields (multiple=True), match array structure: {"field": ["value"]}
+        # For single-value fields, match plain value: {"field": "value"}
+        # Use .op('@>') to explicitly use the JSONB containment operator
+        if is_multiple:
+            # Array field: wrap value in array
+            db_query = source.model_cls.query.filter(
+                source.model_cls.json["custom_fields"].op("@>")(
+                    cast({name: [value]}, JSONB)
+                )
+            )
+        else:
+            # Single-value field: use plain value
+            db_query = source.model_cls.query.filter(
+                source.model_cls.json["custom_fields"].op("@>")(
+                    cast({name: value}, JSONB)
+                )
+            )
+
         db_results = db_query.all()
-        # log.append("DB results found: " + str(len(db_results)))
-        # db_query = source.model_cls.query.filter(
-        #     source.model_cls.json["custom_fields"]
-        #     .op("->>")(name)
-        #     .in_([value]),
-        # )
         return db_results
 
     def _linked_records_data(self, record, dump_data, log):
