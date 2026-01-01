@@ -43,10 +43,11 @@
                 const hidden = this.previousElementSibling;
                 const isHidden = hidden.style.display === 'none';
                 hidden.style.display = isHidden ? 'block' : 'none';
-                this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                this.textContent = isHidden
+                    ? `{{ _('Show less') }} ▲` : `{{ _('Show all') }} ({{ total }}) ▼`;
             "
         >
-            Show all ({{ total }}) &#x25BE;
+            {{ _('Show all') }} ({{ total }}) ▼
         </button>
     {% endif %}
 

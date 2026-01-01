@@ -39,7 +39,7 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
-edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -188,7 +188,7 @@ mex._keymode = false;
 mex._jinja_babel = function () {
     let temp = "";
     for (let r in mex._register) {
-        temp += `"${mex._register[r]}": "{{ _("${mex._register[r]}") }}",\n`;
+        temp += `"${mex._register[r]}": "{{ i18n.t(${mex._register[r]}") }}",\n`;
     }
     return temp;
 };
@@ -199,7 +199,7 @@ mex.getLangVal = function (path, res, def) {
     if (field.length === 0) {
         return def;
     }
-    let priority = [edges.mex.state.lang, "de", "en"];
+    let priority = [mex.state.lang, "de", "en"];
     for (let p of priority) {
         for (let i = 0; i < field.length; i++) {
             if (p === field[i].language) {
@@ -954,7 +954,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}" type="button" aria-label='{{i18n.t(Open selected datasets section")}}'></button>`;
         }
 
         let facetSidebar = "";
@@ -1498,7 +1498,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
             }
 
             for (var j = 0; j < def.values.length; j++) {
-                filters += `<span class="filters ${fieldClass}">`;
+                filters += `<div class="filters ${fieldClass}"><span>`;
                 if (this.showFilterField) {
                     filters += `<span class="${fieldNameClass}">${def.display}:&nbsp;</span>`;
                 }
@@ -1507,31 +1507,31 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
                 if ($.inArray(field, this.hideValues) > -1) {
                     valDisplay = "";
                 }
-                filters += `<span class="${valClass}">${val.display}</span>`;
+                filters += `<span class="${valClass}">${val.display}</span></span>`;
 
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                        filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
+                                        <img src="/static/images/close.svg" alt='{{i18n.t(Remove")}}' class="img-button-icon" title="Remove"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
-                                        <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
+                        filters += `<button class="${removeClass} img-button" aria-label='{{i18n.t(Remove")}}' data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
+                                        <img src="/static/images/close.svg" alt='{{i18n.t(Remove")}}'s class="img-button-icon"  title="Remove"/>
                                     </button>`;
                     }
                 }
 
-                filters += "</span>";
+                filters += "</div>";
             }
         }
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="Clear all search and sort parameters and start again">
-                    Clear all
+            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="${i18n.t("Clear all search and sort parameters and start again")}">
+                    ${i18n.t("Clear all")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1710,10 +1710,11 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
             recordsFrag += `
                 <div class="selected-list">
-                    <button class="img-button">
+                    <button class="img-button" aria-label='{{i18n.t(Remove selected dataset")}}'>
                       <img
                         data-id="${id}"
-                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt="Slide right" />
+                        alt='{{i18n.t(Remove selected dataset")}}'
+                        class="${selectClass} controls close-icon" src="/static/images/close.svg" />
                     </button>
                     <div>
                         <div class="selected-list-item">
@@ -1727,12 +1728,12 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
-        
+
         let frag = `
             <div class="card card-shadow">
                 <div id="control-section">
-                    <button class="img-button">
-                    <img class="${hideClass} controls slide-icon" src="/static/images/slide-right.svg" alt="Slide right" />
+                    <button type="button" class="img-button" aria-label='{{i18n.t(Close selected dataset section")}}'>
+                        <img class="${hideClass} controls slide-icon" alt='{{i18n.t(Close selected dataset section")}}' src="/static/images/slide-right.svg" alt="" />
                     </button>
                 </div>
 
@@ -1740,7 +1741,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1911,8 +1912,8 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 for (let hit of hits) {
                     if (record.uuid === hit._id) {
                         if (hit.highlight) {
-                            if (hit.highlight[edges.mex.constants.TITLE]) {
-                                title = hit.highlight[edges.mex.constants.TITLE][0];
+                            if (hit.highlight[mex.constants.TITLE]) {
+                                title = hit.highlight[mex.constants.TITLE][0];
                                 title = title.replace(/<em>/g, "<code>");
                                 title = title.replace(/<\/em>/g, "</code>");
                             }
@@ -1943,7 +1944,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button class="${variableToggleClass} ui button link-like">${i18n.t(
+                vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${i18n.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
@@ -1970,10 +1971,11 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             recordsFrag += `
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="img-button">
-                        <img
-                        data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                        <button class="img-button" type="button" aria-label='{{i18n.t(Remove")}}'>
+                            <img
+                            data-id="${id}"
+                            alt='{{i18n.t(Remove")}}'
+                            class="${selectClass} controls close-icon" src="/static/images/close.svg" alt='' />
                         </button>
                             <span title="${title}">${truncated}</span>
                         </div>
@@ -1986,11 +1988,11 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         let frag = "";
         if (recordsFrag) {
             frag = `
-                <div class="">
+                <div>
                     ${expandAllCheckbox}
                     ${header}
-                    <div class="" style="margin-top:1.625rem">
-                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    <div style="margin-top:1.625rem">
+                      <button type="button" class="ui black basic button ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -2389,11 +2391,11 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             srOnly = `sr-only`;
         }
         searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
-        searchBox += `<input type="text" 
-                            id="${textId}" 
-                            class="ui input input--search ${textClass}" 
-                            name="q" 
-                            placeholder="${this.searchPlaceholder}" 
+        searchBox += `<input type="text"
+                            id="${textId}"
+                            class="ui input input--search ${textClass}"
+                            name="q"
+                            placeholder="${this.searchPlaceholder}"
                         />
                         </div>`;
 
@@ -3129,8 +3131,8 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                     <div class="ui grid">
                         <div class="sixteen wide column">
                             <div class="ui buttons">
-                                <button type="button" class="ui button mini" id="${sizeId}" title="List Size" href="#">0</button>
-                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" href="#"></button>
+                                <button type="button" class="ui button mini" id="${sizeId}" title="List Size">0</button>
+                                <button type="button" class="ui button mini" id="${orderId}" title="List Order" aria-label='{{i18n.t(List Order")}}'></button>
                             </div>
                         </div>
                     </div>
@@ -4328,7 +4330,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 }
                 frag += `</div>`
             }
-            
+
             frag += `</div>`
         ;
 
@@ -4522,8 +4524,8 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         for (let hit of hits) {
             if (record.uuid === hit._id) {
                 if (hit.highlight) {
-                    if (hit.highlight[edges.mex.constants.TITLE]) {
-                        truncated = hit.highlight[edges.mex.constants.TITLE][0];
+                    if (hit.highlight[mex.constants.TITLE]) {
+                        truncated = hit.highlight[mex.constants.TITLE][0];
                         truncated = truncated.replace(/<em>/g, "<code>");
                         truncated = truncated.replace(/<\/em>/g, "</code>");
                     }
@@ -4559,7 +4561,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             this.component.id
         );
         if (vgs.length > 0) {
-            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
+            vgFrag = `<button type="button" class="${variableToggleClass} ui button link-like">${i18n.t("Variable Groups")}
                             <span class="dir">▾</span></button>
                       <div id="${variableGroupsId}" style="display:none;">
                         <ul>`;
@@ -4589,6 +4591,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                 <div class="card">
                     <div class="selected-list-item">
                         <button class="${selectClass} ui icon button ${selectState}"
+                            type="button"
                             id="${buttonId}"
                             data-id="${record.id}"
                             data-state="${selectState}"
@@ -4780,7 +4783,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     const frag = `<div class="card">
             ${resourceTypeMacro()}
             ${titleMacro(title, res.id)}
-            
+
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
             </div>
@@ -5010,7 +5013,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             }
 
             return `
-                <button 
+                <button
                     class="img-button ${sortClasses}"
                     data-field="${field}"
                     data-dir="${currentDir(field)}">
@@ -5018,8 +5021,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 </button>`;
         }
 
-        let langPrefix = edges.mex.state.lang;
-        let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN_KW : edges.mex.constants.USED_IN_DE_KW;
+        let langPrefix = mex.state.lang;
+        let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN_KW : mex.constants.USED_IN_DE_KW;
 
         // Main table
         var container = `
@@ -5092,9 +5095,9 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             return combineTitles(selected);
         }
 
-        // let langPrefix = edges.mex.state.lang;
-        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
-        let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
+        // let langPrefix = mex.state.lang;
+        // let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
+        let resources = edges.util.pathValue(mex.constants.USED_IN_DISPLAY, res, []);
         // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
         if (resources) {
@@ -5103,7 +5106,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             }
         }
 
-        let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
+        let groups = edges.util.pathValue(mex.constants.BELONGS_TO_DISPLAY, res, []);
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
@@ -5168,14 +5171,15 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
 
         // removed from now.
-   
+
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
-                <td>
-                    <button class="img-button ${collapsedClass}">
+                <td class="${collapsedClass}">
+                    <button type="button" aria-label='{{i18n.t(Expand")}}' class="img-button ${collapsedClass}">
                       <img
-                        class="controls" src="/static/images/expand.svg" alt="expand icon" />
+                        alt='{{i18n.t(Expand")}}'
+                        class="controls" src="/static/images/expand.svg" alt='' />
                     </button>
                 </td>
                 <td class="${collapsedRowClass}${collapsedRowClass}--label">${label}</td>
@@ -5186,9 +5190,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
                 <td>
-                    <button class="img-button ${expandedClass}">
+                    <button type="button" aria-label='{{i18n.t(Shrink")}}' class="img-button ${expandedClass}">
                       <img
-                        class="controls" src="/static/images/shrink.svg" alt="shrink icon" />
+                        alt='{{i18n.t(Shrink")}}'
+                        class="controls" src="/static/images/shrink.svg" alt='' />
                     </button>
                 </td>
                 <td class="${collapsedRowClass}${expandedRowClass}--label"><strong>${label}</strong></td>

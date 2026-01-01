@@ -1,6 +1,6 @@
 <span class="click-to-copy">
-  <button onclick="copyToClipboard('{{ emailAddress }}', this)"
-          aria-label="{{ _('Copy mex email address') }}"  title='{{_("Copy email address") }}'>
+  <button type="button" onclick="copyToClipboard('{{ emailAddress }}', this)"
+          aria-label='{{_("Copy email address") }}' title='{{_("Copy email address") }}'>
     <img class="ui image icon"
          src="{{ url_for('static', filename='icons/copy.svg') }}"
          alt='{{_("Copy email address") }}'
@@ -21,7 +21,7 @@
       copiedMsg.style.display = 'inline';
 
       // Announce for screen readers
-      copiedMsg.textContent = '{{ _('Copied!') }}';
+      copiedMsg.textContent = '{{_("Copied!") }}';
 
       // Reset any previously set timers
       if (imgElement._copyTimeout) {

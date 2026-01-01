@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from 'semantic-ui-react';
 import { settings } from './settings';
+import { useTranslation } from 'react-i18next';
+
+const { t, i18n } = useTranslation();
 
 const DisplayValues = ({
   values,
@@ -15,13 +18,7 @@ const DisplayValues = ({
   }
 
   return (
-    <div className="card-prop-value"
-      style={{ 
-        display: 'flex', 
-        flexDirection: "column",
-        gap: "1rem" 
-      }}
-    >
+    <div className="card-prop-value">
       {visible.map((v, index) => (
         <DisplayValue
           key={index}
@@ -41,10 +38,11 @@ const DisplayValues = ({
           </div>
 
           <Button
+            type="button"
             className="link-like"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? 'Show less ▲' : `Show all (${total}) ▼`}
+            {showAll ? `t("Show less") ▲` : `t("Show all") (${total}) ▼`}
           </Button>
         </>
       )}

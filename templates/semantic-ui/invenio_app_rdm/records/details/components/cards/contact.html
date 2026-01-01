@@ -12,17 +12,17 @@
         {% set combined_names = ns.names | join(', ') %}
         {%- if "email" in value and value.email %}
             <span class="email-container">
-            <button type="button" 
-                class="ui button link-like" 
-                data-record-id="{{ value.url }}" 
-                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+            <button type="button"
+                class="ui button link-like"
+                data-record-id="{{ value.url }}"
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')"
                 style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
                 {{ combined_names }}
             </button>
                 <a href="mailto:{{ value.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
                 <img class="ui image icon"
                     src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                    alt="send email"
+                    alt='{{_("Send email") }}'
                     title='{{_("Send email") }}'
                 />
                 </a>
@@ -31,10 +31,10 @@
                 {% endwith %}
             </span>
         {%- else -%}
-            <button type="button" 
-                class="ui button link-like" 
-                data-record-id="{{ value.url }}" 
-                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+            <button type="button"
+                class="ui button link-like"
+                data-record-id="{{ value.url }}"
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')"
                 style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
                 {{ combined_names }}
             </button>
@@ -76,10 +76,11 @@
                                         const hidden = this.previousElementSibling;
                                         const isHidden = hidden.style.display === 'none';
                                         hidden.style.display = isHidden ? 'block' : 'none';
-                                        this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                                        this.textContent = isHidden
+                                            ? `{{ _('Show less') }} ▲` : `{{ _('Show all') }} ({{ total }}) ▼`;
                                     "
                                 >
-                                    Show all ({{ total }}) &#x25BE;
+                                    {{ _('Show all') }} ({{ total }}) ▼
                                 </button>
                             {% endif %}
                         </div>
