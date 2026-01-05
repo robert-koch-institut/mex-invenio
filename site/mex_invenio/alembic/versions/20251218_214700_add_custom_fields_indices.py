@@ -11,10 +11,6 @@ Expected impact:
 - Query performance: 10-100x faster
 - Indexing throughput: 10-50x faster
 - Database CPU usage: ~85% reduction
-
-The indices are created using CONCURRENTLY to avoid locking the table.
-This means the migration can run while the application is live, but it will
-take 5-15 minutes to complete for ~60K records.
 """
 
 from alembic import op
