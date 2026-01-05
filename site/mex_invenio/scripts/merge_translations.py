@@ -153,12 +153,12 @@ def merge_translations(
 
     # Print merge statistics
     if merge_ui:
-        print(f"\n=== MERGE RESULTS ===")
+        print("\n=== MERGE RESULTS ===")
         print(f"Base entries used (no override): {base_used}")
         print(f"UI entries overriding base: {ui_overrides}")
         print(f"UI-only entries (not in base): {ui_only}")
     else:
-        print(f"\n=== COPY RESULTS ===")
+        print("\n=== COPY RESULTS ===")
         print(f"Base entries copied: {base_used}")
 
     print(f"Total entries in messages.po: {len(messages_po)}")
@@ -189,7 +189,7 @@ def merge_translations(
 
     # Show some examples of what was processed
     if merge_ui and ui_overrides > 0:
-        print(f"\n=== EXAMPLES OF UI OVERRIDES ===")
+        print("\n=== EXAMPLES OF UI OVERRIDES ===")
         override_count = 0
         for entry in messages_po:
             if entry.msgid:
@@ -203,7 +203,7 @@ def merge_translations(
             print(f"... and {ui_overrides - 5} more overrides")
 
     if merge_ui and ui_only > 0:
-        print(f"\n=== EXAMPLES OF UI-ONLY ENTRIES ===")
+        print("\n=== EXAMPLES OF UI-ONLY ENTRIES ===")
         only_count = 0
         for entry in messages_po:
             if entry.msgid:
@@ -219,7 +219,7 @@ def merge_translations(
             print(f"... and {ui_only - 5} more ui-only entries")
 
     if base_used > 0:
-        print(f"\n=== EXAMPLES OF BASE ENTRIES ===")
+        print("\n=== EXAMPLES OF BASE ENTRIES ===")
         example_count = 0
         for entry in messages_po:
             if entry.msgid and example_count < 5:  # Show first 5 examples

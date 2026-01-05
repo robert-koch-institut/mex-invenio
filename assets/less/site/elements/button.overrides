@@ -79,7 +79,7 @@ button {
     top: 9.5rem;
     right: -0;
     transform: rotate(180deg) translateX(-100%);
-    
+
     background: @white;
     padding: 1rem .75rem;
     color: @black;

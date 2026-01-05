@@ -33,8 +33,6 @@ from invenio_rdm_records.proxies import current_rdm_records_service
 
 from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
-    normalize_record_data,
-    get_related_mex_ids,
 )
 
 from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp

@@ -15,7 +15,7 @@ def _get_fields_linked_backwards_for_one_type(obj, result=None):
         if (
             "field" in obj
             and "is_backwards_linked" in obj
-            and obj["is_backwards_linked"] == True
+            and obj["is_backwards_linked"] is True
         ):
             result.append(obj["field"])
         # Otherwise, recurse on all the values

@@ -197,7 +197,7 @@ def manage_s3_files(initial: bool = False):
 
             if not result:
                 logger.error(
-                    f"Error in import_data, check the import log files for more details."
+                    "Error in import_data, check the import log files for more details."
                 )
                 sys.exit(1)
             else:
