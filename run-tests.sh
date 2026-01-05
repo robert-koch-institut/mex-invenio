@@ -1,10 +1,3 @@
 #!/bin/bash
-source $(pipenv --venv)/bin/activate
-
-eval "$(docker-services-cli up --db ${DB:-postgresql} --search ${SEARCH:-opensearch2} --cache ${CACHE:-redis} --mq ${MQ:-rabbitmq} --env)"
-
-python -m pytest -W ignore -s
-
-docker-services-cli down
-
-deactivate
+echo -e "\033[0;31mWarning: 'run-tests.sh' is deprecated, please use 'make test'\033[0m"
+make test

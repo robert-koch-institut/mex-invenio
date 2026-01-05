@@ -33,7 +33,7 @@
     .custom-modal-header {
         height: 8.5rem;
         button.back {
-            
+
             position: relative;
             top: 6rem;
             left: 1.25rem;
@@ -50,7 +50,7 @@
 
     .content {
         background-color: transparent;
-        padding: 0 1.25rem 1.25rem 1.25rem; 
+        padding: 0 1.25rem 1.25rem 1.25rem;
 
         .user-info {
         .item {

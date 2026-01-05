@@ -26,7 +26,7 @@ class DisplayField(SystemField):
     def __get__(self, record, owner=None):
         """Get the display data."""
         print(
-           f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
+            f"DisplayField.__get__ called for record: {record.get('id', 'unknown') if record else 'None'}"
         )
 
         if record is None:
@@ -52,7 +52,7 @@ class DisplayField(SystemField):
             #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
             # )
             return display_data
-        except Exception as e:
+        except Exception:
             return {}
             # print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
@@ -87,6 +87,7 @@ class DisplayField(SystemField):
             data["display_data"] = record["display_data"]
         # else:
         #    print("display_data not added to dump")
+
 
 class IndexField(SystemField):
     """Field for storing searchable index data."""

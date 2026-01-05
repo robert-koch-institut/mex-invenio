@@ -63,12 +63,10 @@ class MexRecord(MethodView):
         record = json.loads(record_ui)
 
         data = normalise_record_data(record)
-        record_type = record.get("metadata", {}).get("resource_type", {}).get("id", None)
-        core_records = [
-            "activity",
-            "resource",
-            "bibliographicresource"
-        ]
+        record_type = (
+            record.get("metadata", {}).get("resource_type", {}).get("id", None)
+        )
+        core_records = ["activity", "resource", "bibliographicresource"]
 
         if as_json:
             if normalised:
@@ -76,7 +74,7 @@ class MexRecord(MethodView):
             return record
 
         # return the record as JSON if it is not a core type
-        if not record_type in core_records:
+        if record_type not in core_records:
             record["normalised"] = data
             return record
 

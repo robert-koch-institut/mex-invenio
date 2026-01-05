@@ -1,4 +1,5 @@
-import json, urllib.parse
+import json
+import urllib.parse
 from functools import wraps
 
 from flask import (
@@ -9,9 +10,8 @@ from flask import (
     abort,
     render_template,
     make_response,
-    jsonify,
     request,
-    g
+    g,
 )
 from invenio_access.permissions import system_identity
 
@@ -22,7 +22,6 @@ from invenio_pidstore.errors import (
     PIDDoesNotExistError,
     PIDUnregistered,
 )
-from invenio_rdm_records.records.api import RDMRecord
 from mex_invenio.services.search import MexSearchOptions
 
 
