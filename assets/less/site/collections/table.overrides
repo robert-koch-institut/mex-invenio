@@ -53,17 +53,27 @@
     max-width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    col.narrow {
+        width: 1.5rem;
+    }
     th, tr, td {
         background: transparent;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        div {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
     tr {
         border-bottom: 1px solid @borderColor;
     }
     tr td:first-child {
-        width: 3rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     th, td {
         border-left: none !important;

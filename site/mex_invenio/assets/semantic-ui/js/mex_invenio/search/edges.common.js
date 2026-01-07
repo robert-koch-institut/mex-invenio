@@ -5025,7 +5025,11 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         var container = `
         ${expandAllCheckbox}
         <table class="${containerClasses} ui celled table unstackable" style="border: none;background: transparent !important;">
-          <thead>
+            <colgroup>
+                <col class="narrow" />
+                <col span="4"/>
+            </colgroup>
+            <thead>
             <tr>
                 <th></th>
                 <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
@@ -5042,10 +5046,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 </th>
                 <th>${i18n.t("Data Type")}</th>
             </tr>
-          </thead>
-          <tbody>
-            ${frag}
-          </tbody>
+            </thead>
+            <tbody>
+                ${frag}
+            </tbody>
         </table>
         `;
 
