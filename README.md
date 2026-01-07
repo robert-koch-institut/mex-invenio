@@ -2,8 +2,11 @@
 
 Invenio-based institutional repository and metadata platform.
 
+[![cookiecutter](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cookiecutter.yml/badge.svg)](https://github.com/robert-koch-institut/mex-template)
 [![cve-scan](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml)
 [![linting](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml)
+[![open-code](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/open-code.yml/badge.svg)](https://gitlab.opencode.de/robert-koch-institut/mex/mex-invenio)
+[![testing](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml)
 
 ## Project
 
@@ -42,6 +45,12 @@ Nordufer 20 \
 13353 Berlin \
 Germany
 
+## Package
+
+Invenio is an open source project that was initially developed by CERN. The
+`mex-invenio` repository is an implementation of an Invenio instance for the Robert Koch
+Institute. It will serve as the point of entry for the entire MEx project.
+
 ## License
 
 This package is licensed under the [MIT license](/LICENSE). All other software
@@ -51,34 +60,11 @@ components of the MEx project are open-sourced under the same license as well.
 
 ### Installation
 
-- on unix, consider using pyenv https://github.com/pyenv/pyenv
-  - get pyenv `curl https://pyenv.run | bash`
-  - install 3.9 `pyenv install 3.9`
-  - switch version `pyenv global 3.9`
-  - run `make install`
-- on windows, consider using pyenv-win https://pyenv-win.github.io/pyenv-win/
-  - follow https://pyenv-win.github.io/pyenv-win/#quick-start
-  - install 3.9 `pyenv install 3.9`
-  - switch version `pyenv global 3.9`
-  - run `.\mex.bat install`
+- install python3.11 on your system
+- on unix, run `make install`
+- on windows, run `.\mex.bat install`
 
-### Linting
+### Linting and testing
 
-- run all linters with `pre-commit run --all-files`
-
-### Unit testing
-
-Unit testing is done using a customised version of pytest, [pytest-invenio](https://github.com/inveniosoftware/pytest-invenio).
-Tests are stored in `./tests`.
-
-To install the testing environment, run the following command:
-
-```bash
-pipenv install -d
-```
-
-To run the tests, execute the following command:
-
-```bash
-./run-tests.sh
-```
+- run all linters with `make lint` or `.\mex.bat lint`
+- run all tests with `make test` (see tests/TESTS.md for details)

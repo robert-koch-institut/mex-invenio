@@ -1727,7 +1727,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
-        
+
         let frag = `
             <div class="card card-shadow">
                 <div id="control-section">
@@ -2389,11 +2389,11 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             srOnly = `sr-only`;
         }
         searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
-        searchBox += `<input type="text" 
-                            id="${textId}" 
-                            class="ui input input--search ${textClass}" 
-                            name="q" 
-                            placeholder="${this.searchPlaceholder}" 
+        searchBox += `<input type="text"
+                            id="${textId}"
+                            class="ui input input--search ${textClass}"
+                            name="q"
+                            placeholder="${this.searchPlaceholder}"
                         />
                         </div>`;
 
@@ -4328,7 +4328,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 }
                 frag += `</div>`
             }
-            
+
             frag += `</div>`
         ;
 
@@ -4780,7 +4780,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     const frag = `<div class="card">
             ${resourceTypeMacro()}
             ${titleMacro(title, res.id)}
-            
+
             <div class="subtitle ${alt ? "" : "hide"}">
                 <strong>${alt}</strong>
             </div>
@@ -5010,7 +5010,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             }
 
             return `
-                <button 
+                <button
                     class="img-button ${sortClasses}"
                     data-field="${field}"
                     data-dir="${currentDir(field)}">
@@ -5168,7 +5168,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
 
         // removed from now.
-   
+
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">

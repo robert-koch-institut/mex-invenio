@@ -45,7 +45,7 @@ export const SupportRecordData = ({
             </div>
 
             <Modal.Content className="content">
-                <div className="scrolling" 
+                <div className="scrolling"
                     style={{ maxHeight: '85vh', overflowY: "scroll" }}
                     role="region"
                     tabIndex={-1}
