@@ -40,6 +40,9 @@ mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
 edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
+mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
+mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -353,7 +356,7 @@ mex.fullSearchController = function (params) {
         category: params.category || "full",
         sortOptions: params.sortOptions || [],
         fieldOptions: params.fieldOptions || [],
-        defaultField: params.defaultField || "*",
+        defaultField: params.defaultField || false,
         renderer: new mex.renderers.SidebarSearchController({
             searchButton: params.searchButton ?? true,
             clearButton: params.clearButton ?? false,
@@ -2072,34 +2075,12 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         this.component.clearAll();
         this._resourceComponentsRefresh();
 
-        // let conf = confirm("Are you sure you want to remove all the selected resources?")
-
-        // if(conf) {
-        //     this.component.clearAll();
-        //     this._resourceComponentsRefresh();
-
-            // if(this.resourceComponent) {
-            //     this.resourceComponent.renderer.draw();
-            // }
-        // }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this});
+        }
     }
 
     selectResource(element) {
-        // let el = $(element);
-        // let id = el.attr("data-id");
-        //
-        // // Syncing this with resource result component.
-        // let doc = document.getElementById(`resource-list-${id}`);
-        //
-        // if (doc) {
-        //     this._resourceComponentsSelectResource(doc);
-        //     // this.resourceComponent.renderer.selectResource(doc);
-        // } else {
-        //     this.component.unselectRecord(id);
-        //     this._resourceComponentsRefresh();
-        //     // this.resourceComponent.renderer.draw();
-        // }
-
         let el = $(element);
         let id = el.attr("data-id");
 
@@ -2345,7 +2326,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             field_select += `<div class="field">
                                 <label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
-                                    <option value="*">${i18n.t("all fields")}</option>
+                                    <option value="">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
                                 </select>
                                 </div>`;
@@ -5107,7 +5088,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let groupFrag = ``;
         if (groups) {
             for (let g of groups){
-                groupFrag += `<<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
+                groupFrag += `<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
             }
         }
         groupFrag += `</ul>`
@@ -5135,9 +5116,14 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let codingFrag = "";
         if (codingSystem.length > 0) {
             codingFrag = `
-                <ul>
-                    <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
-                </ul>`;
+                <div class="coding-system">
+                  <div class="coding-title">
+                    <strong>${i18n.t("Coding System")}</strong>
+                  </div>
+                    <ul>
+                        <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
+                    </ul>
+                </div>`;
         }
 
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
@@ -5147,18 +5133,16 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let collapsedRowClass = edges.util.jsClasses(this.namespace, "collapsed-row", this.component.id);
         let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
-        let detailFrag = i18n.t("No additional details");
-        if (desc || codingFrag) {
-            detailFrag = `
-                <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
-                    <h4 style="margin-top:0; font-weight:600;">${label}</h4>
-                    ${desc ? `<p style="margin:0 0 0.5rem 0;">${desc}</p>` : ""}
-                    <p><strong>${i18n.t("Data Source")}:</strong> ${resourceFrag}</p>
-                    <p><strong>${i18n.t("Variable Group")}:</strong> ${groupFrag}</p>
-                    <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
-                    <p><strong>${i18n.t("Coding system")}:</strong> ${codingFrag}</p>
-                </div>
-                `;
+        let detailFrag = `
+            <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
+                <h4 style="margin-top:0; font-weight:600;">${label}</h4>
+                ${desc ? `<p style="margin:0 0 0.5rem 0; text-wrap: wrap">${desc}</p>` : ""}
+                <p><strong>${i18n.t("Data Source")}:</strong> ${resourceFrag || "-"}</p>
+                <p><strong>${i18n.t("Variable Group")}:</strong> ${groupFrag || "-"}</p>
+                <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
+                ${codingFrag}
+            </div>
+        `;
 
             //   detailFrag = `<div class="details-extra">
             //                 ${descFrag}
