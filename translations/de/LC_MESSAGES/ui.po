@@ -596,4 +596,3 @@ msgstr "Gesamte Datenbank"
 
 #~ msgid "Purpose of data processing"
 #~ msgstr "Zweck der Datenverarbeitung"
-

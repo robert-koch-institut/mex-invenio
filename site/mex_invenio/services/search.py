@@ -7,7 +7,6 @@ from invenio_records_resources.services.base.config import SearchOptionsMixin
 from invenio_search import RecordsSearchV2
 from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_records.dumpers import SearchDumper
-import json
 
 from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
@@ -15,6 +14,7 @@ from mex_invenio.search.params import (
     HighlightParamsInterpreter,
 )
 # from mex_invenio.custom_record import MexRDMRecord
+
 
 def normalize_display_value(display_value):
     """Normalize display_value to ensure consistent object structure.
@@ -517,8 +517,6 @@ class MexDumper(SearchDumper):
         #     )
         # )
 
-        from sqlalchemy import or_, func, select
-
         db_query = source.model_cls.query.filter(
             source.model_cls.json["custom_fields"][name].op("?")(value)
         )
@@ -648,17 +646,13 @@ class MexDumper(SearchDumper):
                         .get("id", None)
                     )
 
-                    core_records = [
-                            "activity",
-                            "resource",
-                            "bibliographicresource"
-                        ]
+                    core_records = ["activity", "resource", "bibliographicresource"]
                     if record_type and record_type in core_records:
                         print(f"Found core record: {record_type}")
                         field_value["core"] = record_type
 
                     # Try to find display value from props
-                    if not "TITLE_FIELDS" in current_app.config:
+                    if "TITLE_FIELDS" not in current_app.config:
                         # log.append(
                         #    "I don't know which fields are the titles; returning not changed."
                         # )
@@ -712,20 +706,19 @@ class MexDumper(SearchDumper):
                 record_json = r.json if hasattr(r, "json") else r
                 print("record_json: ", record_json)
 
-                record_type = record_json.get("metadata", {}).get("resource_type", {}).get("id", None)
+                record_type = (
+                    record_json.get("metadata", {})
+                    .get("resource_type", {})
+                    .get("id", None)
+                )
 
-                core_records = [
-                        "activity",
-                        "resource",
-                        "bibliographicresource"
-                    ]
+                core_records = ["activity", "resource", "bibliographicresource"]
                 record_core = None
                 if record_type and record_type in core_records:
                     print(f"Found core record: {record_type}")
                     record_core = record_type
 
-
-                if not "TITLE_FIELDS" in current_app.config:
+                if "TITLE_FIELDS" not in current_app.config:
                     # log.append(
                     #    "I don't know which fields are the titles; returning not changed."
                     # )
@@ -739,7 +732,7 @@ class MexDumper(SearchDumper):
                                     "mex:identifier"
                                 ),
                                 "display_value": normalize_display_value(display_value),
-                                "core": record_core if record_core else ""
+                                "core": record_core if record_core else "",
                             }
                         )
                         break
@@ -754,7 +747,7 @@ class MexDumper(SearchDumper):
                             "display_value": [{"value": identifier}]
                             if identifier
                             else [{"value": "Unknown"}],
-                            "core": record_core if record_core else ""
+                            "core": record_core if record_core else "",
                         }
                     )
 

@@ -18,7 +18,7 @@ def test_import_org_unit(
     rec_cf = record["custom_fields"]
 
     assert record["metadata"]["title"] == org_unit_data["name"][0]["value"]
-    assert rec_cf is not {}
+    assert rec_cf != {}
     assert rec_cf["mex:identifier"] == org_unit_data["identifier"]
     assert rec_cf["mex:shortName"][0]["value"] == org_unit_data["shortName"][0]["value"]
     assert org_unit_data["unitOf"] == rec_cf["mex:unitOf"]

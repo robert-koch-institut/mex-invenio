@@ -40,4 +40,3 @@ export const useData = (mexId) => {
 
   return { data, loading, error };
 }
-

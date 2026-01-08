@@ -12,10 +12,10 @@
         {% set combined_names = ns.names | join(', ') %}
         {%- if "email" in value and value.email %}
             <span class="email-container">
-            <button type="button" 
-                class="ui button link-like" 
-                data-record-id="{{ value.url }}" 
-                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+            <button type="button"
+                class="ui button link-like"
+                data-record-id="{{ value.url }}"
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')"
                 style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
                 {{ combined_names }}
             </button>
@@ -31,10 +31,10 @@
                 {% endwith %}
             </span>
         {%- else -%}
-            <button type="button" 
-                class="ui button link-like" 
-                data-record-id="{{ value.url }}" 
-                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')" 
+            <button type="button"
+                class="ui button link-like"
+                data-record-id="{{ value.url }}"
+                onclick="supportRecordHandler('{{value.url }}', '{{ combined_names }}')"
                 style="overflow: hidden; text-wrap: nowrap; max-width: 80%">
                 {{ combined_names }}
             </button>

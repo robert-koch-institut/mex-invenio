@@ -895,7 +895,6 @@
                         "type": "text"
                     },
                     "deVariableGroups": {
-                        "type": "object",
                         "properties": {
                             "mex_id": {
                                 "fields": {
@@ -915,7 +914,8 @@
                                 },
                                 "type": "text"
                             }
-                        }
+                        },
+                        "type": "object"
                     },
                     "enFunderOrCommissioners": {
                         "fields": {
@@ -936,7 +936,6 @@
                         "type": "text"
                     },
                     "enVariableGroups": {
-                        "type": "object",
                         "properties": {
                             "mex_id": {
                                 "fields": {
@@ -956,7 +955,8 @@
                                 },
                                 "type": "text"
                             }
-                        }
+                        },
+                        "type": "object"
                     },
                     "externalAssociates": {
                         "fields": {
