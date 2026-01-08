@@ -57,12 +57,23 @@ edges.instances.resources.init = function() {
             mex.resourceDisplay(),
 
             // right side resource selector
-            mex.resourceSelector(),
+            mex.resourceSelector({
+                onSelectToggle: edges.instances.resources.propagateSelection
+            }),
 
             // Stuff below the results
             mex.bottomPager(),
+
+            // vertical tab
+            mex.verticalTabButton(),
         ]
     })
+}
+
+edges.instances.resources.propagateSelection = function(params) {
+    let renderer = params.parent;
+    let vt = renderer.component.edge.getComponent({id: "vertical-tab"});
+    vt.draw();
 }
 
 $(document).ready(function($) {

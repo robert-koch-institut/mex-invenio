@@ -426,7 +426,8 @@ mex.recordSelector = function (params) {
     id: params.id || "selector",
     category: params.category || "right",
     renderer: new mex.renderers.SelectedRecords({
-      title: i18n.t("Datasets for Variables Search"),
+        title: i18n.t("Datasets for Variables Search"),
+        onSelectToggle: params.onSelectToggle || false,
     }),
   });
 };
@@ -492,6 +493,15 @@ mex.makeEdge = function (params) {
     });
 };
 
+mex.verticalTabButton = function(params) {
+    if (!params) { params = {}}
+    return new mex.components.VerticalTabButton({
+        id: "vertical-tab",
+        category: "vertical-tab",
+        selectorComponentId: params.selectorComponentId || "selector",
+    });
+}
+
 ////////////////////////////////////////////////////
 // Specific functions for generating field-specific widgets
 
@@ -531,8 +541,8 @@ mex.resourcePreview = function () {
     return mex.previewer({});
 };
 
-mex.resourceSelector = function () {
-    return mex.recordSelector({});
+mex.resourceSelector = function (params) {
+    return mex.recordSelector(params);
 };
 /////////////
 
@@ -952,12 +962,12 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
         let verticalTabFrag = "";
         if (this.includeVerticalTab) {
-            let verticalTabClass = edges.util.jsClasses(
-                this.namespace,
-                "verticalTab",
-                ""
-            );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
+            let verticalTabClass = edges.util.jsClasses(this.namespace, "verticalTab", "");
+            let vtComponents = edge.category("vertical-tab");
+            if (vtComponents.length > 0) {
+                // NOTE: only accepts a single component in this category
+                verticalTabFrag = `<button id="${vtComponents[0].id}" class="vertical-tab ${verticalTabClass}"></button>`;
+            }
         }
 
         let facetSidebar = "";
@@ -965,6 +975,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
             facetSidebar = `<div class="three wide column pl-0">${facetContainers}</div>`;
         }
 
+        let rightColClass = edges.util.jsClasses(this.namespace, "right-col", "");
         let frag = `
             <div class="ui grid" style="position: relative">
                 <div class="sixteen wide column px-0">
@@ -987,7 +998,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                         ${middleContainers}
                     </div>
                 </div>
-                <div id="right-col" class="five wide column" style="${rightContainerStyle} padding-right:0">
+                <div id="right-col" class="five wide column ${rightColClass}" style="${rightContainerStyle} padding-right:0">
                     ${rightContainers}
                 </div>
                 ${verticalTabFrag}
@@ -995,19 +1006,17 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
         `;
         edge.context.html(frag);
 
-        let verticalTabSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "verticalTab",
-            ""
-        );
+        let verticalTabSelector = edges.util.jsClassSelector(this.namespace, "verticalTab", "");
         edges.on(verticalTabSelector, "click", this, "showTabContent");
     }
 
-    showTabContent() {
-        const doc = document.getElementById("right-col");
-        if (doc) {
-            doc.style.display = (doc.style.display === "none") ? "" : "none";
-        }
+    showTabContent(element) {
+        let rightColSelector = edges.util.jsClassSelector(this.namespace, "right-col", "");
+        $(rightColSelector).toggle();
+        // const doc = document.getElementById("right-col");
+        // if (doc) {
+        //     doc.style.display = (doc.style.display === "none") ? "" : "none";
+        // }
     }
 };
 
@@ -1097,6 +1106,26 @@ mex.templates.SingleColumnTemplate = class extends edges.Template {
 // Components
 if (!mex.hasOwnProperty("components")) {
     mex.components = {};
+}
+
+mex.components.VerticalTabButton = class extends edges.Component {
+    constructor(params) {
+        super(params);
+
+        this.selectorComponentId = edges.util.getParam(params, "selectorComponentId", "selector");
+
+        this.selectorComponent = null;
+    }
+
+    draw() {
+        if (!this.selectorComponent) {
+            this.selectorComponent = this.edge.getComponent({id: this.selectorComponentId});
+        }
+
+        const length = this.selectorComponent.length;
+        let frag = `<span> ${i18n.t("Variables Filter")} ${length > 0 ? `(${length})` : ""} </span>`;
+        this.context.html(frag);
+    }
 }
 
 mex.components.TypeSpecificJumpOff = class extends edges.Component {
@@ -1634,6 +1663,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
         this.namespace = "select-records";
 
+        this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
         this.resourceComponentIds = edges.util.getParam(params, "resourceComponentIds", ["results"]);
 
         this.resourceComponents = [];
@@ -1758,32 +1788,12 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter</p>`
         }
         frag += `</div>`
-
-        let verticalBar = document.getElementById("vertical-tab");
-        if (verticalBar) {
-            const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${i18n.t(
-                "Variables Filter"
-            )} ${length > 0 ? `(${length})` : ""} </span>`;
-        }
-
+        
         this.component.context.html(frag);
 
-        let selectSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "select",
-            this.component.id
-        );
-        let hideSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "hide",
-            this.component.id
-        );
-        let clearAllSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "clear-all",
-            this.component.id
-        );
+        let selectSelector = edges.util.jsClassSelector(this.namespace, "select", this.component.id);
+        let hideSelector = edges.util.jsClassSelector(this.namespace, "hide", this.component.id);
+        let clearAllSelector = edges.util.jsClassSelector(this.namespace, "clear-all", this.component.id);
 
         edges.on(selectSelector, "click", this, "selectResource");
         edges.on(hideSelector, "click", this, "hideSelectedRecords");
@@ -1791,23 +1801,20 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
     }
 
     hideSelectedRecords() {
-        let doc = document.getElementById("right-col");
-        if (doc) {
-            doc.style.display = "none";
-        }
+        this.component.edge.template.showTabContent();
+        // let doc = document.getElementById("right-col");
+        // if (doc) {
+        //     doc.style.display = "none";
+        // }
     }
 
     clearAllRecords() {
         this.component.clearAll();
         this._resourceComponentsRefresh();
 
-        // let conf = confirm("Are you sure you want to remove all the selected resources?")
-
-        // if(conf) {
-        //     this.component.clearAll();
-        //     this._resourceComponentsRefresh();
-            // this.resourceComponent.renderer.draw();
-        // }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this});
+        }
     }
 
     selectResource(element) {
@@ -1817,15 +1824,9 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         this.component.unselectRecord(id);
         this._resourceComponentsSelectResource(id, true);
 
-        // Syncing this with resource result component.
-        // if (doc) {
-        //     this._resourceComponentsSelectResource(doc);
-        //     // this.resourceComponent.renderer.selectResource(doc);
-        // }
-        // else {
-        //     this._resourceComponentsRefresh();
-        //     //this.resourceComponent.renderer.draw();
-        // }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this, id: id});
+        }
     }
 
     _resourceComponentsRefresh() {
