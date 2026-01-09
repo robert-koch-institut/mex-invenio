@@ -40,6 +40,9 @@ mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
 edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
+mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
+mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -353,7 +356,7 @@ mex.fullSearchController = function (params) {
         category: params.category || "full",
         sortOptions: params.sortOptions || [],
         fieldOptions: params.fieldOptions || [],
-        defaultField: params.defaultField || "*",
+        defaultField: params.defaultField || false,
         renderer: new mex.renderers.SidebarSearchController({
             searchButton: params.searchButton ?? true,
             clearButton: params.clearButton ?? false,
@@ -2066,34 +2069,12 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         this.component.clearAll();
         this._resourceComponentsRefresh();
 
-        // let conf = confirm("Are you sure you want to remove all the selected resources?")
-
-        // if(conf) {
-        //     this.component.clearAll();
-        //     this._resourceComponentsRefresh();
-
-            // if(this.resourceComponent) {
-            //     this.resourceComponent.renderer.draw();
-            // }
-        // }
+        if (this.onSelectToggle) {
+            this.onSelectToggle({parent: this});
+        }
     }
 
     selectResource(element) {
-        // let el = $(element);
-        // let id = el.attr("data-id");
-        //
-        // // Syncing this with resource result component.
-        // let doc = document.getElementById(`resource-list-${id}`);
-        //
-        // if (doc) {
-        //     this._resourceComponentsSelectResource(doc);
-        //     // this.resourceComponent.renderer.selectResource(doc);
-        // } else {
-        //     this.component.unselectRecord(id);
-        //     this._resourceComponentsRefresh();
-        //     // this.resourceComponent.renderer.draw();
-        // }
-
         let el = $(element);
         let id = el.attr("data-id");
 
@@ -2339,7 +2320,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             field_select += `<div class="field">
                                 <label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
-                                    <option value="*">${i18n.t("all fields")}</option>
+                                    <option value="">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
                                 </select>
                                 </div>`;

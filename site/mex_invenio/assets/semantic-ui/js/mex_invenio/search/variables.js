@@ -41,7 +41,7 @@ edges.instances.variables.init = function () {
                 let sq = edge.cloneQuery();
                 sq.addMust(
                     new es.TermsFilter({
-                        field: "custom_fields.mex:identifier.keyword",
+                        field: mex.constants.MEX_ID_KW,
                         values: selectedMexIds["resources"],
                     })
                 );
@@ -67,13 +67,6 @@ edges.instances.variables.init = function () {
                 fontStyle : "small"
             }),
 
-            // mex.staticHeading ({
-            //     id:"all-resources-search-heading",
-            //     category: "column",
-            //     staticTitle : "Search Data Sources & Datasets by Title",
-            //     fontStyle : "small"
-            // }),
-
             mex.fullSearchController({
                 category: "column",
                 searchPlaceholder: i18n.t("Find resources..."),
@@ -86,16 +79,6 @@ edges.instances.variables.init = function () {
                 compactDesign : true,
             }),
 
-            // mex.resourceDisplayCompact({
-            //     id: "selected-filtered",
-            //     category: "column",
-            //     secondaryResults: "selected-filter",
-            //     title: i18n.t(" "),
-            //     hideIfNoResults: true,
-            //     onSelectToggle: function (params) {
-            //         edges.instances.variables.propagateSelection();
-            //     }
-            // }),
             mex.resourceDisplayCompact({
                 id: "all-resources",
                 category: "column",
@@ -110,31 +93,7 @@ edges.instances.variables.init = function () {
                 id: "resource-pager",
                 showPageNavigation: true,
             }),
-        ],
-        callbacks: {
-            // "edges:pre-render": function () {
-            //     // TODO: when there are no selected resources and no search, we should show the search rather
-            //     // than the empty selection
-            //
-            //     // sort out the view state of the two exclusive components
-            //     let sc = edges.active["variables-resources"].getComponent({
-            //         id: "search_controller",
-            //     });
-            //     if (sc.searchString) {
-            //         // if a search string is set, show the search results and hide the selector
-            //         $("#selector").hide();
-            //         // $("#selected-filtered").show();
-            //         // $("#all-resources").show();
-            //         // $("#resource-pager").show();
-            //     } else {
-            //         // if no search string is set, show the selector and hide the results
-            //         // $("#selected-filtered").hide();
-            //         $("#all-resources").show();
-            //         // $("#resource-pager").show();
-            //         // $("#selector").show();
-            //     }
-            // },
-        },
+        ]
     });
 
     if (preSeed.length === 0) {
@@ -186,37 +145,16 @@ edges.instances.variables.selectionLoaded = function() {
 edges.instances.variables.propagateSelection = function () {
     let selectedMexIds = edges.instances.variables.getSelectedMexIds();
 
-    // let selector = edges.active["variables-resources"].getComponent({
-    //   id: "selector",
-    // });
-    // let ids = selector.ids();
-    // let resource_mexids = [];
-    // for (let id of ids) {
-    //   let resource = selector.get(id);
-    //   let mex_id = resource.custom_fields["mex:identifier"];
-    //   resource_mexids.push(mex_id);
-    // }
-
     let e = edges.active.variables;
     let nq = e.cloneQuery();
 
     nq.removeMust(
-        new es.TermsFilter({field: "custom_fields.mex:usedIn.keyword"})
+        new es.TermsFilter({field: mex.constants.USED_IN_ID_KW})
     );
     nq.removeMust(
-        new es.TermsFilter({field: "custom_fields.mex:belongsTo.keyword"})
+        new es.TermsFilter({field: mex.constants.BELONGS_TO_ID_KW})
     );
-
     nq = edges.instances.variables.buildVariablesQuery(nq, selectedMexIds);
-
-    // if (resource_mexids.length > 0) {
-    //     nq.addMust(
-    //         new es.TermsFilter({
-    //             field: "custom_fields.mex:usedIn.keyword",
-    //             values: resource_mexids,
-    //         })
-    //     );
-    // }
 
     e.pushQuery(nq);
     e.cycle();
@@ -251,7 +189,7 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
     if (selectedMexIds["resources"].length > 0) {
         query.addMust(
             new es.TermsFilter({
-                field: "custom_fields.mex:usedIn.keyword",
+                field: mex.constants.USED_IN_ID_KW,
                 values: selectedMexIds["resources"],
             })
         );
@@ -260,7 +198,7 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
         if (selectedMexIds["variable_groups"].length > 0) {
             query.addMust(
                 new es.TermsFilter({
-                    field: "custom_fields.mex:belongsTo.keyword",
+                    field: mex.constants.BELONGS_TO_ID_KW,
                     values: selectedMexIds["variable_groups"],
                 })
             );

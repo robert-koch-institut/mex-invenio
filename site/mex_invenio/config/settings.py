@@ -26,6 +26,11 @@ from mex_invenio.custom_fields import field_types
 from mex_invenio.custom_fields.backwards_linked_records import (
     get_fields_linked_backwards,
 )
+from mex_invenio.custom_fields.custom_fields import (
+    RDM_NAMESPACES,
+    RDM_CUSTOM_FIELDS,
+    RDM_CUSTOM_FIELDS_UI,
+)
 from mex_invenio.custom_fields.ext_ids import get_ext_ids
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
