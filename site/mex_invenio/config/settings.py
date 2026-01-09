@@ -32,6 +32,12 @@ from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
+from mex_invenio.custom_fields.custom_fields import (
+    RDM_NAMESPACES,
+    RDM_CUSTOM_FIELDS,
+    RDM_CUSTOM_FIELDS_UI,
+)
+
 
 def _(x):  # needed to avoid start time failure with lazy strings  # noqa: F811
     return x
