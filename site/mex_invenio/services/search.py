@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import current_app
 
 from invenio_rdm_records.services.config import SearchOptions
@@ -57,6 +59,40 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         # Add other interpreters as needed
     ]
 
+# These are the fields that we would lump into a single bucket if we needed
+# to optimise the free-text search.  For now these are also reflected in the record
+# mapping, and the free-text bucket is not implemented.
+FREE_TEXT_SEARCH_FIELDS = [
+    "custom_fields.mex:title.value",
+    "custom_fields.mex:method.value",
+    "custom_fields.mex:keyword.value",
+    "custom_fields.mex:description.value",
+    "custom_fields.mex:instrumentToolOrApparatus.value",
+
+    "custom_fields.mex:website.url",
+    "custom_fields.mex:website.title",
+    "custom_fields.mex:abstract.value",
+    "custom_fields.mex:shortName.value",
+    "custom_fields.mex:documentation.title",
+    "custom_fields.mex:alternativeTitle.value",
+
+    "custom_fields.mex:label.value",
+
+    "custom_fields.mex:valueSet",
+
+    "index_data.belongsToLabel",
+    "index_data.contributors",
+    "index_data.creators",
+    "index_data.deFunderOrCommissioners",
+    "index_data.enFunderOrCommissioners",
+    "index_data.deUsedInResource",
+    "index_data.enUsedInResource",
+    "index_data.deVariableGroups.value",
+    "index_data.enVariableGroups.value",
+    "index_data.externalAssociates",
+    "index_data.externalPartners",
+    "index_data.involvedPersons",
+]
 
 class MexDumper(SearchDumper):
     def dump(self, record, data):
@@ -69,6 +105,7 @@ class MexDumper(SearchDumper):
         # Initialize index_data if it doesn't exist
         if "index_data" not in dump_data:
             dump_data["index_data"] = {}
+        dump_data["index_data"]["index_generated"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
 
         # PERFORMANCE FIX: Initialize cache if it doesn't exist yet
         # Cache should persist across records in the same batch for optimal performance
@@ -76,10 +113,10 @@ class MexDumper(SearchDumper):
             self._record_cache = {}
 
         log = []
-        # log.append("###############MEX Dumper##################")
-        # log.append("Record ID: " + record.get("id"))
-        # log.append(json.dumps(record.get("custom_fields", {})))
-        # log.append(json.dumps(dump_data.get("custom_fields", {})))
+        log.append("###############MEX Dumper##################")
+        log.append("Record ID: " + record.get("id"))
+        log.append(json.dumps(record.get("custom_fields", {})))
+        log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         # Generate linked records data and add to display_data
         self._linked_records_data(record, dump_data, log)
@@ -93,10 +130,14 @@ class MexDumper(SearchDumper):
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
 
-        # log.append("**************************************")
-        # log.append("Display data:")
-        # log.append(json.dumps(dump_data.get("display_data", {})))
-        # log.append("**************************************")
+
+        log.append("**************************************")
+        log.append("Display data:")
+        log.append(json.dumps(dump_data.get("display_data", {})))
+        log.append("**************************************")
+
+        # Generate free-text search bucket
+        self._free_text_search_bucket(record, dump_data, log)
 
         # PERFORMANCE FIX: Do NOT clear cache after processing
         # Cache should persist across records to avoid redundant database queries
@@ -145,6 +186,47 @@ class MexDumper(SearchDumper):
 
         return list(set(name_simple))
 
+    def _split_by_language(self, objs):
+        required = ["de", "en"]
+        split = {}
+        default = ""
+
+        # first extract all the language values, grabbing the first one
+        # that we see as a default value for use later if needed
+        for obj in objs:
+            value = obj.get("value", "")
+            lang = obj.get("language", "en")
+            split[lang] = value
+            default = value
+
+        # determine if any of our required languages are missing
+        # and record those that are
+        has_empty = []
+        for lang in required:
+            if lang not in split:
+                split[lang] = None
+                has_empty.append(lang)
+
+        # if there are required languages missing, try to patch them
+        if len(has_empty) > 0:
+            # find out which languages are actually available to us
+            available = set(required) - set(has_empty)
+            patched = False
+            # first patch from the required languages, in order of preference
+            for lang in required:
+                if lang in available:
+                    patched = True
+                    existing = split[lang]
+                    for empty in has_empty:
+                        split[empty] = existing
+
+            # if we could not patch from required languages, use the default
+            if not patched:
+                for empty in has_empty:
+                    split[empty] = default
+
+        return split
+
     def _resource_variables_groups(self, record, dump_data, log):
         if record.get("metadata", {}).get("resource_type", {}).get("id") != "resource":
             log.append("Not a resource type, skipping resource variable groups")
@@ -160,24 +242,24 @@ class MexDumper(SearchDumper):
 
         enGroups = []
         deGroups = []
-
         for group in groups:
             vg_id = group.json.get("custom_fields", {}).get("mex:identifier", None)
             labels = group.json.get("custom_fields", {}).get("mex:label", [])
-            en = ""
-            de = ""
-            for label in labels:
-                val = label.get("value", "")
-                lang = label.get("language", "en")
-                if lang == "en":
-                    en = val
-                elif lang == "de":
-                    de = val
+            split = self._split_by_language(labels)
+            enGroups.append({"mex_id": vg_id, "value": split["en"]})
+            deGroups.append({"mex_id": vg_id, "value": split["de"]})
 
-            if en != "":
-                enGroups.append({"mex_id": vg_id, "value": en})
-            if de != "":
-                deGroups.append({"mex_id": vg_id, "value": de})
+            # we always index a value, even if one language is missing
+            # which gives us consistent browsing over English and German
+            # if en != "":
+            #     enGroups.append({"mex_id": vg_id, "value": en})
+            # else:
+            #     enGroups.append({"mex_id": vg_id, "value": de})
+            #
+            # if de != "":
+            #     deGroups.append({"mex_id": vg_id, "value": de})
+            # else:
+            #    deGroups.append({"mex_id": vg_id, "value": en})
 
         if len(enGroups) > 0:
             dump_data["index_data"]["enVariableGroups"] = enGroups
@@ -284,7 +366,6 @@ class MexDumper(SearchDumper):
         dump_data["index_data"]["externalAssociates"] = external_associates
 
     def _funder_commissioner(self, record, dump_data, log):
-        funder_commissioners = []
         funder_ids = self._get_custom_field_list(record, "mex:funderOrCommissioner")
 
         if len(funder_ids) == 0:
@@ -295,22 +376,25 @@ class MexDumper(SearchDumper):
         results = self._records_by_mex_identifiers(record, funder_ids, log)
         log.append("Funder or Commissioner results:" + str(len(results)))
 
+        funder_commissioners = []
         for funder in results:
-            official_names = self._get_custom_field_list(
-                funder.json, "mex:officialName"
-            )
-            funder_commissioners += official_names
+            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            lang_names = self._split_by_language(official_names)
+            funder_commissioners += lang_names
 
-        funder_commissioners_en = [
-            fc["value"]
-            for fc in funder_commissioners
-            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"
-        ]
-        funder_commissioners_de = [
-            fc["value"]
-            for fc in funder_commissioners
-            if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"
-        ]
+        funder_commissioners_en = [fc["en"] for fc in funder_commissioners]
+        funder_commissioners_de = [fc["de"] for fc in funder_commissioners]
+
+        # funder_commissioners_en = [
+        #     fc["value"]
+        #     for fc in funder_commissioners
+        #     if isinstance(fc, dict) and "value" in fc and fc.get("language") == "en"
+        # ]
+        # funder_commissioners_de = [
+        #     fc["value"]
+        #     for fc in funder_commissioners
+        #     if isinstance(fc, dict) and "value" in fc and fc.get("language") == "de"
+        # ]
 
         log.append("Funder or Commissioner EN:" + str(funder_commissioners_en))
         log.append("Funder or Commissioner DE:" + str(funder_commissioners_de))
@@ -345,8 +429,6 @@ class MexDumper(SearchDumper):
         dump_data["index_data"]["involvedPersons"] = involved_persons
 
     def _used_in(self, record, dump_data, log):
-        used_in_en = []
-        used_in_de = []
         used_in_ids = self._get_custom_field_list(record, "mex:usedIn")
 
         if len(used_in_ids) == 0:
@@ -357,14 +439,21 @@ class MexDumper(SearchDumper):
         results = self._records_by_mex_identifiers(record, used_in_ids, log)
         log.append("Used in results:" + str(len(results)))
 
+        used_in_en = []
+        used_in_de = []
         for result in results:
             titles = result.json.get("custom_fields", {}).get("mex:title", [])
-            for title in titles:
-                val = title.get("value", "")
-                if title.get("language", "en") == "en":
-                    used_in_en.append(val)
-                elif title.get("language", "de") == "de":
-                    used_in_de.append(val)
+            lang_titles = self._split_by_language(titles)
+            used_in_en.append(lang_titles["en"])
+            used_in_de.append(lang_titles["de"])
+            # for title in titles:
+            #     lang = title.get("language", "en")
+            #     val = title.get("value", "")
+            #
+            #     if title.get("language", "en") == "en":
+            #         used_in_en.append(val)
+            #     elif title.get("language", "de") == "de":
+            #         used_in_de.append(val)
 
         log.append("Used in EN:" + str(used_in_en))
         log.append("Used in DE:" + str(used_in_de))
@@ -448,6 +537,10 @@ class MexDumper(SearchDumper):
 
         db_results = db_query.all()
         return db_results
+
+    def _free_text_search_bucket(self, record, dump_data, log):
+        # No implementation here for now, just a placeholder
+        pass
 
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""

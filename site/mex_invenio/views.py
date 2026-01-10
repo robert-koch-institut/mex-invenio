@@ -49,6 +49,12 @@ def jsonp(f):
 # Registration
 #
 def create_blueprint(app):
+
+    @app.before_request
+    def force_search():
+        if request.path == '/search':
+            return search_global()  # returns a Response, bypassing normal routing
+
     """Register blueprint routes on app."""
     blueprint = Blueprint(
         "mex_invenio",
