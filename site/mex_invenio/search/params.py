@@ -250,6 +250,6 @@ class HighlightParamsInterpreter(ParamInterpreter):
         )
 
         # Uncomment this to get a view on the query in development
-        print("#########highlight###############")
-        print(json.dumps(search.to_dict()))
+        #print("#########highlight###############")
+        #print(json.dumps(search.to_dict()))
         return search
