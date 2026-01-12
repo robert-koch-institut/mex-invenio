@@ -1077,14 +1077,8 @@ mex.templates.SingleColumnTemplate = class extends edges.Template {
             <div class="ui grid" style="margin-left: 0">
                 <div class="sixteen wide column">
                     ${preambleFrag}
-                    <div class="ui grid">
-                        <div class="three wide column">
-                            ${leftMiddleTopContainers}
-                        </div>
-                        <div class="wide column" style="flex: 1;">
-                            ${rightMiddleTopContainers}
-                        </div>
-                    </div>
+                    ${leftMiddleTopContainers}
+                    ${rightMiddleTopContainers}
                     ${compContainers}
                 </div>
             </div>
@@ -5006,7 +5000,11 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         var container = `
         ${expandAllCheckbox}
         <table class="${containerClasses} ui celled table unstackable" style="border: none;background: transparent !important;">
-          <thead>
+            <colgroup>
+                <col class="narrow" />
+                <col span="4"/>
+            </colgroup>
+            <thead>
             <tr>
                 <th></th>
                 <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
@@ -5023,10 +5021,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 </th>
                 <th>${i18n.t("Data Type")}</th>
             </tr>
-          </thead>
-          <tbody>
-            ${frag}
-          </tbody>
+            </thead>
+            <tbody>
+                ${frag}
+            </tbody>
         </table>
         `;
 
@@ -5053,10 +5051,6 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
         );
 
-        const labelFrag = `
-            <div class="col--fixed-width" style="max-width: 50rem"><p class="max-line-1">${label}</p></div>
-        `
-
         const getTitle = (v) => {
             let langPrefix = mex.state.lang;
             const combineTitles = (items) => items.map(d => d.value).join(', ');
@@ -5080,18 +5074,17 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let resourceFrag = "";
         if (resources) {
             for (let r of resources) {
-                resourceFrag += `<div class="col--fixed-width" style="max-width: 50rem"><a href="/records/mex/${r.link_id}" target="_blank" class="resource-title">${getTitle(r)}</a></div>`
+                resourceFrag += `<p class="results-value"><a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${getTitle(r)}</a></p>`
             }
         }
 
         let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
-        let groupFrag = ``;
+        let groupFrag = "";
         if (groups) {
             for (let g of groups){
-                groupFrag += `<div class="col--fixed-width" style="max-width: 50rem"><span class="variable-group">${getTitle(g)}</span></div>`
+                groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
             }
         }
-        groupFrag += `</ul>`
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
@@ -5116,14 +5109,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let codingFrag = "";
         if (codingSystem.length > 0) {
             codingFrag = `
-                <div class="coding-system">
-                  <div class="coding-title">
-                    <strong>${i18n.t("Coding System")}</strong>
-                  </div>
-                    <ul>
-                        <li>${codingSystem.map((c) => edges.util.escapeHtml(c)).join("</li><li>")}</li>
-                    </ul>
-                </div>`;
+                    ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
         }
 
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
@@ -5133,16 +5119,15 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let collapsedRowClass = edges.util.jsClasses(this.namespace, "collapsed-row", this.component.id);
         let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
-        let detailFrag = `
-            <div style="border-radius:6px; padding:1rem; margin-top:0.5rem;">
-                <h4 style="margin-top:0; font-weight:600;">${label}</h4>
-                ${desc ? `<p style="margin:0 0 0.5rem 0; text-wrap: wrap">${desc}</p>` : ""}
-                <p><strong>${i18n.t("Data Source")}:</strong> ${resourceFrag || "-"}</p>
-                <p><strong>${i18n.t("Variable Group")}:</strong> ${groupFrag || "-"}</p>
-                <p><strong>${i18n.t("Data type")}:</strong> ${dataType}</p>
-                ${codingFrag}
-            </div>
-        `;
+        let detailFrag = i18n.t("No additional details");
+        if (desc || codingFrag) {
+            detailFrag = `
+                    ${desc && `<div class="${expandedRowClass}--details ${expandedRowClass}--desc">${desc}</p>`}
+                    ${resourceFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--resource"><span class="attribute-label">${i18n.t("Data Source")}</span>:${resourceFrag}</div>`}
+                    ${groupFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--group"><span class="attribute-label">${i18n.t("Variable Group")}:</span> ${groupFrag}</div>`}
+                    ${dataType && `<div class="${expandedRowClass}--details ${expandedRowClass}--datatype"><span class="attribute-label">${i18n.t("Data type")}:</span> ${dataType}</div>`}
+                    ${codingFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Coding system")}:</span> ${codingFrag}</div>`}
+                `;
 
             //   detailFrag = `<div class="details-extra">
             //                 ${descFrag}
@@ -5162,10 +5147,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                         class="controls" src="/static/images/expand.svg" alt="expand icon" />
                     </button>
                 </td>
-                <td class="${collapsedRowClass}${collapsedRowClass}--label">${label}</td>
-                <td class="${collapsedRowClass}${collapsedRowClass}--resource">${resourceFrag}</td>
-                <td class="${collapsedRowClass}${collapsedRowClass}--group">${groupFrag}</td>
-                <td class="${collapsedRowClass}${collapsedRowClass}--data-type">${dataType}</td>
+                <td class="${collapsedRowIdClass}${collapsedRowClass}--label">${label}</td>
+                <td class="${collapsedRowIdClass}${collapsedRowClass}--resource">${resourceFrag}</td>
+                <td class="${collapsedRowIdClass}${collapsedRowClass}--group">${groupFrag}</td>
+                <td class="${collapsedRowIdClass}${collapsedRowClass}--data-type">${dataType}</td>
             </tr>
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-top" data-label="${label}" role="row" data-id="${res.id}" style="display:none; border-bottom: 0;">
@@ -5175,16 +5160,17 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                         class="controls" src="/static/images/shrink.svg" alt="shrink icon" />
                     </button>
                 </td>
-                <td class="${collapsedRowClass}${expandedRowClass}--label"><strong>${label}</strong></td>
-                <td class="${collapsedRowClass}${expandedRowClass}--resource"><strong>${resourceFrag}</strong></td>
-                <td class="${collapsedRowClass}${expandedRowClass}--group"><strong>${groupFrag}</strong></td>
-                <td class="${collapsedRowClass}${expandedRowClass}--data-type"><strong>${dataType}</strong></td>
+                <td class="${expandedRowIdClass}${expandedRowClass}--label"><h4>${label}</h4></td>
+                <td class="${expandedRowIdClass}${expandedRowClass}--resource">${resourceFrag}</td>
+                <td class="${expandedRowIdClass}${expandedRowClass}--group">${groupFrag}</td>
+                <td class="${expandedRowIdClass}${expandedRowClass}--data-type">${dataType}</td>
             </tr>
 
             <tr class="${expandedRowIdClass} ${expandedRowClass} variable-row variable-row-bottom" role="row" style="display:none; border-top: 0;">
-              <td colspan="6" style="border-left: 0; border-right: 0; border-top: 0">
-                  ${detailFrag}
-              </td>
+                <td />
+                <td colspan="4">
+                    ${detailFrag}
+                </td>
             </tr>
           `;
         return frag;

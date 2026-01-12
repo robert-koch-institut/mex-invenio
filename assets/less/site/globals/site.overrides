@@ -652,12 +652,9 @@ aside {
   }
 
   .checkbox {
-    display: flex;
+    display: center;
     min-height: 2rem;
-    padding-right: 1rem;
-    align-items: flex-start;
     gap: var(--space-default, 1rem);
-    align-self: stretch;
 
     label {
       color: @blackTextColor;
@@ -669,6 +666,7 @@ aside {
     }
 
     input[type="checkbox"] {
+      cursor: pointer;
       flex-shrink: 0;
       width: 1.5rem;
       height: 1.5rem;
