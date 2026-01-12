@@ -19,7 +19,7 @@
         {% if properties.method_prop in data %}
             <div class="card-props-p forced-vertical">
                 <div class="card-prop-value">
-                    <strong>{{ display_values(data[properties.method_prop]) }}</strong>
+                    {{ display_values(data[properties.method_prop]) }}
                 </div>
             </div>
         {% endif %}
