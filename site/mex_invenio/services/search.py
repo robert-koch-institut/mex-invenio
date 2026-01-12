@@ -113,10 +113,10 @@ class MexDumper(SearchDumper):
             self._record_cache = {}
 
         log = []
-        log.append("###############MEX Dumper##################")
-        log.append("Record ID: " + record.get("id"))
-        log.append(json.dumps(record.get("custom_fields", {})))
-        log.append(json.dumps(dump_data.get("custom_fields", {})))
+        #log.append("###############MEX Dumper##################")
+        #log.append("Record ID: " + record.get("id"))
+        #log.append(json.dumps(record.get("custom_fields", {})))
+        #log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         # Generate linked records data and add to display_data
         self._linked_records_data(record, dump_data, log)
@@ -131,10 +131,10 @@ class MexDumper(SearchDumper):
         self._resource_variables_groups(record, dump_data, log)
 
 
-        log.append("**************************************")
-        log.append("Display data:")
-        log.append(json.dumps(dump_data.get("display_data", {})))
-        log.append("**************************************")
+        #log.append("**************************************")
+        #log.append("Display data:")
+        #log.append(json.dumps(dump_data.get("display_data", {})))
+        #log.append("**************************************")
 
         # Generate free-text search bucket
         self._free_text_search_bucket(record, dump_data, log)
