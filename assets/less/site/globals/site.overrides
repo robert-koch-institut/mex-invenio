@@ -652,9 +652,9 @@ aside {
   }
 
   .checkbox {
-    display: center;
+    display: flex;
     min-height: 2rem;
-    gap: var(--space-default, 1rem);
+    gap: 1rem;
 
     label {
       color: @blackTextColor;
@@ -840,4 +840,10 @@ aside {
     color: @white;
     text-decoration: none;
   }
+}
+
+.mex-refining-and-term-selector_results-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 }
