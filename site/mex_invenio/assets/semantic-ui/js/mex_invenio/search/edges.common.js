@@ -5120,7 +5120,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let expandedRowClass = edges.util.jsClasses(this.namespace, "expanded-row", this.component.id);
 
         let detailFrag = i18n.t("No additional details");
-        if (desc || codingFrag) {
+        if (desc || codingFrag || groupFrag || dataType) {
             detailFrag = `
                     ${desc && `<div class="${expandedRowClass}--details ${expandedRowClass}--desc">${desc}</p>`}
                     ${resourceFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--resource"><span class="attribute-label">${i18n.t("Data Source")}</span>:${resourceFrag}</div>`}
@@ -5133,7 +5133,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             //                 ${descFrag}
             //                 ${codingFrag}
             //               </div>`;
-        //}
+        }
 
 
         // removed from now.
