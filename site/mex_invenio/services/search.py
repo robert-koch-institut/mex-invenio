@@ -380,7 +380,7 @@ class MexDumper(SearchDumper):
         for funder in results:
             official_names = self._get_custom_field_list(funder.json, "mex:officialName")
             lang_names = self._split_by_language(official_names)
-            funder_commissioners += lang_names
+            funder_commissioners.append(lang_names)
 
         funder_commissioners_en = [fc["en"] for fc in funder_commissioners]
         funder_commissioners_de = [fc["de"] for fc in funder_commissioners]
@@ -515,7 +515,7 @@ class MexDumper(SearchDumper):
                 break
 
         # Determine if field stores arrays or single values
-        is_multiple = getattr(field_config, "multiple", False) if field_config else True
+        is_multiple = getattr(field_config, "_multiple", False) if field_config else True
 
         # For array fields (multiple=True), match array structure: {"field": ["value"]}
         # For single-value fields, match plain value: {"field": "value"}
