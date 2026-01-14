@@ -4,13 +4,15 @@ Revision ID: 20251218_214700
 Revises:
 Create Date: 2025-12-18 21:47:00.000000
 
-This migration creates database indices on rdm_records_metadata.json->'custom_fields'
+ATTENTION !!!
+This migration should create database indices on rdm_records_metadata.json->'custom_fields'
 to dramatically improve query performance for MexDumper operations.
 
-Expected impact:
-- Query performance: 10-100x faster
-- Indexing throughput: 10-50x faster
-- Database CPU usage: ~85% reduction
+However, invenio-db create, which sets up the tables, only stamps/marks migrations, but does
+not actually run them. This migration file is therefore provided for reference, but the actual
+index creation must be done in a separate step after the database is live by running
+invenio mex setup-db.
+
 """
 
 from alembic import op
