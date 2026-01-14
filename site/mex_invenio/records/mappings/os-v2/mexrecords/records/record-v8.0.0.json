@@ -846,9 +846,6 @@
             },
             "index_data": {
                 "properties": {
-					"index_generated": {
-						"type": "date"
-					},
                     "belongsToLabel": {
                         "fields": {
                             "keyword": {
@@ -975,6 +972,9 @@
                             }
                         },
                         "type": "text"
+                    },
+                    "index_generated": {
+                        "type": "date"
                     },
                     "involvedPersons": {
                         "fields": {
@@ -2426,30 +2426,30 @@
         "index.query.default_field": [
             "id",
             "custom_fields.mex:title.value",
-			"custom_fields.mex:method.value",
-			"custom_fields.mex:keyword.value",
-			"custom_fields.mex:description.value",
-			"custom_fields.mex:instrumentToolOrApparatus.value",
-			"custom_fields.mex:website.url",
-			"custom_fields.mex:website.title",
-			"custom_fields.mex:abstract.value",
-			"custom_fields.mex:shortName.value",
-			"custom_fields.mex:documentation.title",
-			"custom_fields.mex:alternativeTitle.value",
-			"custom_fields.mex:label.value",
-			"custom_fields.mex:valueSet",
-			"index_data.belongsToLabel",
-			"index_data.contributors",
-			"index_data.creators",
-			"index_data.deFunderOrCommissioners",
-			"index_data.enFunderOrCommissioners",
-			"index_data.deUsedInResource",
-			"index_data.enUsedInResource",
-			"index_data.deVariableGroups.value",
-			"index_data.enVariableGroups.value",
-			"index_data.externalAssociates",
-			"index_data.externalPartners",
-			"index_data.involvedPersons"
-		]
+            "custom_fields.mex:method.value",
+            "custom_fields.mex:keyword.value",
+            "custom_fields.mex:description.value",
+            "custom_fields.mex:instrumentToolOrApparatus.value",
+            "custom_fields.mex:website.url",
+            "custom_fields.mex:website.title",
+            "custom_fields.mex:abstract.value",
+            "custom_fields.mex:shortName.value",
+            "custom_fields.mex:documentation.title",
+            "custom_fields.mex:alternativeTitle.value",
+            "custom_fields.mex:label.value",
+            "custom_fields.mex:valueSet",
+            "index_data.belongsToLabel",
+            "index_data.contributors",
+            "index_data.creators",
+            "index_data.deFunderOrCommissioners",
+            "index_data.enFunderOrCommissioners",
+            "index_data.deUsedInResource",
+            "index_data.enUsedInResource",
+            "index_data.deVariableGroups.value",
+            "index_data.enVariableGroups.value",
+            "index_data.externalAssociates",
+            "index_data.externalPartners",
+            "index_data.involvedPersons"
+        ]
     }
 }

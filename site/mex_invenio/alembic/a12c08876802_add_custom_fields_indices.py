@@ -16,12 +16,11 @@ invenio mex setup-db.
 """
 
 from alembic import op
-import sqlalchemy as sa
 
 # Revision identifiers, used by Alembic.
-revision = 'a12c08876802'
+revision = "a12c08876802"
 down_revision = None  # This is the first migration for mex_invenio
-branch_labels = ('mex_invenio',)  # Branch label for this module
+branch_labels = ("mex_invenio",)  # Branch label for this module
 depends_on = None
 
 

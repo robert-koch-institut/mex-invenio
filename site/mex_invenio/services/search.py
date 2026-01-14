@@ -59,6 +59,7 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         # Add other interpreters as needed
     ]
 
+
 # These are the fields that we would lump into a single bucket if we needed
 # to optimise the free-text search.  For now these are also reflected in the record
 # mapping, and the free-text bucket is not implemented.
@@ -68,18 +69,14 @@ FREE_TEXT_SEARCH_FIELDS = [
     "custom_fields.mex:keyword.value",
     "custom_fields.mex:description.value",
     "custom_fields.mex:instrumentToolOrApparatus.value",
-
     "custom_fields.mex:website.url",
     "custom_fields.mex:website.title",
     "custom_fields.mex:abstract.value",
     "custom_fields.mex:shortName.value",
     "custom_fields.mex:documentation.title",
     "custom_fields.mex:alternativeTitle.value",
-
     "custom_fields.mex:label.value",
-
     "custom_fields.mex:valueSet",
-
     "index_data.belongsToLabel",
     "index_data.contributors",
     "index_data.creators",
@@ -94,6 +91,7 @@ FREE_TEXT_SEARCH_FIELDS = [
     "index_data.involvedPersons",
 ]
 
+
 class MexDumper(SearchDumper):
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
@@ -105,7 +103,9 @@ class MexDumper(SearchDumper):
         # Initialize index_data if it doesn't exist
         if "index_data" not in dump_data:
             dump_data["index_data"] = {}
-        dump_data["index_data"]["index_generated"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        dump_data["index_data"]["index_generated"] = datetime.utcnow().strftime(
+            "%Y-%m-%dT%H:%M:%S"
+        )
 
         # PERFORMANCE FIX: Initialize cache if it doesn't exist yet
         # Cache should persist across records in the same batch for optimal performance
@@ -113,10 +113,10 @@ class MexDumper(SearchDumper):
             self._record_cache = {}
 
         log = []
-        #log.append("###############MEX Dumper##################")
-        #log.append("Record ID: " + record.get("id"))
-        #log.append(json.dumps(record.get("custom_fields", {})))
-        #log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # log.append("###############MEX Dumper##################")
+        # log.append("Record ID: " + record.get("id"))
+        # log.append(json.dumps(record.get("custom_fields", {})))
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         # Generate linked records data and add to display_data
         self._linked_records_data(record, dump_data, log)
@@ -130,11 +130,10 @@ class MexDumper(SearchDumper):
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
 
-
-        #log.append("**************************************")
-        #log.append("Display data:")
-        #log.append(json.dumps(dump_data.get("display_data", {})))
-        #log.append("**************************************")
+        # log.append("**************************************")
+        # log.append("Display data:")
+        # log.append(json.dumps(dump_data.get("display_data", {})))
+        # log.append("**************************************")
 
         # Generate free-text search bucket
         self._free_text_search_bucket(record, dump_data, log)
@@ -378,7 +377,9 @@ class MexDumper(SearchDumper):
 
         funder_commissioners = []
         for funder in results:
-            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            official_names = self._get_custom_field_list(
+                funder.json, "mex:officialName"
+            )
             lang_names = self._split_by_language(official_names)
             funder_commissioners.append(lang_names)
 
@@ -515,7 +516,9 @@ class MexDumper(SearchDumper):
                 break
 
         # Determine if field stores arrays or single values
-        is_multiple = getattr(field_config, "_multiple", False) if field_config else True
+        is_multiple = (
+            getattr(field_config, "_multiple", False) if field_config else True
+        )
 
         # For array fields (multiple=True), match array structure: {"field": ["value"]}
         # For single-value fields, match plain value: {"field": "value"}

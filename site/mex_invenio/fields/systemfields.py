@@ -128,7 +128,7 @@ class IndexField(SystemField):
             # print(
             #     f"Retrieved index_data from search index with keys: {list(index_data.keys())}"
             # )
-        except Exception as e:
+        except Exception:
             return {}
             # print(f"Failed to get from search index: {e}")
             # Fallback to generating using MexDumper
@@ -139,7 +139,7 @@ class IndexField(SystemField):
             # temp_data = {"index_data": {}}
             # dumper.dump(record, temp_data)
             # index_data = temp_data["index_data"]
-            #print(f"Generated index_data with keys: {list(index_data.keys())}")
+            # print(f"Generated index_data with keys: {list(index_data.keys())}")
 
         # Store it in the record for subsequent access
         record["index_data"] = index_data
@@ -152,13 +152,13 @@ class IndexField(SystemField):
 
     def pre_dump(self, record, data, **kwargs):
         """Called before record is dumped."""
-        #print(f"IndexField.pre_dump called for record {record.get('id', 'unknown')}")
-        #print(f"Record has index_data: {'index_data' in record}")
-        #print(f"Dump enabled: {self._dump}")
+        # print(f"IndexField.pre_dump called for record {record.get('id', 'unknown')}")
+        # print(f"Record has index_data: {'index_data' in record}")
+        # print(f"Dump enabled: {self._dump}")
 
         # Include index_data in dumps if enabled
         if self._dump and "index_data" in record:
-            #print(f"Adding index_data to dump: {record['index_data']}")
+            # print(f"Adding index_data to dump: {record['index_data']}")
             data["index_data"] = record["index_data"]
         # else:
         #    print("index_data not added to dump")
