@@ -647,7 +647,7 @@ class MexDumper(SearchDumper):
 
                     core_records = ["activity", "resource", "bibliographicresource"]
                     if record_type and record_type in core_records:
-                        print(f"Found core record: {record_type}")
+                        # print(f"Found core record: {record_type}")
                         field_value["core"] = record_type
 
                     # Try to find display value from props
@@ -703,7 +703,7 @@ class MexDumper(SearchDumper):
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
-                print("record_json: ", record_json)
+                # print("record_json: ", record_json)
 
                 record_type = (
                     record_json.get("metadata", {})
@@ -714,7 +714,7 @@ class MexDumper(SearchDumper):
                 core_records = ["activity", "resource", "bibliographicresource"]
                 record_core = None
                 if record_type and record_type in core_records:
-                    print(f"Found core record: {record_type}")
+                    # print(f"Found core record: {record_type}")
                     record_core = record_type
 
                 if "TITLE_FIELDS" not in current_app.config:
