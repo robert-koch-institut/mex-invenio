@@ -93,6 +93,10 @@ FREE_TEXT_SEARCH_FIELDS = [
 
 
 class MexDumper(SearchDumper):
+    def __init__(self, *args, **kwargs):
+        super(MexDumper, self).__init__(*args, **kwargs)
+        self._record_cache = {}
+
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
 
@@ -107,10 +111,12 @@ class MexDumper(SearchDumper):
             "%Y-%m-%dT%H:%M:%S"
         )
 
-        # PERFORMANCE FIX: Initialize cache if it doesn't exist yet
-        # Cache should persist across records in the same batch for optimal performance
-        if not hasattr(self, "_record_cache"):
-            self._record_cache = {}
+        # CACHE INVALIDATION: Clear cache entry for the current record being dumped
+        # This ensures that when a record is updated, other records that reference it
+        # will fetch fresh data instead of stale cached data
+        current_mex_id = record.get("custom_fields", {}).get("mex:identifier")
+        if current_mex_id and current_mex_id in self._record_cache:
+            del self._record_cache[current_mex_id]
 
         log = []
         # log.append("###############MEX Dumper##################")
