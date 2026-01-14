@@ -1,6 +1,7 @@
 import argparse
 from datetime import datetime
 
+import mex.model
 import polib
 import os
 from pathlib import Path
@@ -22,8 +23,6 @@ def merge_translations(
     # Load mex-model (base translations)
     # Find mex package location relative to this script
     try:
-        import mex.model
-
         mex_model_path = Path(mex.model.__file__).parent
         de_po_path = mex_model_path / "i18n" / f"{language}.po"
 
