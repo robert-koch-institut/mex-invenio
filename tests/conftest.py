@@ -422,7 +422,7 @@ def import_file(
     def _import_file(filename, data, initial=False):
         file = create_file(f"{filename}.json", data)
 
-        with caplog.at_level(logging.DEBUG):
+        with caplog.at_level(logging.INFO):
             if initial:
                 result = cli_runner(_initial_import, email, file)
             else:

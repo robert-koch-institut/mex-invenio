@@ -64,7 +64,6 @@ CREATOR = "index_data.creators"
 KEYWORD = "custom_fields.mex:keyword.value"
 
 
-
 DEFAULT_FIELDS = {
     TITLE,
     ALT_TITLE,
@@ -78,7 +77,7 @@ DEFAULT_FIELDS = {
     CONTRIBUTORS,
     DESCRIPTION,
     EXTERNAL_PARTNERS,
-    ICD10
+    ICD10,
 }
 
 MUST_FILTERS = {
@@ -113,20 +112,15 @@ AGGS = {
     FUNDER_EN_KW,
     THEME_KW,
     PERSONAL_DATA_KW,
-    CREATION_METHOD_KW
+    CREATION_METHOD_KW,
 }
 
-SORT = {
-    CREATED,
-    END,
-    START,
-    TITLE_KW,
-    PUBLICATION_YEAR
-}
+SORT = {CREATED, END, START, TITLE_KW, PUBLICATION_YEAR}
 
 MAX_AGG_SIZE = 200
 MAX_PAGE_SIZE = 100
 MAX_FROM = 10000
+
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate(self, raw):
@@ -136,12 +130,16 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
         self._validate_aggregations(raw)
         self._validate_paging(raw)
         self._validate_sort(raw)
-    
+
     def _validate_default_fields(self, raw):
-        default_field = raw.get("query", {}).get("query_string", {}).get("default_field")
+        default_field = (
+            raw.get("query", {}).get("query_string", {}).get("default_field")
+        )
         if default_field and default_field not in DEFAULT_FIELDS:
-            raise ValueError(f"Field '{default_field}' is not allowed as default_field.")
-    
+            raise ValueError(
+                f"Field '{default_field}' is not allowed as default_field."
+            )
+
     def _validate_must_filters(self, raw):
         filters = raw.get("query", {}).get("bool", {}).get("must", [])
         if len(filters) == 0:
@@ -177,7 +175,9 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                     raise ValueError(f"Aggregation for {field} is not permitted")
                 size = agg["terms"].get("size", -1)
                 if size > MAX_AGG_SIZE:
-                    raise ValueError(f"Aggregation size for {field} exceeds maximum allowed size")
+                    raise ValueError(
+                        f"Aggregation size for {field} exceeds maximum allowed size"
+                    )
 
             elif "date_histogram" in agg:
                 field = agg["date_histogram"]["field"]
@@ -185,15 +185,21 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                     raise ValueError(f"Aggregation for {field} is not permitted")
 
             else:
-                raise ValueError(f"Aggregation type {list(agg.keys())[0]} is not permitted")
+                raise ValueError(
+                    f"Aggregation type {list(agg.keys())[0]} is not permitted"
+                )
 
     def _validate_paging(self, raw):
         from_ = raw.get("from", 0)
         size = raw.get("size", 10)
         if size > MAX_PAGE_SIZE:
-            raise ValueError(f"Page size {size} exceeds maximum allowed size of {MAX_PAGE_SIZE}")
+            raise ValueError(
+                f"Page size {size} exceeds maximum allowed size of {MAX_PAGE_SIZE}"
+            )
         if from_ + size > MAX_FROM:
-            raise ValueError(f"Result window (from + size = {from_ + size}) exceeds maximum allowed of {MAX_FROM}")
+            raise ValueError(
+                f"Result window (from + size = {from_ + size}) exceeds maximum allowed of {MAX_FROM}"
+            )
 
     def _validate_sort(self, raw):
         sort = raw.get("sort", [])
@@ -213,14 +219,15 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
 
     def apply(self, identity, search, params):
         """Apply generic query parameters to the search."""
-        #print("#########raw###############")
-        #print(json.dumps(params["raw"]))
+        # print("#########raw###############")
+        # print(json.dumps(params["raw"]))
         self._validate(params["raw"])
         q = search.from_dict(params["raw"])
-        #print(json.dumps(q.to_dict()))
+        # print(json.dumps(q.to_dict()))
         q = self._constrain(q)
-        #print(json.dumps(q.to_dict()))
+        # print(json.dumps(q.to_dict()))
         return q
+
 
 class TypeLimiterParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
@@ -240,6 +247,7 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         # print(json.dumps(search.to_dict()))
         return search
 
+
 class HighlightParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Specify the highlighter fields"""
@@ -250,6 +258,6 @@ class HighlightParamsInterpreter(ParamInterpreter):
         )
 
         # Uncomment this to get a view on the query in development
-        print("#########highlight###############")
-        print(json.dumps(search.to_dict()))
+        # print("#########highlight###############")
+        # print(json.dumps(search.to_dict()))
         return search

@@ -142,9 +142,13 @@ def initial_import(
     RecordDeleteOp.on_commit = lambda self, uow: None
 
     # Temporarily disable indexing for performance
-    original_indexer = current_rdm_records_service.indexer
-    # Monkey patch the indexer to a no-op version
-    current_rdm_records_service._indexer = NoOpIndexer()
+    # IMPORTANT: indexer is a property that creates new instances, so we need to
+    # monkey-patch the property getter itself, not just set an attribute
+    # current_rdm_records_service is a LocalProxy, so we need to get the actual class
+    service_class = current_rdm_records_service.__class__
+    original_indexer_property = service_class.indexer
+    noop_indexer = NoOpIndexer()
+    service_class.indexer = property(lambda self: noop_indexer)
     logger.info(
         "Disabled indexing and commit operations during import for better performance"
     )
@@ -209,8 +213,8 @@ def initial_import(
                     batch_results = process_record_batch(batch_records, identity)
                     report.extend(batch_results)
         finally:
-            # Restore original indexer
-            current_rdm_records_service._indexer = original_indexer
+            # Restore original indexer property
+            service_class.indexer = original_indexer_property
 
             # Restore original on_commit methods
             RecordCommitOp.on_commit = original_record_commit_op

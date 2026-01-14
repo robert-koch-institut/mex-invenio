@@ -128,7 +128,7 @@ msgstr ""
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
 #, fuzzy
-msgid "Creators and contributors"
+msgid "Creators & Contributors"
 msgstr "Verantwortliche & Mitwirkende"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
