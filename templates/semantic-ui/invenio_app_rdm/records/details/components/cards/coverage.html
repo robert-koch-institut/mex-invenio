@@ -1,3 +1,5 @@
+{% from "invenio_app_rdm/records/macros/mex_detail.html" import smart_translate %}
+
 {% set card = config.UI_SETTINGS[resource_type][column][card_name] %}
 
 {% set ns = namespace(prop_exist=false) %}
@@ -54,7 +56,8 @@
                     {% if prop.field in record_data %}
                         <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
                             {%- if 'label' in prop %}
-                                <p class="card-prop-label" title="{{ _(prop.label) }}">{{ _(prop.label) }}</p>
+                                {% set label = smart_translate(resource_type, prop.label) %}
+                                <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
                             {%- endif -%}
                             <div class="card-prop-value">
                                 {{ display_values(record_data[prop.field]) }}

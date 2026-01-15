@@ -21,6 +21,9 @@ docstring-code-format = true
 "tests/**" = [
     "F841",     # Allow unused local variable assignment in tests
 ]
+"site/mex_invenio/config/settings.py" = [
+    "F401",     # Allow unused imports (re-exported for Invenio config)
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["mex_invenio", "tests"]

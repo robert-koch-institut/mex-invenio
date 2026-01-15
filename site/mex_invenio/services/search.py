@@ -59,6 +59,7 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         # Add other interpreters as needed
     ]
 
+
 # These are the fields that we would lump into a single bucket if we needed
 # to optimise the free-text search.  For now these are also reflected in the record
 # mapping, and the free-text bucket is not implemented.
@@ -68,18 +69,14 @@ FREE_TEXT_SEARCH_FIELDS = [
     "custom_fields.mex:keyword.value",
     "custom_fields.mex:description.value",
     "custom_fields.mex:instrumentToolOrApparatus.value",
-
     "custom_fields.mex:website.url",
     "custom_fields.mex:website.title",
     "custom_fields.mex:abstract.value",
     "custom_fields.mex:shortName.value",
     "custom_fields.mex:documentation.title",
     "custom_fields.mex:alternativeTitle.value",
-
     "custom_fields.mex:label.value",
-
     "custom_fields.mex:valueSet",
-
     "index_data.belongsToLabel",
     "index_data.contributors",
     "index_data.creators",
@@ -94,7 +91,12 @@ FREE_TEXT_SEARCH_FIELDS = [
     "index_data.involvedPersons",
 ]
 
+
 class MexDumper(SearchDumper):
+    def __init__(self, *args, **kwargs):
+        super(MexDumper, self).__init__(*args, **kwargs)
+        self._record_cache = {}
+
     def dump(self, record, data):
         dump_data = super(MexDumper, self).dump(record, data)
 
@@ -105,18 +107,22 @@ class MexDumper(SearchDumper):
         # Initialize index_data if it doesn't exist
         if "index_data" not in dump_data:
             dump_data["index_data"] = {}
-        dump_data["index_data"]["index_generated"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+        dump_data["index_data"]["index_generated"] = datetime.utcnow().strftime(
+            "%Y-%m-%dT%H:%M:%S"
+        )
 
-        # PERFORMANCE FIX: Initialize cache if it doesn't exist yet
-        # Cache should persist across records in the same batch for optimal performance
-        if not hasattr(self, "_record_cache"):
-            self._record_cache = {}
+        # CACHE INVALIDATION: Clear cache entry for the current record being dumped
+        # This ensures that when a record is updated, other records that reference it
+        # will fetch fresh data instead of stale cached data
+        current_mex_id = record.get("custom_fields", {}).get("mex:identifier")
+        if current_mex_id and current_mex_id in self._record_cache:
+            del self._record_cache[current_mex_id]
 
         log = []
-        #log.append("###############MEX Dumper##################")
-        #log.append("Record ID: " + record.get("id"))
-        #log.append(json.dumps(record.get("custom_fields", {})))
-        #log.append(json.dumps(dump_data.get("custom_fields", {})))
+        # log.append("###############MEX Dumper##################")
+        # log.append("Record ID: " + record.get("id"))
+        # log.append(json.dumps(record.get("custom_fields", {})))
+        # log.append(json.dumps(dump_data.get("custom_fields", {})))
 
         # Generate linked records data and add to display_data
         self._linked_records_data(record, dump_data, log)
@@ -130,11 +136,10 @@ class MexDumper(SearchDumper):
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
 
-
-        #log.append("**************************************")
-        #log.append("Display data:")
-        #log.append(json.dumps(dump_data.get("display_data", {})))
-        #log.append("**************************************")
+        # log.append("**************************************")
+        # log.append("Display data:")
+        # log.append(json.dumps(dump_data.get("display_data", {})))
+        # log.append("**************************************")
 
         # Generate free-text search bucket
         self._free_text_search_bucket(record, dump_data, log)
@@ -378,9 +383,11 @@ class MexDumper(SearchDumper):
 
         funder_commissioners = []
         for funder in results:
-            official_names = self._get_custom_field_list(funder.json, "mex:officialName")
+            official_names = self._get_custom_field_list(
+                funder.json, "mex:officialName"
+            )
             lang_names = self._split_by_language(official_names)
-            funder_commissioners += lang_names
+            funder_commissioners.append(lang_names)
 
         funder_commissioners_en = [fc["en"] for fc in funder_commissioners]
         funder_commissioners_de = [fc["de"] for fc in funder_commissioners]
@@ -515,7 +522,9 @@ class MexDumper(SearchDumper):
                 break
 
         # Determine if field stores arrays or single values
-        is_multiple = getattr(field_config, "multiple", False) if field_config else True
+        is_multiple = (
+            getattr(field_config, "_multiple", False) if field_config else True
+        )
 
         # For array fields (multiple=True), match array structure: {"field": ["value"]}
         # For single-value fields, match plain value: {"field": "value"}
@@ -647,7 +656,7 @@ class MexDumper(SearchDumper):
 
                     core_records = ["activity", "resource", "bibliographicresource"]
                     if record_type and record_type in core_records:
-                        print(f"Found core record: {record_type}")
+                        # print(f"Found core record: {record_type}")
                         field_value["core"] = record_type
 
                     # Try to find display value from props
@@ -703,7 +712,7 @@ class MexDumper(SearchDumper):
             for r in linked_records:
                 display_value = None
                 record_json = r.json if hasattr(r, "json") else r
-                print("record_json: ", record_json)
+                # print("record_json: ", record_json)
 
                 record_type = (
                     record_json.get("metadata", {})
@@ -714,7 +723,7 @@ class MexDumper(SearchDumper):
                 core_records = ["activity", "resource", "bibliographicresource"]
                 record_core = None
                 if record_type and record_type in core_records:
-                    print(f"Found core record: {record_type}")
+                    # print(f"Found core record: {record_type}")
                     record_core = record_type
 
                 if "TITLE_FIELDS" not in current_app.config:
