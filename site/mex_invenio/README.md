@@ -79,7 +79,7 @@ npm run convert-po
 
 ### Step 4: Compile Python translations
 ```bash
-pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
+invenio-cli translations compile
 ```
 Compiles the `messages.po` files into binary `messages.mo` files for backend use.
 
