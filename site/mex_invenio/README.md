@@ -1,3 +1,26 @@
+# General development
+
+Before each commit, make sure to run the linter and tests:
+
+The linter runs pre-commit run --all-files
+
+```bash
+make lint
+```
+
+For running unit tests you need to have the test dependencies installed.
+
+```bash
+pipenv install --dev
+```
+
+Make sure not to have any Invenio services or an instance running because the tests run a Docker instance
+through `docker-services-cli`.
+
+```bash
+make test
+```
+
 # Translation Compilation Process
 
 The translation system combines Python (.po) files with JavaScript translations through a multi-step process.
@@ -21,7 +44,7 @@ The structure of the translations folder (./translations) is as follows:
 ```
 
 For backend translations to work correctly, the compiled `messages.mo` files must exist. For frontend translations,
-the `messages.po` files are converted to JSON format.
+the `messages.po` files are converted to JSON format like so:
 
 - **mex-model translations**: Base translations from the `mex.model` package (German/English .po files)
   These are located in the folder [mex/model/i18n](https://github.com/robert-koch-institut/mex-model/tree/main/mex/model/i18n)
@@ -38,7 +61,8 @@ python ./site/mex_invenio/scripts/merge_translations.py ${INVENIO_INSTANCE_PATH}
 - UI translations take precedence over base translations, the lookup is done by a combination of
   `msgctxt` (if available) and `msgid`, for example: `publisher.singular` has different translations depending
   on context,
-- Creates backup files before overwriting
+- Creates backup files before overwriting as `translations/{lang}/LC_MESSAGES/messages.po.backup`
+- The process is hardcoded for only the two languages German and English.
 
 ### Step 2: Install npm dependencies
 ```bash
@@ -55,7 +79,7 @@ npm run convert-po
 
 ### Step 4: Compile Python translations
 ```bash
-pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
+invenio-cli translations compile
 ```
 Compiles the `messages.po` files into binary `messages.mo` files for backend use.
 
@@ -68,9 +92,10 @@ Compiles the `messages.po` files into binary `messages.mo` files for backend use
 
 ## Using translations in custom components
 
-To use the translations in a component import `useTranslations` from `react-i18next`, and use the `useTranslation` hook to get the `t` function and `i18n` instance.
+To use the translations in a component import `useTranslations` from `react-i18next`, and use the `useTranslation`
+hook to get the `t` function and `i18n` instance.
 
-```typescript
+```jsx
 import React from "react";
 import { useTranslation } from 'react-i18next';
 
@@ -82,3 +107,18 @@ export const Record = ({ mexId, title }) => {
   );
 };
 ```
+
+## Using translations in Jinja2 templates
+
+Macros are available from `templates/semantic-ui/invenio_app_rdm/records/macros/mex_detail.html`, a macro called
+`smart_translate` can be used to translate strings in Jinja2 templates. It takes two arguments: `context` and `msgid`.
+The context is always the resource type (.e.g. 'resource', 'activity', 'person').
+
+```html
+{% from "semantic-ui/invenio_app_rdm/records/macros/mex_detail.html" import smart_translate %}
+
+<h1>{{ smart_translate('resource', 'publisher.singular') }}</h1>
+```
+
+Smart_translate needs to be used for all translations coming from the mex-model,
+as these translations are context-dependent.
