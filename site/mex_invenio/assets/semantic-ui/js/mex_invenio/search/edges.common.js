@@ -1013,8 +1013,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
             if(btn) {
                 const isExpanded = btn.getAttribute("aria-expanded") === "true";
-btn.setAttribute("aria-expanded", String(!isExpanded));
-console.log("isExpan" , isExpanded)
+                btn.setAttribute("aria-expanded", String(!isExpanded));
             }
 
         }
