@@ -3055,11 +3055,8 @@ mex.renderers.RefiningANDTermSelector = class extends edges.Renderer {
                     results += `
                             <label class="checkbox">
                                 <input type="checkbox" class="${activeClass}" data-key="${escapedTerm}" ${checked}/>
-                                ${edges.util.escapeHtml(
-                        escapedDisplay
-                    )} (${count})
-                            </label>
-                        `;
+                                ${edges.util.escapeHtml(escapedDisplay)} (${count})
+                            </label>`;
                 } else {
                     results += `
                         <div class="${resultClass}">
