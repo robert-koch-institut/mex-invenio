@@ -1,5 +1,6 @@
+from typing import Any, TypedDict
+
 from flask import current_app
-from typing import Any, List, TypedDict
 from typing_extensions import NotRequired
 
 
@@ -114,24 +115,23 @@ def _normalise_value(field_name: str, field_raw_value: Any, resource_type: str) 
     if field_name in current_app.config.get("EXT_IDS", {}):
         return _normalise_extid(values, field_name)
 
-    elif ftype == "identifier":
+    if ftype == "identifier":
         return []
 
-    elif ftype == "text":
+    if ftype == "text":
         return _normalise_text(values)
 
-    elif ftype == "url":
+    if ftype == "url":
         return _normalise_url(values)
 
-    elif ftype == "date":
+    if ftype == "date":
         return _normalise_date(values)
 
-    elif ftype == "label":
+    if ftype == "label":
         return _normalise_label(values)
 
-    else:
-        normalised = [normalised_value(display_value=str(v)) for v in values]
-        return group_values(normalised)
+    normalised = [normalised_value(display_value=str(v)) for v in values]
+    return group_values(normalised)
 
 
 # -----------------------
@@ -251,7 +251,7 @@ def _normalise_extid(values: list, field_name: str) -> list[NormalisedValue]:
     return group_values(normalised)
 
 
-def _normalise_label(values: List) -> List[NormalisedValue]:
+def _normalise_label(values: list) -> list[NormalisedValue]:
     """Return labels with all available languages."""
     default = {"en": "Invalid label", "de": "Invalid label"}
     normalised = []

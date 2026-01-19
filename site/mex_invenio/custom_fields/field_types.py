@@ -80,13 +80,12 @@ def get_field_type(property):
                         field_type = value
                         break
 
-            if "pattern" in sub_property:
-                if (
-                    "T" in sub_property["pattern"]
-                    or sub_property["pattern"] in DATE_PATTERNS
-                ):  # Looking for full date-time
-                    field_type = CUSTOM_TYPES.DATE
-                    break
+            if "pattern" in sub_property and (
+                "T" in sub_property["pattern"]
+                or sub_property["pattern"] in DATE_PATTERNS
+            ):  # Looking for full date-time
+                field_type = CUSTOM_TYPES.DATE
+                break
 
                 # Handle integer types inside anyOf
             if not field_type and "type" in sub_property:

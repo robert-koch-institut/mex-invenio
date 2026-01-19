@@ -238,9 +238,10 @@ def import_data(
     cli: bool = False,
 ) -> bool:
     """Main function to import data.
-    Batch size is set to 100 records by default.
-    Expected data source is a JSON file with one MEx record per line."""
 
+    Batch size is set to 100 records by default.
+    Expected data source is a JSON file with one MEx record per line.
+    """
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
 

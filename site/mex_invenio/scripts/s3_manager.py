@@ -1,5 +1,5 @@
-"""
-This script fetches the latest file from an S3 store and imports it to the server.
+"""This script fetches the latest file from an S3 store and imports it to the server.
+
 If more than 20 files are present in the local download folder, the oldest ones are deleted.
 
 ### How to Run
@@ -26,18 +26,19 @@ Before running the script, there is a number of environment variables you can se
 You can store these credentials in a `.env` file,
 """
 
-import sys
-
-import click
-import boto3
 import logging
 import os
+import sys
+from datetime import datetime, timezone
+
+import boto3
+import click
 from dotenv import load_dotenv
 from flask import current_app
+
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import compare_files, diff_files
-from datetime import datetime, timezone
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -83,7 +84,7 @@ def get_latest_file(s3_client, bucket_name):
         response = s3_client.list_objects_v2(Bucket=bucket_name)
         if "Contents" not in response:
             logger.info("No files found in the bucket.")
-            return
+            return None
         latest_file = max(response["Contents"], key=lambda obj: obj["LastModified"])
         return latest_file["Key"]
     except Exception as e:
@@ -101,8 +102,7 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
 
 
 def get_latest_existing_file(payload_folder):
-    """Fetches the most recent file in the payload folder and
-    removes files older than the 20 most recent ones."""
+    """Fetches the most recent file in the payload folder and removes files older than the 20 most recent ones."""
     files = sorted(
         [
             os.path.join(payload_folder, f)
@@ -158,7 +158,6 @@ def get_final_import_file(existing_file, new_file, payload_folder):
 @click.option("--initial", is_flag=True, default=False)
 def manage_s3_files(initial: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
-
     s3_config = load_config()
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2024 MEX.
 #
@@ -47,11 +46,10 @@ class DisplayField(SystemField):
                 id=record.id,
                 params={"_source_includes": "display_data"},
             )
-            display_data = res["_source"]["display_data"]
+            return res["_source"]["display_data"]
             # print(
             #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
             # )
-            return display_data
         except Exception:
             return {}
             # print(f"Failed to get from search index: {e}")

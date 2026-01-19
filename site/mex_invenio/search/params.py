@@ -147,28 +147,29 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
 
         for f in filters:
             if "term" in f:
-                field = list(f["term"].keys())[0]
+                field = next(iter(f["term"].keys()))
                 if field not in MUST_FILTERS:
                     raise ValueError(f"MUST filter for {field} is not permitted")
 
             if "terms" in f:
-                field = list(f["terms"].keys())[0]
+                field = next(iter(f["terms"].keys()))
                 if field not in MUST_FILTERS:
                     raise ValueError(f"MUST filter for {field} is not permitted")
 
             if "range" in f:
-                field = list(f["range"].keys())[0]
+                field = next(iter(f["range"].keys()))
                 if field not in MUST_FILTERS:
                     raise ValueError(f"MUST filter for {field} is not permitted")
 
     def _validate_non_must_filters(self, raw):
         bools = raw.get("query", {}).get("bool", {}).keys()
         if len(bools) > 0 and "must" not in bools:
-            raise ValueError("Only MUST filters are permitted in the query.")
+            msg = "Only MUST filters are permitted in the query."
+            raise ValueError(msg)
 
     def _validate_aggregations(self, raw):
         aggs = raw.get("aggs", {})
-        for name, agg in aggs.items():
+        for agg in aggs.values():
             if "terms" in agg:
                 field = agg["terms"]["field"]
                 if field not in AGGS:
@@ -186,7 +187,7 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
 
             else:
                 raise ValueError(
-                    f"Aggregation type {list(agg.keys())[0]} is not permitted"
+                    f"Aggregation type {next(iter(agg.keys()))} is not permitted"
                 )
 
     def _validate_paging(self, raw):
@@ -207,7 +208,8 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
             if len(sort) == 0:
                 return
             if len(sort) > 1:
-                raise ValueError("Sorting by multiple fields is not permitted.")
+                msg = "Sorting by multiple fields is not permitted."
+                raise ValueError(msg)
             sort = sort[0]
 
         field = sort.keys()[0]
@@ -224,9 +226,8 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
         self._validate(params["raw"])
         q = search.from_dict(params["raw"])
         # print(json.dumps(q.to_dict()))
-        q = self._constrain(q)
+        return self._constrain(q)
         # print(json.dumps(q.to_dict()))
-        return q
 
 
 class TypeLimiterParamsInterpreter(ParamInterpreter):
@@ -250,8 +251,8 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
 
 class HighlightParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
-        """Specify the highlighter fields"""
-        search = search.highlight(
+        """Specify the highlighter fields."""
+        return search.highlight(
             "custom_fields.mex:description.value",
             "custom_fields.mex:abstract.value",
             "custom_fields.mex:title.value",
@@ -260,4 +261,3 @@ class HighlightParamsInterpreter(ParamInterpreter):
         # Uncomment this to get a view on the query in development
         # print("#########highlight###############")
         # print(json.dumps(search.to_dict()))
-        return search

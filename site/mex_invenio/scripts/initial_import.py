@@ -30,12 +30,11 @@ import click
 from flask import current_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
 
 from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
 )
-
-from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
 
 
 # No-op indexer class to disable indexing during import
@@ -120,9 +119,10 @@ def initial_import(
     cli: bool = False,
 ) -> bool:
     """Main function to import data.
-    Batch size is set to 100 records by default.
-    Expected data source is a JSON file with one MEx record per line."""
 
+    Batch size is set to 100 records by default.
+    Expected data source is a JSON file with one MEx record per line.
+    """
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
 

@@ -32,7 +32,6 @@ def test_initial_import_resource(
 
     assert len(db_result) == 1
     db_record = db_result[0]
-    print(db_record.data)
     # assert search_obj.total > 0, "No records found in search results"
 
     # record = list(search_obj.hits)[0]

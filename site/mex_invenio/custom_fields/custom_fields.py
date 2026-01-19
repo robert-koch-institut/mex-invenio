@@ -1,11 +1,11 @@
 from invenio_records_resources.services.custom_fields import (
-    TextCF,
     IntegerCF,
+    TextCF,
 )
 
+from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringCF
 from mex_invenio.custom_fields.link import LinkCF
 from mex_invenio.custom_fields.multilanguagetext import MultiLanguageTextCF
-from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringCF
 
 RDM_NAMESPACES = {
     "mex": "https://mex.rki.de/",

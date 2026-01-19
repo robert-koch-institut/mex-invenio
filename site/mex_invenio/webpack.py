@@ -22,26 +22,27 @@ search_base = [
 ]
 
 # SINGLE search bundle with ALL pages (recommended)
-search_all = search_base + [
+search_all = [
+    *search_base,
     f"{search}activities.js",
     f"{search}bibliographic-resources.js",
     f"{search}global.js",
     f"{search}resources.js",
     f"{search}variables.js",
 ]
-search_activities = search_base + [f"{search}activities.js"]
-search_bibliographicresources = search_base + [f"{search}bibliographic-resources.js"]
-search_global = search_base + [f"{search}global.js"]
-search_resources = search_base + [f"{search}resources.js"]
-search_variables = search_base + [f"{search}variables.js"]
+search_activities = [*search_base, f"{search}activities.js"]
+search_bibliographicresources = [*search_base, f"{search}bibliographic-resources.js"]
+search_global = [*search_base, f"{search}global.js"]
+search_resources = [*search_base, f"{search}resources.js"]
+search_variables = [*search_base, f"{search}variables.js"]
 
 theme = WebpackThemeBundle(
     __name__,
     "assets",
     default="semantic-ui",
     themes={
-        "semantic-ui": dict(
-            entry={
+        "semantic-ui": {
+            "entry": {
                 "support-record": "./js/mex_invenio/SupportRecordContainer.js",
                 "search_activities": search_activities,
                 "search_bibliographicresources": search_bibliographicresources,
@@ -49,6 +50,6 @@ theme = WebpackThemeBundle(
                 "search_resources": search_resources,
                 "search_variables": search_variables,
             },
-        ),
+        },
     },
 )

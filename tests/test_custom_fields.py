@@ -5,8 +5,7 @@ from tests.data import org_unit_data
 
 
 def test_custom_fields_configured(app_config):
-    """Test that the custom fields are configured in the RDM records service"""
-
+    """Test that the custom fields are configured in the RDM records service."""
     assert len(app_config["RDM_NAMESPACES"].keys()) == 1
     assert len(app_config["RDM_CUSTOM_FIELDS"]) > 0
     assert (
@@ -18,7 +17,7 @@ def test_custom_fields_configured(app_config):
 def test_import_org_unit(
     db, location, resource_type_v, contributors_role_v, import_file
 ):
-    """Test that the CLI command imports the org unit data correctly"""
+    """Test that the CLI command imports the org unit data correctly."""
     service = current_rdm_records.records_service
 
     messages = import_file("org-unit", org_unit_data)
