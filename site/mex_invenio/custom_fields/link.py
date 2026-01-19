@@ -9,7 +9,7 @@ class LinkCF(BaseListCF):
     https://github.com/robert-koch-institut/mex-model/blob/main/mex/model/fields/link.json
     """
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, **kwargs) -> None:
         """Constructor."""
         super().__init__(
             name,

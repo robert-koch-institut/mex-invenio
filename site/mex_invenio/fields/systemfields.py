@@ -14,7 +14,7 @@ from invenio_search.utils import build_alias_name
 class DisplayField(SystemField):
     """Field for storing display data."""
 
-    def __init__(self, dump=True, **kwargs):
+    def __init__(self, dump=True, **kwargs) -> None:
         """Initialize the field with dump configuration."""
         super().__init__(**kwargs)
         self._dump = dump
@@ -90,7 +90,7 @@ class DisplayField(SystemField):
 class IndexField(SystemField):
     """Field for storing searchable index data."""
 
-    def __init__(self, dump=True, **kwargs):
+    def __init__(self, dump=True, **kwargs) -> None:
         """Initialize the field with dump configuration."""
         super().__init__(**kwargs)
         self._dump = dump

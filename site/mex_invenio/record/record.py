@@ -13,7 +13,7 @@ from mex_invenio.record.utils import _get_record_by_mex_id
 
 
 class MexRecord(MethodView):
-    def __init__(self):
+    def __init__(self) -> None:
         self.template = "invenio_app_rdm/records/detail.html"
 
     def get(self, mex_id, as_json=False):

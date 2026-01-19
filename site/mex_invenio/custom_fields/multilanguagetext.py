@@ -10,7 +10,7 @@ class MultiLanguageTextCF(BaseListCF):
     https://github.com/robert-koch-institut/mex-model/blob/main/mex/model/fields/text.json
     """
 
-    def __init__(self, name, value_as_filter=False, **kwargs):
+    def __init__(self, name, value_as_filter=False, **kwargs) -> None:
         """Constructor."""
         super().__init__(
             name,

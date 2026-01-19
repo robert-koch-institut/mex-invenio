@@ -63,18 +63,17 @@ select = ["ALL"]
     "SLF",      # Allow private member access
 ]
 # TODO: re-enable these rules one-by-one
-"site/mex_invenio/alembic/*" = ["ANN201", "E501"]
-"site/mex_invenio/config/*" = ["ANN001", "DTZ005", "E501", "F401", "S104", "S105", "TD002"]
-"site/mex_invenio/custom*" = ["A002", "ANN001", "ANN003", "ANN201", "ANN202", "ANN204", "BLE001", "D101", "D103", "C901", "E501", "ERA001", "FBT002", "N801", "PERF203", "PLR0912", "T201", "TD001", "TD002"]
+"site/mex_invenio/alembic/*" = ["E501"]
+"site/mex_invenio/config/*" = ["DTZ005", "E501", "F401", "S104", "S105", "TD002"]
+"site/mex_invenio/custom*" = ["A002", "ANN001", "ANN003", "ANN201", "ANN202", "BLE001", "D101", "D103", "C901", "E501", "ERA001", "FBT002", "N801", "PERF203", "PLR0912", "T201", "TD"]
 "site/mex_invenio/fields/*" = ["ANN001", "ANN003", "ANN201", "ANN204", "ARG002", "BLE001", "E501", "ERA001", "FBT002", "SLF001"]
 "site/mex_invenio/oai/*" = ["ANN001", "ANN003", "ANN201", "ARG001", "C901", "PLR0912"]
-"site/mex_invenio/record/*" = ["ANN001", "ANN201", "ANN202", "ANN204", "ANN401", "BLE001", "D101", "D102", "D103", "D107", "C901", "E501", "FBT002", "PGH003", "PLR0911", "PLR2004", "SLF001", "T201"]
+"site/mex_invenio/record/*" = ["ANN001", "ANN201", "ANN202", "ANN401", "BLE001", "D101", "D102", "D103", "D107", "C901", "E501", "FBT002", "PGH003", "PLR0911", "PLR2004", "SLF001", "T201"]
 "site/mex_invenio/scripts/*" = ["A002", "ANN", "ARG", "BLE001", "D", "C901", "DTZ", "E501", "ERA001", "FBT", "G004", "PERF", "PLC", "PLR", "PLW2901", "PTH", "RUF001", "S113", "S324", "SIM102", "T201", "TRY"]
 "site/mex_invenio/search/*" = ["ANN001", "ANN201", "ANN202", "ARG002", "D101", "E501", "EM102", "ERA001"]
 "site/mex_invenio/services/*" = [ "ARG002", "C901", "D101", "D102", "D107", "DTZ003", "E501", "ERA001", "N806", "PLC0415", "PLR0912", "TD"]
 "site/mex_invenio/*.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "D103", "ERA001", "G004", "SLF001", "TRY401"]
 "tests/*" = ["ANN001", "ANN201", "ANN202", "ARG001", "C901", "DTZ005", "ERA001", "N803", "PLR0913", "PTH", "RUF015", "S314"]
-
 
 [tool.ruff.lint.isort]
 known-first-party = ["mex_invenio", "tests"]

@@ -5,7 +5,7 @@ from invenio_search.engine import dsl
 class RestrictedTermsFacet(NestedTermsFacet):
     """Facet that only displays specific values."""
 
-    def __init__(self, field, label, excluded_values=None, **kwargs):
+    def __init__(self, field, label, excluded_values=None, **kwargs) -> None:
         """Initialize facet with allowed values."""
         super().__init__(field=field, label=label, **kwargs)
         self.excluded_values = excluded_values
