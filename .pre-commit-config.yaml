@@ -24,3 +24,11 @@ repos:
         name: whitespaces
       - id: fix-byte-order-marker
         name: byte-order
+  - repo: local
+    hooks:
+    - id: pipenv-check
+      name: pipenv
+      entry: pipenv verify
+      files: ^Pipfile[\.lock]?$
+      language: system
+      pass_filenames: false
