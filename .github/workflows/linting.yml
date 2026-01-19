@@ -35,11 +35,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.11
-
       - name: Cache requirements
         uses: actions/cache@v4
         env:
@@ -59,6 +54,11 @@ jobs:
           key: ${{ env.cache-name }}-${{ hashFiles('*.lock') }}
           restore-keys: |
             ${{ env.cache-name }}-
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
 
       - name: Install requirements
         run: |
