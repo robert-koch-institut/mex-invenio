@@ -957,7 +957,8 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `<button id="vertical-tab" aria-expanded="false"
+    aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>`;
         }
 
         let facetSidebar = "";
@@ -1007,6 +1008,15 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
         const doc = document.getElementById("right-col");
         if (doc) {
             doc.style.display = (doc.style.display === "none") ? "" : "none";
+
+            const btn = document.getElementById("vertical-tab");
+
+            if(btn) {
+                const isExpanded = btn.getAttribute("aria-expanded") === "true";
+btn.setAttribute("aria-expanded", String(!isExpanded));
+console.log("isExpan" , isExpanded)
+            }
+
         }
     }
 };
