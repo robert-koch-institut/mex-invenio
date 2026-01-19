@@ -957,8 +957,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" aria-expanded="false"
-    aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `<button id="vertical-tab" aria-expanded="false" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>`;
         }
 
         let facetSidebar = "";
