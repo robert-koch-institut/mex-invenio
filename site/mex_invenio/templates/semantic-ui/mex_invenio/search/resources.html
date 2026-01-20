@@ -20,6 +20,7 @@
 {% block javascript %}
     <script>
         window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
+        document.title = "Mex: Data Sources & Datasets"
     </script>
     {{ super() }}
     {{ webpack['search_resources.js'] }}
