@@ -1004,17 +1004,18 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
     }
 
     showTabContent() {
-        const doc = document.getElementById("right-col");
-        if (doc) {
-            doc.style.display = (doc.style.display === "none") ? "" : "none";
+        const $doc = $("#right-col");
+        console.log("new code")
+        if ($doc.length) {
+            $doc.toggle();
 
-            const btn = document.getElementById("vertical-tab");
-
-            if(btn) {
-                const isExpanded = btn.getAttribute("aria-expanded") === "true";
-                btn.setAttribute("aria-expanded", String(!isExpanded));
+            const $btn = $("#vertical-tab");
+            if ($btn.length) {
+                $btn.attr(
+                    "aria-expanded",
+                    $btn.attr("aria-expanded") !== "true"
+                );
             }
-
         }
     }
 };
