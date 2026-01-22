@@ -958,7 +958,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 ""
             );
             verticalTabFrag = `
-                <button id="vertical-tab" aria-expanded="false" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>
+                <button id="vertical-tab" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>
                 <p id="vertical-tab-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
             `;
         }
@@ -1771,6 +1771,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         const length = this.component?.length || 0;
 
         const label = `${i18n.t("Variables Filter")}` + (length > 0 ? ` (${length})` : "");
+
         // Screen reader announcement
         const announcement =  `${length} ${i18n.t("records added to variable filters")}`;
 
@@ -4198,13 +4199,21 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
     checkSidebarStatus() {
         // PATCH: to hide the right section on resources, since edges don't have template sync function
-        let doc = document.getElementById("right-col");
-        if (doc) {
+        let ariaExpanded = "false";
+
+        const $doc = $("#right-col");
+        if ($doc.length) {
             if (this.selector && this.selector.length > 0) {
-                doc.style.display = "";
+                $doc.css("display", "");
+                ariaExpanded = "true";
             } else {
-                doc.style.display = "none";
+                $doc.css("display", "none");
             }
+        }
+
+        const $btn = $("#vertical-tab");
+        if ($btn.length) {
+            $btn.attr("aria-expanded", ariaExpanded);
         }
     }
 
