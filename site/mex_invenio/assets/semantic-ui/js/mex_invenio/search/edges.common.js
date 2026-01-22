@@ -957,7 +957,10 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" aria-expanded="false" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `
+                <button id="vertical-tab" aria-expanded="false" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>
+                <p id="vertical-tab-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+            `;
         }
 
         let facetSidebar = "";
@@ -1005,7 +1008,6 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
     showTabContent() {
         const $doc = $("#right-col");
-        console.log("new code")
         if ($doc.length) {
             $doc.toggle();
 
@@ -1762,12 +1764,22 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
         frag += `</div>`
 
-        let verticalBar = document.getElementById("vertical-tab");
-        if (verticalBar) {
-            const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${i18n.t(
-                "Variables Filter"
-            )} ${length > 0 ? `(${length})` : ""} </span>`;
+
+        const $btn = $("#vertical-tab");
+        const $announcer = $("#vertical-tab-announcer");
+
+        const length = this.component?.length || 0;
+
+        const label = `${i18n.t("Variables Filter")}` + (length > 0 ? ` (${length})` : "");
+        // Screen reader announcement
+        const announcement =  `${length} ${i18n.t("records added to variable filters")}`;
+
+        if($btn) {
+            $btn.text(label)
+        }
+
+        if($announcer) {
+            $announcer.text(announcement)
         }
 
         this.component.context.html(frag);
