@@ -958,7 +958,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 ""
             );
             verticalTabFrag = `
-                <button id="vertical-tab" aria-live="polite" class="vertical-tab ${verticalTabClass}"></button>
+                <button id="vertical-tab" role="status" class="vertical-tab ${verticalTabClass}"></button>
                 <p id="vertical-tab-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
             `;
         }
