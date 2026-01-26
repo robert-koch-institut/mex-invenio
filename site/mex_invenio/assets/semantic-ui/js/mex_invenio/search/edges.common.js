@@ -1737,7 +1737,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1987,7 +1987,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                     ${expandAllCheckbox}
                     ${header}
                     <div class="" style="margin-top:1.625rem">
-                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                      <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
                     </div>
                     <div>
                         ${recordsFrag}
