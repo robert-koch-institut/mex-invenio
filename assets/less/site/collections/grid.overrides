@@ -1,0 +1,7 @@
+.ui.grid {
+    max-width: 100%;
+}
+
+#edge-container > .ui.grid {
+    margin-left: 0;
+}

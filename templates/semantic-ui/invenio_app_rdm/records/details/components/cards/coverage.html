@@ -1,0 +1,71 @@
+{% from "invenio_app_rdm/records/macros/mex_detail.html" import smart_translate %}
+
+{% set card = config.UI_SETTINGS[resource_type][column][card_name] %}
+
+{% set ns = namespace(prop_exist=false) %}
+{% for prop in card.properties %}
+    {% if "is_backwards_linked" in prop %}
+        {% set record_data = data["backwards_linked"] %}
+    {% else %}
+        {% set record_data = data %}
+    {% endif %}
+    {% if prop.field in record_data %}
+        {% set ns.prop_exist = true %}
+    {% endif %}
+{% endfor %}
+
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+            {% for prop in card.properties %}
+                {% if "is_backwards_linked" in prop %}
+                    {% set record_data = data["backwards_linked"] %}
+                {% else %}
+                    {% set record_data = data %}
+                {% endif %}
+                {% if prop.field == "fn" %}
+                    {% if "mex:minTypicalAge" in record_data and "mex:maxTypicalAge" in record_data %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            <p class="card-prop-label" title="{{ _('Typical age') }}">{{ _('Typical age') }}</p>
+                            <div class="card-prop-value">
+                                <p>{{ record_data["mex:minTypicalAge"][0]["display_data"][0]["value"] }} - {{ record_data["mex:maxTypicalAge"][0]["display_data"][0]["value"]}}</p>
+                            </div>
+                        </div>
+                    {% elif "mex:minTypicalAge" in record_data %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            <p class="card-prop-label" title="{{ _('Min. typical age') }}">{{ _('Min. typical age') }}</p>
+                            <div class="card-prop-value">
+                                {{ display_values(record_data["mex:minTypicalAge"]) }}
+                            </div>
+                        </div>
+                    {% elif "mex:maxTypicalAge" in record_data %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            <p class="card-prop-label" title="{{ _('Max. typical age') }}">{{ _('Max. typical age') }}</p>
+                            <div class="card-prop-value">
+                                {{ display_values(record_data["mex:maxTypicalAge"]) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {% if prop.field in record_data %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                            {%- if 'label' in prop %}
+                                {% set label = smart_translate(resource_type, prop.label) %}
+                                <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
+                            {%- endif -%}
+                            <div class="card-prop-value">
+                                {{ display_values(record_data[prop.field]) }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

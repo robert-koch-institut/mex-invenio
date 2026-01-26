@@ -1,0 +1,35 @@
+{% set card = config.UI_SETTINGS[resource_type][column][card_name] %}
+
+{% set ns = namespace(prop_exist=false) %}
+{% set properties = {"method_prop": "mex:method", "description_prop": "mex:methodDescription"} %}
+{% for label, field in properties.items() %}
+    {% if field in data %}
+        {% set ns.prop_exist = true %}
+    {% endif %}
+{% endfor %}
+{% if ns.prop_exist %}
+    <div class="card">
+        <h3>
+            <img class="ui image icon"
+                 src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
+                 alt=""/>
+            {{ _(card.title) }}
+        </h3>
+        <div class="card-props">
+        {% if properties.method_prop in data %}
+            <div class="card-props-p forced-vertical">
+                <div class="card-prop-value">
+                    {{ display_values(data[properties.method_prop]) }}
+                </div>
+            </div>
+        {% endif %}
+        {% if properties.description_prop in data %}
+            <div class="card-props-p forced-vertical">
+                <div class="card-prop-value">
+                    {{ display_values(data[properties.description_prop]) }}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+{% endif %}

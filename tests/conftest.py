@@ -1,6 +1,3 @@
-# conftest.py
-# see https://github.com/nyudlts/ultraviolet/blob/main/tests/conftest.py
-
 import json
 import logging
 import os
@@ -8,6 +5,15 @@ import re
 from unittest.mock import patch, MagicMock
 
 import pytest
+import sqlalchemy as sa
+
+try:
+    from flask_sqlalchemy.session import Session as FlaskSQLAlchemySession
+except ImportError:
+    # Fallback for older Flask-SQLAlchemy versions
+    from flask_sqlalchemy import SQLAlchemy
+
+    FlaskSQLAlchemySession = SQLAlchemy().session
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
@@ -21,18 +27,29 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.scripts.import_data import _import_data
+from mex_invenio.scripts.initial_import import _initial_import
 from mex_invenio.config import (
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
     RECORD_METADATA_CREATOR,
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
+    FIELD_TYPES,
+    UI_SETTINGS,
+    TITLE_FIELDS,
+    ENTITIES,
+    DISCLAIMER,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
+from mex_invenio.custom_fields.backwards_linked_records import (
+    get_fields_linked_backwards,
+)
+
+from mex_invenio.records.api import MexRDMRecord
 
 
 created_regex = (
@@ -47,6 +64,89 @@ def search_messages(messages, pattern):
             return re.search(pattern, message)
 
     return None
+
+
+try:
+
+    class PytestInvenioSession(FlaskSQLAlchemySession):
+        """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
+
+        def rollback(self) -> None:
+            if self._transaction is None:
+                pass
+            else:
+                self._transaction.rollback(_to_root=False)
+except (TypeError, AttributeError):
+    # Fallback for older Flask-SQLAlchemy versions - use standard session
+    PytestInvenioSession = None
+
+
+@pytest.fixture(scope="function")
+def db_session_options():
+    """Session options to prevent SQLAlchemy Continuum session binding issues."""
+    options = dict(expire_on_commit=False)
+    if PytestInvenioSession is not None:
+        options["class_"] = PytestInvenioSession
+    return options
+
+
+@pytest.fixture(scope="function")
+def db(database, db_session_options):
+    """Creates a new database session for a test - compatible with Flask-SQLAlchemy 2.5.1.
+
+    Scope: function
+
+    You must use this fixture if your test connects to the database. The
+    fixture will set a save point and rollback all changes performed during
+    the test (this is much faster than recreating the entire database).
+    """
+    from invenio_db import db as invenio_db
+
+    connection = database.engine.connect()
+    transaction = connection.begin()
+
+    # Create session with our custom options
+    options = dict(
+        bind=connection,
+        binds={},
+        **db_session_options,
+    )
+
+    session = database.create_scoped_session(options=options)
+
+    # Monkey patch the session
+    old_session = invenio_db.session
+    invenio_db.session = session
+
+    try:
+        yield invenio_db
+    finally:
+        session.remove()
+        transaction.rollback()
+        connection.close()
+        invenio_db.session = old_session
+
+
+@pytest.fixture(scope="function")
+def db_session_transaction_restart(db):
+    """Fixture to restart savepoints after transaction ends for SQLAlchemy Continuum compatibility."""
+
+    session_obj = db.session()
+
+    @sa.event.listens_for(session_obj, "after_transaction_end")
+    def restart_savepoint(sess, trans):
+        if trans.nested and not trans._parent.nested:
+            sess.expire_all()
+            sess.begin_nested()
+
+    yield
+
+    # Clean up the event listener - use try/except to handle cases where session may have changed
+    try:
+        sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
+    except sa.exc.InvalidRequestError:
+        # Event listener may have already been removed or session changed
+        pass
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -69,6 +169,10 @@ def app_config(app_config, module_tmp_path):
     app_config["SEARCH_INDEX_PREFIX"] = "test"
     app_config["SERVER_NAME"] = "127.0.0.1"
 
+    app_config["RDM_RECORD_CLS"] = MexRDMRecord
+    # rdm_config.RDMRecordServiceConfig.schema = MexRDMRecordSchema
+    # rdm_config.RDMRecordServiceConfig.record_cls = MexRDMRecord
+
     # add custom fields
     app_config["RDM_NAMESPACES"] = RDM_NAMESPACES
     app_config["RDM_CUSTOM_FIELDS"] = RDM_CUSTOM_FIELDS
@@ -82,6 +186,14 @@ def app_config(app_config, module_tmp_path):
     # add oai
     app_config["OAISERVER_ID_PREFIX"] = OAISERVER_ID_PREFIX
     app_config["OAISERVER_RELATIONS"] = OAISERVER_RELATIONS
+
+    # add linked records configurations
+    app_config["FIELD_TYPES"] = FIELD_TYPES
+    app_config["UI_SETTINGS"] = UI_SETTINGS
+    app_config["TITLE_FIELDS"] = TITLE_FIELDS
+    app_config["ENTITIES"] = ENTITIES
+    app_config["DISCLAIMER"] = DISCLAIMER
+    app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
 
     # add S3
     app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path
@@ -102,9 +214,7 @@ def resource_type_type(app):
 @pytest.fixture(scope="module")
 def resource_type_v(app, resource_type_type):
     """Resource type vocabulary record."""
-    Vocabulary.index.create(ignore=400)
-    vocab = vocabulary_service.create(
-        system_identity,
+    vocabs = [
         {
             "id": "contactpoint",
             "icon": "code",
@@ -113,10 +223,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "organizationalunit",
             "icon": "code",
@@ -125,10 +231,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "resource",
             "icon": "code",
@@ -137,10 +239,6 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
-
-    vocabulary_service.create(
-        system_identity,
         {
             "id": "person",
             "icon": "code",
@@ -149,7 +247,20 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
-    )
+        {
+            "id": "accessplatform",
+            "icon": "code",
+            "props": {"type": "accessplatform"},
+            "title": {"en": "Access platform"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
+    ]
+
+    Vocabulary.index.create(ignore=400)
+
+    for vocab in vocabs:
+        vocabulary_service.create(system_identity, vocab)
 
     """vocab = vocabulary_service.create(
         system_identity,
@@ -253,6 +364,7 @@ def initialise_custom_fields(app, location, db, search_clear, cli_runner):
 @pytest.fixture
 def create_file(tmp_path):
     """Create a file, either absolute or relative to the tmp_path."""
+    created_files = []
 
     def _create_file(filename, data, absolute=False):
         if isinstance(data, dict):
@@ -266,9 +378,18 @@ def create_file(tmp_path):
             file_path = tmp_path / filename
             file_path.write_text(data)
 
+        created_files.append(str(file_path))
         return str(file_path)
 
-    return _create_file
+    yield _create_file
+
+    # Cleanup: remove all created files after the test
+    for file_path in created_files:
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except OSError:
+            pass  # File might already be deleted
 
 
 @pytest.fixture
@@ -287,19 +408,29 @@ def import_file(
     initialise_custom_fields,
     custom_field_exists,
     db,
+    db_session_options,
+    db_session_transaction_restart,
     caplog,
     cli_runner,
     create_user,
     create_file,
+    tmp_path,
 ):
     email = "importer@address.com"
     create_user("importer", email)
 
-    def _import_file(filename, data):
-        contact_point_file = create_file(f"{filename}.json", data)
+    def _import_file(filename, data, initial=False):
+        file = create_file(f"{filename}.json", data)
 
         with caplog.at_level(logging.INFO):
-            cli_runner(_import_data, email, contact_point_file)
+            if initial:
+                result = cli_runner(_initial_import, email, file)
+            else:
+                result = cli_runner(_import_data, email, file)
+
+        assert result.exit_code == 0, (
+            f"CLI command failed with exit code {result.exit_code}: {result.exception}"
+        )
 
         current_rdm_records.records_service.indexer.refresh()
 

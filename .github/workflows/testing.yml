@@ -1,0 +1,89 @@
+name: Testing
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["**"]
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: on
+  PIP_NO_CLEAN: on
+  PIP_NO_INPUT: on
+  PIP_PREFER_BINARY: on
+  PY_COLORS: "1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
+      MEX_IMPORT_BUCKET: placeholder
+      MEX_IMPORT_AWS_KEY_ID: placeholder
+      MEX_IMPORT_AWS_SECRET: placeholder
+      MEX_IMPORT_EMAIL: placeholder
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Cache requirements
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-requirements
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.cache-name }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ env.cache-name }}-
+
+      - name: Cache environment
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-environment
+        with:
+          path: ~/.cache/pipenv
+          key: ${{ env.cache-name }}-${{ hashFiles('*.lock') }}
+          restore-keys: |
+            ${{ env.cache-name }}-
+
+      - name: Setup system
+        run: |
+          sudo apt-get update && sudo apt-get install -y fonts-dejavu \
+            imagemagick libbz2-dev libcairo2-dev libffi-dev liblzma-dev libpq-dev \
+            libsqlite3-dev libssl-dev libxml2-dev libxmlsec1-dev libxslt1-dev locales
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.11
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 16
+
+      - name: Install requirements
+        run: make install
+
+      - name: Run test suite
+        run: |
+          eval "$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"
+          pipenv run python -m pytest -W ignore
+
+      - name: Stop services
+        if: always()
+        run: pipenv run docker-services-cli down

@@ -20,6 +20,12 @@ CUSTOM_FIELDS_UI_TYPES_AUTO = {
     "/schema/fields/link": CUSTOM_TYPES.URL,
 }
 
+DATE_PATTERNS = [
+    "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$",
+    "^[0-9]{4}-(?:0[1-9]|1[0-2])$",
+    "^[0-9]{4}$",
+]
+
 
 # Function to determine the field type based on the provided properties
 def get_field_type(property):
@@ -42,6 +48,12 @@ def get_field_type(property):
                 ref = property["items"]["anyOf"][0]["$ref"]
             elif "type" in property["items"]:
                 ref = property["items"]["anyOf"]["type"]
+            elif ["pattern" in property["items"]["anyOf"][0]]:
+                pattern = property["items"]["anyOf"][0]["pattern"]
+                if (
+                    "T" in pattern or pattern in DATE_PATTERNS
+                ):  # Looking for full date-time
+                    field_type = CUSTOM_TYPES.DATE
         elif "type" in property["items"]:
             field_type = property["items"]["type"]
 
@@ -69,7 +81,10 @@ def get_field_type(property):
                         break
 
             if "pattern" in sub_property:
-                if "T" in sub_property["pattern"]:  # Looking for full date-time
+                if (
+                    "T" in sub_property["pattern"]
+                    or sub_property["pattern"] in DATE_PATTERNS
+                ):  # Looking for full date-time
                     field_type = CUSTOM_TYPES.DATE
                     break
 
@@ -77,7 +92,6 @@ def get_field_type(property):
             if not field_type and "type" in sub_property:
                 field_type = sub_property["type"]
                 break
-
     return field_type
 
 
@@ -104,5 +118,4 @@ def get_field_types() -> dict:
         except Exception as e:
             print(f"Error processing entity {entity_name}: {e}")
             continue
-
     return field_types

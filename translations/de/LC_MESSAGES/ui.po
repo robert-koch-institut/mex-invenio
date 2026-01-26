@@ -1,0 +1,597 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-11-14 11:53+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:123
+msgid "English"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:297
+#, fuzzy
+msgid "Resource types"
+msgstr "Übergeordnete Ressourcen"
+
+#: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:754
+msgid "JSON"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:18
+msgid "About MEx"
+msgstr "Über MEx"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:19
+msgid "Contact"
+msgstr "Kontakt"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:20
+msgid "Data privacy"
+msgstr "Datenschutzerklärung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:24
+msgid "Accessibility"
+msgstr "Barrierefreiheit"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:25
+msgid "Imprint"
+msgstr "Impressum"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:32
+#, fuzzy
+msgid "home"
+msgstr "Thema"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:37
+msgid "Robert Koch Institute"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:47
+msgid "Menu"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:64
+msgid "Close menu"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:73
+msgid "Data Sources & Datasets"
+msgstr "Datenbestände & Datensätze"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:74
+msgid "Variables"
+msgstr "Variablen"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
+msgid "Projects"
+msgstr "Projekte"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
+msgid "Publications"
+msgstr "Publikationen"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
+msgid "Search repository"
+msgstr "Repository durchsuchen"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:37
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:38
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:40
+#, fuzzy
+msgid "Search"
+msgstr "Suche Einträge"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:54
+msgid "Information banner"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:62
+#, python-format
+msgid ""
+"\n"
+"                                There is a %(link_start)snewer "
+"version%(link_end)s of the record\n"
+"                                available.\n"
+"                                "
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:90
+msgid "Record access information"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:97
+#, fuzzy
+msgid "Reason"
+msgstr "Autor*in"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:107
+msgid "Back-navigation"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:109
+msgid "Back to edit"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:120
+msgid "Record title and creators"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
+msgid "Creators & Contributors"
+msgstr "Verantwortliche & Mitwirkende"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
+#, fuzzy
+msgid "Property description"
+msgstr "Methodenbeschreibung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:240
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:49
+msgid "Record details"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:256
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:67
+msgid "Jump to top of page"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:258
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:69
+msgid "Jump up"
+msgstr "Nach oben"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/contact.html:40
+msgid "Send email"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
+#, fuzzy
+msgid "Typical age"
+msgstr "Minimales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
+msgid "Min. typical age"
+msgstr "Minimales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
+msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/includes/clickToCopy.html:3
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/includes/clickToCopy.html:6
+msgid "Copy email address"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/includes/clickToCopy.html:13
+msgid "Copied!"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
+msgid "Metadata Export"
+msgstr "Metadaten Export"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/invenio_id.html:6
+msgid "Invenio ID"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/metrics.html:16
+msgid "Metrics"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/metrics.html:20
+#, fuzzy
+msgid "VIEWS"
+msgstr "Aufrufe"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/versions.html:16
+msgid "Metadata Version"
+msgstr "Metadaten-Version"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/activity.html:4
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:4
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:8
+msgid "Record tags"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/activity.html:16
+msgid "Record Abstract"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:21
+msgid "Record abstract"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:32
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:35
+msgid "Language"
+msgstr "Sprache"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:36
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:39
+msgid "Created"
+msgstr "Erstellt"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:5
+msgid "Edit this record"
+msgstr "Eintrag editieren"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:23
+#, fuzzy
+msgid "Record Description"
+msgstr "Methodenbeschreibung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:43
+msgid "Modified"
+msgstr "Letzte Änderung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:56
+msgid "Record IDs"
+msgstr ""
+
+msgid "Search our"
+msgstr "Unsere"
+
+msgid "Entire Database"
+msgstr "Gesamte Datenbank"
+
+#~ msgid "Access"
+#~ msgstr "Zugriff"
+
+#~ msgid "Access platform"
+#~ msgstr "Zugriffsplattform"
+
+#~ msgid "Access restriction"
+#~ msgstr "Zugriffsbeschränkung"
+
+#~ msgid "Accrual Periodicity"
+#~ msgstr "Frequenz"
+
+#~ msgid "Alternative title"
+#~ msgstr "Alternativtitel"
+
+#~ msgid "Anonymization Pseudonymization"
+#~ msgstr "Anonymisierung/Pseudonymisierung"
+
+#~ msgid "Conforms To"
+#~ msgstr "Standard"
+
+#~ msgid "Contributing unit"
+#~ msgstr "Mitwirkendes Fachgebiet"
+
+#~ msgid "Contributor"
+#~ msgstr "Mitwirkende*r"
+
+#~ msgid "Creators"
+#~ msgstr "Autor*innen"
+
+#~ msgid "Description"
+#~ msgstr "Beschreibung"
+
+#~ msgid "Distribution"
+#~ msgstr "Datei"
+
+#~ msgid "Documentation"
+#~ msgstr "Dokumentation"
+
+#~ msgid "Doi"
+#~ msgstr "DOI"
+
+#~ msgid "External partner"
+#~ msgstr "Weitere Beteiligte"
+
+#~ msgid "Had Primary Source"
+#~ msgstr "Originaldatenspeicher"
+
+#~ msgid "Has Legal Basis"
+#~ msgstr "Rechtliche Grundlage"
+
+#~ msgid "Has Personal Data"
+#~ msgstr "Personenbezogene Daten"
+
+#~ msgid "Icd10 Code"
+#~ msgstr "ICD-10-Code"
+
+#~ msgid "Identifier"
+#~ msgstr "Identifier des extrahierten Metadatenobjekts"
+
+#~ msgid "Identifier in primary source"
+#~ msgstr "Identifikator im Primärsystem"
+
+#~ msgid "Includes"
+#~ msgstr "Untergeordnete Ressourcen"
+
+#~ msgid "Instrument Tool Or Apparatus"
+#~ msgstr "Tool"
+
+#~ msgid "Part Of"
+#~ msgstr "Übergeordnete Ressourcen"
+
+#~ msgid "Keyword"
+#~ msgstr "Stichwort"
+
+#~ msgid "Keywords"
+#~ msgstr "Stichworte"
+
+#~ msgid "License"
+#~ msgstr "Lizenz"
+
+#~ msgid "Loinc Id"
+#~ msgstr "Loinc-ID"
+
+#~ msgid "Max Typical Age"
+#~ msgstr "Maximales typisches Alter"
+
+#~ msgid "Mesh Id"
+#~ msgstr "Mesh-ID"
+
+#~ msgid "Method"
+#~ msgstr "Methode"
+
+#~ msgid "Population coverage"
+#~ msgstr "Bevölkerungsabdeckung"
+
+#~ msgid "Publication"
+#~ msgstr "Publikation"
+
+#~ msgid "Publisher"
+#~ msgstr "Herausgeber"
+
+#~ msgid "Quality information"
+#~ msgstr "Qualitätsinformationen"
+
+#~ msgid "Resource Creation Method"
+#~ msgstr "Methodik"
+
+#~ msgid "Rights"
+#~ msgstr "Nutzungsbedingungen"
+
+#~ msgid "Size of data basis"
+#~ msgstr "Datenbasis"
+
+#~ msgid "Spatial"
+#~ msgstr "Räumlicher Bezug"
+
+#~ msgid "State Of Data Processing"
+#~ msgstr "Datenprozessierungsstand"
+
+#~ msgid "Temporal"
+#~ msgstr "Zeitlicher Bezug"
+
+#~ msgid "Title"
+#~ msgstr "Titel"
+
+#~ msgid "Unit In Charge"
+#~ msgstr "Verantwortliches Fachgebiet"
+
+#~ msgid "Was Generated By"
+#~ msgstr "Zugehöriges Projekt"
+
+#~ msgid "Generated By"
+#~ msgstr "Zugehörige Datenbestände & Datensätze"
+
+#~ msgid "Variable"
+#~ msgstr "Variable"
+
+#~ msgid "Theme & Keywords"
+#~ msgstr "Thema & Stichworte"
+
+#~ msgid "Data Representation & Coverage"
+#~ msgstr "Datenabdeckung"
+
+#~ msgid "Legal Basis & Data Provenance"
+#~ msgstr "Rechtsgrundlage & Provenienz"
+
+#~ msgid "Data Collection & Processing"
+#~ msgstr "Datenerhebung & Prozessierung"
+
+#~ msgid "Methodology"
+#~ msgstr "Methodik"
+
+#~ msgid "Standards & Quality"
+#~ msgstr "Standards & Qualität"
+
+#~ msgid "Related Projects"
+#~ msgstr "Zugehörige Projekte"
+
+#~ msgid "Related Publications & Further Documentation"
+#~ msgstr "Veröffentlichungen & Dokumentation"
+
+#~ msgid "Related Resources"
+#~ msgstr "Zugehörige Ressourcen"
+
+#~ msgid "Access & Usage Rights"
+#~ msgstr "Zugriff & Nutzungsrechte"
+
+#~ msgid "Files"
+#~ msgstr "Dateien"
+
+#~ msgid "Data Source/Dataset"
+#~ msgstr "Datenbestand/Datensatz"
+
+#~ msgid "Project"
+#~ msgstr "Projekt"
+
+#~ msgid ""
+#~ "All information is based on information"
+#~ " from the original data-storing "
+#~ "systems. No guarantee is given for "
+#~ "the accuracy, completeness, or timeliness "
+#~ "of this information."
+#~ msgstr ""
+#~ "Alle Angaben basieren auf Informationen "
+#~ "aus den datenhaltenden Originalsystemen. Es"
+#~ " besteht keine Gewähr für Richtigkeit, "
+#~ "Vollständigkeit und Aktualität dieser "
+#~ "Informationen."
+
+#~ msgid "Issued"
+#~ msgstr "Veröffentlichungsdatum"
+
+#~ msgid "Title Proper"
+#~ msgstr "Gesamttitelangabe"
+
+#~ msgid "Journal"
+#~ msgstr "Zeitschrift"
+
+#~ msgid "Issue"
+#~ msgstr "Ausgabe"
+
+#~ msgid "Volume"
+#~ msgstr "Zeitschriftenband"
+
+#~ msgid "Title of book"
+#~ msgstr "Buchtitel"
+
+#~ msgid "Subtitle"
+#~ msgstr "Untertitel"
+
+#~ msgid "Volume of series"
+#~ msgstr "Reihenband"
+
+#~ msgid "Section"
+#~ msgstr "Kapitel"
+
+#~ msgid "Publication place"
+#~ msgstr "Verlagsort"
+
+#~ msgid "Publication year"
+#~ msgstr "Veröffentlichungsjahr"
+
+#~ msgid "Pages"
+#~ msgstr "Seiten"
+
+#~ msgid "Editor"
+#~ msgstr "Herausgeber"
+
+#~ msgid "Editor of series"
+#~ msgstr "Herausgebende"
+
+#~ msgid "Alternate Identifier"
+#~ msgstr "Alternative Kennung"
+
+#~ msgid "Involved Person"
+#~ msgstr "Beteiligte Person"
+
+#~ msgid "Responsible unit"
+#~ msgstr "Verantwortliches Fachgebiet"
+
+#~ msgid "Start"
+#~ msgstr "Laufzeitbeginn"
+
+#~ msgid "End"
+#~ msgstr "Laufzeitende"
+
+#~ msgid "Thema"
+#~ msgstr "Thema"
+
+#~ msgid "Partners & Funding"
+#~ msgstr "Partner & Fördermittelgebende"
+
+#~ msgid "External Associate"
+#~ msgstr "Externer Mitarbeiter"
+
+#~ msgid "Funder or Commissioner"
+#~ msgstr "Förderer oder Auftraggeber"
+
+#~ msgid "Funding program"
+#~ msgstr "Förderprogramm"
+
+#~ msgid "Website"
+#~ msgstr "Webseite"
+
+#~ msgid "Succeeds"
+#~ msgstr "Nachfolger zu"
+
+#~ msgid "Update frequency"
+#~ msgstr "Frequenz"
+
+#~ msgid "Anonymization/pseudonymization"
+#~ msgstr "Anonymisierung/Pseudonymisierung"
+
+#~ msgid "Standard"
+#~ msgstr "Standard"
+
+#~ msgid "Author"
+#~ msgstr "Autor*in"
+
+#~ msgid "Primary Source"
+#~ msgstr "Primärsystem"
+
+#~ msgid "Legal basis"
+#~ msgstr "Rechtliche Grundlage"
+
+#~ msgid "Personal data"
+#~ msgstr "Personenbezogene Daten"
+
+#~ msgid "ICD-10"
+#~ msgstr "ICD-10"
+
+#~ msgid "Tool"
+#~ msgstr "Tool"
+
+#~ msgid "Superordinate data source/data set"
+#~ msgstr "Übergeordneter Datenbestand/Datensatz"
+
+#~ msgid "LoincId"
+#~ msgstr "LOINC"
+
+#~ msgid "MeSH"
+#~ msgstr "MeSH"
+
+#~ msgid "Creation method"
+#~ msgstr "Methodik"
+
+#~ msgid "General type"
+#~ msgstr "Allgemeine Datenart"
+
+#~ msgid "Specific type"
+#~ msgstr "Spezifische Datenart"
+
+#~ msgid "Stable target id"
+#~ msgstr "Stabiler Identifikator"
+
+#~ msgid "Data processing state"
+#~ msgstr "Verarbeitungszustand"
+
+#~ msgid "Temporal coverage"
+#~ msgstr "Zeitlicher Bezug"
+
+#~ msgid "Related project/endeavor"
+#~ msgstr "Zugehöriges Projekt"
+
+#~ msgid "Related data"
+#~ msgstr "Zugehörige Daten"
+
+#~ msgid "Funded / commissioned by"
+#~ msgstr "Gefördert / in Auftrag gegeben durch"
+
+#~ msgid "Book title"
+#~ msgstr "Buchtitel"
+
+#~ msgid "Title of series"
+#~ msgstr "Serientitel"
+
+#~ msgid "ISBN / ISSN"
+#~ msgstr "ISBN / ISSN"
+
+#~ msgid "Editor of the series"
+#~ msgstr "Herausgebende der Reihe"
+
+#~ msgid "Other identifier"
+#~ msgstr "Anderer Identifikator"
+
+#~ msgid "Repository URL"
+#~ msgstr "Repository-URL"
+
+#~ msgid "Purpose of data processing"
+#~ msgstr "Zweck der Datenverarbeitung"

@@ -1,4 +1,4 @@
-"""Script to import data for the MEx Invenio repository.
+"""Script to import data for the MEx Invenio repository on a regular basis.
 
 Make sure the Invenio services have been set up and are running.
 
@@ -15,41 +15,134 @@ To run the script, go to the repository root directory and use the following com
         $ pipenv run invenio shell site/mex_invenio/scripts/import_data.py <email> <filepath>
 """
 
+import copy
 import json
 import logging
 import os.path
 import sys
 import time
-from typing import Union, Any
 
 import click
 from dictdiffer import diff
 from flask import current_app
-from invenio_app.factory import create_app
+from invenio_db import db
+from invenio_pidstore.models import PersistentIdentifier
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from multiprocessing import Pool, cpu_count
+from invenio_rdm_records.records.api import RDMRecord
+from sqlalchemy import text
 
-from mex_invenio.scripts.utils import mex_to_invenio_schema, normalize_record_data
+from mex_invenio.scripts.utils import (
+    get_related_mex_ids,
+    mex_to_invenio_schema,
+    normalize_record_data,
+)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
+    # datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
 
 
-def process_record(
-    mex_id: str, mex_data: dict, owner_id: int
-) -> Union[None, dict[str, Any]]:
-    """Create and publish a single record."""
+def get_record_uuids_by_mex_ids(mex_ids: list[str]) -> dict[str, str]:
+    """Get record UUIDs for given MEx IDs."""
+    if not mex_ids:
+        return {}
 
-    with current_app.app_context():  # Manually push application context in each process
-        identity = get_authenticated_identity(owner_id)
+    try:
+        # Query for record UUIDs by MEx IDs
+        records = (
+            db.session.query(RDMRecord.model_cls.id, RDMRecord.model_cls.json)
+            .filter(
+                text(
+                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+                )
+            )
+            .params(mex_ids=mex_ids)
+            .all()
+        )
 
-        try:  # Create draft record and publish
-            search_query = f"custom_fields.mex\:identifier:{mex_id}"
-            results = list(current_rdm_records_service.search(identity, q=search_query))
+        # Map MEx ID to UUID
+        mex_id_to_uuid = {}
+        for record_id, record_json in records:
+            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
+            if mex_id in mex_ids:
+                mex_id_to_uuid[mex_id] = str(record_id)
 
-            if len(results) == 0:
+        return mex_id_to_uuid
+
+    except Exception as e:
+        logger.error(f"Error getting UUIDs for MEx IDs: {e}")
+        return {}
+
+
+def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict]:
+    """Search for multiple MEx IDs."""
+    if not mex_ids:
+        return {}
+
+    try:
+        # Query database with JOIN to get PID in one query using SQLAlchemy ORM
+        records_with_pids = (
+            db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
+            .join(
+                PersistentIdentifier,
+                (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
+                & (PersistentIdentifier.pid_type == "recid"),
+            )
+            .filter(
+                text(
+                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+                )
+            )
+            .params(mex_ids=mex_ids)
+            .all()
+        )
+
+        # Convert to the same format as search results
+        existing_records = {}
+        for record, pid_value in records_with_pids:
+            # Extract data immediately to avoid session binding issues
+            record_json = copy.deepcopy(record.json)
+            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
+            if mex_id:
+                if mex_id in existing_records:
+                    logger.warning(f"Multiple records found for MEx id: {mex_id}")
+
+                # Convert database record to search result format using the joined PID
+                record_data = {
+                    "id": str(pid_value),
+                    "custom_fields": copy.deepcopy(
+                        record_json.get("custom_fields", {})
+                    ),
+                    "metadata": copy.deepcopy(record_json.get("metadata", {})),
+                }
+                existing_records[mex_id] = record_data
+
+        return existing_records
+
+    except Exception as e:
+        logger.error(f"Error in bulk database search: {e}")
+        return {}
+
+
+def process_record_batch(
+    records_data: list[dict], existing_records: dict[str, dict], identity
+) -> list[dict]:
+    """Process a batch of records."""
+    results = []
+
+    for json_data in records_data:
+        try:
+            mex_id = json_data["identifier"]
+            mex_data = mex_to_invenio_schema(current_app.config, json_data)
+
+            existing_record = existing_records.get(mex_id)
+
+            if not existing_record:
                 # Create a new record
                 draft = current_rdm_records_service.create(
                     data=mex_data, identity=identity
@@ -57,19 +150,21 @@ def process_record(
                 published = current_rdm_records_service.publish(
                     id_=draft.id, identity=identity
                 )
+                results.append({"action": "create", "id": published.id})
 
-                return {"action": "create", "id": published.id}
-            elif len(results) == 1:
+                for related_id in get_related_mex_ids(mex_data):
+                    results.append({"action": "related", "id": related_id})
+
+            else:
                 # Update an existing record
-                record_pid = results[0]["id"]
+                record_pid = existing_record["id"]
 
-                # Check if the record needs to be updated, it's sufficient to compare
-                # the custom_fields as the Datacite metadata is not expected to change
-                current_data = normalize_record_data(results[0]["custom_fields"])
+                # Check if the record needs to be updated
+                current_data = normalize_record_data(existing_record["custom_fields"])
                 new_data = normalize_record_data(mex_data["custom_fields"])
-                metadata_diff = diff(current_data, new_data)
+                metadata_diff = list(diff(current_data, new_data))
 
-                if any(metadata_diff):
+                if metadata_diff:
                     new_version = current_rdm_records_service.new_version(
                         id_=record_pid, identity=identity
                     )
@@ -79,39 +174,75 @@ def process_record(
                     new_record = current_rdm_records_service.publish(
                         identity=identity, id_=new_version.id
                     )
+                    results.append({"action": "update", "id": new_record.id})
 
-                    return {"action": "update", "id": new_record.id}
+                    for related_id in get_related_mex_ids(mex_data):
+                        results.append({"action": "related", "id": related_id})
                 else:
-                    return {"action": "skip", "id": record_pid}
-            elif len(results) > 1:
-                # Log and skip the record if multiple records are found
-                logger.error(f"Multiple records found for MEx id: {mex_id}")
-                return None
+                    results.append({"action": "skip", "id": record_pid})
 
-            return None
-        except Exception:
-            logger.exception(f"Error processing record:")
-            return None
+        except json.JSONDecodeError:
+            logger.error(f"Error decoding JSON: {json_data}")
+        except KeyError as ke:
+            logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
+        except Exception as e:
+            import traceback
+
+            logger.error(
+                f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
+                f"Full traceback:\n{traceback.format_exc()}"
+            )
+
+    return results
+
+
+def process_batch(batch_records: list[dict], identity) -> list[dict]:
+    """Process a batch of records with bulk search optimization."""
+    # Extract MEx IDs for bulk search
+    mex_ids = [record["identifier"] for record in batch_records]
+
+    # Bulk search for existing records
+    existing_records = bulk_search_existing_records(mex_ids, identity)
+
+    # Process the batch
+    return process_record_batch(batch_records, existing_records, identity)
+
+
+def update_report(report: dict, batch_results: list[dict]):
+    """Update the report with results from a batch."""
+    for result in batch_results:
+        if result["action"] == "create":
+            report["created"].append(result["id"])
+        elif result["action"] == "update":
+            report["updated"].append(result["id"])
+        elif result["action"] == "skip":
+            report["skipped"].append(result["id"])
+        elif result["action"] == "related":
+            report["related"].append(result["id"])
 
 
 @click.command("import_data")
 @click.argument("email")
-@click.argument("filepath")
-@click.option("--batch-size", default=10 * 1024 * 1024, help="Chunk size to read.")
-def _import_data(email: str, filepath: str, batch_size: int):
-    return import_data(email, filepath, batch_size, cli=True)
+@click.argument("import_file")
+@click.option(
+    "--batch-size", default=100, help="Number of records to process in each batch."
+)
+def _import_data(email: str, import_file: str, batch_size: int) -> bool:
+    return import_data(email, import_file, batch_size, cli=True)
 
 
 def import_data(
-    email: str, filepath: str, batch_size: int = 10 * 1024 * 1024, cli: bool = False
+    email: str,
+    import_file: str,
+    batch_size: int = 100,
+    cli: bool = False,
 ) -> bool:
     """Main function to import data.
-    Batch size is set to 10mb by default.
-    Expected data source is a JSON file with one MEx record per line.
-    About 50k records, or ~100mb."""
+    Batch size is set to 100 records by default.
+    Expected data source is a JSON file with one MEx record per line."""
 
-    if not os.path.isfile(filepath):
-        message = f"File {filepath} not found."
+    if not os.path.isfile(import_file):
+        message = f"File {import_file} not found."
 
         if cli:
             click.secho(message, fg="red")
@@ -120,10 +251,7 @@ def import_data(
             logger.error(message)
             return False
 
-    # Here we need to manually create an application context, it is not
-    # possible to use the current_app proxy directly in a separate process.
-    app = create_app()
-    with app.app_context():
+    with current_app.app_context():
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
 
@@ -140,68 +268,63 @@ def import_data(
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
-    report = {"created": [], "updated": [], "skipped": []}
+    report = {"created": [], "updated": [], "skipped": [], "related": [], "error": 0}
 
-    # Batch read the file to avoid memory issues
-    with open(filepath) as f:
-        while True:
-            futures = []
-            lines = f.readlines(batch_size)
-            num_lines += len(lines)
+    # Process records in batches
+    with current_app.app_context():
+        identity = get_authenticated_identity(owner.id)
 
-            if not lines or lines[0] == "":
-                break
+        with open(import_file) as f:
+            batch_records = []
 
-            # Use multiprocessing Pool to parallelize the process
-            with Pool(processes=cpu_count()) as pool:  # Use all available CPU cores
-                for line in lines:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
                     json_data = json.loads(line)
-                    mex_id = json_data["identifier"]
+                    batch_records.append(json_data)
+                    num_lines += 1
 
-                    try:
-                        mex_data = mex_to_invenio_schema(json_data)
-                    except json.JSONDecodeError:
-                        # Log and skip the line if it is not valid JSON
-                        logger.error(f"Error decoding JSON: {line}")
-                        continue
-                    except KeyError as ke:
-                        # Log and skip the line if it is missing a key
-                        logger.error(f"KeyError: {ke}\nError processing record: {line}")
-                        continue
+                    logger.info(f"Processing line: {num_lines}")
 
-                    futures.append(
-                        pool.apply_async(process_record, (mex_id, mex_data, owner.id))
-                    )
+                    # Process batch when it reaches batch_size
+                    if len(batch_records) >= batch_size:
+                        batch_results = process_batch(batch_records, identity)
+                        update_report(report, batch_results)
+                        batch_records = []
 
-                # Collect the results as they complete
-                for future in futures:
-                    try:
-                        result = future.get()  # get the result from the process
+                except json.JSONDecodeError:
+                    logger.error(f"Error decoding JSON line: {line}")
+                    report["error"] += 1
 
-                        if result is not None:
-                            if result["action"] == "create":
-                                report["created"].append(result["id"])
-                            elif result["action"] == "update":
-                                report["updated"].append(result["id"])
-                            elif result["action"] == "skip":
-                                report["skipped"].append(result["id"])
-                    except Exception as e:
-                        logger.error(f"Error processing record: {str(e)}")
+            # Process remaining records
+            if batch_records:
+                batch_results = process_batch(batch_records, identity)
+                update_report(report, batch_results)
 
-        # End the timer after processing is done
-        end_time = time.time()
+    # End the timer after processing is done
+    end_time = time.time()
 
     # Calculate the total time taken and print the results
     elapsed_time = end_time - start_time
     minutes, seconds = divmod(elapsed_time, 60)
 
     for action in report:
-        record_count = len(report[action])
+        if isinstance(report[action], list):
+            record_count = len(report[action])
+        elif isinstance(report[action], int):
+            record_count = report[action]
 
         if record_count > 0:
-            logger.info(
-                f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
-            )
+            if action == "error":
+                logger.error(f"Encountered {record_count} errors during import.")
+
+            else:
+                logger.info(
+                    f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
+                )
 
     if minutes:
         time_taken = (
@@ -211,6 +334,11 @@ def import_data(
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
     logger.info(time_taken)
+
+    # Get UUIDs for related MEx IDs for indexing
+    if report["related"]:
+        for mex_id in report["related"]:
+            current_rdm_records_service.indexer.index_by_id(mex_id)
 
     return True
 

@@ -63,6 +63,7 @@ test.db
 
 # Invenio-cli per machine file
 .invenio.private
+celerybeat-schedule
 
 # S3 default bucket location
 data/default/*
@@ -77,3 +78,14 @@ celerybeat-schedule.*
 .env
 .aws/
 payload
+*.patch
+s3_downloads/
+tmp/
+
+# Node modules
+node_modules/
+site/mex_invenio/node_modules
+
+# package-locks
+package-lock.json
+site/mex_invenio/package-lock.json
