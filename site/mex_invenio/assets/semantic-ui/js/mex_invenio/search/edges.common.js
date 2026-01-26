@@ -1918,11 +1918,6 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 }
             }
 
-            let truncated = title;
-            if (truncated.length > 50) {
-                truncated = truncated.substring(0, 47) + "...";
-            }
-
             let lang = mex.state.lang;
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
             let vgs = edges.util.pathValue(vgField, record, []);
@@ -1940,26 +1935,21 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button class="${variableToggleClass} ui button link-like">${i18n.t(
+                vgFrag = `<button class="${variableToggleClass} ui button link-like button--dropdown" style="margin-bottom: .5rem">${i18n.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
-                          <div style="display:none;">`;
+                          <div style="display:none;" class="checkbox dropdown-with-checkbox">`;
                 for (let vg of vgs) {
                     const inputName = edges.util.htmlID(this.namespace, `vg-input-${vg.mex_id}`, this.component.id);
-
-                    let vgshort = vg.value;
-                    if (vgshort.length > 30) {
-                        vgshort = vgshort.substring(0, 27) + "...";
-                    }
 
                     let selected = this.component.variableGroupSelected(vg.mex_id);
                     let selectedFrag = "";
                     if (selected) {
                         selectedFrag = 'checked="checked"';
                     }
-                    vgFrag += `<input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                                <label for="${inputName}" title="${vg.value}">${vgshort}</label><br>`;
+                    vgFrag += `<div class="variables"><input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                                <label for="${inputName}" title="${vg.value}" class="max-line-2">${vg.value}</label></div>`;
                 }
                 vgFrag += `</div>`;
             }
@@ -1967,16 +1957,18 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             recordsFrag += `
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="img-button">
-                        <img
-                        data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
-                        </button>
-                            <span title="${title}">${truncated}</span>
+                        <div class="selected-list-item--title">
+                            <button class="img-button" style="margin-top: -0.25rem">
+                                <img
+                                    data-id="${id}"
+                                    class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                            </button>
+                            <span class="max-line-2">${title}</span>
                         </div>
                         <div class="selected-list-sub-item">
                             ${vgFrag}
                         </div>
+                    </div>
                 </div>`;
         }
 
@@ -4569,18 +4561,20 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             <div class="selected-list">
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="${selectClass} ui icon button ${selectState}"
-                            id="${buttonId}"
-                            data-id="${record.id}"
-                            data-state="${selectState}"
-                            title="${i18n.t("Select")}
-                            aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${i18n.t(selectState)}"
-                            aria-live="polite"
-                            ></button>
-                        <span title="${edges.util.escapeHtml(title)}">
-                            ${truncated}
-                        </span>
+                        <div class="selected-list-item--title">
+                            <button class="${selectClass} ui icon button ${selectState}"
+                                id="${buttonId}"
+                                data-id="${record.id}"
+                                data-state="${selectState}"
+                                title="${i18n.t("Select")}
+                                aria-label="${_setupAriaLabel(title)}"
+                                aria-selected="${i18n.t(selectState)}"
+                                aria-live="polite"
+                                ></button>
+                            <span title="${edges.util.escapeHtml(title)}" class="max-line-2">
+                                ${title}
+                            </span>
+                        </div>
                     </div>
                     <div class="selected-list-sub-item">
                         ${vgFrag}

@@ -390,11 +390,21 @@ aside {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.25rem;
+  &--title {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: .5rem;
+  }
   a {
     font-size: 1.125rem;
   }
   .variables-count {
     font-size: 1rem;
+  }
+  .selected-list-sub-item {
+    width: 100%;
+
   }
 }
 
@@ -464,13 +474,11 @@ aside {
   }
 
   .subtitle {
-    color: #5170c1;
-    font-family: "FiraSans";
-    font-size: var(--text-size-heading-small, 1.12rem);
+    color: @secondaryColor;
+    font-size: 1.12rem;
     font-style: normal;
-    font-weight: var(--text-weight-semi-bold, 600);
-    line-height: var(--text-line-height-heading-small, 1.5rem);
-    letter-spacing: var(--space-none, 0);
+    font-weight: bold;
+    line-height: 1.5rem;
     align-self: stretch;
   }
 
@@ -855,4 +863,18 @@ aside {
   display: flex;
   flex-direction: column;
   gap: .5rem;
+}
+
+
+.dropdown-with-checkbox {
+  flex-direction: column;
+  .variables {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: .5rem;
+    label {
+      font-size: 1rem;
+    }
+  }
 }
