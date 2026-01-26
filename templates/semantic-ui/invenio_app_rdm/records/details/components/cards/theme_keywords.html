@@ -4,6 +4,41 @@
 {% set theme_field = "mex:theme" %}
 {% set keyword_field = "mex:keyword" %}
 
+{% macro display_keywords(max_visible) %}
+
+    {% set keywords = record.custom_fields[keyword_field] -%}
+
+    {% set total = keywords | length %}
+    {% set visible = keywords[:max_visible] %}
+    {% set hidden = keywords[max_visible:] %}
+
+    {%- for v in visible  -%}
+        <div class="tag" style="white-space: unset;">{{ v.value }}</div>
+    {%- endfor -%}
+
+    {# If there are more, show "Add more" button #}
+    {% if hidden %}
+        <div class="more-values card-prop-value" style="display: none;">
+            {% for v in hidden %}
+                <div class="tag" style="white-space: unset;">{{ v.value }}</div>
+            {% endfor %}
+        </div>
+        <button
+            type="button"
+            class="ui button link-like"
+            onclick="
+                const hidden = this.previousElementSibling;
+                const isHidden = hidden.style.display === 'none';
+                hidden.style.display = isHidden ? 'flex' : 'none';
+                this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+            "
+        >
+            Show all ({{ total }}) &#x25BE;
+        </button>
+    {% endif %}
+
+{% endmacro %}
+
 {% set theme_raw = data[theme_field] %}
 {% set keywords_raw = data[keyword_field] %}
 {% if theme_raw or keywords_raw %}
@@ -15,22 +50,22 @@
             {{ _(card.title) }}
         </h3>
         <div class="card-props">
+            {% if theme_raw %}
             <div class="card-props-p forced-vertical">
                 <div class="card-prop-value">
                     {{ display_values(data[theme_field]) }}</p>
                 </div>
             </div>
-            <br />
+            {% endif %}
+            {% if keywords_raw %}
             <div class="card-props-p forced-vertical">
                 <div class="card-prop-value">
                     <div class="tags">
-                        {% for keyword in record.custom_fields[keyword_field] -%}
-                                <div class="tag" style="white-space: unset;">{{ keyword.value }}</div>
-                        {%- endfor -%}
+                        {{ display_keywords(config.get("VALUES_DISPLAYED_DEFAULT", 3)) }}
                         </div>
                 </div>
             </div>
-
+            {% endif %}
         </div>
     </div>
 {% endif %}

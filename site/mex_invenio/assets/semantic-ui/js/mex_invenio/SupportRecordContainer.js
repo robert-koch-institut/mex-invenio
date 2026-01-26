@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
-import './i18n';
 import { SupportRecordData } from "./SupportRecordData";
+import I18nWrapper from './I18nWrapper';
+
+console.log("APP ENTRY LOADED");
 
 const SupportRecordRoot = () => {
   const initialId =
@@ -70,5 +72,5 @@ const SupportRecordRoot = () => {
 
 const supportRecordDiv = document.getElementById("support-record");
 if (supportRecordDiv) {
-  ReactDOM.render(<SupportRecordRoot />, supportRecordDiv);
+  ReactDOM.render(<I18nWrapper><SupportRecordRoot /></I18nWrapper>, supportRecordDiv);
 }

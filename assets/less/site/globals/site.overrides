@@ -802,7 +802,7 @@ aside {
   justify-content: flex-start;
 }
 
-.search-page-- {
+.search-page {
   #selector {
     .selected-list-item {
       flex-direction: column;

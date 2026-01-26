@@ -2,7 +2,6 @@
     {{config.UI_SETTINGS[resource_type].special_fields[field_name].field}}
 {%- endmacro -%}
 
-{# Smart translation macro that handles context, plurals, and fallbacks #}
 {% macro smart_translate(context, msgid) %}
     {%- set plural_msgid = msgid.replace('.singular', '.plural') if '.singular' in msgid else msgid + '.plural' -%}
     {%- set plural_result = npgettext(context, msgid, plural_msgid, 1) -%}
@@ -31,7 +30,7 @@
 
     {# If there are more, show "Add more" button #}
     {% if hidden %}
-        <div class="more-values" style="display: none;">
+        <div class="more-values card-prop-value" style="display: none;">
             {% for v in hidden %}
                 {{ display_value(v) }}
             {% endfor %}
@@ -42,7 +41,7 @@
             onclick="
                 const hidden = this.previousElementSibling;
                 const isHidden = hidden.style.display === 'none';
-                hidden.style.display = isHidden ? 'block' : 'none';
+                hidden.style.display = isHidden ? 'flex' : 'none';
                 this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
             "
         >

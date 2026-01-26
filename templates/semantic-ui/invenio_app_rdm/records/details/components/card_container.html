@@ -45,10 +45,15 @@
                         {% if prop.field in record_data %}
                             <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
                                 {%- if 'label' in prop %}
-                                    {% set label = smart_translate(resource_type, prop.label) %}
+                                    {% if "context" in prop %}
+                                        {% set context = prop.context %}
+                                    {% else %}
+                                        {% set context = resource_type %}
+                                    {% endif %}
+                                    {% set label = smart_translate(context, prop.label) %}
                                     <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
                                 {%- endif -%}
-                                <div class="card-prop-value">
+                                    <div class="card-prop-value">
                                     {{ display_values(record_data[prop.field]) }}
                                 </div>
                             </div>
