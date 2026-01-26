@@ -4264,13 +4264,22 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             `
         }
 
+        let vCount = 0;
+            if ("backwards_linked" in res["display_data"]["linked_records"]) {
+                if ("mex:usedIn" in res["display_data"]["linked_records"]["backwards_linked"]) {
+                    vCount = res["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
+                }
+            }
+
+
         frag += `
         <button type="button" class="ui icon button ${selectState} ${selectClass}"
                 data-id="${res.id}"
                 data-state="${selectState}"
-                    title="${selectState}"
-                    aria-label="${selectState}">
-            </button></div>
+                    title="${vCount ? selectState : i18n.t("This resource has no variables")}"
+                    aria-label="${selectState}"
+                    ${vCount ? "disabled" : ""}>
+            ${vCount ? "⊘" : ""}</button></div>
         `
 
             frag += `
