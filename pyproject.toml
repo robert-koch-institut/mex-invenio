@@ -1,3 +1,9 @@
+[tool.cruft]
+template = "https://github.com/robert-koch-institut/mex-template"
+
+[tool.ipdb]
+context = 5
+
 [tool.pytest.ini_options]
 addopts = [
     "--verbose",
@@ -17,13 +23,57 @@ show-fixes = true
 [tool.ruff.format]
 docstring-code-format = true
 
+[tool.ruff.lint]
+ignore = [
+    "COM",     # Disable flake8-commas checks (let ruff format handle that)
+    "CPY",     # Disable copyright notice checks (we have LICENSE files)
+    "D100",    # Allow missing module docstring (for brevity)
+    "D104",    # Allow missing package docstring (for brevity)
+    "D203",    # Disallow blank line before class docstring (inverse of D211)
+    "D213",    # Disallow multi-line docstring starting at second line (inverse of D212)
+    "D406",    # Allow section name ending with newline (google style compat)
+    "D407",    # Allow missing dashed underline after section (google style compat)
+    "D413",    # Allow missing blank line after last section (google style compat)
+    "FIX",     # Allow committing with open TODOs (don't punish committers)
+    "ISC001",  # Disable checks for implicitly concatenated strings (formatter compat)
+    "N805",    # Allow first argument of a method to be non-self (pydantic compat)
+    "N815",    # Allow mixedCase variables in class scope (model compat)
+    "RUF012",  # Allow mutable class attributes (pydantic compat)
+    "SIM108",  # Allow explicit if-else instead of ternary (easier to read)
+    "TD003",   # Allow TODOs without ticket link (don't punish TODO writers)
+    "TRY003",  # Allow long exception message at the raise site (for pydantic)
+]
+select = ["ALL"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = [
+    "ARG005",   # Allow unused lambda arguments for mocking
+    "D101",     # Allow missing docstring in public class
+    "D102",     # Allow missing docstring in public method
+    "D103",     # Allow missing docstring in public function
+    "D107",     # Allow missing docstring in `__init__`
+    "E501",     # Allow longer lines with test data
     "F841",     # Allow unused local variable assignment in tests
+    "N807",     # Allow mocking `__init__`
+    "PLR0915",  # Allow functions with many statements
+    "PLR2004",  # Allow comparing with static values
+    "PT004",    # Allow public fixtures without returns
+    "PT013",    # Allow more flexible pytest imports
+    "S101",     # Allow use of `assert` in tests
+    "SLF",      # Allow private member access
 ]
-"site/mex_invenio/config/settings.py" = [
-    "F401",     # Allow unused imports (re-exported for Invenio config)
-]
+# TODO: re-enable these rules one-by-one
+"site/mex_invenio/alembic/*" = ["E501"]
+"site/mex_invenio/config/*" = ["DTZ005", "E501", "F401", "S104", "S105", "TD002"]
+"site/mex_invenio/custom*" = ["A002", "ANN001", "ANN003", "ANN201", "ANN202", "BLE001", "D101", "D103", "C901", "E501", "ERA001", "FBT002", "N801", "PERF203", "PLR0912", "T201", "TD"]
+"site/mex_invenio/fields/*" = ["ANN001", "ANN003", "ANN201", "ANN204", "ARG002", "BLE001", "E501", "ERA001", "FBT002", "SLF001"]
+"site/mex_invenio/oai/*" = ["ANN001", "ANN003", "ANN201", "ARG001", "C901", "PLR0912"]
+"site/mex_invenio/record/*" = ["ANN001", "ANN201", "ANN202", "ANN401", "BLE001", "D101", "D102", "D103", "D107", "C901", "E501", "FBT002", "PGH003", "PLR0911", "PLR2004", "SLF001", "T201"]
+"site/mex_invenio/scripts/*" = ["A002", "ANN", "ARG", "BLE001", "D", "C901", "DTZ", "E501", "ERA001", "FBT", "G004", "PERF", "PLC", "PLR", "PLW2901", "PTH", "RUF001", "S113", "S324", "SIM102", "T201", "TRY"]
+"site/mex_invenio/search/*" = ["ANN001", "ANN201", "ANN202", "ARG002", "D101", "E501", "EM102", "ERA001"]
+"site/mex_invenio/services/*" = [ "ARG002", "C901", "D101", "D102", "D107", "DTZ003", "E501", "ERA001", "N806", "PLC0415", "PLR0912", "TD"]
+"site/mex_invenio/*.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "D103", "ERA001", "G004", "SLF001", "TRY401"]
+"tests/*" = ["ANN001", "ANN201", "ANN202", "ARG001", "C901", "DTZ005", "ERA001", "N803", "PLR0913", "PTH", "RUF015", "S314"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["mex_invenio", "tests"]

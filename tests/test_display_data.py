@@ -3,7 +3,7 @@
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
 
-from tests.data import resource_data, person_data, org_unit_data
+from tests.data import org_unit_data, person_data, resource_data
 
 
 def get_record(records, identifier):

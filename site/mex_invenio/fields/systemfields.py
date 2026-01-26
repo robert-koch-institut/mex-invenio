@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2024 MEX.
 #
@@ -15,7 +14,7 @@ from invenio_search.utils import build_alias_name
 class DisplayField(SystemField):
     """Field for storing display data."""
 
-    def __init__(self, dump=True, **kwargs):
+    def __init__(self, dump=True, **kwargs) -> None:
         """Initialize the field with dump configuration."""
         super().__init__(**kwargs)
         self._dump = dump
@@ -47,11 +46,10 @@ class DisplayField(SystemField):
                 id=record.id,
                 params={"_source_includes": "display_data"},
             )
-            display_data = res["_source"]["display_data"]
+            return res["_source"]["display_data"]
             # print(
             #    f"Retrieved display_data from search index with keys: {list(display_data.keys())}"
             # )
-            return display_data
         except Exception:
             return {}
             # print(f"Failed to get from search index: {e}")
@@ -92,7 +90,7 @@ class DisplayField(SystemField):
 class IndexField(SystemField):
     """Field for storing searchable index data."""
 
-    def __init__(self, dump=True, **kwargs):
+    def __init__(self, dump=True, **kwargs) -> None:
         """Initialize the field with dump configuration."""
         super().__init__(**kwargs)
         self._dump = dump

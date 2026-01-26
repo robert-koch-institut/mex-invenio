@@ -6,7 +6,6 @@ from invenio_rdm_records.proxies import current_rdm_records
 from tests.conftest import created_regex, search_messages
 from tests.data import person_data
 
-
 # def test_index_view(client):
 #    """Simple check that index view does not give an error when rendered."""
 #    res = client.get("/")

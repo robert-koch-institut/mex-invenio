@@ -1,9 +1,9 @@
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
-from mex_invenio.scripts.import_data import _import_data
 
-from tests.conftest import search_messages, created_regex
+from mex_invenio.scripts.import_data import _import_data
+from tests.conftest import created_regex, search_messages
 from tests.data import contact_point_data
 
 

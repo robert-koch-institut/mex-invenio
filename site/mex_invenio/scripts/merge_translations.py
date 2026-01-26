@@ -1,25 +1,23 @@
 import argparse
+import os
 from datetime import datetime
+from pathlib import Path
 
 import mex.model
 import polib
-import os
-from pathlib import Path
 
 
 def create_entry_key(entry):
     """Create unique key for PO entry combining msgctxt and msgid."""
     if entry.msgctxt:
         return f"{entry.msgctxt}|{entry.msgid}"
-    else:
-        return entry.msgid
+    return entry.msgid
 
 
 def merge_translations(
     instance_path: str, language: str, merge_ui: bool = True
 ) -> None:
     """Merge mex-model language with ui.po, giving precedence to ui.po entries."""
-
     # Load mex-model (base translations)
     # Find mex package location relative to this script
     try:

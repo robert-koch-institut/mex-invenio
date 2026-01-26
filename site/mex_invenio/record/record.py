@@ -1,20 +1,19 @@
-from flask import render_template, abort, request, g, current_app
-from flask.views import MethodView
-
-from invenio_rdm_records.records.api import RDMRecord
-from invenio_rdm_records.resources.serializers import UIJSONSerializer
-from invenio_rdm_records.proxies import current_rdm_records_service
-from invenio_pidstore.errors import PIDDoesNotExistError
-from invenio_stats import current_stats
-
 import json
 
-from mex_invenio.record.utils import _get_record_by_mex_id
+from flask import abort, current_app, g, render_template, request
+from flask.views import MethodView
+from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_rdm_records.records.api import RDMRecord
+from invenio_rdm_records.resources.serializers import UIJSONSerializer
+from invenio_stats import current_stats
+
 from mex_invenio.record.data_processing import normalise_record_data
+from mex_invenio.record.utils import _get_record_by_mex_id
 
 
 class MexRecord(MethodView):
-    def __init__(self):
+    def __init__(self) -> None:
         self.template = "invenio_app_rdm/records/detail.html"
 
     def get(self, mex_id, as_json=False):

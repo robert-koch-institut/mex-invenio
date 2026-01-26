@@ -7,16 +7,14 @@ import importlib.metadata
 import json
 import logging
 import os
+from collections.abc import Callable
 from datetime import datetime
-from typing import Callable
 
-from marshmallow_utils.html import sanitize_unicode
-
-from invenio_rdm_records.records.api import RDMRecord
 from invenio_db import db
-from sqlalchemy import text, or_
+from invenio_rdm_records.records.api import RDMRecord
+from marshmallow_utils.html import sanitize_unicode
 from mex.model import ENTITY_JSON_BY_NAME
-
+from sqlalchemy import or_, text
 
 logging.basicConfig(
     level=logging.INFO,
@@ -117,17 +115,16 @@ def normalize_record_data(value):
         # It removes leading/trailing whitespace, normalizes unicode characters and
         # removes zero-width space "\u200b".
         return sanitize_unicode(unescaped)
-    elif isinstance(value, (int, float)):
+    if isinstance(value, (int, float)):
         return str(value)
-    elif isinstance(value, list):
-        normalized_items = [
+    if isinstance(value, list):
+        return [
             normalize_record_data(item)
             for item in value
             if item is not None and item != []
         ]
 
-        return normalized_items
-    elif isinstance(value, dict):
+    if isinstance(value, dict):
         return {
             k: normalize_record_data(v)
             for k, v in value.items()
@@ -148,8 +145,9 @@ def compare_files(existing_file: str, new_file: str) -> bool:
 
 def diff_files(directory: str, existing_file: str, new_file: str):
     """Create a diff file containing only new or changed records based on identifier comparison.
-    Optimized for large files by using streaming and hash-based comparison."""
 
+    Optimized for large files by using streaming and hash-based comparison.
+    """
     diffdirectory = os.path.join(directory, "diffs")
     os.makedirs(diffdirectory, exist_ok=True)
 
@@ -169,7 +167,7 @@ def diff_files(directory: str, existing_file: str, new_file: str):
 
         logger.info(f"Reading existing file: {existing_file}")
         if os.path.exists(existing_file):
-            with open(existing_file, "r", encoding="utf-8") as f:
+            with open(existing_file, encoding="utf-8") as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line:
@@ -202,7 +200,7 @@ def diff_files(directory: str, existing_file: str, new_file: str):
 
         logger.info(f"Processing new file: {new_file}")
         with (
-            open(new_file, "r", encoding="utf-8") as infile,
+            open(new_file, encoding="utf-8") as infile,
             open(diff_file, "w", encoding="utf-8") as outfile,
         ):
             for line_num, line in enumerate(infile, 1):

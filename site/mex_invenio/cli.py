@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2025 Robert Koch Institute.
 #
@@ -8,8 +7,8 @@
 """CLI commands for mex-invenio."""
 
 import click
-from invenio_db import db
 from flask.cli import with_appcontext
+from invenio_db import db
 
 
 @click.group()
@@ -31,7 +30,6 @@ def setup_db():
     site/mex_invenio/alembic/a12c08876802_add_custom_fields_indices.py
     for reference and possible downgrade.
     """
-
     click.secho("Creating MEX database indices...", fg="yellow")
 
     # Create GIN index on custom_fields for general JSON queries

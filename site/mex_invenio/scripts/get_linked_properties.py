@@ -1,8 +1,7 @@
 import json
+
 import requests
-
 from flask import current_app
-
 
 # Define the base URL for the GitHub repository
 BASE_URL = "https://raw.githubusercontent.com/robert-koch-institut/mex-model/main/mex/model/entities/"
@@ -14,8 +13,7 @@ LABEL_IDENTIFIER = "concept#"
 
 def extract_entity_name(ref):
     entity = ref.split("/")[3]
-    e = entity.replace("#", "").replace("-", "")
-    return e
+    return entity.replace("#", "").replace("-", "")
 
 
 def is_identifier(ref):
@@ -41,14 +39,13 @@ def get_entity_name(property):
                 if "$ref" in i and is_identifier(i["$ref"]):
                     entities["mex:" + extract_entity_name(i["$ref"])] = []
             return entities
-        else:
-            if "$ref" in property["items"]:
-                ref = property["items"]["$ref"]
-                try:
-                    if is_identifier(ref):
-                        return {"mex:" + extract_entity_name(ref): []}
-                except NameError:
-                    pass
+        if "$ref" in property["items"]:
+            ref = property["items"]["$ref"]
+            try:
+                if is_identifier(ref):
+                    return {"mex:" + extract_entity_name(ref): []}
+            except NameError:
+                pass
 
     # Check if anyOf contains a $ref starting with the identifier prefix
     if "anyOf" in property:

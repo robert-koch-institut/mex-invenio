@@ -1,18 +1,18 @@
 from datetime import datetime
 
 from flask import current_app
-
 from invenio_rdm_records.services.config import SearchOptions
-from invenio_records_resources.services.base.config import SearchOptionsMixin
-from invenio_search import RecordsSearchV2
-from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_records.dumpers import SearchDumper
+from invenio_records_resources.services.base.config import SearchOptionsMixin
+from invenio_records_resources.services.records.queryparser import QueryParser
+from invenio_search import RecordsSearchV2
 
 from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
-    TypeLimiterParamsInterpreter,
     HighlightParamsInterpreter,
+    TypeLimiterParamsInterpreter,
 )
+
 # from mex_invenio.custom_record import MexRDMRecord
 
 
@@ -93,12 +93,12 @@ FREE_TEXT_SEARCH_FIELDS = [
 
 
 class MexDumper(SearchDumper):
-    def __init__(self, *args, **kwargs):
-        super(MexDumper, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self._record_cache = {}
 
     def dump(self, record, data):
-        dump_data = super(MexDumper, self).dump(record, data)
+        dump_data = super().dump(record, data)
 
         # Initialize display_data if it doesn't exist
         if "display_data" not in dump_data:
@@ -154,9 +154,7 @@ class MexDumper(SearchDumper):
         return dump_data
 
     def _get_custom_field_list(self, record, field_name):
-        """
-        Helper function to retrieve a list of custom field values from a record.
-        """
+        """Helper function to retrieve a list of custom field values from a record."""
         custom_fields = record.get("custom_fields", {})
         field_value = custom_fields.get(field_name, [])
         if not isinstance(field_value, list):
@@ -511,9 +509,10 @@ class MexDumper(SearchDumper):
         # The @> operator uses the GIN index on custom_fields, providing ~4000x speedup
 
         # Check if the field is configured as multiple=True (array field)
-        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
-        from sqlalchemy.dialects.postgresql import JSONB
         from sqlalchemy import cast
+        from sqlalchemy.dialects.postgresql import JSONB
+
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
 
         field_config = None
         for field in RDM_CUSTOM_FIELDS:
@@ -544,8 +543,7 @@ class MexDumper(SearchDumper):
                 )
             )
 
-        db_results = db_query.all()
-        return db_results
+        return db_query.all()
 
     def _free_text_search_bucket(self, record, dump_data, log):
         # No implementation here for now, just a placeholder
@@ -553,7 +551,6 @@ class MexDumper(SearchDumper):
 
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""
-
         record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
         if not record_type:
             # log.append("No resource type found, skipping linked records data")
@@ -641,7 +638,7 @@ class MexDumper(SearchDumper):
 
             for linked_record_id in linked_record_ids:
                 display_value = False
-                linked_record = linked_records_map.get(linked_record_id, None)
+                linked_record = linked_records_map.get(linked_record_id)
 
                 field_value = {
                     "link_id": linked_record_id,
@@ -690,7 +687,7 @@ class MexDumper(SearchDumper):
 
                 field_values.append(field_value)
 
-            if len(field_values):
+            if field_values:
                 records_fields[field] = field_values
 
         return records_fields

@@ -4,30 +4,29 @@ from functools import wraps
 
 from flask import (
     Blueprint,
-    redirect,
-    url_for,
-    current_app,
     abort,
-    render_template,
-    make_response,
-    request,
+    current_app,
     g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
 from invenio_access.permissions import system_identity
-
-from invenio_rdm_records.proxies import current_rdm_records_service
-from mex_invenio.record.record import MexRecord
-
 from invenio_pidstore.errors import (
     PIDDoesNotExistError,
     PIDUnregistered,
 )
+from invenio_rdm_records.proxies import current_rdm_records_service
+
+from mex_invenio.record.record import MexRecord
 from mex_invenio.services.search import MexSearchOptions
 
 
 # Decorator which can be used to wrap a function to return JSONP responses.
 def jsonp(f):
-    """Wraps JSONified output for JSONP"""
+    """Wraps JSONified output for JSONP."""
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -39,8 +38,7 @@ def jsonp(f):
             return current_app.response_class(
                 content, mimetype="application/javascript"
             )
-        else:
-            return f(*args, **kwargs)
+        return f(*args, **kwargs)
 
     return decorated_function
 
@@ -53,6 +51,7 @@ def create_blueprint(app):
     def force_search():
         if request.path == "/search":
             return search_global()  # returns a Response, bypassing normal routing
+        return None
 
     """Register blueprint routes on app."""
     blueprint = Blueprint(
@@ -135,6 +134,7 @@ URL_RESOURCE_TYPE_MAP = {
 
 @jsonp
 def os_query_api(resource_type):
+    """Execute an OpenSearch query for the given resource type."""
     q = None
     # if this is a POST, read the contents out of the body
     if request.method == "POST":
@@ -183,11 +183,9 @@ def os_query_api(resource_type):
 
 
 def redirect_to_mex(record_id):
-    """
-    Redirects to the MEX view based on the record ID,
-    also passes the version id if it is not the latest record.
-    :param record_id:
-    :return:
+    """Redirects to the MEX view based on the record ID.
+
+    Also passes the version id if it is not the latest record.
     """
     record = None
 
@@ -202,7 +200,7 @@ def redirect_to_mex(record_id):
     try:
         mex_id = record.data["custom_fields"]["mex:identifier"]
     except Exception as e:
-        current_app.logger.exception("No mex id for the record {0}.".format(e))
+        current_app.logger.exception(f"No mex id for the record {e}.")
         abort(500)
 
     if not record.data["versions"]["is_latest"]:

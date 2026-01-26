@@ -3,7 +3,7 @@ default_language_version:
   python: python3.11
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.0
+    rev: v0.14.13
     hooks:
       - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
@@ -24,3 +24,11 @@ repos:
         name: whitespaces
       - id: fix-byte-order-marker
         name: byte-order
+  - repo: local
+    hooks:
+    - id: pipenv-check
+      name: pipenv
+      entry: pipenv verify
+      files: ^Pipfile[\.lock]?$
+      language: system
+      pass_filenames: false

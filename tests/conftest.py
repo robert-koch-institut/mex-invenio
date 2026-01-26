@@ -2,7 +2,8 @@ import json
 import logging
 import os
 import re
-from unittest.mock import patch, MagicMock
+from contextlib import suppress
+from unittest.mock import MagicMock, patch
 
 import pytest
 import sqlalchemy as sa
@@ -26,31 +27,29 @@ from invenio_rdm_records.proxies import current_rdm_records
 from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
-from mex_invenio.scripts.import_data import _import_data
-from mex_invenio.scripts.initial_import import _initial_import
 from mex_invenio.config import (
+    DISCLAIMER,
+    ENTITIES,
+    FIELD_TYPES,
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
     RECORD_METADATA_CREATOR,
     RECORD_METADATA_DEFAULT_TITLE,
     RECORD_METADATA_TITLE_PROPERTIES,
-    FIELD_TYPES,
-    UI_SETTINGS,
     TITLE_FIELDS,
-    ENTITIES,
-    DISCLAIMER,
+    UI_SETTINGS,
+)
+from mex_invenio.custom_fields.backwards_linked_records import (
+    get_fields_linked_backwards,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
-from mex_invenio.custom_fields.backwards_linked_records import (
-    get_fields_linked_backwards,
-)
-
 from mex_invenio.records.api import MexRDMRecord
-
+from mex_invenio.scripts.import_data import _import_data
+from mex_invenio.scripts.initial_import import _initial_import
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -81,16 +80,16 @@ except (TypeError, AttributeError):
     PytestInvenioSession = None
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def db_session_options():
     """Session options to prevent SQLAlchemy Continuum session binding issues."""
-    options = dict(expire_on_commit=False)
+    options = {"expire_on_commit": False}
     if PytestInvenioSession is not None:
         options["class_"] = PytestInvenioSession
     return options
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def db(database, db_session_options):
     """Creates a new database session for a test - compatible with Flask-SQLAlchemy 2.5.1.
 
@@ -100,7 +99,7 @@ def db(database, db_session_options):
     fixture will set a save point and rollback all changes performed during
     the test (this is much faster than recreating the entire database).
     """
-    from invenio_db import db as invenio_db
+    from invenio_db import db as invenio_db  # noqa: PLC0415
 
     connection = database.engine.connect()
     transaction = connection.begin()
@@ -127,10 +126,9 @@ def db(database, db_session_options):
         invenio_db.session = old_session
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def db_session_transaction_restart(db):
     """Fixture to restart savepoints after transaction ends for SQLAlchemy Continuum compatibility."""
-
     session_obj = db.session()
 
     @sa.event.listens_for(session_obj, "after_transaction_end")
@@ -142,11 +140,10 @@ def db_session_transaction_restart(db):
     yield
 
     # Clean up the event listener - use try/except to handle cases where session may have changed
-    try:
+    with suppress(
+        sa.exc.InvalidRequestError  # Event listener may have already been removed or session changed
+    ):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
-    except sa.exc.InvalidRequestError:
-        # Event listener may have already been removed or session changed
-        pass
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -339,7 +336,7 @@ def contributors_role_v(app, contributors_role_type):
 def cli_runner(base_app):
     """Create a CLI runner for testing a CLI command."""
 
-    def cli_invoke(command, *args, input=None):
+    def cli_invoke(command, *args, input=None):  # noqa: A002, ANN002
         return base_app.test_cli_runner().invoke(command, args, input=input)
 
     return cli_invoke
@@ -355,7 +352,7 @@ def custom_field_exists(cli_runner):
     return _custom_field_exists
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def initialise_custom_fields(app, location, db, search_clear, cli_runner):
     """Fixture initialises custom fields."""
     return cli_runner(create_records_custom_field)
@@ -366,7 +363,7 @@ def create_file(tmp_path):
     """Create a file, either absolute or relative to the tmp_path."""
     created_files = []
 
-    def _create_file(filename, data, absolute=False):
+    def _create_file(filename, data, *, absolute=False):
         if isinstance(data, dict):
             data = json.dumps(data)
 
@@ -385,11 +382,9 @@ def create_file(tmp_path):
 
     # Cleanup: remove all created files after the test
     for file_path in created_files:
-        try:
+        with suppress(OSError):  # File might already be deleted
             if os.path.exists(file_path):
                 os.remove(file_path)
-        except OSError:
-            pass  # File might already be deleted
 
 
 @pytest.fixture
@@ -419,7 +414,7 @@ def import_file(
     email = "importer@address.com"
     create_user("importer", email)
 
-    def _import_file(filename, data, initial=False):
+    def _import_file(filename, data, *, initial=False):
         file = create_file(f"{filename}.json", data)
 
         with caplog.at_level(logging.INFO):

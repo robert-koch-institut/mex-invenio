@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2025 Robert Koch Institute.
 #
@@ -13,7 +12,7 @@ from .cli import mex as mex_cmd
 class MexInvenio:
     """MEX Invenio extension."""
 
-    def __init__(self, app=None):
+    def __init__(self, app=None) -> None:
         """Extension initialization."""
         if app:
             self.init_app(app)

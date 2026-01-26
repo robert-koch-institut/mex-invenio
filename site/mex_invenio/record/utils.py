@@ -1,14 +1,16 @@
-from typing import List
+from typing import TYPE_CHECKING
 
 from flask import g
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_rdm_records.proxies import current_rdm_records_service
-from invenio_rdm_records.services.results import RDMRecordList
+
+if TYPE_CHECKING:
+    from invenio_rdm_records.services.results import RDMRecordList
 
 
-def _get_records_by_field(field_id: str, value) -> List:
+def _get_records_by_field(field_id: str, value) -> list:
     """Fetch records by a specific field and value or values."""
-    escaped_field = field_id.replace(":", "\:")
+    escaped_field = field_id.replace(":", r"\:")
 
     if isinstance(value, list):
         values_str = " OR ".join([str(v) for v in value])
@@ -42,8 +44,8 @@ def _get_record_by_mex_id(mex_id):
 
     if isinstance(mex_id, str):
         if not results:
-            raise PIDDoesNotExistError("rec", mex_id)
+            msg = "rec"
+            raise PIDDoesNotExistError(msg, mex_id)
 
         return results[0] if results else None
-    else:
-        return results
+    return results
