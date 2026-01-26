@@ -72,6 +72,15 @@ button {
         background-image: url('../images/add-resource-button-selected.svg');
     }
   }
+  &:disabled {
+    background-image: url('../images/add-resource-button-unselected.svg');
+    height: 25px;
+    width: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: not-allowed !important;
+  }
 }
 
 .vertical-tab {
