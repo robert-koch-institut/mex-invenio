@@ -89,3 +89,6 @@ site/mex_invenio/node_modules
 # package-locks
 package-lock.json
 site/mex_invenio/package-lock.json
+
+# Translation backup files
+translations/**/*.backup
