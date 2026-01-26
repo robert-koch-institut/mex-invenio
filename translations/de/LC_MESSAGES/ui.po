@@ -127,7 +127,6 @@ msgid "Record title and creators"
 msgstr ""
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
-#, fuzzy
 msgid "Creators & Contributors"
 msgstr "Verantwortliche & Mitwirkende"
 
