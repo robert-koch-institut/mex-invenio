@@ -1702,7 +1702,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-            let vFrag = vCount ? `${vCount} ${i18n.t("Variables")}` : `${i18n.t("No Variables")}`
+            let vFrag = `${vCount} ${i18n.t("Variables")}`
             let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
 
             recordsFrag += `
@@ -1715,8 +1715,8 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <div>
                         <div class="selected-list-item">
                             <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-                            <p class="muted" style="margin-bottom: 0">
-                                ${frag}
+                            <p class="variables-count muted" style="margin-bottom: 0">
+                                (${frag})
                             </p>
                         </div>
                     </div>

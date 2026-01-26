@@ -1,5 +1,6 @@
 html {
     font-size: 100%;
+    font-family: "FiraSans";
     background : @lightBackground;
 }
 
@@ -388,7 +389,13 @@ aside {
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.625rem;
+  gap: 0.25rem;
+  a {
+    font-size: 1.125rem;
+  }
+  .variables-count {
+    font-size: 1rem;
+  }
 }
 
 .search_page {
