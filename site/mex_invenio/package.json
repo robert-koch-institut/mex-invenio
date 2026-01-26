@@ -12,6 +12,6 @@
         "convert-po": "npm run convert-po-en && npm run convert-po-de",
         "convert-po-de": "i18next-conv -l de -s ${INVENIO_INSTANCE_PATH:-../../}/translations/de/LC_MESSAGES/messages.po -t ./assets/semantic-ui/js/mex_invenio/locales/de/translations.json",
         "convert-po-en": "i18next-conv -l en -s ${INVENIO_INSTANCE_PATH:-../../}/translations/en/LC_MESSAGES/messages.po -t ./assets/semantic-ui/js/mex_invenio/locales/en/translations.json",
-        "extract-messages": "i18next-scanner --config i18next-scanner.config.js './assets/semantic-ui/js/mex_invenio/**/*.js' '../../static/js/**/*.js'"
+        "extract-messages": "i18next-scanner --config i18next-scanner.config.js './assets/semantic-ui/js/mex_invenio/**/*.js'"
     }
 }
