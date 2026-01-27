@@ -3800,10 +3800,13 @@ mex.renderers.Pager = class extends edges.Renderer {
             }
 
             recordCount = `
-                <div class="result-counter">
-                    <div class="value ${totalClass}"> ${total} </div>
-                    <div class="label">${i18n.t("results")}</div>
+            <div class="id-tags"><div class="id-tag">
+                <div class="result-counter label" style="margin-right: .5rem;">
+                    <div class="circle"></div>
+                    <div class="value ${totalClass} text"> ${total} </div>
                 </div>
+                <div class="label">${i18n.t("results")}</div>
+            </div></div>
             `;
         }
 

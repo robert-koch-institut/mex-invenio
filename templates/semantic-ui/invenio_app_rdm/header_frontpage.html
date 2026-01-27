@@ -29,7 +29,7 @@ under the terms of the MIT License; see LICENSE file for more details.
                     <div class="row">
                         <div class="sixteen wide mobile four wide computer column"></div>
                         <div class="sixteen wide mobile eight wide computer column center aligned">
-                            <form action="{{ url_for('invenio_search_ui.search') }}" class="ui form" role="search">
+                            <form action="{{ url_for('invenio_search_ui.search') }}" class="ui form" role="search" style="grid-template-columns: 1fr;">
                                 <div class="ui fluid big action input">
                                     <input type="text" name="q" class="form-control" aria-label="{{ _('Search') }}"
                                             placeholder="{{ _('Search') }}">

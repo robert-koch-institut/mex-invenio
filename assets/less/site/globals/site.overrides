@@ -362,23 +362,21 @@ aside {
         align-items: center;
         margin-right: 2.5rem;
         .label {
-            display: inline-flex;
-            align-items: center;
+            display: grid;
+            place-items: center;
             margin-right: .5rem;
             .circle {
-                    width: 2rem;
-                    height: 2rem;
-                    border-radius: 50%;
-                    background-color: @highlightColor;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
+              width: 2rem;
+              height: 2rem;
+              border-radius: 50%;
+              background-color: @highlightColor;
+              grid-area: 1 / 1;
             }
             .text {
                 font-size: 1rem;
                 font-weight: 600;
                 line-height: 1.25rem;
-                margin-left: -2.5rem;
+                grid-area: 1 / 1;
             }
         }
     }
@@ -672,6 +670,7 @@ aside {
     display: flex;
     min-height: 2rem;
     gap: 1rem;
+    cursor: pointer;
 
     label {
       color: @blackTextColor;
