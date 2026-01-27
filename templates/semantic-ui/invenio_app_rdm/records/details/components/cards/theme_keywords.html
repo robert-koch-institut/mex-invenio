@@ -1,4 +1,4 @@
-{% set card_name = "theme" -%}
+{% set card_name = "keywords" -%}
 {% set card = config.UI_SETTINGS[resource_type].main[card_name] %}
 
 {% set theme_field = "mex:theme" %}
@@ -12,24 +12,27 @@
     {% set visible = keywords[:max_visible] %}
     {% set hidden = keywords[max_visible:] %}
 
-    {%- for v in visible  -%}
-        <div class="tag" style="white-space: unset;">{{ v.value }}</div>
-    {%- endfor -%}
-
-    {# If there are more, show "Add more" button #}
-    {% if hidden %}
-        <div class="more-values card-prop-value" style="display: none;">
+    <div class="tags">
+        {%- for v in visible  -%}
+            <span class="tag" style="white-space: unset;">{{ v.value }}</span>
+        {%- endfor -%}
+        {% if hidden %}
             {% for v in hidden %}
-                <div class="tag" style="white-space: unset;">{{ v.value }}</div>
+                <span class="tag tag-hidden" style="white-space: unset; display: none;">{{ v.value }}</span>
             {% endfor %}
-        </div>
+        {% endif %}
+    </div>
+    {% if hidden %}
         <button
             type="button"
             class="ui button link-like"
             onclick="
-                const hidden = this.previousElementSibling;
-                const isHidden = hidden.style.display === 'none';
-                hidden.style.display = isHidden ? 'flex' : 'none';
+                const tagsContainer = this.previousElementSibling;
+                const hidden = tagsContainer.querySelectorAll('.tag-hidden')
+                const isHidden = hidden[0].style.display === 'none';
+                hidden.forEach(el => {
+                    el.style.display = isHidden ? 'flex' : 'none';
+                });
                 this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
             "
         >
@@ -39,8 +42,12 @@
 
 {% endmacro %}
 
-{% set theme_raw = data[theme_field] %}
-{% set keywords_raw = data[keyword_field] %}
+{% if theme_field in data %}
+    {% set theme_raw = data[theme_field] %}
+{% endif %}
+{% if keyword_field in data %}
+    {% set keywords_raw = data[keyword_field] %}
+{% endif %}
 {% if theme_raw or keywords_raw %}
     <div class="card">
         <h3>
@@ -60,9 +67,7 @@
             {% if keywords_raw %}
             <div class="card-props-p forced-vertical">
                 <div class="card-prop-value">
-                    <div class="tags">
-                        {{ display_keywords(config.get("VALUES_DISPLAYED_DEFAULT", 3)) }}
-                        </div>
+                    {{ display_keywords(config.get("VALUES_DISPLAYED_DEFAULT", 3)) }}
                 </div>
             </div>
             {% endif %}

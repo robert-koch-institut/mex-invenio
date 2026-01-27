@@ -363,7 +363,7 @@ UI_SETTINGS = {
                     },
                 ],
             },
-            "theme": {
+            "keywords": {
                 "title": _("Theme & Keywords"),
                 "icon": "theme.svg",
                 "template": "theme_keywords.html",
@@ -688,7 +688,7 @@ UI_SETTINGS = {
             "keywords": {
                 "title": _("Keywords"),
                 "icon": "theme.svg",
-                "template": "keywords_publication.html",
+                "template": "theme_keywords.html",
                 "properties": [
                     {"field": "mex:keyword"},
                 ],
