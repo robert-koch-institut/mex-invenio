@@ -9,10 +9,10 @@
         <div class="tags top-tags">
             <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
             {% if special_field("RESOURCE_TYPE_GENERAL") in data %}
-                <span class="tag" title="{{ _('Resource type') }}">{{display_values(data[special_field("RESOURCE_TYPE_GENERAL")])}}{%- if special_field("RESOURCE_TYPE_SPECIFIC") in data -%}/{{display_values(data[special_field("RESOURCE_TYPE_SPECIFIC")])}}{%- endif -%}</span>
+                <span class="tag" title="{{ _('Resource type') }}">{{render_value(data[special_field("RESOURCE_TYPE_GENERAL")][0])}}{%- if special_field("RESOURCE_TYPE_SPECIFIC") in data -%}/{{render_value(data[special_field("RESOURCE_TYPE_SPECIFIC")][0])}}{%- endif -%}</span>
             {% endif %}
             {%- if special_field("ACCESS_RESTRICTION") in data -%}
-                <span class="tag" style="background-color: {{ config.UI_SETTINGS[resource_type].special_fields["ACCESS_RESTRICTION"].color_map[record.custom_fields[special_field("ACCESS_RESTRICTION")]] }}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
+                <span class="tag" style="background-color: {{ config.UI_SETTINGS[resource_type].special_fields["ACCESS_RESTRICTION"].color_map[record.custom_fields[special_field("ACCESS_RESTRICTION")]] }}">{{ render_value(data[special_field("ACCESS_RESTRICTION")][0]) }}</span>
             {% endif %}
         </div>
     </section>

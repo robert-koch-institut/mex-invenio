@@ -1702,7 +1702,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-            let vFrag = vCount ? `${vCount} ${i18n.t("Variables")}` : `${i18n.t("No Variables")}`
+            let vFrag = `${vCount} ${i18n.t("Variables")}`
             let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
 
             recordsFrag += `
@@ -1715,8 +1715,8 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                     <div>
                         <div class="selected-list-item">
                             <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-                            <p class="muted" style="margin-bottom: 0">
-                                ${frag}
+                            <p class="variables-count muted" style="margin-bottom: 0">
+                                (${frag})
                             </p>
                         </div>
                     </div>
@@ -1737,7 +1737,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -1918,11 +1918,6 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 }
             }
 
-            let truncated = title;
-            if (truncated.length > 50) {
-                truncated = truncated.substring(0, 47) + "...";
-            }
-
             let lang = mex.state.lang;
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
             let vgs = edges.util.pathValue(vgField, record, []);
@@ -1940,26 +1935,21 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 this.component.id
             );
             if (vgs.length > 0) {
-                vgFrag = `<button class="${variableToggleClass} ui button link-like">${i18n.t(
+                vgFrag = `<button class="${variableToggleClass} ui button link-like button--dropdown" style="margin-bottom: .5rem">${i18n.t(
                     "Variable Groups"
                 )}
                                 <span class="dir">▾</span></button>
-                          <div style="display:none;">`;
+                          <div style="display:none;" class="checkbox dropdown-with-checkbox">`;
                 for (let vg of vgs) {
                     const inputName = edges.util.htmlID(this.namespace, `vg-input-${vg.mex_id}`, this.component.id);
-
-                    let vgshort = vg.value;
-                    if (vgshort.length > 30) {
-                        vgshort = vgshort.substring(0, 27) + "...";
-                    }
 
                     let selected = this.component.variableGroupSelected(vg.mex_id);
                     let selectedFrag = "";
                     if (selected) {
                         selectedFrag = 'checked="checked"';
                     }
-                    vgFrag += `<input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
-                                <label for="${inputName}" title="${vg.value}">${vgshort}</label><br>`;
+                    vgFrag += `<div class="variables"><input type="checkbox" name="${inputName}" id="${inputName}" data-id="${vg.mex_id}" class="${vgSelectClass}" ${selectedFrag}/>
+                                <label for="${inputName}" title="${vg.value}" class="max-line-2">${vg.value}</label></div>`;
                 }
                 vgFrag += `</div>`;
             }
@@ -1967,16 +1957,18 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             recordsFrag += `
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="img-button">
-                        <img
-                        data-id="${id}"
-                        class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
-                        </button>
-                            <span title="${title}">${truncated}</span>
+                        <div class="selected-list-item--title">
+                            <button class="img-button" style="margin-top: -0.25rem">
+                                <img
+                                    data-id="${id}"
+                                    class="${selectClass} controls" src="/static/images/close.svg" alt="Slide right" width="24px" height="32px"/>
+                            </button>
+                            <span class="max-line-2">${title}</span>
                         </div>
                         <div class="selected-list-sub-item">
                             ${vgFrag}
                         </div>
+                    </div>
                 </div>`;
         }
 
@@ -1987,7 +1979,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                     ${expandAllCheckbox}
                     ${header}
                     <div class="" style="margin-top:1.625rem">
-                      <button class="ui black basic button ${clearAllRecordsClass}"> Clear All </button>
+                      <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
                     </div>
                     <div>
                         ${recordsFrag}
@@ -2317,13 +2309,11 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 }">${edges.util.escapeHtml(obj["display"])}</option>`;
             }
 
-            field_select += `<div class="field">
-                                <label for="${selectId}" class="sr-only">Search by</label>
+            field_select += `<label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
                                     <option value="">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
-                                </select>
-                                </div>`;
+                                </select>`;
         }
 
         // more classes that we'll use
@@ -2337,7 +2327,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let clearFrag = "";
         if (this.clearButton) {
             clearFrag = `<div class="field">
-                            <button type="button" class="ui button ${resetClass} black basic" title="${i18n.t(
+                            <button type="button" class="ui button tertiary ${resetClass}" title="${i18n.t(
                                 "Clear all search and sort parameters and start again"
                             )}">
                                 ${i18n.t("Clear")}
@@ -2351,26 +2341,24 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             if (this.searchButtonText !== false) {
                 text = this.searchButtonText;
             }
-            searchBtn = `<div class="field"><button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button></div>`;
+            searchBtn = `<button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button>`;
         }
 
         let inline = "";
         if (this.inlineLabel) {
             inline = "inline";
         }
-        let searchBox = `<div class="${inline} field field--search-input">`
         let srOnly = "";
         if (this.labelInvisible) {
             srOnly = `sr-only`;
         }
-        searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
-        searchBox += `<input type="text"
+        let searchBoxLabel = `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label}</label>`
+        let searchBoxInput = `<input type="text"
                             id="${textId}"
                             class="ui input input--search ${textClass}"
                             name="q"
                             placeholder="${this.searchPlaceholder}"
-                        />
-                        </div>`;
+                        />`;
 
         // assemble the final fragment and render it into the component's context
         let containerClass = edges.util.styleClasses(
@@ -2379,70 +2367,18 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             this
         );
 
-        let searchBoxWidth = "fourteen"
-        let fieldSelectFrag = "";
-        if (field_select !== "") {
-            searchBoxWidth = "eleven";
-            fieldSelectFrag = `
-                <div class="three wide column">
-                    ${field_select}
-                </div>`;
+        let compactClass = "";
+        if (this.compactDesign){
+            compactClass = "form--compact";
         }
 
-        // TODO: Find a better way to figure out dynamic design
-        let titleWidth = "one"
-        if(this.searchTitle.length > 15) {
-            titleWidth = "five"
-            searchBoxWidth = "ten"
+        if (this.sideBar) {
+
         }
-
-        // Upgrading the search UI as per sematic ui
-        let frag = ""
-
-        // if(this.compactDesign) {
-        //     frag = `
-        //         <div class="ui grid ${containerClass}">
-        //         <div style="flex:1">
-        //             <div class="ui grid row left aligned">
-        //                 <div class="${searchBoxWidth} wide column" style="padding-right:0rem">
-        //                     ${searchBox}
-        //                 </div>
-        //                 ${fieldSelectFrag}
-        //                 <div class="one wide column" style="padding-left:0rem">
-        //                     ${searchBtn}
-        //                 </div>
-        //             </div>
-        //         </div>
-        //         <div class="row right aligned">
-        //             ${sortFrag}
-        //         </div>
-        //     </div>
-        //     `
-        // } else {
-        //     frag  = `
-        //     <div class="ui grid ${containerClass}">
-        //         <div class="row middle aligned">
-        //             <div class="${searchBoxWidth} wide column">
-        //                 ${searchBox}
-        //             </div>
-        //             ${fieldSelectFrag}
-        //             <div class="one wide column">
-        //                 ${searchBtn}
-        //             </div>
-        //         </div>
-        //         <div class="row right aligned">
-        //             ${sortFrag}
-        //         </div>
-        //     </div>`;
-        // }
-        let longClass = "";
-        if (!this.compactDesign){
-            longClass = "form--long-search";
-        }
-
-        frag = `
-            <form class="ui form form--long-search">
-                ${searchBox}
+        let frag = `
+            <form class="ui form ${compactClass}">
+                ${searchBoxLabel}
+                ${searchBoxInput}
                 ${field_select}
                 ${searchBtn}
             </form>
@@ -4278,8 +4214,8 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 data-state="${selectState}"
                     title="${vCount ? selectState : i18n.t("This resource has no variables")}"
                     aria-label="${selectState}"
-                    ${vCount ? "disabled" : ""}>
-            ${vCount ? "⊘" : ""}</button></div>
+                    ${vCount ? "" : "disabled"}>
+            ${vCount ? "" : "⊘"}</button></div>
         `
 
             frag += `
@@ -4569,18 +4505,20 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             <div class="selected-list">
                 <div class="card">
                     <div class="selected-list-item">
-                        <button class="${selectClass} ui icon button ${selectState}"
-                            id="${buttonId}"
-                            data-id="${record.id}"
-                            data-state="${selectState}"
-                            title="${i18n.t("Select")}
-                            aria-label="${_setupAriaLabel(title)}"
-                            aria-selected="${i18n.t(selectState)}"
-                            aria-live="polite"
-                            ></button>
-                        <span title="${edges.util.escapeHtml(title)}">
-                            ${truncated}
-                        </span>
+                        <div class="selected-list-item--title">
+                            <button class="${selectClass} ui icon button ${selectState}"
+                                id="${buttonId}"
+                                data-id="${record.id}"
+                                data-state="${selectState}"
+                                title="${i18n.t("Select")}
+                                aria-label="${_setupAriaLabel(title)}"
+                                aria-selected="${i18n.t(selectState)}"
+                                aria-live="polite"
+                                ></button>
+                            <span title="${edges.util.escapeHtml(title)}" class="max-line-2">
+                                ${title}
+                            </span>
+                        </div>
                     </div>
                     <div class="selected-list-sub-item">
                         ${vgFrag}

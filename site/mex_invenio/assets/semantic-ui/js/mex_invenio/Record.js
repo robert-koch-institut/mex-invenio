@@ -21,34 +21,25 @@ export const Record = ({ mexId, title }) => {
   }
 
   return (
-    <div className="recordContent">
+    <div className="recordContent card card--only-layout">
       <p className="record--ids">
         <span className="muted">{mexId} | </span>
         <a  href={`/api/records/${invenio_id}`} aria-label={`View record ${invenio_id} as JSON`} >{invenio_id}</a>
       </p>
 
       <Header as="h3">{t(title)}</Header>
-      <Table celled className="record-modal">
-        <Table.Header className="sr-only">
-          <Table.Row verticalAlign='top'>
-            <Table.HeaderCell>Field</Table.HeaderCell>
-            <Table.HeaderCell>Value</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-
+      <div className="card-props">
         {Object.entries(data.normalised)
           .filter(([key]) => key !== "backwards_linked" && key !== "mex:identifier")
           .map(([key, value]) => (
-            <Table.Row key={key} className="row props" verticalAlign="top">
-              <Table.Cell as="th" scope="row" className="key">
+            <div key={key} className="row card-props-p" verticalAlign="top">
+              <div className="key card-prop-label">
                 {smartT(key)}
-              </Table.Cell>
-              <Table.Cell>
-                <DisplayValues values={value} />
-              </Table.Cell>
-            </Table.Row>
+              </div>
+              <DisplayValues values={value} />
+            </div>
           ))}
-      </Table>
+      </div>
     </div>
   );
 };
