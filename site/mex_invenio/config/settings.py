@@ -637,7 +637,6 @@ UI_SETTINGS = {
                         "properties": [
                             {
                                 "field": "mex:wasGeneratedBy",
-                                "label": _("wasGeneratedBy.singular"),
                                 "is_backwards_linked": True,
                             },
                         ],
