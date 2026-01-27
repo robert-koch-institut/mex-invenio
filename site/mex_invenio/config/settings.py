@@ -689,6 +689,7 @@ UI_SETTINGS = {
             "keywords": {
                 "title": _("Keywords"),
                 "icon": "theme.svg",
+                "template": "keywords_publication.html",
                 "properties": [
                     {"field": "mex:keyword"},
                 ],

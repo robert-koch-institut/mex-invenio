@@ -4214,8 +4214,8 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 data-state="${selectState}"
                     title="${vCount ? selectState : i18n.t("This resource has no variables")}"
                     aria-label="${selectState}"
-                    ${vCount ? "disabled" : ""}>
-            ${vCount ? "⊘" : ""}</button></div>
+                    ${vCount ? "" : "disabled"}>
+            ${vCount ? "" : "⊘"}</button></div>
         `
 
             frag += `
