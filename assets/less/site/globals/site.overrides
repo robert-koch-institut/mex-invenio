@@ -153,7 +153,7 @@ body {
                 text-overflow: ellipsis;
                 white-space: nowrap;
               }
-              a.multi-word,span.multi-word {
+              a.multi-word, span.multi-word, p.multi-word {
                   overflow-wrap: break-word;
                   word-break: break-word;
                   white-space: normal;
