@@ -2309,13 +2309,11 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
                 }">${edges.util.escapeHtml(obj["display"])}</option>`;
             }
 
-            field_select += `<div class="field">
-                                <label for="${selectId}" class="sr-only">Search by</label>
+            field_select += `<label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
                                     <option value="">${i18n.t("all fields")}</option>
                                     ${fieldOptions}
-                                </select>
-                                </div>`;
+                                </select>`;
         }
 
         // more classes that we'll use
@@ -2329,7 +2327,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let clearFrag = "";
         if (this.clearButton) {
             clearFrag = `<div class="field">
-                            <button type="button" class="ui button ${resetClass} black basic" title="${i18n.t(
+                            <button type="button" class="ui button tertiary ${resetClass}" title="${i18n.t(
                                 "Clear all search and sort parameters and start again"
                             )}">
                                 ${i18n.t("Clear")}
@@ -2343,26 +2341,24 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             if (this.searchButtonText !== false) {
                 text = this.searchButtonText;
             }
-            searchBtn = `<div class="field"><button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button></div>`;
+            searchBtn = `<button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button>`;
         }
 
         let inline = "";
         if (this.inlineLabel) {
             inline = "inline";
         }
-        let searchBox = `<div class="${inline} field field--search-input">`
         let srOnly = "";
         if (this.labelInvisible) {
             srOnly = `sr-only`;
         }
-        searchBox += `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label} </label>`
-        searchBox += `<input type="text"
+        let searchBoxLabel = `<label for="${textId}" class="ui label label--search ${srOnly}"> ${this.label}</label>`
+        let searchBoxInput = `<input type="text"
                             id="${textId}"
                             class="ui input input--search ${textClass}"
                             name="q"
                             placeholder="${this.searchPlaceholder}"
-                        />
-                        </div>`;
+                        />`;
 
         // assemble the final fragment and render it into the component's context
         let containerClass = edges.util.styleClasses(
@@ -2371,70 +2367,18 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             this
         );
 
-        let searchBoxWidth = "fourteen"
-        let fieldSelectFrag = "";
-        if (field_select !== "") {
-            searchBoxWidth = "eleven";
-            fieldSelectFrag = `
-                <div class="three wide column">
-                    ${field_select}
-                </div>`;
+        let compactClass = "";
+        if (this.compactDesign){
+            compactClass = "form--compact";
         }
 
-        // TODO: Find a better way to figure out dynamic design
-        let titleWidth = "one"
-        if(this.searchTitle.length > 15) {
-            titleWidth = "five"
-            searchBoxWidth = "ten"
+        if (this.sideBar) {
+
         }
-
-        // Upgrading the search UI as per sematic ui
-        let frag = ""
-
-        // if(this.compactDesign) {
-        //     frag = `
-        //         <div class="ui grid ${containerClass}">
-        //         <div style="flex:1">
-        //             <div class="ui grid row left aligned">
-        //                 <div class="${searchBoxWidth} wide column" style="padding-right:0rem">
-        //                     ${searchBox}
-        //                 </div>
-        //                 ${fieldSelectFrag}
-        //                 <div class="one wide column" style="padding-left:0rem">
-        //                     ${searchBtn}
-        //                 </div>
-        //             </div>
-        //         </div>
-        //         <div class="row right aligned">
-        //             ${sortFrag}
-        //         </div>
-        //     </div>
-        //     `
-        // } else {
-        //     frag  = `
-        //     <div class="ui grid ${containerClass}">
-        //         <div class="row middle aligned">
-        //             <div class="${searchBoxWidth} wide column">
-        //                 ${searchBox}
-        //             </div>
-        //             ${fieldSelectFrag}
-        //             <div class="one wide column">
-        //                 ${searchBtn}
-        //             </div>
-        //         </div>
-        //         <div class="row right aligned">
-        //             ${sortFrag}
-        //         </div>
-        //     </div>`;
-        // }
-        let longClass = "";
-        if (!this.compactDesign){
-            longClass = "form--long-search";
-        }
-
-        frag = `
-            <form class="ui form form--long-search">
-                ${searchBox}
+        let frag = `
+            <form class="ui form ${compactClass}">
+                ${searchBoxLabel}
+                ${searchBoxInput}
                 ${field_select}
                 ${searchBtn}
             </form>
