@@ -5,7 +5,7 @@
             <div class="tags top-tags">
                 <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
                 {% if special_field("ACTIVITY_TYPE") in data %}
-                    <span class="tags"><span class="tag">{{ display_values(data[special_field("ACTIVITY_TYPE")]) }}</span></span>
+                    <span class="tags"><span class="tag">{{ render_value(data[special_field("ACTIVITY_TYPE")][0]) }}</span></span>
                 {% endif %}
             </div>
         </section>

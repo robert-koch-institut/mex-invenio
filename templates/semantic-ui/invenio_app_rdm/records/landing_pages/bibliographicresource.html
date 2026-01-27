@@ -6,11 +6,11 @@
                 <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
 
                 {% if special_field("BIBLIOGRAPHICRESOURCE_TYPE") in data %}
-                    <span class="tag" title="{{ _('Resource type') }}">{{display_values(data[special_field("BIBLIOGRAPHICRESOURCE_TYPE")])}}</span>
+                    <span class="tag" title="{{ _('Resource type') }}">{{render_value(data[special_field("BIBLIOGRAPHICRESOURCE_TYPE")])}}</span>
                 {% endif %}
 
                 {%- if special_field("ACCESS_RESTRICTION") in data -%}
-                    <span class="tag" style="background-color: {{ config.UI_SETTINGS[resource_type].special_fields["ACCESS_RESTRICTION"].color_map[record.custom_fields[special_field("ACCESS_RESTRICTION")]] }}">{{ display_values(data[special_field("ACCESS_RESTRICTION")]) }}</span>
+                    <span class="tag" style="background-color: {{ config.UI_SETTINGS[resource_type].special_fields["ACCESS_RESTRICTION"].color_map[record.custom_fields[special_field("ACCESS_RESTRICTION")]] }}">{{ render_value(data[special_field("ACCESS_RESTRICTION")][0]) }}</span>
                 {% endif %}
             </div>
         </section>
