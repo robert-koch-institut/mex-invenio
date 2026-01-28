@@ -883,7 +883,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
         if (topMiddle.length > 0) {
             for (let i = 0; i < topMiddle.length; i++) {
-                topMiddleContainers += `<div class="${topMiddleClass}"><div id="${topMiddle[i].id}"></div></div>`;
+                topMiddleContainers += `<div class="${topMiddleClass} px-0"><div id="${topMiddle[i].id}"></div></div>`;
             }
         }
 
@@ -973,7 +973,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 ${facetSidebar}
                 <div class="wide column pr-0" style="flex: 1;">
                     <div class="ui grid" style="margin-left: 0">
-                        <div class="ui grid">
+                        <div class="ui grid sixteen wide column px-0" style="margin-left: 0;">
                             ${topMiddleContainers}
                         </div>
                         <div class="eight wide column" style="padding-left: 0">
@@ -1509,13 +1509,13 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     }
@@ -1527,7 +1527,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="Clear all search and sort parameters and start again">
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
                     Clear all
                 </button>`;
 
@@ -1539,7 +1539,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
         }
 
         if (filters !== "") {
-            let frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${filters}</div></div>`;
+            let frag = `<div class="${containerClass} style="display: flex; flex-wrap: wrap; gap: .5rem" >${filters}</div>`;
             sf.context.parent().show();
             sf.context.html(frag);
 
@@ -3836,9 +3836,12 @@ mex.renderers.Pager = class extends edges.Renderer {
                 this.component.id
             );
             sizer = `<div class="ui form ${this.customClassForSizeSelector}">
-                <div class="inline fields">
-                    <div class="field">${recordCount}${this.sizePrefix}</div>
-                    <div class="field">
+                <div class="inline fields">`
+            if (this.showRecordCount){
+                sizer += `<div class="field">${recordCount}${this.sizePrefix}</div>`
+            }
+
+            sizer += `<div class="field">
                         <select class="${sizeSelectClass}" name="${selectName}">
                             ${sizeopts}
                         </select>
@@ -3847,11 +3850,13 @@ mex.renderers.Pager = class extends edges.Renderer {
                 </div>
             </div>`;
         } else {
-            sizer = `<div class="ui form">
-                <div class="inline fields">
-                    <div class="field">${recordCount}</div>
-                </div>
-            </div>`;
+            if (this.showRecordCount){
+                sizer = `<div class="ui form">
+                    <div class="inline fields">
+                        <div class="field">${recordCount}</div>
+                    </div>
+                </div>`;
+            }
         }
 
         let nav = "";
@@ -3893,38 +3898,36 @@ mex.renderers.Pager = class extends edges.Renderer {
                 pageNum = this.numberFormat(pageNum);
                 totalPages = this.numberFormat(totalPages);
             }
-            nav = `<div class="ui grid ${navClass}">
-                        <div class="three wide column pagination-item">
+            nav = `<div class="${navClass}" style="display: flex; justify-content: space-between">
+                        <div class="pagination-item">
                             <i class="angle double left icon pagination-icon"></i>
                             ${first}
                         </div>
-                        <div class="three wide column pagination-item">
+                        <div class="pagination-item">
                             <i class="angle left icon pagination-icon"></i>
                             ${prev}
                         </div>
-                        <div class="four wide column pagination-item" style="display: flex;justify-content: center;">
-                            <span class="${pageClass}">${i18n.t(
-                "Page"
-            )} ${pageNum} ${i18n.t("of")} ${totalPages}</span>
+                        <div class="pagination-item">
+                            <span class="${pageClass}">${i18n.t("Page")} ${pageNum} ${i18n.t("of")} ${totalPages}</span>
                         </div>
-                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                        <div class="pagination-item">
                             ${next}
                             <i class="angle right icon pagination-icon"></i>
                         </div>
-                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                        <div class="pagination-item">
                             ${last}
                             <i class="angle double right icon pagination-icon"></i>
                         </div>
                    </div>`;
         }
 
-        let frag = `<div class="ui grid ${containerClass}" style="margin-left: 0">`;
+        let frag = `<div class="${containerClass}">`;
 
         if (this.showPageNavigation) {
-            frag += `<div class="sixteen wide column px-0">${nav}</div>`;
+            frag += `${nav}`;
         }
 
-        frag += `<div class="sixteen wide column">${sizer}</div>`;
+        frag += `${sizer}`;
 
         frag += `</div>`;
 

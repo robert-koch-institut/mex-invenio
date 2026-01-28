@@ -739,15 +739,21 @@ aside {
     height: 1.05rem;
   }
 
+  .edges-mex-selected-filters_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
   .filters {
+    display: flex;
     border: 1px solid #A5AAC3;
     border-radius: 1.5rem;
     padding: 0.30rem 0.65rem;
     background-color: @highlightColor;
-
-    &.edges-mex-selected-filters_field{
-      margin-right: 1.5rem;
-    }
+    align-items: center;
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 }
 
