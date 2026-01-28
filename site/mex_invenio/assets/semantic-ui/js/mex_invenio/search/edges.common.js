@@ -39,7 +39,7 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
-edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
 mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
@@ -389,7 +389,7 @@ mex.pager = function (params) {
         renderer: new mex.renderers.Pager({
             showSizeSelector: false,
             showPageNavigation: params.showPageNavigation ?? true,
-            showRecordCount: true,
+            showRecordCount: params.showRecordCount ?? true,
         }),
     });
 };
@@ -4161,11 +4161,20 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
+        // let created = edges.util.escapeHtml(
+        //     edges.util.pathValue("created", res, "")
+        // );
+        let created = res["custom_fields"]["mex:created"]
         // let createdDate = new Date(created);
-        created = mex.fullDateFormatter(created);
+        let created_ui = "";
+        if (created && created.date) {
+            created_ui = mex.fullDateFormatter(created.date);
+            if (created_ui == "Invalid Date") {
+                created_ui = created.date;
+            }
+        }
+
+
 
         let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
@@ -4197,9 +4206,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         let frag = `<div class="card"><div class="card-header" style="width: 100%">`
 
-        if (created) {
+        if (created_ui) {
             frag += `
-                <span class="date muted">${created}</span>
+                <span class="date muted">${created_ui}</span>
             `
         }
 
@@ -4221,11 +4230,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             ${vCount ? "" : "⊘"}</button></div>
         `
 
-            frag += `
-
-                <h3 class="title">
-                    <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
-                </h3>`
+            let mex_id = res["custom_fields"]["mex:identifier"]
+            frag += `<h3 class="title">
+                <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+            </h3>`
 
             if (alt) {
                 frag += `<p class="subtitle">${alt}</strong>`
@@ -4574,11 +4582,11 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         }
     }
 
-    let start = i18n.t("Unknown start date");
-    start = mex.extractMultiDate(mex.constants.START, res, start);
+    // let start = i18n.t("Unknown start date");
+    // start = mex.extractMultiDate(mex.constants.START, res, start);
 
-    let end = i18n.t("Unknown end date");
-    end = mex.extractMultiDate(mex.constants.END, res, end);
+    // let end = i18n.t("Unknown end date");
+    // end = mex.extractMultiDate(mex.constants.END, res, end);
 
     function resourceTypeMacro() {
         if (include_resource_type) {
@@ -4587,48 +4595,57 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         return "";
     }
 
-    function titleMacro(title, id) {
-        if (!title) {
-            return ""
-        }
-
-        return `
-        <div class="title">
-                 <span>
-                    <a href="/records/${id}" target="_blank">${title}</a>
-                </span>
-        </div>`;
-    }
-
+    let mex_id = res["custom_fields"]["mex:identifier"]
 
     let frag = `
-        <div class="activity-card card-shadow">
+        <div class="card activity-card">
             ${resourceTypeMacro()}
-            ${titleMacro(title, res.id)}
+            <h3 class="title">
+                <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+            </h3>`
 
-            <div class="subtitle ${alt ? "" : "hide"}">
-                <strong>${alt}</strong>
-            </div>
+    if (alt) {
+        frag += `<p class="subtitle">${alt}</strong>`
+    }
 
-            <div class="description ${desc ? "" : "hide"}">
-                ${desc}
-            </div>
+    if (desc) {
+        frag += `<p class="description">
+            ${desc.slice(0,600)}
+            ${desc.length > 600 ? "..." : ""}
+        </p>`;
+    }
 
-            <div class="description ${start || end ? "" : "hide"}">
-                <span class="${start ? "" : "hide"}">
-                    ${start}
-                </span>
+    function date_ui(date) {
+        let date_ui = ""
+        if (date) {
+            if (Array.isArray(date)) {
+                date = date[0]
+            }
+            date = date.date
+            date_ui = mex.fullDateFormatter(date);
+            if (date_ui == "Invalid Date") {
+                date_ui = date;
+            }
+        }
+        return date_ui
+    }
 
-                <span class="${start && end ? "" : "hide"}">
-                    ${i18n.t("to")}
-                </span>
+    let start = res["custom_fields"]["mex:start"];
+    let start_ui = date_ui(start)
+    let end = res["custom_fields"]["mex:end"];
+    let end_ui = date_ui(end)
 
-                <span class="${end ? "" : "hide"}">
-                    ${end}
-                </span>
-            </div>
-        </div>
-    `;
+    let date = '';
+
+    if (start || end) {
+    frag += `<p class="date muted">
+        ${start_ui ?? ''}
+        ${start && end ? i18n.t('to') : ''}
+        ${end_ui ?? ''}
+    </p>`;
+    }
+
+    frag += `</div>`
 
     return frag;
 }
@@ -4670,14 +4687,28 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         }
     }
 
-    let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
-    creators = creators.map((c) => edges.util.escapeHtml(c)).join(", ");
+    // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
 
-    let pubYear = edges.util.pathValue(
-        "custom_fields.mex:publicationYear.date",
-        res,
-        ""
-    );
+    function getCreatorsNames(field) {
+        let names = ""
+        for (let i = 0; i++; i < field.length) {
+            names += field[i].display_value[0].value;
+            console.log(names);
+            if (i != field.length - 1) {
+                names += ", ";
+            }
+        }
+        console.log("return: ", names)
+        return names;
+    }
+
+    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? [])
+
+    // let pubYear = edges.util.pathValue(
+    //     "custom_fields.mex:publicationYear.date",
+    //     res,
+    //     ""
+    // );
 
     function resourceTypeMacro() {
         if (include_resource_type) {
@@ -4687,40 +4718,39 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     }
 
     function titleMacro(title, id) {
-        if (!title) {
-            return ""
-        }
+
+        const mex_id = res["custom_fields"]["mex:identifier"]
 
         return `
-        <div class="title">
-             <span>
-                <a href="/records/${id}" target="_blank">${title}</a>
-            </span>
-        </div>`;
+        <h3 class="title">
+            <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+        </h3>`;
     }
 
-    const frag = `<div class="card">
-            ${resourceTypeMacro()}
-            ${titleMacro(title, res.id)}
+    let pubYear = res["custom_fields"]["mex:issued"]
 
-            <div class="subtitle ${alt ? "" : "hide"}">
-                <strong>${alt}</strong>
-            </div>
+    let frag = `<div class="card">`
 
-            <div class="description ${sub ? "" : "hide"}">
-                ${sub}
-            </div>
+    if (creators || pubYear){
+        frag += `<div class="card-header"><span class="date muted">
+            ${creators ?? ''}
+            ${pubYear ? `(${mex.fullDateFormatter(pubYear)})` : ''}
+            </span></div>
+        `
+    }
+    frag += `
+        ${resourceTypeMacro()}
+        ${titleMacro(title, res.id)}
+    `
 
-            <div class="tags ${creators || pubYear ? "" : "hide"}">
-                <span class="tag ${creators ? "" : "hide"}">
-                    ${creators}
-                </span>
+    if (alt) {
+        frag += `<p class="subtitle">${alt}</strong>`
+    }
 
-                <span class="tag ${pubYear ? "" : "hide"}">
-                    ${pubYear}
-                </span>
-            </div>
-        </div>`;
+    if (desc) {
+        frag += `<p class="description">${sub}</p>`;
+    }
+        frag += `</div>`;
     return frag;
 }
 

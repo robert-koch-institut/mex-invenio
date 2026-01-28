@@ -44,15 +44,14 @@ edges.instances.resources.init = function() {
             mex.themeFacet(),
 
             // Stuff above the results
-            // mex.resultCount(),
-            mex.pager({}),
+            mex.resultCount(),
             mex.sorter({
                 sortOptions: [
                     {field: mex.constants.CREATED, display: i18n.t("Created (newest first)"), order: "desc"},
                     {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-
+            mex.pager({showRecordCount: false}),
 
             // The results
             mex.resourceDisplay(),
