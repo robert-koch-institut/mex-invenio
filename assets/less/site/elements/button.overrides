@@ -19,7 +19,7 @@ button {
     }
     &.secondary {
         background-color: @highlightBackground;
-        border: 1px solid @highlightColor;
+        border: 1px solid #8caaf0;
         color: @black;
         &:hover {
             background-color: @primaryColor;

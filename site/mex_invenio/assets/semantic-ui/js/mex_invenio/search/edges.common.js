@@ -1113,7 +1113,7 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         }
 
         let frag = `<div class="search-specific-types-container">
-        <p>${this.preamble}</p>
+        <span style="font-weight: bold;">${this.preamble}</span>
                                 ${this.renderTargets()}
                             </div>`;
         this.context.html(frag);
@@ -1124,7 +1124,10 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         let frag = ``;
         for (let url in this.targets) {
             let display = this.targets[url];
-            frag += `<a href="${url}?${qs}" class="button-like">${display}</a>`;
+            frag += `<a href="${url}?${qs}"><img class="ui image icon--text"
+                    src="/static/icons/${display.icon}-record.svg"
+                    style="height: 1rem; margin-bottom: .125rem; margin-right: .25rem;"
+                    role="presentation"/>${display.label}</a>`;
         }
         return frag;
     }
@@ -4593,7 +4596,9 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${i18n.t('ACTIVITY')}</div></div>`
+            return `<div class="tags"><div class="tag resource-type"><img class="ui image icon--text"
+                 src=/static/icons/activity-record.svg"
+                 role="presentation"/>${i18n.t('Activity')}</div></div>`
         }
         return "";
     }
@@ -4715,7 +4720,9 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${i18n.t('PUBLICATION')}</div></div>`
+            return `<div class="tags"><div class="tag resource-type"><img class="ui image icon--text"
+                 src=/static/icons/bibliographicresource-record.svg
+                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div></div>`
         }
         return "";
     }
@@ -4723,37 +4730,39 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     function titleMacro(title, id) {
 
         const mex_id = res["custom_fields"]["mex:identifier"]
-
+;
         return `
         <h3 class="title">
-            <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+            <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>;
         </h3>`;
     }
 
-    let pubYear = res["custom_fields"]["mex:issued"]
+    let pubYear = res["custom_fields"]["mex:issued"];
 
-    let frag = `<div class="card">`
+    let frag = `<div class="card">`;
 
-    if (creators || pubYear){
-        frag += `<div class="card-header"><span class="date muted">
+    if (creators || include_resource_type){
+        frag += `<div class="card-header">
+        ${resourceTypeMacro()}
+        <span class="date muted">
             ${creators ?? ''}
-            ${pubYear ? `(${mex.fullDateFormatter(pubYear)})` : ''}
             </span></div>
         `
     }
-    frag += `
-        ${resourceTypeMacro()}
-        ${titleMacro(title, res.id)}
-    `
+    frag += `${titleMacro(title, res.id)}`;
 
     if (alt) {
-        frag += `<p class="subtitle">${alt}</strong>`
+        frag += `<p class="subtitle">${alt}</strong>`;
     }
 
     if (desc) {
         frag += `<p class="description">${sub}</p>`;
     }
-        frag += `</div>`;
+    if (pubYear) {
+        frag += `<p class="description"><span class="label muted" style="font-weight: bold">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
+    }
+
+    frag += `</div>`;
     return frag;
 }
 
