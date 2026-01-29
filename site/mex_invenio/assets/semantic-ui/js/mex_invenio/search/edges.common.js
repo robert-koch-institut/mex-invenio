@@ -1851,7 +1851,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
     }
 
     draw() {
-        let header = this.title ? `<h5 class="tiny" style="margin:0.625rem 0rem">${this.title}</h5>` : ""
+        let header = this.title ? `<h5 class="tiny" style="margin: 1rem 0rem">${this.title}</h5>` : ""
 
         let expandAllClass = edges.util.jsClasses(
             this.namespace,
@@ -1860,7 +1860,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         );
 
         let expandAllCheckbox = `
-                <div class="checkbox" style="margin:1rem 0rem;">
+                <div class="checkbox" style="margin-top: 1rem">
                     <label>
                         ${i18n.t("Expand all")}
                         <input type="checkbox" class="${expandAllClass}"/>
@@ -1979,10 +1979,8 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 <div class="">
                     ${expandAllCheckbox}
                     ${header}
-                    <div class="" style="margin-top:1.625rem">
-                      <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
-                    </div>
-                    <div style="margin-bottom: 1rem;">
+                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
+                    <div>
                         ${recordsFrag}
                     </div>
                 </div>
@@ -2172,7 +2170,7 @@ mex.renderers.StaticHeaderRenderer = class extends edges.Renderer{
     }
 
     draw(){
-        const frag = `<h5 class="tiny">${this.staticTitle}</h5>`
+        const frag = `<h5 class="tiny" style="margin: 1rem 0;">${this.staticTitle}</h5>`
         this.component.context.html(frag);
     }
 }
