@@ -962,7 +962,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
         let facetSidebar = "";
         if (facets.length > 0) {
-            facetSidebar = `<div class="three wide column pl-0">${facetContainers}</div>`;
+            facetSidebar = `<div class="three wide column pl-0" style="margin-right: 2rem;">${facetContainers}</div>`;
         }
 
         let frag = `
@@ -971,7 +971,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                     ${fullContainers}
                 </div>
                 ${facetSidebar}
-                <div class="wide column pr-0" style="flex: 1;">
+                <div class="wide column px-0" style="flex: 1;">
                     <div class="ui grid" style="margin-left: 0">
                         <div class="ui grid sixteen wide column px-0" style="margin-left: 0;">
                             ${topMiddleContainers}
@@ -1074,13 +1074,11 @@ mex.templates.SingleColumnTemplate = class extends edges.Template {
         }
 
         let frag = `
-            <div class="ui grid" style="margin-left: 0">
-                <div class="sixteen wide column">
-                    ${preambleFrag}
-                    ${leftMiddleTopContainers}
-                    ${rightMiddleTopContainers}
-                    ${compContainers}
-                </div>
+            <div class="sixteen wide column">
+                ${preambleFrag}
+                ${leftMiddleTopContainers}
+                ${rightMiddleTopContainers}
+                ${compContainers}
             </div>
         `;
         edge.context.html(frag);
@@ -1982,9 +1980,9 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                     ${expandAllCheckbox}
                     ${header}
                     <div class="" style="margin-top:1.625rem">
-                      <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
+                      <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
                     </div>
-                    <div>
+                    <div style="margin-bottom: 1rem;">
                         ${recordsFrag}
                     </div>
                 </div>
@@ -2171,22 +2169,10 @@ mex.renderers.StaticHeaderRenderer = class extends edges.Renderer{
         // Just add static header
         this.staticTitle = edges.util.getParam(params, "staticTitle", "");
 
-        // font size is added to the header
-        this.fontStyle = edges.util.getParam(
-            params,
-            "fontStyle",
-            "small"
-        );
     }
 
     draw(){
-        const frag = `
-            <div class="ui sizer vertical segment">
-                <div class="ui ${this.fontStyle} header">
-                    ${this.staticTitle}
-                </div>
-            </div>
-        `
+        const frag = `<h5 class="tiny">${this.staticTitle}</h5>`
         this.component.context.html(frag);
     }
 }
@@ -4302,8 +4288,6 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             }
 
             let frag = `<div class="">
-                <div class="divider"></div>
-
                 <h3 class="title" style="margin:0px">${this.title}</h4>
                 <div>
                     <p>${this.noResultsText}</p>
@@ -4323,9 +4307,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         }
 
         let frag = `
-            <div class="">
-                <div class="divider"></div>
-
+            <div>
                 <h4 class="title" style="margin:0px">${this.title}</h4>
                 <div>
                     ${resultsFrag}

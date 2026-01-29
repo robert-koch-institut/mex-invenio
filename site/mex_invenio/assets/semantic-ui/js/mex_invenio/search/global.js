@@ -41,7 +41,7 @@ edges.instances.global.init = function () {
                     {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            mex.pager({}),
+            mex.pager({showRecordCount: false}),
 
             //  The results
             mex.globalDisplay(),

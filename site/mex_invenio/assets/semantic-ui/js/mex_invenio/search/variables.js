@@ -31,7 +31,7 @@ edges.instances.variables.init = function () {
         selector: "#resources-container",
         openingQuery: new es.Query({size: 10}),
         template: new mex.templates.SingleColumnTemplate({
-            preamble: `<a class="link-button" href="/search/resources">${i18n.t("Back to Data Sources &amp; Datasets Search")}</a>`,
+            preamble: `<a class="link-button" href="/search/resources" style="margin-top: 2rem;">${i18n.t("Back to Data Sources &amp; Datasets Search")}</a>`,
         }),
         resourceType: "resources",
         secondaryQueries: {
@@ -125,11 +125,11 @@ edges.instances.variables.selectionLoaded = function() {
         openingQuery: openingQuery,
         components: [
             mex.resultCount({
-                category: "left-middle-top",
+                category: "right-middle-top",
             }),
 
             mex.fullSearchController({
-                category: "right-middle-top",
+                category: "left-middle-top",
                 searchPlaceholder: i18n.t("Find variables..."),
                 searchTitle: "Search Variable By Name",
             }),
