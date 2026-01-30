@@ -51,7 +51,7 @@ edges.instances.bibliographicResources.init = function () {
                     {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            mex.defaultPager(),
+            mex.pager({showRecordCount: false}),
 
             //  The results
             mex.bibliographicResourcesDisplay(),

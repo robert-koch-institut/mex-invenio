@@ -20,16 +20,16 @@ edges.instances.global.init = function () {
         openingQuery: openingQuery,
         components: [
             mex.fullSearchController({
-                searchPlaceholder: i18n.t("Search across all resource types..."),
+                searchPlaceholder: i18n.t("Search across all records..."),
             }),
 
             mex.typeSpecificJumpOff({
-                preamble: i18n.t("Search on specific resource type: "),
+                preamble: i18n.t("Search only in"),
                 targets: {
-                    "/search/resources": i18n.t("Data Sources & Datasets"),
-                    "/search/variables": i18n.t("Variables"),
-                    "/search/activities": i18n.t("Activities"),
-                    "/search/bibliographic-resources": i18n.t("Publications")
+                    "/search/resources": {"label": i18n.t("Data Sources & Datasets"), "icon": "resource"},
+                    "/search/variables": {"label": i18n.t("Variables"), "icon": "variable"},
+                    "/search/activities": {"label": i18n.t("Projects"), "icon": "activity"},
+                    "/search/bibliographic-resources": {"label": i18n.t("Publications"), "icon": "bibliographicresource"}
                 }
             }),
 
@@ -41,7 +41,7 @@ edges.instances.global.init = function () {
                     {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            mex.defaultPager(),
+            mex.pager({showRecordCount: false}),
 
             //  The results
             mex.globalDisplay(),

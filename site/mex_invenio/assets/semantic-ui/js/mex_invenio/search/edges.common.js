@@ -39,7 +39,7 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
-edges.mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
 mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
@@ -66,6 +66,7 @@ mex.constants.LABEL_CONTAINER = "custom_fields.mex:label"
 mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
 mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
 mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
+mex.constants.ACCESS_RESTRICTION = "custom_fields.mex:accessRestriction"
 
 // data fields for content, where content is available as literal (or as a list of literals)
 // for display and free-text searching
@@ -389,7 +390,7 @@ mex.pager = function (params) {
         renderer: new mex.renderers.Pager({
             showSizeSelector: false,
             showPageNavigation: params.showPageNavigation ?? true,
-            showRecordCount: true,
+            showRecordCount: params.showRecordCount ?? true,
         }),
     });
 };
@@ -844,6 +845,13 @@ mex.vocabularyLookup = function (value) {
     }
     return value;
 };
+/////////////////////////////////////////
+// access restriction colour map
+
+mex.ACCESS_RESTRICTION_COLOUR_MAP = {
+    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
+    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+};
 
 /////////////////////////////////////////
 // Template(s)
@@ -883,7 +891,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
         if (topMiddle.length > 0) {
             for (let i = 0; i < topMiddle.length; i++) {
-                topMiddleContainers += `<div class="${topMiddleClass}"><div id="${topMiddle[i].id}"></div></div>`;
+                topMiddleContainers += `<div class="${topMiddleClass} px-0"><div id="${topMiddle[i].id}"></div></div>`;
             }
         }
 
@@ -962,7 +970,7 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
 
         let facetSidebar = "";
         if (facets.length > 0) {
-            facetSidebar = `<div class="three wide column pl-0">${facetContainers}</div>`;
+            facetSidebar = `<div class="three wide column pl-0" style="margin-right: 2rem;">${facetContainers}</div>`;
         }
 
         let frag = `
@@ -971,9 +979,9 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                     ${fullContainers}
                 </div>
                 ${facetSidebar}
-                <div class="wide column pr-0" style="flex: 1;">
+                <div class="wide column px-0" style="flex: 1;">
                     <div class="ui grid" style="margin-left: 0">
-                        <div class="ui grid">
+                        <div class="ui grid sixteen wide column px-0" style="margin-left: 0;">
                             ${topMiddleContainers}
                         </div>
                         <div class="eight wide column" style="padding-left: 0">
@@ -1074,13 +1082,11 @@ mex.templates.SingleColumnTemplate = class extends edges.Template {
         }
 
         let frag = `
-            <div class="ui grid" style="margin-left: 0">
-                <div class="sixteen wide column">
-                    ${preambleFrag}
-                    ${leftMiddleTopContainers}
-                    ${rightMiddleTopContainers}
-                    ${compContainers}
-                </div>
+            <div class="sixteen wide column">
+                ${preambleFrag}
+                ${leftMiddleTopContainers}
+                ${rightMiddleTopContainers}
+                ${compContainers}
             </div>
         `;
         edge.context.html(frag);
@@ -1113,7 +1119,7 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         }
 
         let frag = `<div class="search-specific-types-container">
-        <p>${this.preamble}</p>
+        <span style="font-weight: bold;">${this.preamble}</span>
                                 ${this.renderTargets()}
                             </div>`;
         this.context.html(frag);
@@ -1124,7 +1130,10 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         let frag = ``;
         for (let url in this.targets) {
             let display = this.targets[url];
-            frag += `<a href="${url}?${qs}" class="button-like">${display}</a>`;
+            frag += `<a href="${url}?${qs}"><img class="ui image icon--text"
+                    src="/static/icons/${display.icon}-record.svg"
+                    style="height: 1rem; margin-bottom: .125rem; margin-right: .25rem;"
+                    role="presentation"/>${display.label}</a>`;
         }
         return frag;
     }
@@ -1509,13 +1518,13 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
                 // the remove block looks different, depending on the kind of filter to remove
                 if (this.allowRemove) {
                     if (def.filter === "term" || def.filter === "terms") {
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" data-value="${val.val}" title="Remove">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     } else if (def.filter === "range") {
                         var from = val.from ? ' data-' + val.fromType + '="' + val.from + '" ' : "";
                         var to = val.to ? ' data-' + val.toType + '="' + val.to + '" ' : "";
-                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove" href="#">
+                        filters += `<button class="${removeClass} img-button" data-bool="must" data-filter="${def.filter}" data-field="${field}" ${from} ${to} title="Remove">
                                         <img src="/static/images/close.svg" alt="Remove" title="Remove" style="width:24px;height:24px;vertical-align:middle"/>
                                     </button>`;
                     }
@@ -1527,7 +1536,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass} ui black basic button" title="Clear all search and sort parameters and start again">
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
                     Clear all
                 </button>`;
 
@@ -1539,7 +1548,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
         }
 
         if (filters !== "") {
-            let frag = `<div class="ui grid ${containerClass}"><div class="sixteen wide column">${filters}</div></div>`;
+            let frag = `<div class="${containerClass} style="display: flex; flex-wrap: wrap; gap: .5rem" >${filters}</div>`;
             sf.context.parent().show();
             sf.context.html(frag);
 
@@ -1850,7 +1859,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
     }
 
     draw() {
-        let header = this.title ? `<h5 class="tiny" style="margin:0.625rem 0rem">${this.title}</h5>` : ""
+        let header = this.title ? `<h5 class="tiny" style="margin: 1rem 0rem">${this.title}</h5>` : ""
 
         let expandAllClass = edges.util.jsClasses(
             this.namespace,
@@ -1859,7 +1868,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
         );
 
         let expandAllCheckbox = `
-                <div class="checkbox" style="margin:1rem 0rem;">
+                <div class="checkbox" style="margin-top: 1rem">
                     <label>
                         ${i18n.t("Expand all")}
                         <input type="checkbox" class="${expandAllClass}"/>
@@ -1978,9 +1987,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 <div class="">
                     ${expandAllCheckbox}
                     ${header}
-                    <div class="" style="margin-top:1.625rem">
-                      <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
-                    </div>
+                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
                     <div>
                         ${recordsFrag}
                     </div>
@@ -2168,22 +2175,10 @@ mex.renderers.StaticHeaderRenderer = class extends edges.Renderer{
         // Just add static header
         this.staticTitle = edges.util.getParam(params, "staticTitle", "");
 
-        // font size is added to the header
-        this.fontStyle = edges.util.getParam(
-            params,
-            "fontStyle",
-            "small"
-        );
     }
 
     draw(){
-        const frag = `
-            <div class="ui sizer vertical segment">
-                <div class="ui ${this.fontStyle} header">
-                    ${this.staticTitle}
-                </div>
-            </div>
-        `
+        const frag = `<h5 class="tiny" style="margin: 1rem 0;">${this.staticTitle}</h5>`
         this.component.context.html(frag);
     }
 }
@@ -3800,10 +3795,13 @@ mex.renderers.Pager = class extends edges.Renderer {
             }
 
             recordCount = `
-                <div class="result-counter">
-                    <div class="value ${totalClass}"> ${total} </div>
-                    <div class="label">${i18n.t("results")}</div>
+            <div class="id-tags"><div class="id-tag">
+                <div class="result-counter label" style="margin-right: .5rem;">
+                    <div class="circle"></div>
+                    <div class="value ${totalClass} text"> ${total} </div>
                 </div>
+                <div class="label">${i18n.t("results")}</div>
+            </div></div>
             `;
         }
 
@@ -3833,9 +3831,12 @@ mex.renderers.Pager = class extends edges.Renderer {
                 this.component.id
             );
             sizer = `<div class="ui form ${this.customClassForSizeSelector}">
-                <div class="inline fields">
-                    <div class="field">${recordCount}${this.sizePrefix}</div>
-                    <div class="field">
+                <div class="inline fields">`
+            if (this.showRecordCount){
+                sizer += `<div class="field">${recordCount}${this.sizePrefix}</div>`
+            }
+
+            sizer += `<div class="field">
                         <select class="${sizeSelectClass}" name="${selectName}">
                             ${sizeopts}
                         </select>
@@ -3844,11 +3845,13 @@ mex.renderers.Pager = class extends edges.Renderer {
                 </div>
             </div>`;
         } else {
-            sizer = `<div class="ui form">
-                <div class="inline fields">
-                    <div class="field">${recordCount}</div>
-                </div>
-            </div>`;
+            if (this.showRecordCount){
+                sizer = `<div class="ui form">
+                    <div class="inline fields">
+                        <div class="field">${recordCount}</div>
+                    </div>
+                </div>`;
+            }
         }
 
         let nav = "";
@@ -3890,38 +3893,36 @@ mex.renderers.Pager = class extends edges.Renderer {
                 pageNum = this.numberFormat(pageNum);
                 totalPages = this.numberFormat(totalPages);
             }
-            nav = `<div class="ui grid ${navClass}">
-                        <div class="three wide column pagination-item">
+            nav = `<div class="${navClass}" style="display: flex; justify-content: space-between">
+                        <div class="pagination-item">
                             <i class="angle double left icon pagination-icon"></i>
                             ${first}
                         </div>
-                        <div class="three wide column pagination-item">
+                        <div class="pagination-item">
                             <i class="angle left icon pagination-icon"></i>
                             ${prev}
                         </div>
-                        <div class="four wide column pagination-item" style="display: flex;justify-content: center;">
-                            <span class="${pageClass}">${i18n.t(
-                "Page"
-            )} ${pageNum} ${i18n.t("of")} ${totalPages}</span>
+                        <div class="pagination-item">
+                            <span class="${pageClass}">${i18n.t("Page")} ${pageNum} ${i18n.t("of")} ${totalPages}</span>
                         </div>
-                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                        <div class="pagination-item">
                             ${next}
                             <i class="angle right icon pagination-icon"></i>
                         </div>
-                        <div class="three wide column pagination-item" style="display: flex;justify-content: flex-end;">
+                        <div class="pagination-item">
                             ${last}
                             <i class="angle double right icon pagination-icon"></i>
                         </div>
                    </div>`;
         }
 
-        let frag = `<div class="ui grid ${containerClass}" style="margin-left: 0">`;
+        let frag = `<div class="${containerClass}">`;
 
         if (this.showPageNavigation) {
-            frag += `<div class="sixteen wide column px-0">${nav}</div>`;
+            frag += `${nav}`;
         }
 
-        frag += `<div class="sixteen wide column">${sizer}</div>`;
+        frag += `${sizer}`;
 
         frag += `</div>`;
 
@@ -4121,6 +4122,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res) {
+
+        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
+        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+
         let title = edges.util.escapeHtml(
             this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
         );
@@ -4158,11 +4163,20 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
+        // let created = edges.util.escapeHtml(
+        //     edges.util.pathValue("created", res, "")
+        // );
+        let created = res["custom_fields"]["mex:created"]
         // let createdDate = new Date(created);
-        created = mex.fullDateFormatter(created);
+        let created_ui = "";
+        if (created && created.date) {
+            created_ui = mex.fullDateFormatter(created.date);
+            if (created_ui == "Invalid Date") {
+                created_ui = created.date;
+            }
+        }
+
+
 
         let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
@@ -4192,13 +4206,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card"><div class="card-header" style="width: 100%">`
+        let frag = `<div class="card"><div class="card-header">`
 
-        if (created) {
-            frag += `
-                <span class="date muted">${created}</span>
-            `
-        }
+        frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
         let vCount = 0;
             if ("backwards_linked" in res["display_data"]["linked_records"]) {
@@ -4218,11 +4228,15 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             ${vCount ? "" : "⊘"}</button></div>
         `
 
-            frag += `
-
-                <h3 class="title">
-                    <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
-                </h3>`
+            let mex_id = res["custom_fields"]["mex:identifier"]
+            if (created_ui) {
+                frag += `
+                    <p class="date muted" style="margin-bottom: 0;">${created_ui}</p>
+                `
+            }
+            frag += `<h3 class="title" style="margin-top: 0;">
+                <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+            </h3>`
 
             if (alt) {
                 frag += `<p class="subtitle">${alt}</strong>`
@@ -4285,8 +4299,6 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             }
 
             let frag = `<div class="">
-                <div class="divider"></div>
-
                 <h3 class="title" style="margin:0px">${this.title}</h4>
                 <div>
                     <p>${this.noResultsText}</p>
@@ -4306,9 +4318,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         }
 
         let frag = `
-            <div class="">
-                <div class="divider"></div>
-
+            <div>
                 <h4 class="title" style="margin:0px">${this.title}</h4>
                 <div>
                     ${resultsFrag}
@@ -4571,66 +4581,78 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         }
     }
 
-    let start = i18n.t("Unknown start date");
-    start = mex.extractMultiDate(mex.constants.START, res, start);
+    // let start = i18n.t("Unknown start date");
+    // start = mex.extractMultiDate(mex.constants.START, res, start);
 
-    let end = i18n.t("Unknown end date");
-    end = mex.extractMultiDate(mex.constants.END, res, end);
+    // let end = i18n.t("Unknown end date");
+    // end = mex.extractMultiDate(mex.constants.END, res, end);
 
     function resourceTypeMacro() {
-        if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${i18n.t('ACTIVITY')}</div></div>`
-        }
-        return "";
+        return `<span class="tag resource-type"><img class="ui image icon--text"
+             src="/static/icons/activity-record.svg"
+             role="presentation"/>&nbsp;${i18n.t('Activity')}</span>`
     }
 
-    function titleMacro(title, id) {
-        if (!title) {
-            return ""
-        }
+    let mex_id = res["custom_fields"]["mex:identifier"]
 
-        return `
-        <div class="title">
-                 <span>
-                    <a href="/records/${id}" target="_blank">${title}</a>
-                </span>
-        </div>`;
+    let frag = `<div class="card activity-card">`
+    if (include_resource_type) {
+        frag += `<div class="card-header"><div class="tags">
+                ${resourceTypeMacro()}
+                </div></div>`
+    }
+    frag += `<h3 class="title">
+        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+    </h3>`
+
+    if (alt) {
+        frag += `<p class="subtitle">${alt}</strong>`
     }
 
+    if (desc) {
+        frag += `<p class="description">
+            ${desc.slice(0,600)}
+            ${desc.length > 600 ? "..." : ""}
+        </p>`;
+    }
 
-    let frag = `
-        <div class="activity-card card-shadow">
-            ${resourceTypeMacro()}
-            ${titleMacro(title, res.id)}
+    function date_ui(date) {
+        let date_ui = ""
+        if (date) {
+            if (Array.isArray(date)) {
+                date = date[0]
+            }
+            date = date.date
+            date_ui = mex.fullDateFormatter(date);
+            if (date_ui === "Invalid Date") {
+                date_ui = date;
+            }
+        }
+        return date_ui
+    }
 
-            <div class="subtitle ${alt ? "" : "hide"}">
-                <strong>${alt}</strong>
-            </div>
+    let start = res["custom_fields"]["mex:start"];
+    let start_ui = date_ui(start)
+    let end = res["custom_fields"]["mex:end"];
+    let end_ui = date_ui(end)
 
-            <div class="description ${desc ? "" : "hide"}">
-                ${desc}
-            </div>
+    if (start || end) {
+    frag += `<p class="date muted">
+        ${start_ui ?? ''}
+        ${start && end ? i18n.t('to') : ''}
+        ${end_ui ?? ''}
+    </p>`;
+    }
 
-            <div class="description ${start || end ? "" : "hide"}">
-                <span class="${start ? "" : "hide"}">
-                    ${start}
-                </span>
-
-                <span class="${start && end ? "" : "hide"}">
-                    ${i18n.t("to")}
-                </span>
-
-                <span class="${end ? "" : "hide"}">
-                    ${end}
-                </span>
-            </div>
-        </div>
-    `;
+    frag += `</div>`
 
     return frag;
 }
 
 mex.renderers.bibliographicResourcesView = function(res, highlights, include_resource_type=false) {
+    let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
+    let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+
     let title = edges.util.escapeHtml(
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
@@ -4667,57 +4689,73 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         }
     }
 
-    let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
-    creators = creators.map((c) => edges.util.escapeHtml(c)).join(", ");
+    // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
 
-    let pubYear = edges.util.pathValue(
-        "custom_fields.mex:publicationYear.date",
-        res,
-        ""
-    );
+    function getCreatorsNames(field) {
+        let names = ""
+        for (let i = 0; i++; i < field.length) {
+            names += field[i].display_value[0].value;
+            console.log(names);
+            if (i != field.length - 1) {
+                names += ", ";
+            }
+        }
+        console.log("return: ", names)
+        return names;
+    }
+
+    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? [])
+
+    // let pubYear = edges.util.pathValue(
+    //     "custom_fields.mex:publicationYear.date",
+    //     res,
+    //     ""
+    // );
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type">${i18n.t('PUBLICATION')}</div></div>`
+            return `<div class="tag resource-type"><img class="ui image icon--text"
+                 src=/static/icons/bibliographicresource-record.svg
+                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div>`
         }
         return "";
     }
 
     function titleMacro(title, id) {
-        if (!title) {
-            return ""
-        }
 
+        const mex_id = res["custom_fields"]["mex:identifier"];
         return `
-        <div class="title">
-             <span>
-                <a href="/records/${id}" target="_blank">${title}</a>
-            </span>
-        </div>`;
+        <h3 class="title">
+            <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+        </h3>`;
     }
 
-    const frag = `<div class="card">
-            ${resourceTypeMacro()}
-            ${titleMacro(title, res.id)}
+    let pubYear = res["custom_fields"]["mex:issued"];
 
-            <div class="subtitle ${alt ? "" : "hide"}">
-                <strong>${alt}</strong>
-            </div>
+    let frag = `<div class="card">`;
 
-            <div class="description ${sub ? "" : "hide"}">
-                ${sub}
-            </div>
+    frag += `<div class="card-header"><div class="tags">
+    ${resourceTypeMacro()}
+    ${accessRestrictionFrag}
+    </div>
+    <span class="date muted">
+        ${creators ?? ''}
+        </span></div>
+    `
+    frag += `${titleMacro(title, res.id)}`;
 
-            <div class="tags ${creators || pubYear ? "" : "hide"}">
-                <span class="tag ${creators ? "" : "hide"}">
-                    ${creators}
-                </span>
+    if (alt) {
+        frag += `<p class="subtitle">${alt}</strong>`;
+    }
 
-                <span class="tag ${pubYear ? "" : "hide"}">
-                    ${pubYear}
-                </span>
-            </div>
-        </div>`;
+    if (desc) {
+        frag += `<p class="description">${sub}</p>`;
+    }
+    if (pubYear) {
+        frag += `<p class="description"><span class="label muted" style="font-weight: bold">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
+    }
+
+    frag += `</div>`;
     return frag;
 }
 
@@ -5361,12 +5399,12 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
         }
-
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card">
                 <div class="tags"><div class="tag resource-type">${i18n.t('DATA SOURCE OR DATASET')}</div></div>
                 <h4 class="title">
-                    <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
+                    <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
                 </div>
 
                 <div class="subtitle ${alt ? "" : "hide"}">
@@ -5436,28 +5474,40 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         // let desc = edges.util.escapeHtml(
         //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
-
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card">
-                <div class="tag">${i18n.t('VARIABLE')}</div>
+                <div class="card-header">
+                    <span class="tag resource-type">
+                        <img class="ui image icon--text"
+                            src="/static/icons/variable-record.svg"
+                            role="presentation"/>
+                        &nbsp;${i18n.t('Variable')}
+                    </span>
+                </div>
                 <h4 class="title">
-                    <a href="/records/${res.id}" target="_blank">${label ? label : res.id}</a>
-                </div>
+                    <a href="/records/mex/${mex_id}" target="_blank">${label ? label : mex_id}</a>
+                </h4>`
 
-                <div class="subtitle ${resourceFrag ? "" : "hide"}">
-                    ${resourceFrag}
-                </div>
+        if (resourceFrag) {
+            frag += `<div class="subtitle">
+                        ${resourceFrag}
+                    </div>`
+        }
 
-                <div class="description ${groupFrag ? "" : "hide"}">
-                    ${groupFrag}
-                </div>
+        if (groupFrag) {
+            frag += `<div class="description">
+                        ${groupFrag}
+                    </div>`
+        }
 
-                <div class="tags ${dataType ? "" : "hide"}">
-                    ${dataType}
-                </div>
-            </div>
-        `;
+        if (dataType) {
+            frag += `<div class="tags ${dataType ? "" : " hide"}">
+                ${dataType}
+            </div>`
+        }
 
+        frag += `</div>`
         return frag;
     }
 };

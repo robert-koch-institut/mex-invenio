@@ -51,7 +51,7 @@ edges.instances.resources.init = function() {
                     {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
                 ]
             }),
-            mex.defaultPager(),
+            mex.pager({showRecordCount: false}),
 
             // The results
             mex.resourceDisplay(),
