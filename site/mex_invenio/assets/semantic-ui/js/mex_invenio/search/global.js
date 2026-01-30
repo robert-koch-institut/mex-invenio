@@ -28,7 +28,7 @@ edges.instances.global.init = function () {
                 targets: {
                     "/search/resources": {"label": i18n.t("Data Sources & Datasets"), "icon": "resource"},
                     "/search/variables": {"label": i18n.t("Variables"), "icon": "variable"},
-                    "/search/activities": {"label": i18n.t("Activities"), "icon": "activity"},
+                    "/search/activities": {"label": i18n.t("Projects"), "icon": "activity"},
                     "/search/bibliographic-resources": {"label": i18n.t("Publications"), "icon": "bibliographicresource"}
                 }
             }),

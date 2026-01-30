@@ -4206,7 +4206,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card"><div class="card-header" style="width: 100%; margin-bottom: 2rem;">`
+        let frag = `<div class="card"><div class="card-header">`
 
         frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
@@ -4235,7 +4235,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 `
             }
             frag += `<h3 class="title" style="margin-top: 0;">
-                <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+                <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
             </h3>`
 
             if (alt) {
@@ -4588,22 +4588,22 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     // end = mex.extractMultiDate(mex.constants.END, res, end);
 
     function resourceTypeMacro() {
-        if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type"><img class="ui image icon--text"
-                 src=/static/icons/activity-record.svg"
-                 role="presentation"/>${i18n.t('Activity')}</div></div>`
-        }
-        return "";
+        return `<span class="tag resource-type"><img class="ui image icon--text"
+             src="/static/icons/activity-record.svg"
+             role="presentation"/>&nbsp;${i18n.t('Activity')}</span>`
     }
 
     let mex_id = res["custom_fields"]["mex:identifier"]
 
-    let frag = `
-        <div class="card activity-card">
-            ${resourceTypeMacro()}
-            <h3 class="title">
-                <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-            </h3>`
+    let frag = `<div class="card activity-card">`
+    if (include_resource_type) {
+        frag += `<div class="card-header"><div class="tags">
+                ${resourceTypeMacro()}
+                </div></div>`
+    }
+    frag += `<h3 class="title">
+        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+    </h3>`
 
     if (alt) {
         frag += `<p class="subtitle">${alt}</strong>`
@@ -4624,7 +4624,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
             }
             date = date.date
             date_ui = mex.fullDateFormatter(date);
-            if (date_ui == "Invalid Date") {
+            if (date_ui === "Invalid Date") {
                 date_ui = date;
             }
         }
@@ -4635,8 +4635,6 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     let start_ui = date_ui(start)
     let end = res["custom_fields"]["mex:end"];
     let end_ui = date_ui(end)
-
-    let date = '';
 
     if (start || end) {
     frag += `<p class="date muted">
@@ -4652,6 +4650,9 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
 }
 
 mex.renderers.bibliographicResourcesView = function(res, highlights, include_resource_type=false) {
+    let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
+    let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+
     let title = edges.util.escapeHtml(
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
@@ -4713,20 +4714,19 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     function resourceTypeMacro() {
         if (include_resource_type) {
-            return `<div class="tags"><div class="tag resource-type"><img class="ui image icon--text"
+            return `<div class="tag resource-type"><img class="ui image icon--text"
                  src=/static/icons/bibliographicresource-record.svg
-                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div></div>`
+                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div>`
         }
         return "";
     }
 
     function titleMacro(title, id) {
 
-        const mex_id = res["custom_fields"]["mex:identifier"]
-;
+        const mex_id = res["custom_fields"]["mex:identifier"];
         return `
         <h3 class="title">
-            <a href="/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>;
+            <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
         </h3>`;
     }
 
@@ -4734,14 +4734,14 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     let frag = `<div class="card">`;
 
-    if (creators || include_resource_type){
-        frag += `<div class="card-header">
-        ${resourceTypeMacro()}
-        <span class="date muted">
-            ${creators ?? ''}
-            </span></div>
-        `
-    }
+    frag += `<div class="card-header"><div class="tags">
+    ${resourceTypeMacro()}
+    ${accessRestrictionFrag}
+    </div>
+    <span class="date muted">
+        ${creators ?? ''}
+        </span></div>
+    `
     frag += `${titleMacro(title, res.id)}`;
 
     if (alt) {
@@ -5399,12 +5399,12 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
         }
-
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card">
                 <div class="tags"><div class="tag resource-type">${i18n.t('DATA SOURCE OR DATASET')}</div></div>
                 <h4 class="title">
-                    <a href="/records/${res.id}" target="_blank">${title ? title : res.id}</a>
+                    <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
                 </div>
 
                 <div class="subtitle ${alt ? "" : "hide"}">
@@ -5474,28 +5474,40 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         // let desc = edges.util.escapeHtml(
         //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
-
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card">
-                <div class="tag">${i18n.t('VARIABLE')}</div>
+                <div class="card-header">
+                    <span class="tag resource-type">
+                        <img class="ui image icon--text"
+                            src="/static/icons/variable-record.svg"
+                            role="presentation"/>
+                        &nbsp;${i18n.t('Variable')}
+                    </span>
+                </div>
                 <h4 class="title">
-                    <a href="/records/${res.id}" target="_blank">${label ? label : res.id}</a>
-                </div>
+                    <a href="/records/mex/${mex_id}" target="_blank">${label ? label : mex_id}</a>
+                </h4>`
 
-                <div class="subtitle ${resourceFrag ? "" : "hide"}">
-                    ${resourceFrag}
-                </div>
+        if (resourceFrag) {
+            frag += `<div class="subtitle">
+                        ${resourceFrag}
+                    </div>`
+        }
 
-                <div class="description ${groupFrag ? "" : "hide"}">
-                    ${groupFrag}
-                </div>
+        if (groupFrag) {
+            frag += `<div class="description">
+                        ${groupFrag}
+                    </div>`
+        }
 
-                <div class="tags ${dataType ? "" : "hide"}">
-                    ${dataType}
-                </div>
-            </div>
-        `;
+        if (dataType) {
+            frag += `<div class="tags ${dataType ? "" : " hide"}">
+                ${dataType}
+            </div>`
+        }
 
+        frag += `</div>`
         return frag;
     }
 };
