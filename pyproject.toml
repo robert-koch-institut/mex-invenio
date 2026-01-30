@@ -73,7 +73,7 @@ select = ["ALL"]
 "site/mex_invenio/search/*" = ["ANN001", "ANN201", "ANN202", "ARG002", "D101", "E501", "EM102", "ERA001"]
 "site/mex_invenio/services/*" = [ "ARG002", "C901", "D101", "D102", "D107", "DTZ003", "E501", "ERA001", "N806", "PLC0415", "PLR0912", "TD"]
 "site/mex_invenio/*.py" = ["ANN001", "ANN002", "ANN003", "ANN201", "ANN202", "D103", "ERA001", "G004", "SLF001", "TRY401"]
-"tests/*" = ["ANN001", "ANN201", "ANN202", "ARG001", "C901", "DTZ005", "ERA001", "N803", "PLR0913", "PTH", "RUF015", "S314"]
+"tests/*" = ["ANN001", "ANN201", "ANN202", "ARG001", "ARG002", "C901", "DTZ005", "ERA001", "N803", "PLR0913", "PTH", "RUF015", "S314"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["mex_invenio", "tests"]
