@@ -59,6 +59,7 @@ button {
 }
 
 .js-mex-resources-results_select {
+    height: 25px;
     &[data-state="selected"] {
         background-image: url('../images/add-resource-button-selected.svg');
         &:hover {
