@@ -19,18 +19,19 @@ def test_custom_fields_configured(app_config):
 
     for cf in app_config["RDM_CUSTOM_FIELDS_UI"][0]["fields"]:
         # Check that all UI config fields have field and props keys
-        assert 'field' in cf
-        assert cf['field'].startswith("mex:")
-        assert 'props' in cf
-        assert isinstance(cf['props'], dict)
-        assert 'type' in cf['props']
-        #assert 'description' in cf['props']
+        assert "field" in cf
+        assert cf["field"].startswith("mex:")
+        assert "props" in cf
+        assert isinstance(cf["props"], dict)
+        assert "type" in cf["props"]
+        # assert 'description' in cf['props']
 
     # Check that all mex custom fields are in the UI config or are the two exceptions
     for cf in app_config["RDM_CUSTOM_FIELDS"]:
         if cf.name.startswith("mex:"):
             assert cf.name in [
-                field["field"] for field in app_config["RDM_CUSTOM_FIELDS_UI"][0]["fields"]
+                field["field"]
+                for field in app_config["RDM_CUSTOM_FIELDS_UI"][0]["fields"]
             ] + ["mex:provenance", "mex:hasPurpose"]
 
 
@@ -68,7 +69,9 @@ def test_import_org_unit(
 class TestLinkCF:
     """Tests for the LinkCF custom field type."""
 
-    def test_link_cf_valid(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_link_cf_valid(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test LinkCF accepts valid link data with url, title, and language."""
         data = {
             **org_unit_data,
@@ -87,7 +90,9 @@ class TestLinkCF:
         assert record["custom_fields"]["mex:website"][0]["title"] == "Example"
         assert record["custom_fields"]["mex:website"][0]["language"] == "en"
 
-    def test_link_cf_url_only(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_link_cf_url_only(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test LinkCF accepts link with only required url field."""
         data = {
             **org_unit_data,
@@ -102,7 +107,9 @@ class TestLinkCF:
 
         assert record["custom_fields"]["mex:website"][0]["url"] == "https://example.com"
 
-    def test_link_cf_valid_languages(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_link_cf_valid_languages(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test LinkCF accepts valid language codes (en, de)."""
         data = {
             **org_unit_data,
@@ -122,7 +129,9 @@ class TestLinkCF:
         assert "de" in languages
         assert "en" in languages
 
-    def test_link_cf_multiple_links(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_link_cf_multiple_links(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test LinkCF accepts multiple links."""
         data = {
             **org_unit_data,
@@ -145,7 +154,9 @@ class TestLinkCF:
 class TestMultiLanguageTextCF:
     """Tests for the MultiLanguageTextCF custom field type."""
 
-    def test_multilang_text_valid(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_multilang_text_valid(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test MultiLanguageTextCF accepts valid text with language."""
         data = {
             **org_unit_data,
@@ -161,7 +172,9 @@ class TestMultiLanguageTextCF:
         assert record["custom_fields"]["mex:name"][0]["value"] == "Test Organization"
         assert record["custom_fields"]["mex:name"][0]["language"] == "en"
 
-    def test_multilang_text_multiple_languages(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_multilang_text_multiple_languages(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test MultiLanguageTextCF accepts same text in multiple languages."""
         data = {
             **org_unit_data,
@@ -186,7 +199,9 @@ class TestMultiLanguageTextCF:
 class TestFixedEDTFDateStringCF:
     """Tests for the FixedEDTFDateStringCF custom field type."""
 
-    def test_edtf_date_full(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_edtf_date_full(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test FixedEDTFDateStringCF accepts full date format YYYY-MM-DD."""
         data = {
             **resource_data,
@@ -201,7 +216,9 @@ class TestFixedEDTFDateStringCF:
 
         assert record["custom_fields"]["mex:created"] == "2024-01-15"
 
-    def test_edtf_date_year_month(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_edtf_date_year_month(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test FixedEDTFDateStringCF accepts year-month format YYYY-MM."""
         data = {
             **resource_data,
@@ -216,7 +233,9 @@ class TestFixedEDTFDateStringCF:
 
         assert record["custom_fields"]["mex:created"] == "2024-03"
 
-    def test_edtf_date_year_only(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_edtf_date_year_only(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test FixedEDTFDateStringCF accepts year-only format YYYY."""
         data = {
             **resource_data,
@@ -231,7 +250,9 @@ class TestFixedEDTFDateStringCF:
 
         assert record["custom_fields"]["mex:created"] == "2024"
 
-    def test_edtf_date_multiple(self, db, location, resource_type_v, contributors_role_v, import_file):
+    def test_edtf_date_multiple(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
         """Test FixedEDTFDateStringCF with multiple=True accepts list of dates."""
         data = {
             **resource_data,
@@ -247,4 +268,3 @@ class TestFixedEDTFDateStringCF:
         assert len(record["custom_fields"]["mex:start"]) == 2
         assert "2020-01-01" in record["custom_fields"]["mex:start"]
         assert "2021-06-15" in record["custom_fields"]["mex:start"]
-
