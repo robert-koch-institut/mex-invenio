@@ -1704,32 +1704,44 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : i18n.t("No Variable Groups");
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : "";
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
                     vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-            let vFrag = `${vCount} ${i18n.t("Variables")}`
-            let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
 
-            recordsFrag += `
-                <div class="selected-list">
-                    <button class="img-button">
-                      <img
-                        data-id="${id}"
-                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt="Slide right" />
-                    </button>
-                    <div>
-                        <div class="selected-list-item">
-                            <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-                            <p class="variables-count muted" style="margin-bottom: 0">
-                                (${frag})
-                            </p>
-                        </div>
-                    </div>
-                </div>`;
+            let frag = ""
+
+            if(vCount > 0 ) {
+                let vFrag = `${vCount} ${i18n.t("Variables")}`
+                frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+            }
+
+            const fragHtml = frag
+  ? `<p class="variables-count muted" style="margin-bottom: 0">
+        (${frag})
+     </p>`
+  : "";
+
+recordsFrag += `
+  <div class="selected-list">
+    <button class="img-button">
+      <img
+        data-id="${id}"
+        class="${selectClass} controls close-icon"
+        src="/static/images/close.svg"
+        alt="Slide right" />
+    </button>
+    <div>
+      <div class="selected-list-item">
+        <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
+        ${fragHtml}
+      </div>
+    </div>
+  </div>`;
+
         }
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
@@ -1931,7 +1943,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
             let vgs = edges.util.pathValue(vgField, record, []);
 
-            let vgFrag = "No variable groups";
+            let vgFrag = "";
             let variableToggleClass = edges.util.jsClasses(
                 this.namespace,
                 "variable-toggle",
@@ -4468,7 +4480,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
         let vgs = edges.util.pathValue(vgField, record, []);
 
-        let vgFrag = "No variable groups";
+        let vgFrag = "";
         let variableToggleClass = edges.util.jsClasses(
             this.namespace,
             "variable-toggle",
