@@ -1753,7 +1753,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
-                        ${i18n.t("Explore Variables for Chosen Datasets")}
+                         ${i18n.t("Explore the variables related to this data sources")}
                     </a>
         `;
         }
