@@ -185,7 +185,40 @@ h5.tiny {
       }
   }
 }
-
+.search-cards {
+  .card {
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: auto;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card:hover {
+    box-shadow:
+        1px 1px 2px 0px rgba(249, 255, 255, 0.15) inset,
+          -1px -1px 2px 0px rgba(199, 217, 217, 0.35) inset,
+        -2px  2px 6px 0px rgba(199, 217, 217, 0.35),
+          2px -2px 6px 0px rgba(199, 217, 217, 0.25),
+          -1px -1px 3px 0px rgba(249, 255, 255, 0.70),
+        2px  2px 4px 0px rgba(199, 217, 217, 0.90);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .card-resource {
+    background-image: url('../images/search_bg/resources.svg');
+  }
+  .card-activity {
+    background-image: url('../images/search_bg/projects.svg');
+  }
+  .card-variable {
+    background-image: url('../images/search_bg/variables.svg');
+  }
+  .card-general {
+    background-image: url('../images/search_bg/general.svg');
+  }
+  .card-bibliographicresource {
+    background-image: url('../images/search_bg/publications.svg');
+  }
+}
 .tags {
   display: flex;
   align-items: flex-start;

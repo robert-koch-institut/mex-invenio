@@ -1,0 +1,16 @@
+<div class="item p-0 search-bar">
+    <div id="header-search-bar">
+        <div class="ui fluid search right-angle-search-content">
+            <form action="{{ url_for('invenio_search_ui.search') }}" class="ui form" role="search">
+                <div class="ui input">
+                    <input type="text" name="q" class="form-control" aria-label="{{ _('Search all records') }}"
+                           placeholder="{{ _('Search all records') }}">
+                    <button type="submit" class="ui icon search button"
+                            aria-label="{{ _('Search all records') }}">
+                        <i class="search icon"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

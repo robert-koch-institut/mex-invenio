@@ -10,19 +10,6 @@ under the terms of the MIT License; see LICENSE file for more details.
 
 <div>
     <header class="header">
-        {%- block user_impersonation %}
-            {%- if '_impersonator_id' in session %}
-                <div class="ui negative flashed top attached manage m-0 big message">
-                    <div class="ui container">
-                        <div class="header">
-                            <i class="ui spy big icon"></i><strong>Impersonated session</strong>
-                        </div>
-                        You must logout after you finish with you inquiry!
-                    </div>
-                </div>
-            {%- endif %}
-        {%- endblock user_impersonation %}
-
         <div class="outer-navbar">
             {%- block navbar %}
                 <div class="navbar-top">
