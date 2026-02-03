@@ -5091,7 +5091,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                i18n.t("Unknown")
+                ""
             )
         );
 
@@ -5506,7 +5506,15 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                i18n.t("Unknown data type")
+                ""
+            )
+        );
+
+        let codingSystem = edges.util.escapeHtml(
+            edges.util.pathValue(
+                "custom_fields.mex:codingSystem",
+                res,
+                ""
             )
         );
 
@@ -5532,6 +5540,17 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
                 <h3 class="title">
                     <a href="/search/variables?var=${mex_id}" target="_blank">${label ? label : mex_id}</a>
                 </h3>`
+
+        if (codingSystem) {
+            frag += `<div class="description">
+                        <span class="label">
+                            ${i18n.t('Coding system')}:
+                        </span>
+                        <span>
+                            ${codingSystem}
+                        </span>
+                    </div>`
+        }
 
         if (groupFrag) {
             frag += `<div class="description">
