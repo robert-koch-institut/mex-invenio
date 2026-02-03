@@ -4188,8 +4188,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-
-
         let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
@@ -4243,10 +4241,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             let mex_id = res["custom_fields"]["mex:identifier"]
             if (created_ui) {
                 frag += `
-                    <p class="date muted" style="margin-bottom: 0;">${created_ui}</p>
+                    <p class="date muted">${created_ui}</p>
                 `
             }
-            frag += `<h3 class="title" style="margin-top: 0;">
+            frag += `<h3 class="title">
                 <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
             </h3>`
 
@@ -4648,8 +4646,17 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     let end = res["custom_fields"]["mex:end"];
     let end_ui = date_ui(end)
 
+    let duration_label = "";
+    if (start && end) {
+        duration_label = i18n.t("Project's duration");
+    } else if (start) {
+        duration_label = i18n.t("Project's start");
+    } else if (end) {
+        duration_label = i18n.t("Project's end");
+    }
+
     if (start || end) {
-    frag += `<p class="date muted">
+    frag += `<p class="date muted"><span class="label">${duration_label}: </span>
         ${start_ui ?? ''}
         ${start && end ? i18n.t('to') : ''}
         ${end_ui ?? ''}
@@ -4728,7 +4735,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         if (include_resource_type) {
             return `<div class="tag resource-type"><img class="ui image icon--text"
                  src=/static/icons/bibliographicresource-record.svg
-                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div>`
+                 role="presentation"/>&nbsp;${i18n.t('Publication')}</div>`
         }
         return "";
     }
@@ -4764,7 +4771,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         frag += `<p class="description">${sub}</p>`;
     }
     if (pubYear) {
-        frag += `<p class="description"><span class="label muted" style="font-weight: bold">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
+        frag += `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
     }
 
     frag += `</div>`;
@@ -5354,6 +5361,9 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderResource(res) {
+        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
+        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+
         let title = edges.util.escapeHtml(
             mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
         );
@@ -5391,48 +5401,72 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             }
         }
 
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
-        created = mex.fullDateFormatter(created);
+        // let created = edges.util.escapeHtml(
+        //     edges.util.pathValue("created", res, "")
+        // );
+        // created = mex.fullDateFormatter(created);
+        let created = res["custom_fields"]["mex:created"]
         created = `<span class="tag">${created}</span>`;
+        let created_ui = "";
+        if (created && created.date) {
+            created_ui = mex.fullDateFormatter(created.date);
+            if (created_ui === "Invalid Date") {
+                created_ui = created.date;
+            }
+        }
 
         let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
-        keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-        if (keywords !== "") {
-            keywords = `<span class="tag">${keywords}</span>`;
-        }
 
-        let selectState = "unselected";
-
-        if (this.selector && this.selector.isSelected(res.id)) {
-            selectState = "selected";
-        }
         let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card">
-                <div class="tags"><div class="tag resource-type">${i18n.t('DATA SOURCE OR DATASET')}</div></div>
-                <h4 class="title">
+                <div class="card-header">
+                    <div class="tags">
+                        <div class="tag resource-type">
+                            <img class="ui image icon--text" src="/static/icons/resource-record.svg"
+                                role="presentation"/>
+                            &nbsp;${i18n.t('Data source or dataset')}
+                        </div>
+                        ${accessRestrictionFrag}
+                    </div>`
+
+        if (created_ui) {
+            frag += `
+                    <p class="date muted">${created_ui}</p>
+                `
+        }
+
+        frag += `
+                </div>
+                <h3 class="title">
                     <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-                </div>
+                </h3>`
+        if (alt) {
+            frag += `<p class="subtitle">${alt}</strong>`
+        }
 
-                <div class="subtitle ${alt ? "" : "hide"}">
-                    <strong>${alt}</strong>
-                </div>
+        if (desc) {
+            frag += `<p class="description">
+                    ${desc.slice(0,600)}
+                    ${desc.length > 600 ? "..." : ""}
+                </p>`
+        }
 
-                <div class="description ${desc ? "" : "hide"}">
-                    ${desc}
-                </div>
+        if (keywords.length > 0) {
+            frag += `<div class="tags">`
+            for (let key of keywords)
+            {
+                frag += `
+                        <span class="tag">${key}</span>
+                    `
+            }
+            frag += `</div>`
+        }
 
-                <div class="tags ${keywords ? "" : "hide"}">
-                    ${keywords}
-                    ${created}
-                </div>
-            </div>
-        `;
+        frag += `</div>`;
 
         return frag;
     }
@@ -5446,8 +5480,9 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderVariable(res) {
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let label = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
+            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
 
         let langPrefix = mex.state.lang;
@@ -5458,65 +5493,50 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             []
         );
 
-        let resourceFrag = "";
-        if (resources.length > 1) {
-            resourceFrag =
-                "<ul><li>" +
-                resources.map((r) => edges.util.escapeHtml(r)).join("</li><li>") +
-                "</li></ul>";
-        }
-
         let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
         let groupFrag = "";
         if (groups.length > 1) {
-            groupFrag =
-                "<ul><li>" +
-                groups.map((g) => edges.util.escapeHtml(g)).join("</li><li>") +
-                "</li></ul>";
+            groupFrag = `<div class="groups-list"><span class="label">{{ _("Belongs to") }}:
+                <span>` +
+                groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
+                `</span>`;
         }
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                i18n.t("Unknown")
+                i18n.t("Unknown data type")
             )
         );
 
         // let desc = edges.util.escapeHtml(
         //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
-        let mex_id = res["custom_fields"]["mex:identifier"]
+
         let frag = `
             <div class="card">
                 <div class="card-header">
-                    <span class="tag resource-type">
-                        <img class="ui image icon--text"
-                            src="/static/icons/variable-record.svg"
-                            role="presentation"/>
-                        &nbsp;${i18n.t('Variable')}
-                    </span>
-                </div>
-                <h4 class="title">
-                    <a href="/records/mex/${mex_id}" target="_blank">${label ? label : mex_id}</a>
-                </h4>`
-
-        if (resourceFrag) {
-            frag += `<div class="subtitle">
-                        ${resourceFrag}
-                    </div>`
+                    <div class="tags">
+                        <span class="tag resource-type">
+                            <img class="ui image icon--text"
+                                src="/static/icons/variable-record.svg"
+                                role="presentation"/>
+                            &nbsp;${i18n.t('Variable')}
+                        </span>`
+        if (dataType) {
+            frag += `<span class="tag">${dataType}</span>`;
         }
+
+        frag += `</div></div>
+                <h3 class="title">
+                    <a href="/search/variables?var=${mex_id}" target="_blank">${label ? label : mex_id}</a>
+                </h3>`
 
         if (groupFrag) {
             frag += `<div class="description">
                         ${groupFrag}
                     </div>`
-        }
-
-        if (dataType) {
-            frag += `<div class="tags ${dataType ? "" : " hide"}">
-                ${dataType}
-            </div>`
         }
 
         frag += `</div>`

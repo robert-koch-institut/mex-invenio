@@ -13,6 +13,9 @@ body {
     color: @mutedTextColor;
     font-weight: 400;
 }
+.label {
+  font-weight: bold;
+}
 
 h5.tiny {
   margin: 2rem 0 1.5rem 0;
@@ -106,6 +109,7 @@ h5.tiny {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 1rem;
     .date {
       font-size: 1.1rem;
       align-self: center;
@@ -113,6 +117,13 @@ h5.tiny {
     &:has(:only-child) {
       align-self: flex-end;
     }
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+  p:not(:last-child) {
+    margin-bottom: 0;
   }
 
   h4:has(a) {
