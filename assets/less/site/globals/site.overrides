@@ -1,11 +1,10 @@
 html {
     font-size: 100%;
     font-family: "FiraSans";
-    background : @lightBackground;
 }
 
 body {
-  background: transparent;
+  background : @lightBackground;
 }
 
 .muted {
@@ -253,7 +252,6 @@ h5.tiny {
     }
 }
 .outer-navbar {
-    background-color: rgba(224, 244, 252, 0.20);
     .navbar-top {
         background: @navbarGradient;
         display: flex;
@@ -284,7 +282,6 @@ h5.tiny {
       align-items: center;
       display: flex;
       height: 20em;
-      background-color: @frontendHeaderBackgroundColor;
     }
 }
 
