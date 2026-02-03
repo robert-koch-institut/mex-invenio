@@ -69,6 +69,13 @@ h5.tiny {
   background: @whiteBackground;
 }
 
+code {
+  background-color: #8caaf069;
+  color: #32008c;
+  padding: 3px;
+  font-family: FiraSans, sans-serif;
+}
+
 .detail {
     margin-top: 1rem;
     display: flex;
