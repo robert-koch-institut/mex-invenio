@@ -29,15 +29,6 @@
         }
 
     }
-    input, select, button {
-        height:100% !important;
-        border: 1px solid @borderColor;
-        font-size: 1rem;
-        line-height: 2;
-        padding: 0.5rem;
-        font-weight: normal;
-        border-radius: 0 !important;
-    }
     &:last-child {
         margin-bottom: 1rem;
     }

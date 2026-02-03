@@ -3842,13 +3842,13 @@ mex.renderers.Pager = class extends edges.Renderer {
                 "page-size",
                 this.component.id
             );
-            sizer = `<div class="ui form ${this.customClassForSizeSelector}">
-                <div class="inline fields">`
+            sizer = `<div class="fields ${this.customClassForSizeSelector}">`
             if (this.showRecordCount){
-                sizer += `<div class="field">${recordCount}${this.sizePrefix}</div>`
+                sizer += `<div class="field">${recordCount}</div>`
             }
 
             sizer += `<div class="field">
+                        <span>${this.sizePrefix}</span>
                         <select class="${sizeSelectClass}" name="${selectName}">
                             ${sizeopts}
                         </select>
@@ -4216,7 +4216,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card"><div class="card-header">`
+        let frag = `<div class="card results-card"><div class="card-header">`
 
         frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
@@ -4605,7 +4605,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
 
     let mex_id = res["custom_fields"]["mex:identifier"]
 
-    let frag = `<div class="card activity-card">`
+    let frag = `<div class="card results-card">`
     if (include_resource_type) {
         frag += `<div class="card-header"><div class="tags">
                 ${resourceTypeMacro()}
@@ -4751,7 +4751,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     let pubYear = res["custom_fields"]["mex:issued"];
 
-    let frag = `<div class="card">`;
+    let frag = `<div class="card results-card">`;
 
     frag += `<div class="card-header"><div class="tags">
     ${resourceTypeMacro()}
@@ -5422,7 +5422,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
-            <div class="card">
+            <div class="card results-card">
                 <div class="card-header">
                     <div class="tags">
                         <div class="tag resource-type">
@@ -5523,7 +5523,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         // );
 
         let frag = `
-            <div class="card">
+            <div class="card results-card">
                 <div class="card-header">
                     <div class="tags">
                         <span class="tag resource-type">

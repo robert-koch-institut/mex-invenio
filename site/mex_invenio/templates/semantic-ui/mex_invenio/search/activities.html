@@ -1,39 +1,26 @@
 {%- extends config.BASE_TEMPLATE %}
 
 {% block page_body %}
-<style>
-  .activity-card {
-    display: flex;
-    padding: 15px 10px 10px 10px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 15px;
-    align-self: stretch;
-    background: #fff;
-    margin: 10px 0px;
-  }
-</style>
-    <div id="search-page" class="ui container search_page">
-        <section class="banner">
-            <small>{{ _("Search our") }}</small>
-            <h1>{{_('Projects')}}</h1>
-        </section>
-        {% block root_section %}
-            <div id="root-container" class="panel-body">
-                <div id="edge-container"></div>
-            </div>
-        {% endblock %}
+<div id="search-page" class="ui container search_page">
+    <section class="banner">
+        <small>{{ _("Search our") }}</small>
+        <h1>{{_('Projects')}}</h1>
+    </section>
+    {% block root_section %}
+    <div id="root-container" class="panel-body">
+        <div id="edge-container"></div>
     </div>
+    {% endblock %}
+</div>
 
 {% endblock %}
 
 {% block javascript %}
-    {{ super() }}
-    <script>
-        window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
-    </script>
-    {{ webpack['search_activities.js'] }}
+{{ super() }}
+<script>
+    window.APP_CONFIG = {current_lang: "{{current_i18n.language}}"}
+</script>
+{{ webpack['search_activities.js'] }}
 
 <!--
     {% set static="/static/js" %}
@@ -64,7 +51,12 @@
 
 <script>
     window.mex = window.mex || {};
-    window.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    window.mex.VOCABULARY = {
+    {
+        config.get("PREF_LABELS", {}) | tojson | safe
+    }
+    }
+    ;
     window.mex.state = mex.state || {};
     window.mex.state.lang = "{{ current_i18n.language }}"
 </script>
