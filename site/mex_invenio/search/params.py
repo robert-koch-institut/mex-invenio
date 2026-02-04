@@ -211,8 +211,8 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                 msg = "Sorting by multiple fields is not permitted."
                 raise ValueError(msg)
             sort = sort[0]
-
-        field = sort.keys()[0]
+        
+        field = list(sort.keys())[0]
         if field not in SORT:
             raise ValueError(f"Sorting by field '{field}' is not permitted.")
 

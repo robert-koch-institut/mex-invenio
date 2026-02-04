@@ -125,7 +125,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:technicalAccessibility"),
     TextCF(name="mex:temporal"),
     TextCF(name="mex:theme", multiple=True, use_as_filter=True),
-    MultiLanguageTextCF(name="mex:title", multiple=True),
+    MultiLanguageTextCF(name="mex:title", multiple=True, value_as_filter=True),
     MultiLanguageTextCF(name="mex:titleOfBook", multiple=True),
     MultiLanguageTextCF(name="mex:titleOfSeries", multiple=True),
     TextCF(name="mex:unitInCharge", multiple=True),
