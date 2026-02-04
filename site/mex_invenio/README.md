@@ -21,6 +21,34 @@ through `docker-services-cli`.
 make test
 ```
 
+
+# Deployment
+
+Because of the extensive use of [custom fields](site/mex_invenio/custom_fields/custom_fields.py) and how they are
+used to build up [system fields](site/mex_invenio/fields/systemfields.py) with related data it is necessary to
+add database indices before indexing the records for the first time.
+
+```bash
+invenio mex setup-db
+```
+
+This will create two indices, there is an [Alembic migration](site/mex_invenio/alembic/a12c08876802_add_custom_fields_indices.py)
+for this as well, but the migration is not run automatically yet marked as applied. So running the command above is
+necessary for now.
+
+## Custom field mapping
+
+If the Opensearch indices are wiped and recreated, the custom field mappings need to be applied (as explained
+in [this documentation](https://inveniordm.docs.cern.ch/operate/customize/metadata/custom_fields/records/#initialize)).
+
+```bash
+invenio rdm-records custom-fields init
+```
+
+Note that this is run automatically on deployment and only applies if the indices are wiped on a running instance and
+therefore the custom field mappings need to be re-applied.
+
+
 # Translation Compilation Process
 
 The translation system combines Python (.po) files with JavaScript translations through a multi-step process.

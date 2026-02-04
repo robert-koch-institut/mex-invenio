@@ -30,6 +30,10 @@ h5.tiny {
   margin: 2rem 0 1.5rem 0;
 }
 
+h5.tiny {
+  margin: 2rem 0 1.5rem 0;
+}
+
 .ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
