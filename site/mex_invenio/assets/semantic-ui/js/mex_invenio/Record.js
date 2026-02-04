@@ -18,19 +18,19 @@ export const Record = ({ mexId, title }) => {
 
 
   const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    setCopyStatus("success");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus("success");
 
-    // reset message after 2 seconds
-    setTimeout(() => setCopyStatus("idle"), 2000);
-  } catch (err) {
-    console.error("Copy failed:", err);
-    setCopyStatus("error");
+      // reset message after 2 seconds
+      setTimeout(() => setCopyStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Copy failed:", err);
+      setCopyStatus("error");
 
-    setTimeout(() => setCopyStatus("idle"), 2000);
-  }
-};
+      setTimeout(() => setCopyStatus("idle"), 2000);
+    }
+  };
 
 
 
