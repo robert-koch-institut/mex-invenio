@@ -5521,7 +5521,6 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         // let desc = edges.util.escapeHtml(
         //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
-        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card results-card">
                 <div class="card-header">
