@@ -1,0 +1,42 @@
+{#
+Copyright (C) 2019-2020 CERN.
+Copyright (C) 2019-2020 Northwestern University.
+Copyright (C) 2021 New York University.
+
+Invenio App RDM is free software; you can redistribute it and/or modify it
+under the terms of the MIT License; see LICENSE file for more details.
+#}
+{% from "invenio_app_rdm/macros/records_list.html" import records_list %}
+{%- extends "invenio_theme/frontpage.html" %}
+
+{%- block page_header %}
+{%- include "invenio_app_rdm/header_frontpage.html" %}
+{%- endblock page_header %}
+
+{%- block page_body %}
+
+{%- block intro_section %}
+{% if show_intro_section %}
+{% include "invenio_app_rdm/intro_section.html" %}
+{% endif %}
+{%- endblock intro_section %}
+
+{%- block grid_section %}
+<div class="ui stackable grid container rel-mt-2" style="display: none;">
+
+  {% block main_column %}
+  <div class="eleven wide computer sixteen wide tablet column">
+
+    {% block main_column_content %}
+    <!--  Add feature records here  -->
+    {% endblock main_column_content %}
+
+  </div>
+  {% endblock main_column %}
+</div>
+{%- endblock grid_section %}
+
+{%- block bottom_section %}
+{%- endblock bottom_section %}
+
+{%- endblock page_body %}

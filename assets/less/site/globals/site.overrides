@@ -1,17 +1,33 @@
 html {
     font-size: 100%;
     font-family: "FiraSans";
-    background : @lightBackground;
 }
 
 body {
-  background: transparent;
+  background : @lightBackground;
 }
 
 .muted {
     flex-shrink: 0;
     color: @mutedTextColor;
     font-weight: 400;
+}
+.label {
+  font-weight: bold;
+}
+
+input, select, button {
+  height:100% !important;
+  border: 1px solid @borderColor;
+  font-size: 1rem;
+  line-height: 2;
+  padding: 0.5rem;
+  font-weight: normal;
+  border-radius: 0 !important;
+}
+
+h5.tiny {
+  margin: 2rem 0 1.5rem 0;
 }
 
 h5.tiny {
@@ -67,6 +83,13 @@ h5.tiny {
   background: @whiteBackground;
 }
 
+code {
+  background-color: #8caaf069;
+  color: #32008c;
+  padding: 3px;
+  font-family: FiraSans, sans-serif;
+}
+
 .detail {
     margin-top: 1rem;
     display: flex;
@@ -106,6 +129,7 @@ h5.tiny {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 1rem;
     .date {
       font-size: 1.1rem;
       align-self: center;
@@ -113,6 +137,13 @@ h5.tiny {
     &:has(:only-child) {
       align-self: flex-end;
     }
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+  p:not(:last-child) {
+    margin-bottom: 0;
   }
 
   h4:has(a) {
@@ -174,12 +205,46 @@ h5.tiny {
       }
   }
 }
-
+.search-cards {
+  .card {
+    background-repeat: no-repeat;
+    background-position: 100% 100%;
+    background-size: auto;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .card:hover {
+    box-shadow:
+        1px 1px 2px 0px rgba(249, 255, 255, 0.15) inset,
+          -1px -1px 2px 0px rgba(199, 217, 217, 0.35) inset,
+        -2px  2px 6px 0px rgba(199, 217, 217, 0.35),
+          2px -2px 6px 0px rgba(199, 217, 217, 0.25),
+          -1px -1px 3px 0px rgba(249, 255, 255, 0.70),
+        2px  2px 4px 0px rgba(199, 217, 217, 0.90);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .card-resource {
+    background-image: url('../images/search_bg/resources.svg');
+  }
+  .card-activity {
+    background-image: url('../images/search_bg/projects.svg');
+  }
+  .card-variable {
+    background-image: url('../images/search_bg/variables.svg');
+  }
+  .card-general {
+    background-image: url('../images/search_bg/general.svg');
+  }
+  .card-bibliographicresource {
+    background-image: url('../images/search_bg/publications.svg');
+  }
+}
 .tags {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
   flex-wrap: wrap;
+  max-width: 100%;
 
   .tag {
       overflow: hidden;
@@ -209,7 +274,6 @@ h5.tiny {
     }
 }
 .outer-navbar {
-    background-color: rgba(224, 244, 252, 0.20);
     .navbar-top {
         background: @navbarGradient;
         display: flex;
@@ -240,7 +304,6 @@ h5.tiny {
       align-items: center;
       display: flex;
       height: 20em;
-      background-color: @frontendHeaderBackgroundColor;
     }
 }
 
@@ -642,13 +705,15 @@ aside {
 
   .page-size-selector {
     display: flex;
-    justify-content: flex-end;
-    color: var(--layout-text-muted, @mutedTextColor);
-    font-family: "FiraSans";
+    justify-content: space-between;
     font-size: 1rem !important;
     font-style: normal;
     font-weight: 500;
     line-height: 1.5rem;
+    .id-tags {
+      margin: 0;
+    }
+
   }
 
   .cursor-pointer {
@@ -689,7 +754,7 @@ aside {
       cursor: pointer;
       flex-shrink: 0;
       width: 1.5rem;
-      height: 1.5rem;
+      height: 1.5rem !important;
     }
   }
 
@@ -704,25 +769,6 @@ aside {
     background: @whiteBackground;
     margin: 0.625rem 0; // 10 0
 
-  }
-
-  input,
-  select {
-    background: @whiteBackground;
-    padding: .67857143em 1em;
-    border: 1px solid #8caaf0;
-    border-radius: .28571429rem;
-    font-size: 1em;
-    line-height: 1.21428571em;
-    margin: 0;
-    outline: none;
-    font-family: "FiraSans";
-
-    &:focus,
-    &:focus-visible,
-    &:hover {
-      outline: 0.19rem solid @secondaryColor !important;
-    }
   }
 
   .img-button {
@@ -886,4 +932,16 @@ aside {
       font-size: 1rem;
     }
   }
+}
+
+.results-card {
+  display: flex;
+  padding: 15px 10px 10px 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 15px;
+  align-self: stretch;
+  background: #fff;
+  margin: 10px 0px;
 }

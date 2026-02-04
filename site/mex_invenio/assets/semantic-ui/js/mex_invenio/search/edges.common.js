@@ -1704,32 +1704,44 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : i18n.t("No Variable Groups");
+            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : "";
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
                     vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-            let vFrag = `${vCount} ${i18n.t("Variables")}`
-            let frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
 
-            recordsFrag += `
-                <div class="selected-list">
-                    <button class="img-button">
-                      <img
-                        data-id="${id}"
-                        class="${selectClass} controls close-icon" src="/static/images/close.svg" alt="Slide right" />
-                    </button>
-                    <div>
-                        <div class="selected-list-item">
-                            <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-                            <p class="variables-count muted" style="margin-bottom: 0">
-                                (${frag})
-                            </p>
-                        </div>
-                    </div>
-                </div>`;
+            let frag = ""
+
+            if(vCount > 0 ) {
+                let vFrag = `${vCount} ${i18n.t("Variables")}`
+                frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+            }
+
+            const fragHtml = frag
+  ? `<p class="variables-count muted" style="margin-bottom: 0">
+        (${frag})
+     </p>`
+  : "";
+
+recordsFrag += `
+  <div class="selected-list">
+    <button class="img-button">
+      <img
+        data-id="${id}"
+        class="${selectClass} controls close-icon"
+        src="/static/images/close.svg"
+        alt="Slide right" />
+    </button>
+    <div>
+      <div class="selected-list-item">
+        <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
+        ${fragHtml}
+      </div>
+    </div>
+  </div>`;
+
         }
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
@@ -1753,7 +1765,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
-                        ${i18n.t("Explore Variables for Chosen Datasets")}
+                         ${i18n.t("Explore the variables related to this data sources")}
                     </a>
         `;
         }
@@ -1931,7 +1943,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
             let vgs = edges.util.pathValue(vgField, record, []);
 
-            let vgFrag = "No variable groups";
+            let vgFrag = "";
             let variableToggleClass = edges.util.jsClasses(
                 this.namespace,
                 "variable-toggle",
@@ -3830,13 +3842,13 @@ mex.renderers.Pager = class extends edges.Renderer {
                 "page-size",
                 this.component.id
             );
-            sizer = `<div class="ui form ${this.customClassForSizeSelector}">
-                <div class="inline fields">`
+            sizer = `<div class="fields ${this.customClassForSizeSelector}">`
             if (this.showRecordCount){
-                sizer += `<div class="field">${recordCount}${this.sizePrefix}</div>`
+                sizer += `<div class="field">${recordCount}</div>`
             }
 
             sizer += `<div class="field">
+                        <span>${this.sizePrefix}</span>
                         <select class="${sizeSelectClass}" name="${selectName}">
                             ${sizeopts}
                         </select>
@@ -4176,8 +4188,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-
-
         let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
@@ -4206,7 +4216,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card"><div class="card-header">`
+        let frag = `<div class="card results-card"><div class="card-header">`
 
         frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
@@ -4231,10 +4241,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             let mex_id = res["custom_fields"]["mex:identifier"]
             if (created_ui) {
                 frag += `
-                    <p class="date muted" style="margin-bottom: 0;">${created_ui}</p>
+                    <p class="date muted">${created_ui}</p>
                 `
             }
-            frag += `<h3 class="title" style="margin-top: 0;">
+            frag += `<h3 class="title">
                 <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
             </h3>`
 
@@ -4468,7 +4478,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
         let vgs = edges.util.pathValue(vgField, record, []);
 
-        let vgFrag = "No variable groups";
+        let vgFrag = "";
         let variableToggleClass = edges.util.jsClasses(
             this.namespace,
             "variable-toggle",
@@ -4595,7 +4605,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
 
     let mex_id = res["custom_fields"]["mex:identifier"]
 
-    let frag = `<div class="card activity-card">`
+    let frag = `<div class="card results-card">`
     if (include_resource_type) {
         frag += `<div class="card-header"><div class="tags">
                 ${resourceTypeMacro()}
@@ -4636,8 +4646,17 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     let end = res["custom_fields"]["mex:end"];
     let end_ui = date_ui(end)
 
+    let duration_label = "";
+    if (start && end) {
+        duration_label = i18n.t("Project's duration");
+    } else if (start) {
+        duration_label = i18n.t("Project's start");
+    } else if (end) {
+        duration_label = i18n.t("Project's end");
+    }
+
     if (start || end) {
-    frag += `<p class="date muted">
+    frag += `<p class="date muted"><span class="label">${duration_label}: </span>
         ${start_ui ?? ''}
         ${start && end ? i18n.t('to') : ''}
         ${end_ui ?? ''}
@@ -4716,7 +4735,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         if (include_resource_type) {
             return `<div class="tag resource-type"><img class="ui image icon--text"
                  src=/static/icons/bibliographicresource-record.svg
-                 role="presentation" style="margin-right: .5rem;"/>&nbsp;${i18n.t('Publication')}</div>`
+                 role="presentation"/>&nbsp;${i18n.t('Publication')}</div>`
         }
         return "";
     }
@@ -4732,7 +4751,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     let pubYear = res["custom_fields"]["mex:issued"];
 
-    let frag = `<div class="card">`;
+    let frag = `<div class="card results-card">`;
 
     frag += `<div class="card-header"><div class="tags">
     ${resourceTypeMacro()}
@@ -4752,7 +4771,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         frag += `<p class="description">${sub}</p>`;
     }
     if (pubYear) {
-        frag += `<p class="description"><span class="label muted" style="font-weight: bold">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
+        frag += `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
     }
 
     frag += `</div>`;
@@ -5072,7 +5091,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                i18n.t("Unknown")
+                ""
             )
         );
 
@@ -5342,6 +5361,9 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderResource(res) {
+        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
+        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+
         let title = edges.util.escapeHtml(
             mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
         );
@@ -5379,48 +5401,72 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             }
         }
 
-        let created = edges.util.escapeHtml(
-            edges.util.pathValue("created", res, "")
-        );
-        created = mex.fullDateFormatter(created);
+        // let created = edges.util.escapeHtml(
+        //     edges.util.pathValue("created", res, "")
+        // );
+        // created = mex.fullDateFormatter(created);
+        let created = res["custom_fields"]["mex:created"]
         created = `<span class="tag">${created}</span>`;
+        let created_ui = "";
+        if (created && created.date) {
+            created_ui = mex.fullDateFormatter(created.date);
+            if (created_ui === "Invalid Date") {
+                created_ui = created.date;
+            }
+        }
 
         let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
-        keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-        if (keywords !== "") {
-            keywords = `<span class="tag">${keywords}</span>`;
-        }
 
-        let selectState = "unselected";
-
-        if (this.selector && this.selector.isSelected(res.id)) {
-            selectState = "selected";
-        }
         let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
-            <div class="card">
-                <div class="tags"><div class="tag resource-type">${i18n.t('DATA SOURCE OR DATASET')}</div></div>
-                <h4 class="title">
+            <div class="card results-card">
+                <div class="card-header">
+                    <div class="tags">
+                        <div class="tag resource-type">
+                            <img class="ui image icon--text" src="/static/icons/resource-record.svg"
+                                role="presentation"/>
+                            &nbsp;${i18n.t('Data source or dataset')}
+                        </div>
+                        ${accessRestrictionFrag}
+                    </div>`
+
+        if (created_ui) {
+            frag += `
+                    <p class="date muted">${created_ui}</p>
+                `
+        }
+
+        frag += `
+                </div>
+                <h3 class="title">
                     <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-                </div>
+                </h3>`
+        if (alt) {
+            frag += `<p class="subtitle">${alt}</strong>`
+        }
 
-                <div class="subtitle ${alt ? "" : "hide"}">
-                    <strong>${alt}</strong>
-                </div>
+        if (desc) {
+            frag += `<p class="description">
+                    ${desc.slice(0,600)}
+                    ${desc.length > 600 ? "..." : ""}
+                </p>`
+        }
 
-                <div class="description ${desc ? "" : "hide"}">
-                    ${desc}
-                </div>
+        if (keywords.length > 0) {
+            frag += `<div class="tags">`
+            for (let key of keywords)
+            {
+                frag += `
+                        <span class="tag">${key}</span>
+                    `
+            }
+            frag += `</div>`
+        }
 
-                <div class="tags ${keywords ? "" : "hide"}">
-                    ${keywords}
-                    ${created}
-                </div>
-            </div>
-        `;
+        frag += `</div>`;
 
         return frag;
     }
@@ -5434,8 +5480,9 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderVariable(res) {
+        let mex_id = res["custom_fields"]["mex:identifier"]
         let label = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
+            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
 
         let langPrefix = mex.state.lang;
@@ -5446,28 +5493,28 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             []
         );
 
-        let resourceFrag = "";
-        if (resources.length > 1) {
-            resourceFrag =
-                "<ul><li>" +
-                resources.map((r) => edges.util.escapeHtml(r)).join("</li><li>") +
-                "</li></ul>";
-        }
-
         let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
         let groupFrag = "";
         if (groups.length > 1) {
-            groupFrag =
-                "<ul><li>" +
-                groups.map((g) => edges.util.escapeHtml(g)).join("</li><li>") +
-                "</li></ul>";
+            groupFrag = `<div class="groups-list"><span class="label">{{ _("Belongs to") }}:
+                <span>` +
+                groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
+                `</span>`;
         }
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
                 "custom_fields.mex:dataType",
                 res,
-                i18n.t("Unknown")
+                ""
+            )
+        );
+
+        let codingSystem = edges.util.escapeHtml(
+            edges.util.pathValue(
+                "custom_fields.mex:codingSystem",
+                res,
+                ""
             )
         );
 
@@ -5476,22 +5523,32 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         // );
         let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
-            <div class="card">
+            <div class="card results-card">
                 <div class="card-header">
-                    <span class="tag resource-type">
-                        <img class="ui image icon--text"
-                            src="/static/icons/variable-record.svg"
-                            role="presentation"/>
-                        &nbsp;${i18n.t('Variable')}
-                    </span>
-                </div>
-                <h4 class="title">
-                    <a href="/records/mex/${mex_id}" target="_blank">${label ? label : mex_id}</a>
-                </h4>`
+                    <div class="tags">
+                        <span class="tag resource-type">
+                            <img class="ui image icon--text"
+                                src="/static/icons/variable-record.svg"
+                                role="presentation"/>
+                            &nbsp;${i18n.t('Variable')}
+                        </span>`
+        if (dataType) {
+            frag += `<span class="tag">${dataType}</span>`;
+        }
 
-        if (resourceFrag) {
-            frag += `<div class="subtitle">
-                        ${resourceFrag}
+        frag += `</div></div>
+                <h3 class="title">
+                    <a href="/search/variables?var=${mex_id}" target="_blank">${label ? label : mex_id}</a>
+                </h3>`
+
+        if (codingSystem) {
+            frag += `<div class="description">
+                        <span class="label">
+                            ${i18n.t('Coding system')}:
+                        </span>
+                        <span>
+                            ${codingSystem}
+                        </span>
                     </div>`
         }
 
@@ -5499,12 +5556,6 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             frag += `<div class="description">
                         ${groupFrag}
                     </div>`
-        }
-
-        if (dataType) {
-            frag += `<div class="tags ${dataType ? "" : " hide"}">
-                ${dataType}
-            </div>`
         }
 
         frag += `</div>`
