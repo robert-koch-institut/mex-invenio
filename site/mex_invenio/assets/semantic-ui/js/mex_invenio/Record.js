@@ -45,42 +45,42 @@ export const Record = ({ mexId, title }) => {
       <p className="record--ids">
         <span className="muted">{mexId} </span>
         <span className="click-to-copy">
-  <button
-    type="button"
-    onClick={() => copyToClipboard(mexId)}
-    aria-label={t("Copy mexId")}
-    title={t("Copy mexId")}
-  >
-    <img
-      className="ui image icon"
-      src="/static/icons/copy.svg"
-      alt=""
-      aria-hidden="true"
-    />
-  </button>
-</span>
-<span className="muted">| </span>
+          <button
+            type="button"
+            onClick={() => copyToClipboard(mexId)}
+            aria-label={t("Copy mexId")}
+            title={t("Copy mexId")}
+          >
+            <img
+              className="ui image icon"
+              src="/static/icons/copy.svg"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+        </span>
+        <span className="muted"> | </span>
         <a  href={`/api/records/${invenio_id}`} aria-label={`View record ${invenio_id} as JSON`} >{invenio_id}</a>
       </p>
 
       {copyStatus === "success" && (
-    <span
-      className="copied-msg"
-      role="status"
-      aria-live="polite"
-    >
-      {t("Copied!")}
-    </span>
-  )}
+        <span
+          className="copied-msg"
+          role="status"
+          aria-live="polite"
+        >
+          {t("Copied!")}
+        </span>
+      )}
 
-  {copyStatus === "error" && (
-    <span
-      className="copied-msg error"
-      role="alert"
-    >
-      {t("Copy failed")}
-    </span>
-  )}
+      {copyStatus === "error" && (
+        <span
+          className="copied-msg error"
+          role="alert"
+        >
+          {t("Copy failed")}
+        </span>
+      )}
 
       <Header as="h3">{t(title)}</Header>
       <div className="card-props">
