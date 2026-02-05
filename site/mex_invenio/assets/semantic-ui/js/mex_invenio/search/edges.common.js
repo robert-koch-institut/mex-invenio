@@ -1130,7 +1130,7 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         let frag = ``;
         for (let url in this.targets) {
             let display = this.targets[url];
-            frag += `<a href="${url}?${qs}"><img class="ui image icon--text"
+            frag += `<a href="${url}?${qs}" style="padding: 0 1rem;"><img class="ui image icon--text"
                     src="/static/icons/${display.icon}-record.svg"
                     style="height: 1rem; margin-bottom: .125rem; margin-right: .25rem;"
                     role="presentation"/>${display.label}</a>`;
@@ -4612,12 +4612,12 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
                 </div></div>`
     }
     frag += `<h3 class="title">
-        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-    </h3>`
+        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>`
 
     if (alt) {
-        frag += `<p class="subtitle">${alt}</strong>`
+        frag += `<p class="subtitle">${alt}</p>`
     }
+    frag += `</h3>`
 
     if (desc) {
         frag += `<p class="description">
