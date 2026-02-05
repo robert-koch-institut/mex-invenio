@@ -9,20 +9,19 @@
   under the terms of the MIT License; see LICENSE file for more details.
 #}
 {%- block footer_top %}
-
     <div class="footer-top">
         <div class="ui container app-rdm-footer">
             {%- block footer_top_left %}
                 <div class="ui grid app-rdm-footer">
                 <div class="rdm-footer five wide tablet two wide computer column">
-                    <p><a href="/">{{ _("About MEx") }}</a></p>
-                    <p><a href="/">{{ _("Contact") }}</a></p>
-                    <p><a href="/">{{ _("Data privacy") }}</a></p>
+                    <p><a href="/about/{{current_i18n.language}}">{{ _("About MEx") }}</a></p>
+                    <p><a href="/contact/{{current_i18n.language}}">{{ _("Contact") }}</a></p>
+                    <p><a href="/data-privacy/{{current_i18n.language}}">{{ _("Data privacy") }}</a></p>
 
                 </div>
                 <div class="rdm-footer five wide tablet two wide computer column">
-                    <p><a href="/">{{ _("Accessibility") }}</a></p>
-                    <p><a href="/">{{ _("Imprint") }}</a></p>
+                    <p><a href="/accessibility/{{current_i18n.language}}">{{ _("Accessibility") }}</a></p>
+                    <p><a href="/imprint/{{current_i18n.language}}">{{ _("Imprint") }}</a></p>
                 </div>
 
             {%- endblock footer_top_left %}
