@@ -14,7 +14,7 @@
     {%- block description -%}
         {% if special_field("ABSTRACT") in data %}
             <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
-                <p>{{ display_values(data[special_field("ABSTRACT")]) }}</p>
+                <p>{{ display_values(data[special_field("ABSTRACT")], max_str_length=600) }}</p>
             </section>
         {% endif %}
     {%- endblock -%}
