@@ -1,0 +1,40 @@
+- url: /about/en
+  title: About Mex
+  template: about-en.html
+- url: /about/de
+  title: Über MEx
+  template: about-de.html
+- url: /contact/en
+  title: Contact
+  template: contact-en.html
+- url: /contact/de
+  title: Kontakt
+  template: contact-de.html
+- url: /data-privacy/en
+  title: Privacy Policy for the Use of the MEx Metadata Catalogue
+  template: dataprivacy-en.html
+- url: /data-privacy/de
+  title: Datenschutzerklärung für die Nutzung des MEx-Metadatenkatalogs
+  template: dataprivacy-de.html
+- url: /accessibility/en
+  title: Accessibility
+  template: accessibility-en.html
+- url: /accessibility/de
+  title: Barrierefreiheit
+  template: accessibility-de.html
+- url: /imprint/en
+  title: Imprint
+  template: imprint-en.html
+- url: /imprint/de
+  title: Impressum
+  template: imprint-de.html
+- url: /about
+  template: about.html
+- url: /accessibility
+  template: accessibility.html
+- url: /contact
+  template: contact.html
+- url: /data-privacy
+  template: dataprivacy.html
+- url: /imprint
+  template: imprint.html
