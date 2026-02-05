@@ -21,7 +21,7 @@
                         <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[special_field("TITLE")]) }}</h1>
                     </div>
 
-                    {% if ALT_TITLE in config.UI_SETTINGS[resource_type].special_fields and special_field("ALT_TITLE") in data  %}
+                    {% if "ALT_TITLE" in config.UI_SETTINGS[resource_type].special_fields and special_field("ALT_TITLE") in data  %}
                         <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ display_values(data[special_field("ALT_TITLE")]) }}</h2>
                     {% endif %}
                 </section>
