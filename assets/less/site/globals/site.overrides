@@ -206,7 +206,15 @@ code {
   }
 }
 .search-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin-top: 3rem;
   .card {
+    width: 15rem;
+    max-width: 15rem;
+    min-width: 15rem;
+    flex: 0 0 15rem;
     background-repeat: no-repeat;
     background-position: 100% 100%;
     background-size: auto;
@@ -303,7 +311,6 @@ code {
     #frontpage-search-bar {
       align-items: center;
       display: flex;
-      height: 20em;
     }
 }
 
