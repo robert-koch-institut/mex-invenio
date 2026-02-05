@@ -1704,7 +1704,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : "";
+            let vgFrag = vgCount > 1 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${vgCount} ${i18n.t("Variable Group")}`;
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
@@ -1712,35 +1712,34 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                 }
             }
 
-            let frag = ""
+            let varFrag = `<p class="variables-count muted" style="margin-bottom: 0">`
 
-            if(vCount > 0 ) {
-                let vFrag = `${vCount} ${i18n.t("Variables")}`
-                frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+            varFrag +=  vCount > 1 ? `${vCount} ${i18n.t("Variables")}` : `${vCount} ${i18n.t("Variable")}`
+            if (variableGroups.length > 0) {
+                varFrag += ` ${i18n.t('in')} ${vgFrag}`
             }
 
-            const fragHtml = frag
-  ? `<p class="variables-count muted" style="margin-bottom: 0">
-        (${frag})
-     </p>`
-  : "";
+            varFrag += `</p>`
 
-recordsFrag += `
-  <div class="selected-list">
-    <button class="img-button">
-      <img
-        data-id="${id}"
-        class="${selectClass} controls close-icon"
-        src="/static/images/close.svg"
-        alt="Slide right" />
-    </button>
-    <div>
-      <div class="selected-list-item">
-        <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-        ${fragHtml}
-      </div>
-    </div>
-  </div>`;
+            recordsFrag += `
+              <div class="selected-list">
+                <button class="img-button">
+                  <img
+                    data-id="${id}"
+                    class="${selectClass} controls close-icon"
+                    src="/static/images/close.svg"
+                    alt="Slide right" />
+                </button>
+                <div>
+                  <div class="selected-list-item">
+                    <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>`
+                    if (vCount) {
+                        recordsFrag += varFrag
+                    }
+            recordsFrag += `
+                  </div>
+                </div>
+              </div>`;
 
         }
 
