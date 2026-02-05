@@ -3,7 +3,9 @@
     {%- block toptags -%}
         <section id="record-tags" class="rel-mt-1" aria-label="{{ _('Record tags') }}">
             <div class="tags top-tags">
-                <span class="tag">{{ _(config.UI_SETTINGS[resource_type].label) }}</span>
+                <span class="tag resource-type"><img class="ui image icon--text"
+                                                     src="{{ url_for('static', filename='icons/' ~ resource_type ~ '-record.svg') }}"
+                                                     role="presentation"/> {{ config.UI_SETTINGS[resource_type].label }}</span>
 
                 {% if special_field("BIBLIOGRAPHICRESOURCE_TYPE") in data %}
                     <span class="tag" title="{{ _('Resource type') }}">{{render_value(data[special_field("BIBLIOGRAPHICRESOURCE_TYPE")][0])}}</span>
