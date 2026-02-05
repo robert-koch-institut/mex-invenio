@@ -1091,6 +1091,9 @@ msgid_plural "wasGeneratedBy.plural"
 msgstr[0] "Related project/endeavor"
 msgstr[1] "Related projects/endeavors"
 
+msgid "Related projects/endeavors"
+msgstr "Related projects/endeavors"
+
 msgctxt "resource"
 msgid "wasGeneratedBy.description"
 msgstr "Context in which the data was created"

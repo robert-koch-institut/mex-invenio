@@ -633,7 +633,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related projects/endeavor"),
+                        "title": _("Related projects/endeavors"),
                         "properties": [
                             {
                                 "field": "mex:wasGeneratedBy",

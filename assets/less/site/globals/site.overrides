@@ -183,12 +183,7 @@ code {
               gap: .5rem;
               min-width: 0;
               max-width: 100%;
-              a.single-word,span.single-word {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              }
-              a.multi-word, span.multi-word, p.multi-word {
+              button, a, span, p {
                   overflow-wrap: break-word;
                   word-break: break-word;
                   white-space: normal;
