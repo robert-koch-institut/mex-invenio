@@ -5008,8 +5008,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             <tr>
                 <th></th>
                 <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
-                    ${i18n.t("Variables")}
                     ${sortButtonMacro(mex.constants.LABEL_KW)}
+                    ${i18n.t("Variables")}
                 </th>
                 <th aria-sort="${currentDir(rpath, false)}">
                     ${i18n.t("Data Source")}

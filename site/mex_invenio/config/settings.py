@@ -531,7 +531,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("distribution.singular")},
+                    {"field": "mex:distribution"},
                 ],
             },
             "variables": {
@@ -790,7 +790,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("distribution.singular")},
+                    {"field": "mex:distribution"},
                 ],
             },
         },
