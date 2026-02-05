@@ -4610,11 +4610,11 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
                 ${resourceTypeMacro()}
                 </div></div>`
     }
-    frag += `<h3 class="title">
+    frag += `<h3 class="title" style="display: unset;">
         <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>`
 
     if (alt) {
-        frag += `<p class="subtitle">${alt}</p>`
+        frag += `<span class="subtitle">${alt}</span>`
     }
     frag += `</h3>`
 
