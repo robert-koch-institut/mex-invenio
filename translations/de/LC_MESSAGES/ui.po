@@ -244,6 +244,13 @@ msgstr "Unsere"
 msgid "Entire Database"
 msgstr "Gesamte Datenbank"
 
+msgid "Related projects/endeavors"
+msgstr "Zugehörige Projekte"
+
+msgid "Related data sources & datasets"
+msgstr "Zugehörige Datenbestände & Datensätze"
+
+
 #~ msgid "Access"
 #~ msgstr "Zugriff"
 
