@@ -531,7 +531,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("distribution.singular")},
+                    {"field": "mex:distribution"},
                 ],
             },
             "variables": {
@@ -633,7 +633,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related projects/endeavor"),
+                        "title": _("Related data sources & datasets"),
                         "properties": [
                             {
                                 "field": "mex:wasGeneratedBy",
@@ -790,7 +790,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution", "label": _("distribution.singular")},
+                    {"field": "mex:distribution"},
                 ],
             },
         },
@@ -931,6 +931,24 @@ NO_RECORD_STRING = _("No record found")
 
 # how many values displayed initially on the landing page
 VALUES_DISPLAYED_DEFAULT = 3
+
+APP_RDM_PAGES = {
+    "about": "/about",
+    "about-en": "/about/en",
+    "about-de": "/about/de",
+    "imprint": "/imprint",
+    "imprint-en": "/imprint/en",
+    "imprint-de": "/imprint/de",
+    "accessibility": "/accessibility",
+    "accessibility-en": "/accessibility/en",
+    "accessibility-de": "/accessibility/de",
+    "contact": "/contact",
+    "contact-en": "/contact/en",
+    "contact-de": "/contact/de",
+    "dataprivacy": "/data-privacy",
+    "dataprivacy-en": "/data-privacy/en",
+    "dataprivacy-de": "/data-privacy/de",
+}
 
 
 # Celery Configuration for Bulk Indexing

@@ -1,6 +1,13 @@
 .ui.grid {
     max-width: 100%;
 }
+@media only screen and (max-width: 1280px) {
+    .ui.stackable.grid {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: auto;
+    }
+}
 
 #edge-container > .ui.grid {
     margin-left: 0;

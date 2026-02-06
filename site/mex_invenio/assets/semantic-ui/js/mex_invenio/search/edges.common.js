@@ -1130,7 +1130,7 @@ mex.components.TypeSpecificJumpOff = class extends edges.Component {
         let frag = ``;
         for (let url in this.targets) {
             let display = this.targets[url];
-            frag += `<a href="${url}?${qs}"><img class="ui image icon--text"
+            frag += `<a href="${url}?${qs}" style="padding: 0 1rem;"><img class="ui image icon--text"
                     src="/static/icons/${display.icon}-record.svg"
                     style="height: 1rem; margin-bottom: .125rem; margin-right: .25rem;"
                     role="presentation"/>${display.label}</a>`;
@@ -1704,7 +1704,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             }
 
             let vgCount = variableGroups.length;
-            let vgFrag = variableGroups.length > 0 ? `${vgCount} ${i18n.t("Variable Groups")}` : "";
+            let vgFrag = vgCount > 1 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${vgCount} ${i18n.t("Variable Group")}`;
             let vCount = 0;
             if ("backwards_linked" in record["display_data"]["linked_records"]) {
                 if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
@@ -1712,35 +1712,34 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                 }
             }
 
-            let frag = ""
+            let varFrag = `<p class="variables-count muted" style="margin-bottom: 0">`
 
-            if(vCount > 0 ) {
-                let vFrag = `${vCount} ${i18n.t("Variables")}`
-                frag = [vFrag, i18n.t("in"), vgFrag].join(" ");
+            varFrag +=  vCount > 1 ? `${vCount} ${i18n.t("Variables")}` : `${vCount} ${i18n.t("Variable")}`
+            if (variableGroups.length > 0) {
+                varFrag += ` ${i18n.t('in')} ${vgFrag}`
             }
 
-            const fragHtml = frag
-  ? `<p class="variables-count muted" style="margin-bottom: 0">
-        (${frag})
-     </p>`
-  : "";
+            varFrag += `</p>`
 
-recordsFrag += `
-  <div class="selected-list">
-    <button class="img-button">
-      <img
-        data-id="${id}"
-        class="${selectClass} controls close-icon"
-        src="/static/images/close.svg"
-        alt="Slide right" />
-    </button>
-    <div>
-      <div class="selected-list-item">
-        <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>
-        ${fragHtml}
-      </div>
-    </div>
-  </div>`;
+            recordsFrag += `
+              <div class="selected-list">
+                <button class="img-button">
+                  <img
+                    data-id="${id}"
+                    class="${selectClass} controls close-icon"
+                    src="/static/images/close.svg"
+                    alt="Slide right" />
+                </button>
+                <div>
+                  <div class="selected-list-item">
+                    <a href="/records/${id}" target="_blank" class="max-line-3">${title}</a>`
+                    if (vCount) {
+                        recordsFrag += varFrag
+                    }
+            recordsFrag += `
+                  </div>
+                </div>
+              </div>`;
 
         }
 
@@ -4611,13 +4610,13 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
                 ${resourceTypeMacro()}
                 </div></div>`
     }
-    frag += `<h3 class="title">
-        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-    </h3>`
+    frag += `<h3 class="title" style="display: unset;">
+        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>`
 
     if (alt) {
-        frag += `<p class="subtitle">${alt}</strong>`
+        frag += `<span class="subtitle">${alt}</span>`
     }
+    frag += `</h3>`
 
     if (desc) {
         frag += `<p class="description">
@@ -4711,19 +4710,15 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
 
     function getCreatorsNames(field) {
-        let names = ""
-        for (let i = 0; i++; i < field.length) {
-            names += field[i].display_value[0].value;
-            console.log(names);
-            if (i != field.length - 1) {
-                names += ", ";
-            }
+        let names_arr = []
+        for (let i in field) {
+            names_arr.push(field[i].display_value[0].value)
         }
-        console.log("return: ", names)
-        return names;
+        return names_arr.join(", ");
     }
 
-    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? [])
+    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
+    let responsibleUnit = getCreatorsNames(res["display_data"]["linked_records"]["mex:responsibleUnit"] ?? '')
 
     // let pubYear = edges.util.pathValue(
     //     "custom_fields.mex:publicationYear.date",
@@ -4753,15 +4748,18 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     let frag = `<div class="card results-card">`;
 
-    frag += `<div class="card-header"><div class="tags">
+    frag += `<div class="card-header" style="justify-content: flex-start; gap: 1rem;"><div class="tags">
     ${resourceTypeMacro()}
     ${accessRestrictionFrag}
-    </div>
-    <span class="date muted">
-        ${creators ?? ''}
-        </span></div>
-    `
-    frag += `${titleMacro(title, res.id)}`;
+    </div>`
+    if (creators) {
+        frag +=`<span class="date muted">${creators}</span>`
+    }
+    else if (responsibleUnit) {
+        frag +=`<span class="date muted">${responsibleUnit}</span>`
+    }
+
+    frag += `</div>${titleMacro(title, res.id)}`;
 
     if (alt) {
         frag += `<p class="subtitle">${alt}</strong>`;
@@ -5009,8 +5007,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             <tr>
                 <th></th>
                 <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
-                    ${i18n.t("Variables")}
                     ${sortButtonMacro(mex.constants.LABEL_KW)}
+                    ${i18n.t("Variables")}
                 </th>
                 <th aria-sort="${currentDir(rpath, false)}">
                     ${i18n.t("Data Source")}
@@ -5113,6 +5111,12 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
         }
 
+        let valueSetFrag = "";
+        let valueSet = res["custom_fields"]["mex:valueSets"]
+        if (valueSet) {
+            valueSetFrag = valueSet.join(", ");
+        }
+
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
         let expandedClass = edges.util.jsClasses(this.namespace, "expanded-view", this.component.id);
         let collapsedRowIdClass = edges.util.jsClasses(this.namespace, "collapsed-row-" + res.id, this.component.id);
@@ -5128,6 +5132,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${groupFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--group"><span class="attribute-label">${i18n.t("Variable Group")}:</span> ${groupFrag}</div>`}
                     ${dataType && `<div class="${expandedRowClass}--details ${expandedRowClass}--datatype"><span class="attribute-label">${i18n.t("Data type")}:</span> ${dataType}</div>`}
                     ${codingFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Coding system")}:</span> ${codingFrag}</div>`}
+                    ${valueSetFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Value set")}:</span> ${valueSetFrag}</div>`}
                 `;
 
             //   detailFrag = `<div class="details-extra">
