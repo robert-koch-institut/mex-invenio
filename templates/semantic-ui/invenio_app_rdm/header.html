@@ -10,7 +10,7 @@ under the terms of the MIT License; see LICENSE file for more details.
 
 <div>
     <header class="header">
-        <div class="outer-navbar">
+        <div class="outer-navbar" style="margin-bottom: 6rem;">
             {%- block navbar %}
                 <div class="navbar-top">
                     <a class="item logo logo-link" href="/">
@@ -25,6 +25,7 @@ under the terms of the MIT License; see LICENSE file for more details.
                     </a>
 
                 </div>
+                {%- block navbar_nav %}
                 <div class="ui invenio-header-container">
                     <nav id="invenio-nav" class="navbar-links ui container menu borderless p-0">
                         <div id="rdm-burger-toggle">
@@ -57,7 +58,7 @@ under the terms of the MIT License; see LICENSE file for more details.
                             {%- include "invenio_app_rdm/searchbar.html" %}
                             {%- endblock -%}
 
-                            {%- block navbar_nav %}
+
                                 {% set resource_types = {
                                   'resources': _('Data Sources & Datasets'),
                                   'variables': _('Variables'),

@@ -5,7 +5,7 @@
     </style>
 
     <div id="search-page" class="ui container search_page search-page--resources">
-        <section class="banner">
+        <section class="banner banner-resource">
             <small>{{ _("Search our") }}</small>
             <h1>{{ _("Data Sources & Datasets") }}</h1>
         </section>
@@ -20,7 +20,7 @@
 {% block javascript %}
     <script>
         window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
-        document.title = "Mex: Data Sources & Datasets"
+        document.title = "MEx: Data Sources & Datasets"
     </script>
     {{ super() }}
     {{ webpack['search_resources.js'] }}
