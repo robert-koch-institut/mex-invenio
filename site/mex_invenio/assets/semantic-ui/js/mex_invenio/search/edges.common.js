@@ -4710,19 +4710,15 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
 
     function getCreatorsNames(field) {
-        let names = ""
-        for (let i = 0; i++; i < field.length) {
-            names += field[i].display_value[0].value;
-            console.log(names);
-            if (i != field.length - 1) {
-                names += ", ";
-            }
+        let names_arr = []
+        for (let i in field) {
+            names_arr.push(field[i].display_value[0].value)
         }
-        console.log("return: ", names)
-        return names;
+        return names_arr.join(", ");
     }
 
-    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? [])
+    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
+    let responsibleUnit = getCreatorsNames(res["display_data"]["linked_records"]["mex:responsibleUnit"] ?? '')
 
     // let pubYear = edges.util.pathValue(
     //     "custom_fields.mex:publicationYear.date",
@@ -4752,15 +4748,18 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     let frag = `<div class="card results-card">`;
 
-    frag += `<div class="card-header"><div class="tags">
+    frag += `<div class="card-header" style="justify-content: flex-start; gap: 1rem;"><div class="tags">
     ${resourceTypeMacro()}
     ${accessRestrictionFrag}
-    </div>
-    <span class="date muted">
-        ${creators ?? ''}
-        </span></div>
-    `
-    frag += `${titleMacro(title, res.id)}`;
+    </div>`
+    if (creators) {
+        frag +=`<span class="date muted">${creators}</span>`
+    }
+    else if (responsibleUnit) {
+        frag +=`<span class="date muted">${responsibleUnit}</span>`
+    }
+
+    frag += `</div>${titleMacro(title, res.id)}`;
 
     if (alt) {
         frag += `<p class="subtitle">${alt}</strong>`;
@@ -5112,6 +5111,12 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
         }
 
+        let valueSetFrag = "";
+        let valueSet = res["custom_fields"]["mex:valueSets"]
+        if (valueSet) {
+            valueSetFrag = valueSet.join(", ");
+        }
+
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
         let expandedClass = edges.util.jsClasses(this.namespace, "expanded-view", this.component.id);
         let collapsedRowIdClass = edges.util.jsClasses(this.namespace, "collapsed-row-" + res.id, this.component.id);
@@ -5127,6 +5132,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${groupFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--group"><span class="attribute-label">${i18n.t("Variable Group")}:</span> ${groupFrag}</div>`}
                     ${dataType && `<div class="${expandedRowClass}--details ${expandedRowClass}--datatype"><span class="attribute-label">${i18n.t("Data type")}:</span> ${dataType}</div>`}
                     ${codingFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Coding system")}:</span> ${codingFrag}</div>`}
+                    ${valueSetFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Value set")}:</span> ${valueSetFrag}</div>`}
                 `;
 
             //   detailFrag = `<div class="details-extra">

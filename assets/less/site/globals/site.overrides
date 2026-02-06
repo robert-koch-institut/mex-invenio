@@ -342,16 +342,22 @@ a.light {
 
 #header-search-bar {
     border: none;
-
+    .ui.form {
+      margin: 0;
+      padding: 2rem 1rem;
+      padding-left: 0;
+      grid-template-columns: 1fr;
+    }
+    &:hover {
+      .ui.input {
+        outline: 2px solid @primaryColor;
+      }
+    }
     .ui.icon input {
         width: 0;
         overflow: hidden;
     }
-    &:hover {
-        border: 1px solid @primaryColor;
-        width: 100%;
-    }
-    transition: border 0.3s ease, width 0.3 ease;
+
 }
 
 .ui.divider {
