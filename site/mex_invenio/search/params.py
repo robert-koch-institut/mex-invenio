@@ -134,12 +134,16 @@ MAX_FROM = 10000
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate(self, raw):
-        self._validate_default_fields(raw)
-        self._validate_must_filters(raw)
-        self._validate_non_must_filters(raw)
-        self._validate_aggregations(raw)
-        self._validate_paging(raw)
-        self._validate_sort(raw)
+        try:
+            self._validate_default_fields(raw)
+            self._validate_must_filters(raw)
+            self._validate_non_must_filters(raw)
+            self._validate_aggregations(raw)
+            self._validate_paging(raw)
+            self._validate_sort(raw)
+        except ValueError as e:
+            print(f"QUERY VALIDATION FAILURE: {e}")
+        return
 
     def _validate_default_fields(self, raw):
         default_field = (
