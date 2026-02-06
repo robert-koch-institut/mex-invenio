@@ -183,12 +183,7 @@ code {
               gap: .5rem;
               min-width: 0;
               max-width: 100%;
-              a.single-word,span.single-word {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              }
-              a.multi-word, span.multi-word, p.multi-word {
+              button, a, span, p {
                   overflow-wrap: break-word;
                   word-break: break-word;
                   white-space: normal;
@@ -206,7 +201,15 @@ code {
   }
 }
 .search-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin-top: 3rem;
   .card {
+    width: 15rem;
+    max-width: 15rem;
+    min-width: 15rem;
+    flex: 0 0 15rem;
     background-repeat: no-repeat;
     background-position: 100% 100%;
     background-size: auto;
@@ -224,19 +227,19 @@ code {
     text-decoration: none;
   }
   .card-resource {
-    background-image: url('../images/search_bg/resources.svg');
+    background-image: url('../images/frontpage_tiles/resources.svg');
   }
   .card-activity {
-    background-image: url('../images/search_bg/projects.svg');
+    background-image: url('../images/frontpage_tiles/projects.svg');
   }
   .card-variable {
-    background-image: url('../images/search_bg/variables.svg');
+    background-image: url('../images/frontpage_tiles/variables.svg');
   }
   .card-general {
-    background-image: url('../images/search_bg/general.svg');
+    background-image: url('../images/frontpage_tiles/general.svg');
   }
   .card-bibliographicresource {
-    background-image: url('../images/search_bg/publications.svg');
+    background-image: url('../images/frontpage_tiles/publications.svg');
   }
 }
 .tags {
@@ -303,7 +306,6 @@ code {
     #frontpage-search-bar {
       align-items: center;
       display: flex;
-      height: 20em;
     }
 }
 
@@ -340,16 +342,22 @@ a.light {
 
 #header-search-bar {
     border: none;
-
+    .ui.form {
+      margin: 0;
+      padding: 2rem 1rem;
+      padding-left: 0;
+      grid-template-columns: 1fr;
+    }
+    &:hover {
+      .ui.input {
+        outline: 2px solid @primaryColor;
+      }
+    }
     .ui.icon input {
         width: 0;
         overflow: hidden;
     }
-    &:hover {
-        border: 1px solid @primaryColor;
-        width: 100%;
-    }
-    transition: border 0.3s ease, width 0.3 ease;
+
 }
 
 .ui.divider {
@@ -480,7 +488,21 @@ aside {
   }
 
   .banner {
-    background-image: url('../images/dna.svg');
+    &.banner-resource {
+      background-image: url('../images/search_bg/resource.svg');
+    }
+    &.banner-activity {
+      background-image: url('../images/search_bg/project.svg');
+    }
+    &.banner-variable {
+      background-image: url('../images/search_bg/variable.svg');
+    }
+    &.banner-general {
+      background-image: url('../images/search_bg/general.svg');
+    }
+    &.banner-bibliographicresource {
+      background-image: url('../images/search_bg/publication.svg');
+    }
     background-color: #e9ecf3;
     padding: 1.25rem 3.12rem;
     display: flex;

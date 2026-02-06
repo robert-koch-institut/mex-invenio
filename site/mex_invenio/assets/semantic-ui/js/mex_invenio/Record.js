@@ -33,7 +33,7 @@ export const Record = ({ mexId, title }) => {
           .filter(([key]) => key !== "backwards_linked" && key !== "mex:identifier")
           .map(([key, value]) => (
             <div key={key} className="row card-props-p" verticalAlign="top">
-              <div className="key card-prop-label">
+              <div className="key card-prop-label" style={{ overflowWrap: "break-word"}}>
                 {smartT(key)}
               </div>
               <DisplayValues values={value} />

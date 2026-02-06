@@ -17,22 +17,23 @@
     {%- endif -%}
 {% endmacro %}
 
-{% macro display_values(values, max) %}
-    {% set max_visible = max if max else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+{% macro display_values(values, max_values, max_str_length) %}
+    {% set max_visible = max_values if max_values else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+    {% set max_str_length = max_str_length if max_str_length else 0 %}
 
     {% set total = values | length %}
     {% set visible = values[:max_visible] %}
     {% set hidden = values[max_visible:] %}
 
     {%- for v in visible  -%}
-        {{ display_value(v) }}
+        {{ display_value(v, max_str_length) }}
     {%- endfor -%}
 
     {# If there are more, show "Add more" button #}
     {% if hidden %}
         <div class="more-values card-prop-value" style="display: none;">
             {% for v in hidden %}
-                {{ display_value(v) }}
+                {{ display_value(v, max_str_length) }}
             {% endfor %}
         </div>
         <button
@@ -51,7 +52,7 @@
 
 {% endmacro %}
 
-{% macro display_value(v) %}
+{% macro display_value(v, max_str_length) %}
 
     {%- set lang = current_i18n.language -%}
     {%- set dd = v["display_data"] -%}
@@ -71,7 +72,6 @@
         {% set _ = ns.titles.append(s.value) %}
     {% endfor %}
     {% set combined_title = ns.titles | join(', ') %}
-
     {%- if v.url -%}
         {% if "http" in v.url %}
             <a href="{{ v.url }}" title="{{ combined_title }}">
@@ -95,7 +95,26 @@
             </button>
         {%- endif -%}
     {%- else -%}
-        <p>{{combined_title }}</p>
+        {%- if (max_str_length) -%}
+            {% set combined_title_short = combined_title[:max_str_length] %}
+            <p><span>{{combined_title[:max_str_length]}}</span>{% if combined_title|length > max_str_length %}<span class="cut-off" style="display: none"> {{combined_title[max_str_length+1:]}}</span>
+                <button
+                        type="button"
+                        class="ui button link-like"
+                        onclick="
+                                const hidden = this.previousElementSibling;
+                                const isHidden = hidden.style.display === 'none';
+                                hidden.style.display = isHidden ? 'contents' : 'none';
+                                this.textContent = isHidden ? '(Show less)' : '(Show more)';
+                            "
+                >
+                    (Show more)
+                </button>
+            {% endif %}
+            </p>
+        {%- else -%}
+            <p>{{ combined_title }}</p>
+        {%- endif -%}
     {%- endif -%}
 {% endmacro %}
 
@@ -122,5 +141,44 @@
     {% set combined_title = ns.titles | join(', ') %}
 
     {{ combined_title }}
+
+{% endmacro %}
+
+{% macro display_extids(values, max_values) %}
+    {% set max_visible = max_values if max_values else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+    {% set max_str_length = max_str_length if max_str_length else 0 %}
+
+    {% set total = values | length %}
+    {% set visible = values[:max_visible] %}
+    {% set hidden = values[max_visible:] %}
+
+    {%- for v in visible  -%}
+        <a href="{{ v.url }}" style="padding: 0 .5rem">
+            {{ v.display_data[0].value }}
+        </a>
+    {%- endfor -%}
+
+    {# If there are more, show "Add more" button #}
+    {% if hidden %}
+    <span style="display: none;">
+        {% for v in hidden %}
+        <a href="{{ v.url }}" style="padding: 0 .5rem">
+            {{ v.display_data[0].value }}
+        </a>
+        {% endfor %}
+    </span>
+    <button
+            type="button"
+            class="ui button link-like"
+            onclick="
+                    const hidden = this.previousElementSibling;
+                    const isHidden = hidden.style.display === 'none';
+                    hidden.style.display = isHidden ? 'unset' : 'none';
+                    this.textContent = isHidden ? '(Show less)' : '(Show all {{ total }})';
+                "
+    >
+        (Show all {{ total }})
+    </button>
+    {% endif %}
 
 {% endmacro %}

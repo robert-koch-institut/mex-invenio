@@ -23,7 +23,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import val with context %}
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import get_icon with context %}
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import show_section_custom_fields with context %}
-{%- from "invenio_app_rdm/records/macros/mex_detail.html" import display_values, display_value, render_value with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import display_values, display_value, render_value, display_extids, with context %}
 {%- from "invenio_app_rdm/records/macros/mex_detail.html" import special_field with context %}
 
 {%- set can_manage_record = permissions is defined and (permissions.can_edit or permissions.can_review) %}
@@ -304,18 +304,6 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
     window.addEventListener('DOMContentLoaded', updateCardStyles);
     window.addEventListener('resize', updateCardStyles);
-
-    document.querySelectorAll(".card-prop-value > *").forEach(el => {
-        const text = el.textContent.trim();
-        if (text.length > 0){
-            if (text.split(/\s+/).length === 1) {
-                el.classList.add("single-word");
-            } else {
-                el.classList.add("multi-word");
-            }
-        }
-
-    });
 
     const supportRecordHandler = (mex_id, combined_title) => {
     window.dispatchEvent(

@@ -7,12 +7,13 @@ Invenio App RDM is free software; you can redistribute it and/or modify it
 under the terms of the MIT License; see LICENSE file for more details.
 #}
 
-{%- extends "invenio_app_rdm/header_without_search.html" %}
+{%- extends config.THEME_HEADER_TEMPLATE %}
 
 
 {%- block navbar %}
 {{ super() }}
 
+{%- block navbar_nav %}{% endblock %}
 {%- block frontpage_search %}
 <div id="frontpage-search-bar" class="frontpage-header ui container grid">
         <div class="row">
