@@ -207,6 +207,16 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate_paging(self, raw):
         from_ = raw.get("from", 0)
         size = raw.get("size", 10)
+        
+        try:
+            size = int(size)
+        except:
+            raise ValueError(f"Page size {size} is not a valid integer")
+        try:
+            from_ = int(from_)
+        except:
+            raise ValueError(f"From {from_} is not a valid integer")
+
         if size > MAX_PAGE_SIZE:
             raise ValueError(
                 f"Page size {size} exceeds maximum allowed size of {MAX_PAGE_SIZE}"
