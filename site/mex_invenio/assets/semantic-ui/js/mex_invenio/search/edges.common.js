@@ -4614,7 +4614,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>`
 
     if (alt) {
-        frag += `<span class="subtitle">${alt}</span>`
+        frag += `<span class="subtitle">&nbsp;${alt}</span>`
     }
     frag += `</h3>`
 
@@ -5112,7 +5112,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let valueSetFrag = "";
-        let valueSet = res["custom_fields"]["mex:valueSets"]
+        let valueSet = res["custom_fields"]["mex:valueSet"]
         if (valueSet) {
             valueSetFrag = valueSet.join(", ");
         }
