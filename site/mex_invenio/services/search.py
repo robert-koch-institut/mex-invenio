@@ -11,6 +11,7 @@ from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
     HighlightParamsInterpreter,
     TypeLimiterParamsInterpreter,
+    BoostingParamsInterpreter,
 )
 
 # from mex_invenio.custom_record import MexRDMRecord
@@ -56,6 +57,7 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
         HighlightParamsInterpreter,
+        BoostingParamsInterpreter,
         # Add other interpreters as needed
     ]
 

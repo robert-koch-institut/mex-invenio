@@ -4182,7 +4182,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         let created_ui = "";
         if (created && created.date) {
             created_ui = mex.fullDateFormatter(created.date);
-            if (created_ui == "Invalid Date") {
+            if (created_ui === "Invalid Date") {
                 created_ui = created.date;
             }
         }
@@ -5087,7 +5087,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
-                "custom_fields.mex:dataType",
+                mex.constants.DATA_TYPE,
                 res,
                 ""
             )
@@ -5509,7 +5509,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let dataType = edges.util.escapeHtml(
             edges.util.pathValue(
-                "custom_fields.mex:dataType",
+                mex.constants.DATA_TYPE,
                 res,
                 ""
             )
@@ -5517,7 +5517,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
 
         let codingSystem = edges.util.escapeHtml(
             edges.util.pathValue(
-                "custom_fields.mex:codingSystem",
+                mex.constants.CODING_SYSTEM,
                 res,
                 ""
             )

@@ -1,68 +1,92 @@
 from invenio_records_resources.services.records.params import ParamInterpreter
 
+ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
+ABSTRACT = "custom_fields.mex:abstract.value"
+
 ACCESS_RESTRICTION_KW = "custom_fields.mex:accessRestriction.keyword"
-JOURNAL_KW = "custom_fields.mex:journal.value.keyword"
-KEYWORD_KW = "custom_fields.mex:keyword.value.keyword"
+
 ACTIVITY_TYPE_KW = "custom_fields.mex:activityType.keyword"
-THEME_KW = "custom_fields.mex:theme.keyword"
-PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
-CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
-TITLE_KW = "custom_fields.mex:title.value.keyword"
-BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
-MEX_ID_KW = "custom_fields.mex:identifier.keyword"
-USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
+
+ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
+ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
+
 BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
+BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
+
+BELONGS_TO_LABEL = "index_data.belongsToLabel"
+BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
+
+CODING_SYSTEM = "custom_fields.mex:codingSystem"
+
+CONTRIBUTORS = "index_data.contributors"
+
+CREATED = "custom_fields.mex:created.date"
+CREATED_RANGE = "custom_fields.mex:created.date_range"
+
+CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
+
+CREATOR = "index_data.creators"
+
+DATA_TYPE = "custom_fields.mex:dataType"
+
+DESCRIPTION_CONTAINER = "custom_fields.mex:description"
+DESCRIPTION = "custom_fields.mex:description.value"
+
+END = "custom_fields.mex:end.date"
+END_RANGE = "custom_fields.mex:end.date_range"
+
+EXTERNAL_ASSOCIATE = "index_data.externalAssociates"
+
+EXTERNAL_PARTNERS = "index_data.externalPartners"
 
 FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+
+ICD10 = "custom_fields.mex:icd10code.value"
+
+INVOLVED_PERSON = "index_data.involvedPersons"
+
+JOURNAL_KW = "custom_fields.mex:journal.value.keyword"
+
+KEYWORD_CONTAINER = "custom_fields.mex:keyword"
+KEYWORD_KW = "custom_fields.mex:keyword.value.keyword"
+KEYWORD = "custom_fields.mex:keyword.value"
+
+LABEL_CONTAINER = "custom_fields.mex:label"
 LABEL_KW = "custom_fields.mex:label.value.keyword"
+LABEL = "custom_fields.mex:label.value"
+
+MEX_ID_KW = "custom_fields.mex:identifier.keyword"
+
+PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
+
+PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
+PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
+
+SHORT_NAME = "custom_fields.mex:shortName.value"
+
+START = "custom_fields.mex:start.date"
+START_RANGE = "custom_fields.mex:start.date_range"
+
+SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
+SUBTITLE = "custom_fields.mex:subtitle.value"
+
+THEME_KW = "custom_fields.mex:theme.keyword"
+
+TITLE_CONTAINER = "custom_fields.mex:title"
+TITLE = "custom_fields.mex:title.value"
+TITLE_KW = "custom_fields.mex:title.value.keyword"
+
+USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
+USED_IN_DISPLAY = "display_data.linked_records.mex:usedIn"
+
+USED_IN_EN = "index_data.enUsedInResource"
+USED_IN_DE = "index_data.deUsedInResource"
 USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
-# range fields for date histograms
-CREATED_RANGE = "custom_fields.mex:created.date_range"
-END_RANGE = "custom_fields.mex:end.date_range"
-START_RANGE = "custom_fields.mex:start.date_range"
-PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
-
-# field containers, for those with language/value sub fields
-DESCRIPTION_CONTAINER = "custom_fields.mex:description"
-ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
-SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
-LABEL_CONTAINER = "custom_fields.mex:label"
-TITLE_CONTAINER = "custom_fields.mex:title"
-ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
-KEYWORD_CONTAINER = "custom_fields.mex:keyword"
-
-# data fields for content, where content is available as literal (or as a list of literals)
-# for display and free-text searching
 VARIABLE_GROUPS_EN = "index_data.enVariableGroups"
 VARIABLE_GROUPS_DE = "index_data.deVariableGroups"
-DESCRIPTION = "custom_fields.mex:description.value"
-CREATED = "custom_fields.mex:created.date"
-ABSTRACT = "custom_fields.mex:abstract.value"
-START = "custom_fields.mex:start.date"
-END = "custom_fields.mex:end.date"
-PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
-USED_IN_EN = "index_data.enUsedInResource"
-USED_IN_DE = "index_data.deUsedInResource"
-USED_IN_DISPLAY = "display_data.linked_records.mex:usedIn"
-BELONGS_TO_LABEL = "index_data.belongsToLabel"
-BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
-DATA_TYPE = "custom_fields.mex:dataType"
-CODING_SYSTEM = "custom_fields.mex:codingSystem"
-TITLE = "custom_fields.mex:title.value"
-ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
-CONTRIBUTORS = "index_data.contributors"
-EXTERNAL_PARTNERS = "index_data.externalPartners"
-ICD10 = "custom_fields.mex:icd10code.value"
-SHORT_NAME = "custom_fields.mex:shortName.value"
-EXTERNAL_ASSOCIATE = "index_data.externalAssociates"
-INVOLVED_PERSON = "index_data.involvedPersons"
-SUBTITLE = "custom_fields.mex:subtitle.value"
-CREATOR = "index_data.creators"
-KEYWORD = "custom_fields.mex:keyword.value"
-
 
 DEFAULT_FIELDS = {
     TITLE,
@@ -258,6 +282,100 @@ class HighlightParamsInterpreter(ParamInterpreter):
             "custom_fields.mex:title.value",
         )
 
+        # Uncomment this to get a view on the query in development
+        # print("#########highlight###############")
+        # print(json.dumps(search.to_dict()))
+
+class BoostingParamsInterpreter(ParamInterpreter):
+
+    BOOSTS = {
+        "resource": {
+            TITLE: 20,
+            ALT_TITLE: 10,
+            DESCRIPTION: 10,
+            KEYWORD: 10
+        },
+        "variable": {
+            LABEL: 20,
+            USED_IN_EN: 10,
+            USED_IN_DE: 10,
+            BELONGS_TO_LABEL: 10,
+            DATA_TYPE: 10,
+            CODING_SYSTEM: 5
+        },
+        "activity": {
+            TITLE: 20,
+            ALT_TITLE: 10,
+            ABSTRACT: 10,
+            # START: 10,
+            # END: 10
+        },
+        "bibliographicresource": {
+            TITLE: 20,
+            ALT_TITLE: 10,
+            SUBTITLE: 10,
+            ABSTRACT: 10,
+            CREATOR: 10,
+            # RESPONSIBLE_UNIT: 10
+        }
+    }
+
+    def _make_functions(self, typ, qs):
+        functions = []
+        if typ not in self.BOOSTS:
+            return functions
+        for field, weight in self.BOOSTS[typ].items():
+            functions.append(
+                {
+                    "filter": {
+                        "query_string": {
+                            "default_field": field,
+                            "query": qs,
+                        }
+                    },
+                    "weight": weight,
+                }
+            )
+        return functions
+
+    def apply(self, identity, search, params):
+        """Specify the highlighter fields."""
+        raw = search.to_dict()
+
+        import json
+        print("#########boosting2###############")
+        print(json.dumps(raw, indent=2))
+        print("-----------")
+
+        base_query = raw.get("query", {})
+        musts = base_query.get("bool", {}).get("must", [])
+        qs = None
+        for m in musts:
+            if "query_string" in m:
+                qs = m["query_string"].get("query")
+                break
+
+        if qs is not None:
+            typ = params.get("resource_type")
+            functions = self._make_functions(typ, qs)
+            if len(functions) == 0:
+                return search
+
+            raw["query"] = {
+                "function_score": {
+                    "query": base_query,
+                    "functions": functions,
+                    "score_mode": "sum",
+                    "boost_mode": "multiply",
+                }
+            }
+
+            print(json.dumps(raw, indent=2))
+            print("-----------")
+
+            return search.from_dict(raw)
+        else:
+            return search
         # Uncomment this to get a view on the query in development
         # print("#########highlight###############")
         # print(json.dumps(search.to_dict()))
