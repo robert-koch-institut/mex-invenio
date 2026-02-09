@@ -139,7 +139,17 @@ AGGS = {
     CREATION_METHOD_KW,
 }
 
-SORT = {CREATED, END, START, TITLE_KW, PUBLICATION_YEAR}
+SORT = {
+    CREATED,
+    END,
+    START,
+    TITLE_KW,
+    PUBLICATION_YEAR,
+    LABEL_KW,
+    USED_IN_EN_KW,
+    USED_IN_DE_KW,
+    BELONGS_TO_LABEL_KW
+}
 
 MAX_AGG_SIZE = 200
 MAX_PAGE_SIZE = 100
@@ -148,12 +158,16 @@ MAX_FROM = 10000
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate(self, raw):
-        self._validate_default_fields(raw)
-        self._validate_must_filters(raw)
-        self._validate_non_must_filters(raw)
-        self._validate_aggregations(raw)
-        self._validate_paging(raw)
-        self._validate_sort(raw)
+        try:
+            self._validate_default_fields(raw)
+            self._validate_must_filters(raw)
+            self._validate_non_must_filters(raw)
+            self._validate_aggregations(raw)
+            self._validate_paging(raw)
+            self._validate_sort(raw)
+        except ValueError as e:
+            print(f"QUERY VALIDATION FAILURE: {e}")
+        return
 
     def _validate_default_fields(self, raw):
         default_field = (
@@ -217,6 +231,16 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate_paging(self, raw):
         from_ = raw.get("from", 0)
         size = raw.get("size", 10)
+        
+        try:
+            size = int(size)
+        except:
+            raise ValueError(f"Page size {size} is not a valid integer")
+        try:
+            from_ = int(from_)
+        except:
+            raise ValueError(f"From {from_} is not a valid integer")
+
         if size > MAX_PAGE_SIZE:
             raise ValueError(
                 f"Page size {size} exceeds maximum allowed size of {MAX_PAGE_SIZE}"
@@ -235,8 +259,8 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                 msg = "Sorting by multiple fields is not permitted."
                 raise ValueError(msg)
             sort = sort[0]
-
-        field = sort.keys()[0]
+        
+        field = list(sort.keys())[0]
         if field not in SORT:
             raise ValueError(f"Sorting by field '{field}' is not permitted.")
 
