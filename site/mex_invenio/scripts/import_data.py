@@ -307,8 +307,7 @@ def import_data(
         # Re-index related records while still in app context to keep
         # SQLAlchemy instances bound to the active session
         if report["related"]:
-            for mex_id in report["related"]:
-                current_rdm_records_service.indexer.index_by_id(mex_id)
+            current_rdm_records_service.indexer.bulk_index((r for r in report['related']))
 
     # End the timer after processing is done
     end_time = time.time()
