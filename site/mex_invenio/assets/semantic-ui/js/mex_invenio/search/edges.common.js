@@ -518,10 +518,12 @@ mex.makeEdge = function (params) {
     if (params.openingQuery) {
         oq.merge(params.openingQuery);
     }
+    let baseQuery = params.baseQuery || false;
     return new edges.Edge({
         selector: selector,
         template: template,
         searchUrl: search_url,
+        baseQuery: baseQuery,
         openingQuery: oq,
         components: params.components,
         secondaryQueries: params.secondaryQueries || false,
@@ -4051,32 +4053,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        // let hits = this.component.edge.result.data.hits.hits;
-        // for (let hit of hits) {
-        //     if (res.uuid === hit._id) {
-        //         if (hit.highlight) {
-        //             if (hit.highlight[mex.constants.DESCRIPTION]) {
-        //                 desc = hit.highlight[mex.constants.DESCRIPTION][0];
-        //                 desc = desc.replace(/<em>/g, "<code>");
-        //                 desc = desc.replace(/<\/em>/g, "</code>");
-        //             }
-        //             if (hit.highlight[mex.constants.TITLE]) {
-        //                 title = hit.highlight[mex.constants.TITLE][0];
-        //                 title = title.replace(/<em>/g, "<code>");
-        //                 title = title.replace(/<\/em>/g, "</code>");
-        //             }
-        //         }
-        //     }
-        // }
-
-        // let created = edges.util.escapeHtml(
-        //     edges.util.pathValue("created", res, "")
-        // );
-        let created = res["custom_fields"]["mex:created"]
-        // let createdDate = new Date(created);
+        let created = res["custom_fields"]["mex:created"];
         let created_ui = "";
         if (created && created.date) {
             created_ui = mex.fullDateFormatter(created.date);
@@ -4089,24 +4066,13 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
-        // keywords = keywords.map((k) => edges.util.escapeHtml(k)).join(", ");
-        // if (keywords !== "") {
-        //     keywords = `<span class="tag">${keywords}</span>`;
-        // }
 
         let selectState = "unselected";
 
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
-            // currentImage = "/static/images/selected.svg";
-            // selectText = i18n.t("Remove");
         }
 
-        let previewClass = edges.util.jsClasses(
-            this.namespace,
-            "preview",
-            this.component.id
-        );
         let selectClass = edges.util.jsClasses(
             this.namespace,
             "select",
@@ -4114,7 +4080,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         );
 
         let frag = `<div class="card results-card"><div class="card-header">`
-
         frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
         let vCount = 0;
@@ -4123,7 +4088,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                     vCount = res["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
                 }
             }
-
 
         frag += `
         <button type="button" class="ui icon button ${selectState} ${selectClass}"

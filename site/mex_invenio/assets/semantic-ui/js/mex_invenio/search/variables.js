@@ -29,6 +29,9 @@ edges.instances.variables.init = function () {
 
     edges.active["variables-resources"] = mex.makeEdge({
         selector: "#resources-container",
+        baseQuery: new es.Query({
+            must: [new es.ExistsFilter({field: mex.constants.USED_IN_DISPLAY})],
+        }),
         openingQuery: new es.Query({size: 10}),
         template: new mex.templates.SingleColumnTemplate({
             preamble: `<a class="link-button" href="/search/resources" style="margin-top: 2rem;">${i18n.t("Back to Data Sources &amp; Datasets Search")}</a>`,
