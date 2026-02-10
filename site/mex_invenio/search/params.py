@@ -259,10 +259,12 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                 msg = "Sorting by multiple fields is not permitted."
                 raise ValueError(msg)
             sort = sort[0]
-        
-        field = list(sort.keys())[0]
-        if field not in SORT:
-            raise ValueError(f"Sorting by field '{field}' is not permitted.")
+
+        keys = list(sort.keys())
+        if len(keys) > 0:
+            field = keys[0]
+            if field not in SORT:
+                raise ValueError(f"Sorting by field '{field}' is not permitted.")
 
     def _constrain(self, q):
         return q.filter("term", versions__is_latest=True)
@@ -313,6 +315,13 @@ class HighlightParamsInterpreter(ParamInterpreter):
 class BoostingParamsInterpreter(ParamInterpreter):
 
     BOOSTS = {
+        "global": {
+            TITLE: 20,
+            LABEL: 20,
+            ALT_TITLE: 10,
+            DESCRIPTION: 10,
+            ABSTRACT: 10
+        },
         "resource": {
             TITLE: 20,
             ALT_TITLE: 10,
@@ -366,10 +375,10 @@ class BoostingParamsInterpreter(ParamInterpreter):
         """Specify the highlighter fields."""
         raw = search.to_dict()
 
-        import json
-        print("#########boosting2###############")
-        print(json.dumps(raw, indent=2))
-        print("-----------")
+        # import json
+        # print("#########boosting2###############")
+        # print(json.dumps(raw, indent=2))
+        # print("-----------")
 
         base_query = raw.get("query", {})
         musts = base_query.get("bool", {}).get("must", [])
@@ -381,6 +390,8 @@ class BoostingParamsInterpreter(ParamInterpreter):
 
         if qs is not None:
             typ = params.get("resource_type")
+            if isinstance(typ, list):
+                typ = "global"
             functions = self._make_functions(typ, qs)
             if len(functions) == 0:
                 return search
@@ -394,8 +405,8 @@ class BoostingParamsInterpreter(ParamInterpreter):
                 }
             }
 
-            print(json.dumps(raw, indent=2))
-            print("-----------")
+            # print(json.dumps(raw, indent=2))
+            # print("-----------")
 
             return search.from_dict(raw)
         else:

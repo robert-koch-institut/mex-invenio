@@ -39,6 +39,7 @@ mex.constants.THEME_KW = "custom_fields.mex:theme.keyword"
 mex.constants.PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 mex.constants.CREATION_METHOD_KW = "custom_fields.mex:resourceCreationMethod.keyword"
 mex.constants.TITLE_KW = "custom_fields.mex:title.value.keyword"
+mex.constants.TITLE_SORT = "index_data.title_sort"
 mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
@@ -49,6 +50,7 @@ mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
 // FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
 // isn't indexed to be used this way, so this will sort by whatever the first value is
 mex.constants.LABEL_KW = "custom_fields.mex:label.value.keyword"
+mex.constants.LABEL_SORT = "index_fields.label_sort"
 mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
@@ -2597,19 +2599,14 @@ mex.renderers.Sorter = class extends edges.Renderer {
         let sortFrag = "";
         if (comp.sortOptions && comp.sortOptions.length > 0) {
             // classes that we'll use
-            let sortFieldClass = edges.util.allClasses(
-                this.namespace,
-                "sortby",
-                this
-            );
+            let sortFieldClass = edges.util.allClasses(this.namespace, "sortby", this);
 
             let sortOptions = "";
             for (let i = 0; i < comp.sortOptions.length; i++) {
                 let field = comp.sortOptions[i].field;
                 let display = comp.sortOptions[i].display;
-                sortOptions += `<option value="${field}">${edges.util.escapeHtml(
-                    display
-                )}</option>`;
+                let dir = comp.sortOptions[i].order || "asc";
+                sortOptions += `<option value="${field}" data-dir="${dir}">${edges.util.escapeHtml(display)}</option>`;
             }
 
             sortFrag = `<div class="form">
@@ -2624,11 +2621,7 @@ mex.renderers.Sorter = class extends edges.Renderer {
         }
 
         // assemble the final fragment and render it into the component's context
-        let containerClass = edges.util.styleClasses(
-            this.namespace,
-            "container",
-            this
-        );
+        let containerClass = edges.util.styleClasses(this.namespace, "container", this);
 
         // Upgrading the search UI as per sematic ui
         let frag = `
@@ -2648,16 +2641,8 @@ mex.renderers.Sorter = class extends edges.Renderer {
 
         // attach all the bindings
         if (comp.sortOptions && comp.sortOptions.length > 0) {
-            let directionSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "direction",
-                this
-            );
-            let sortSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "sortby",
-                this
-            );
+            let directionSelector = edges.util.jsClassSelector(this.namespace, "direction", this);
+            let sortSelector = edges.util.jsClassSelector(this.namespace, "sortby", this);
             edges.on(directionSelector, "click", this, "changeSortDir");
             edges.on(sortSelector, "change", this, "changeSortBy");
         }
@@ -2711,144 +2696,14 @@ mex.renderers.Sorter = class extends edges.Renderer {
     };
 
     changeSortBy = function (element) {
-        let val = this.component.jq(element).val();
-        this.component.setSortBy(val);
-    };
-};
-
-mex.renderers.Sorter = class extends edges.Renderer {
-    constructor(params) {
-        super(params);
-
-        ////////////////////////////////////////
-        // state variables
-
-        this.namespace = "mex-sorter";
-    }
-
-    draw() {
-        let comp = this.component;
-
-        // if sort options are provided render the orderer and the order by
-        let sortFrag = "";
-        if (comp.sortOptions && comp.sortOptions.length > 0) {
-            // classes that we'll use
-            let sortFieldClass = edges.util.allClasses(
-                this.namespace,
-                "sortby",
-                this
-            );
-
-            let sortOptions = "";
-            for (let i = 0; i < comp.sortOptions.length; i++) {
-                let field = comp.sortOptions[i].field;
-                let display = comp.sortOptions[i].display;
-                sortOptions += `<option value="${field}">${edges.util.escapeHtml(
-                    display
-                )}</option>`;
-            }
-
-            sortFrag = `<div class="form">
-                <div class="field">
-                    ${i18n.t("Sort by")}
-                    <select class="ui dropdown ${sortFieldClass}">
-                        <option value="_score">${i18n.t("Relevance")}</option>
-                        ${sortOptions}
-                    </select>
-                </div>
-            </div>`;
+        let el = this.component.jq(element);
+        let val = el.val();
+        let dir = el.find('option:selected').attr('data-dir');
+        if (!dir) {
+            dir = "asc";
         }
 
-        // assemble the final fragment and render it into the component's context
-        let containerClass = edges.util.styleClasses(
-            this.namespace,
-            "container",
-            this
-        );
-
-        // Upgrading the search UI as per sematic ui
-        let frag = `
-            <div class="ui grid ${containerClass}" style="margin-left:0;">
-                <div class="ui right aligned column" style="padding-right: 0;">
-                ${sortFrag}
-                </div>
-            </div>`;
-
-        comp.context.html(frag);
-
-        // now populate all the dynamic bits
-        if (comp.sortOptions && comp.sortOptions.length > 0) {
-            this.setUISortDir();
-            this.setUISortField();
-        }
-
-        // attach all the bindings
-        if (comp.sortOptions && comp.sortOptions.length > 0) {
-            let directionSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "direction",
-                this
-            );
-            let sortSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "sortby",
-                this
-            );
-            edges.on(directionSelector, "click", this, "changeSortDir");
-            edges.on(sortSelector, "change", this, "changeSortBy");
-        }
-    }
-
-    ///////////////////////////////////////a///////////////
-    // functions for setting UI values
-
-    setUISortDir() {
-        // get the selector we need
-        let directionSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "direction",
-            this
-        );
-        let el = this.component.jq(directionSelector);
-        if (this.component.sortDir === "asc") {
-            el.html(`<i class="icon sort up"></i> ${i18n.t("sort by")}`);
-            el.attr(
-                "title",
-                i18n.t("Current order ascending. Click to change to descending")
-            );
-        } else {
-            el.html(`<i class="icon sort down"></i> ${i18n.t("sort by")}`);
-            el.attr(
-                "title",
-                i18n.t("Current order descending. Click to change to ascending")
-            );
-        }
-    }
-
-    setUISortField() {
-        if (!this.component.sortBy) {
-            return;
-        }
-        // get the selector we need
-        let sortSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "sortby",
-            this
-        );
-        let el = this.component.jq(sortSelector);
-        el.val(this.component.sortBy);
-    }
-
-    ////////////////////////////////////////
-    // event handlers
-
-    changeSortDir = function (element) {
-        this.component.changeSortDir();
-    };
-
-    changeSortBy = function (element) {
-        let val = this.component.jq(element).val();
-        this.component.setSortBy(val);
+        this.component.setSort({field: val, dir: dir});
     };
 };
 
@@ -5006,8 +4861,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             <thead>
             <tr>
                 <th></th>
-                <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
-                    ${sortButtonMacro(mex.constants.LABEL_KW)}
+                <th aria-sort="${currentDir(mex.constants.LABEL_SORT, false)}">
+                    ${sortButtonMacro(mex.constants.LABEL_SORT)}
                     ${i18n.t("Variables")}
                 </th>
                 <th aria-sort="${currentDir(rpath, false)}">

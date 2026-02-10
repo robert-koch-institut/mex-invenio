@@ -48,7 +48,7 @@ edges.instances.bibliographicResources.init = function () {
                         display: i18n.t("Publication Year (newest first)"),
                         order: "desc"
                     },
-                    {field: mex.constants.TITLE_KW, "display": i18n.t("Title"), order: "desc"}
+                    {field: mex.constants.TITLE_SORT, "display": i18n.t("Title"), order: "asc"}
                 ]
             }),
             mex.pager({showRecordCount: false}),
