@@ -37,6 +37,7 @@ from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
     normalize_record_data,
 )
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -149,7 +150,13 @@ def process_record_batch(
                 published = current_rdm_records_service.publish(
                     id_=draft.id, identity=identity
                 )
-                results.append({"action": "create", "id": published.id, "uuid": published._record.id})
+                results.append(
+                    {
+                        "action": "create",
+                        "id": published.id,
+                        "uuid": published._record.id,
+                    }
+                )
 
                 for related_id in get_related_mex_ids(mex_data):
                     results.append({"action": "related", "id": related_id})
@@ -173,7 +180,13 @@ def process_record_batch(
                     new_record = current_rdm_records_service.publish(
                         identity=identity, id_=new_version.id
                     )
-                    results.append({"action": "update", "id": new_record.id, "uuid": new_record._record.id})
+                    results.append(
+                        {
+                            "action": "update",
+                            "id": new_record.id,
+                            "uuid": new_record._record.id,
+                        }
+                    )
 
                     for related_id in get_related_mex_ids(mex_data):
                         results.append({"action": "related", "id": related_id})
@@ -308,13 +321,17 @@ def import_data(
         # SQLAlchemy instances bound to the active session
         if report["related"]:
             logger.info(f"Indexing {len(report['related'])} related records.")
-            current_rdm_records_service.indexer.bulk_index((r for r in report['related']))
+            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
 
-        if report['updated']:
-            current_rdm_records_service.indexer.bulk_index((r['uuid'] for r in report['updated']))
+        if report["updated"]:
+            current_rdm_records_service.indexer.bulk_index(
+                r["uuid"] for r in report["updated"]
+            )
 
-        if report['created']:
-            current_rdm_records_service.indexer.bulk_index((r['uuid'] for r in report['created']))
+        if report["created"]:
+            current_rdm_records_service.indexer.bulk_index(
+                r["uuid"] for r in report["created"]
+            )
 
     # End the timer after processing is done
     end_time = time.time()

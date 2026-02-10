@@ -124,7 +124,7 @@ SORT = {
     LABEL_KW,
     USED_IN_EN_KW,
     USED_IN_DE_KW,
-    BELONGS_TO_LABEL_KW
+    BELONGS_TO_LABEL_KW,
 }
 
 MAX_AGG_SIZE = 200
@@ -143,7 +143,6 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
             self._validate_sort(raw)
         except ValueError as e:
             print(f"QUERY VALIDATION FAILURE: {e}")
-        return
 
     def _validate_default_fields(self, raw):
         default_field = (
@@ -207,7 +206,7 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate_paging(self, raw):
         from_ = raw.get("from", 0)
         size = raw.get("size", 10)
-        
+
         try:
             size = int(size)
         except:
@@ -235,7 +234,7 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
                 msg = "Sorting by multiple fields is not permitted."
                 raise ValueError(msg)
             sort = sort[0]
-        
+
         field = list(sort.keys())[0]
         if field not in SORT:
             raise ValueError(f"Sorting by field '{field}' is not permitted.")
