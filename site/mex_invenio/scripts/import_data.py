@@ -217,7 +217,7 @@ def update_report(report: dict, batch_results: list[dict]):
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
-            report["related"].append(result["id"])
+            report["related"].add(result["id"])
 
 
 @click.command("import_data")
@@ -268,7 +268,7 @@ def import_data(
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
-    report = {"created": [], "updated": [], "skipped": [], "related": [], "error": 0}
+    report = {"created": [], "updated": [], "skipped": [], "related": set(), "error": 0}
 
     # Process records in batches
     with current_app.app_context():
