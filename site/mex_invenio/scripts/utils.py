@@ -175,8 +175,8 @@ def diff_files(directory: str, existing_file: str, new_file: str):
 
     timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
     mex_model_version = importlib.metadata.version("mex-model")
-    existing_basename = os.path.basename(existing_file)
-    new_basename = os.path.basename(new_file)
+    existing_basename = os.path.basename(existing_file).removesuffix(".ndjson")
+    new_basename = os.path.basename(new_file).removesuffix(".ndjson")
     diff_file = os.path.join(
         diffdirectory,
         f"{existing_basename}-{new_basename}-{mex_model_version}_{timestamp}.ndjson",
