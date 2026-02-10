@@ -551,7 +551,7 @@ class MexDumper(SearchDumper):
         # titles
         titles = record.get("custom_fields", {}).get("mex:title", [])
         values = [t.get("value") for t in titles if isinstance(t, dict) and "value" in t]
-        dump_data["index_data"]["title"] = values
+        dump_data["index_data"]["title_sort"] = values
 
         # labels
         labels = record.get("custom_fields", {}).get("mex:label", [])

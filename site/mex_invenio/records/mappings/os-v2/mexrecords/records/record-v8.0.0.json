@@ -2461,6 +2461,7 @@
             "custom_fields.mex:alternativeTitle.value",
             "custom_fields.mex:label.value",
             "custom_fields.mex:valueSet",
+			"custom_fields.mex:dataType",
             "index_data.belongsToLabel",
             "index_data.contributors",
             "index_data.creators",

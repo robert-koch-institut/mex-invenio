@@ -302,15 +302,34 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
 class HighlightParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Specify the highlighter fields."""
-        return search.highlight(
-            "custom_fields.mex:description.value",
-            "custom_fields.mex:abstract.value",
-            "custom_fields.mex:title.value",
-        )
+        if params.get("resource_type") == "variable":
+            search = search.highlight(
+                LABEL,
+                USED_IN_DE,
+                USED_IN_EN,
+                BELONGS_TO_LABEL,
+                DATA_TYPE
+            )
+        elif isinstance(params.get("resource_type"), list):
+            search = search.highlight(
+                DESCRIPTION,
+                ABSTRACT,
+                TITLE,
+                LABEL
+            )
+        else:
+            search = search.highlight(
+                DESCRIPTION,
+                ABSTRACT,
+                TITLE
+            )
 
         # Uncomment this to get a view on the query in development
         # print("#########highlight###############")
+        # import json
         # print(json.dumps(search.to_dict()))
+
+        return search
 
 class BoostingParamsInterpreter(ParamInterpreter):
 

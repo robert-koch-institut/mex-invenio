@@ -49,6 +49,7 @@ mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
 // FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
 // isn't indexed to be used this way, so this will sort by whatever the first value is
+mex.constants.LABEL = "custom_fields.mex:label.value"
 mex.constants.LABEL_KW = "custom_fields.mex:label.value.keyword"
 mex.constants.LABEL_SORT = "index_fields.label_sort"
 mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
@@ -264,6 +265,39 @@ mex.rankedByLang = function (path, res) {
     let ranked = preferred.concat(de).concat(en);
     return ranked;
 };
+
+mex.extractHighlights = function(results) {
+    let highlights = {};
+    if (!results || !results.data || !results.data.hits || !results.data.hits.hits) {
+        return highlights;
+    }
+
+    let hits = results.data.hits.hits;
+
+    for (let hit of hits) {
+        highlights[hit._id] = {}
+        if (!hit.highlight) {
+            continue;
+        }
+        for (let field of Object.keys(hit.highlight)) {
+            let val = hit.highlight[field][0];
+            val = val.replace(/<em>/g, "<code>");
+            val = val.replace(/<\/em>/g, "</code>");
+            highlights[hit._id][field] = val;
+        }
+    }
+
+    return highlights;
+}
+
+mex.getHighlight = function(highlights, id, field) {
+    if (id in highlights) {
+        if (field in highlights[id]) {
+            return highlights[id][field];
+        }
+    }
+    return null;
+}
 
 mex.resolveOpeningQuery = function(openingQuery) {
     // we need to account for the possibility that we've been given a source argument in the url
@@ -1925,20 +1959,20 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 i18n.t("No title")
             );
 
-            if (this.component.edge.result) {
-                let hits = this.component.edge.result.data.hits.hits;
-                for (let hit of hits) {
-                    if (record.uuid === hit._id) {
-                        if (hit.highlight) {
-                            if (hit.highlight[edges.mex.constants.TITLE]) {
-                                title = hit.highlight[edges.mex.constants.TITLE][0];
-                                title = title.replace(/<em>/g, "<code>");
-                                title = title.replace(/<\/em>/g, "</code>");
-                            }
-                        }
-                    }
-                }
-            }
+            // if (this.component.edge.result) {
+            //     let hits = this.component.edge.result.data.hits.hits;
+            //     for (let hit of hits) {
+            //         if (record.uuid === hit._id) {
+            //             if (hit.highlight) {
+            //                 if (hit.highlight[edges.mex.constants.TITLE]) {
+            //                     title = hit.highlight[edges.mex.constants.TITLE][0];
+            //                     title = title.replace(/<em>/g, "<code>");
+            //                     title = title.replace(/<\/em>/g, "</code>");
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
 
             let lang = mex.state.lang;
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
@@ -3927,10 +3961,13 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 this.component.id
             );
 
+            // extract the highlights from the results
+            let highlights = mex.extractHighlights(this.component.edge.result);
+
             // now call the result renderer on each result to build the records
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i]);
+                var rec = this._renderResult(results[i], highlights);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -3987,14 +4024,17 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
     }
 
-    _renderResult(res) {
+    _renderResult(res, highlights) {
 
         let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
         let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
 
-        let title = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
-        );
+        let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
+        if (!title) {
+            title = edges.util.escapeHtml(
+                this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
+            );
+        }
 
         let alt = this._getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
         if (alt) {
@@ -4003,31 +4043,34 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             alt = "";
         }
 
-        let desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
-        if (desc.length > 300) {
-            desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
+        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
+        if (!desc) {
+            desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
+            if (desc.length > 300) {
+                desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
+            }
         }
 
         // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
         // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
         // great, and will slow down large result sets
-        let hits = this.component.edge.result.data.hits.hits;
-        for (let hit of hits) {
-            if (res.uuid === hit._id) {
-                if (hit.highlight) {
-                    if (hit.highlight[mex.constants.DESCRIPTION]) {
-                        desc = hit.highlight[mex.constants.DESCRIPTION][0];
-                        desc = desc.replace(/<em>/g, "<code>");
-                        desc = desc.replace(/<\/em>/g, "</code>");
-                    }
-                    if (hit.highlight[mex.constants.TITLE]) {
-                        title = hit.highlight[mex.constants.TITLE][0];
-                        title = title.replace(/<em>/g, "<code>");
-                        title = title.replace(/<\/em>/g, "</code>");
-                    }
-                }
-            }
-        }
+        // let hits = this.component.edge.result.data.hits.hits;
+        // for (let hit of hits) {
+        //     if (res.uuid === hit._id) {
+        //         if (hit.highlight) {
+        //             if (hit.highlight[mex.constants.DESCRIPTION]) {
+        //                 desc = hit.highlight[mex.constants.DESCRIPTION][0];
+        //                 desc = desc.replace(/<em>/g, "<code>");
+        //                 desc = desc.replace(/<\/em>/g, "</code>");
+        //             }
+        //             if (hit.highlight[mex.constants.TITLE]) {
+        //                 title = hit.highlight[mex.constants.TITLE][0];
+        //                 title = title.replace(/<em>/g, "<code>");
+        //                 title = title.replace(/<\/em>/g, "</code>");
+        //             }
+        //         }
+        //     }
+        // }
 
         // let created = edges.util.escapeHtml(
         //     edges.util.pathValue("created", res, "")
@@ -4175,9 +4218,10 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let results = this.component.results;
 
         // now call the result renderer on each result to build the records
+        let highlights = mex.extractHighlights(this.component.edge.result);
         let resultsFrag = "";
         for (let i = 0; i < results.length; i++) {
-            let rec = this._renderResult(results[i]);
+            let rec = this._renderResult(results[i], highlights);
             resultsFrag += `${rec}`;
         }
 
@@ -4294,32 +4338,10 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         }
     }
 
-    _renderResult(record) {
-        let title = mex.getLangVal(
-            mex.constants.TITLE_CONTAINER,
-            record,
-            i18n.t("No title")
-        );
-
-        let truncated = title;
-        if (truncated.length > 50) {
-            truncated = truncated.substring(0, 47) + "...";
-        }
-
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        let hits = this.component.edge.result.data.hits.hits;
-        for (let hit of hits) {
-            if (record.uuid === hit._id) {
-                if (hit.highlight) {
-                    if (hit.highlight[edges.mex.constants.TITLE]) {
-                        truncated = hit.highlight[edges.mex.constants.TITLE][0];
-                        truncated = truncated.replace(/<em>/g, "<code>");
-                        truncated = truncated.replace(/<\/em>/g, "</code>");
-                    }
-                }
-            }
+    _renderResult(record, highlights) {
+        let title = mex.getHighlight(highlights, record.uuid, mex.constants.TITLE);
+        if (!title) {
+            title = mex.getLangVal(mex.constants.TITLE_CONTAINER, record, i18n.t("No title"));
         }
 
         let selectState = "unselected";
@@ -4434,14 +4456,10 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
 
     if (highlights) {
         if (highlights[mex.constants.ABSTRACT]) {
-            desc = highlights[mex.constants.ABSTRACT][0];
-            desc = desc.replace(/<em>/g, "<code>");
-            desc = desc.replace(/<\/em>/g, "</code>");
+            desc = highlights[mex.constants.ABSTRACT];
         }
         if (highlights[mex.constants.TITLE]) {
-            title = highlights[mex.constants.TITLE][0];
-            title = title.replace(/<em>/g, "<code>");
-            title = title.replace(/<\/em>/g, "</code>");
+            title = highlights[mex.constants.TITLE];
         }
     }
 
@@ -4551,14 +4569,10 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     if (highlights) {
         if (highlights[mex.constants.ABSTRACT]) {
-            desc = highlights[mex.constants.ABSTRACT][0];
-            desc = desc.replace(/<em>/g, "<code>");
-            desc = desc.replace(/<\/em>/g, "</code>");
+            desc = highlights[mex.constants.ABSTRACT]
         }
         if (highlights[mex.constants.TITLE]) {
-            title = highlights[mex.constants.TITLE][0];
-            title = title.replace(/<em>/g, "<code>");
-            title = title.replace(/<\/em>/g, "</code>");
+            title = highlights[mex.constants.TITLE]
         }
     }
 
@@ -4660,9 +4674,10 @@ mex.renderers.ActivitiesResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
+            let highlights = mex.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i]);
+                var rec = this._renderResult(results[i], highlights);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -4677,21 +4692,25 @@ mex.renderers.ActivitiesResults = class extends edges.Renderer {
         this.component.context.html(container);
     }
 
-    _renderResult(res) {
+    _renderResult(res, highlights) {
         // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
         // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
         // great, and will slow down large result sets
-        let highlights = {};
-        let hits = this.component.edge.result.data.hits.hits;
-        for (let hit of hits) {
-            if (res.uuid === hit._id) {
-                if (hit.highlight) {
-                    highlights = hit.highlight;
-                }
-            }
+        // let highlights = {};
+        // let hits = this.component.edge.result.data.hits.hits;
+        // for (let hit of hits) {
+        //     if (res.uuid === hit._id) {
+        //         if (hit.highlight) {
+        //             highlights = hit.highlight;
+        //         }
+        //     }
+        // }
+        let myHighlights = {};
+        if (highlights && res.uuid in highlights) {
+            myHighlights = highlights[res.uuid];
         }
 
-        return mex.renderers.activitiesResultView(res, highlights);
+        return mex.renderers.activitiesResultView(res, myHighlights);
     }
 };
 
@@ -4728,9 +4747,10 @@ mex.renderers.BibliographicResourcesResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
+            let highlights = mex.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i]);
+                var rec = this._renderResult(results[i], highlights);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -4745,21 +4765,24 @@ mex.renderers.BibliographicResourcesResults = class extends edges.Renderer {
         this.component.context.html(container);
     }
 
-    _renderResult(res) {
+    _renderResult(res, highlights) {
         // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
         // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
         // great, and will slow down large result sets
-        let highlights = {};
-        let hits = this.component.edge.result.data.hits.hits;
-        for (let hit of hits) {
-            if (res.uuid === hit._id) {
-                if (hit.highlight) {
-                    highlights = hit.highlight;
-                }
-            }
+        // let highlights = {};
+        // let hits = this.component.edge.result.data.hits.hits;
+        // for (let hit of hits) {
+        //     if (res.uuid === hit._id) {
+        //         if (hit.highlight) {
+        //             highlights = hit.highlight;
+        //         }
+        //     }
+        // }
+        let myHighlights = {};
+        if (res.uuid in highlights) {
+            myHighlights = highlights[res.uuid];
         }
-
-        return mex.renderers.bibliographicResourcesView(res, highlights);
+        return mex.renderers.bibliographicResourcesView(res, myHighlights);
     }
 };
 
@@ -4792,10 +4815,11 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let results = this.component.results;
+        let highlights = mex.extractHighlights(this.component.edge.result);
         if (results && results.length > 0) {
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                frag += this._renderResult(results[i]);
+                frag += this._renderResult(results[i], highlights);
             }
         }
 
@@ -4899,13 +4923,16 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         edges.on(sortSelector, "click", this, "applySort");
     }
 
-    _renderResult(res) {
+    _renderResult(res, highlights) {
         // get fields (escaped)
-        let label = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
-        );
+        let label = mex.getHighlight(highlights, res.uuid, mex.constants.LABEL);
+        if (!label) {
+            label = edges.util.escapeHtml(
+                this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
+            );
+        }
 
-        const getTitle = (v) => {
+        const getTitle = (v, resultHighlights) => {
             let langPrefix = mex.state.lang;
             const combineTitles = (items) => items.map(d => d.value).join(', ');
 
@@ -4921,32 +4948,50 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             return combineTitles(selected);
         }
 
+        let resultHighlights = highlights && res.uuid in highlights ? highlights[res.uuid] : {};
+
         // let langPrefix = edges.mex.state.lang;
         // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
         let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
         // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
         let resourceFrag = "";
         if (resources) {
-            for (let r of resources) {
-                resourceFrag += `<p class="results-value"><a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${getTitle(r)}</a></p>`
+            // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
+            // highlighted fragment
+            if (mex.constants.USED_IN_DE in resultHighlights) {
+                resourceFrag = resultHighlights[mex.constants.USED_IN_DE];
+            } else if (mex.constants.USED_IN_EN in resultHighlights) {
+                resourceFrag = resultHighlights[mex.constants.USED_IN_EN];
+            }
+            else {
+                for (let r of resources) {
+                    resourceFrag += `<p class="results-value">
+                        <a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${getTitle(r, resultHighlights)}</a>
+                    </p>`
+                }
             }
         }
 
         let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
         let groupFrag = "";
         if (groups) {
-            for (let g of groups){
-                groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
+            // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
+            // highlighted fragment
+            if (mex.constants.BELONGS_TO_LABEL in resultHighlights) {
+                resourceFrag = resultHighlights[mex.constants.BELONGS_TO_LABEL];
+            } else {
+                for (let g of groups) {
+                    groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
+                }
             }
         }
 
-        let dataType = edges.util.escapeHtml(
-            edges.util.pathValue(
-                mex.constants.DATA_TYPE,
-                res,
-                ""
-            )
-        );
+        let dataType = mex.getHighlight(highlights, res.uuid, mex.constants.DATA_TYPE);
+        if (!dataType) {
+            dataType = edges.util.escapeHtml(
+                edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
+            );
+        }
 
         let desc = edges.util.escapeHtml(
             this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
@@ -5189,9 +5234,10 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
+            let highlights = mex.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                let rec = this._renderResult(results[i]);
+                let rec = this._renderResult(results[i], highlights);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -5206,17 +5252,17 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         this.component.context.html(container);
     }
 
-    _renderResult(res) {
+    _renderResult(res, highlights) {
         let resType = edges.util.pathValue("metadata.resource_type.id", res, "resource");
 
         if (resType === "bibliographicresource") {
-            return this._renderBibliographicResource(res);
+            return this._renderBibliographicResource(res, highlights);
         } else if (resType === "activity") {
-            return this._renderActivity(res);
+            return this._renderActivity(res, highlights);
         } else if (resType === "variable") {
-            return this._renderVariable(res);
+            return this._renderVariable(res, highlights);
         } else if (resType === "resource") {
-            return this._renderResource(res);
+            return this._renderResource(res, highlights);
         }
     }
 
@@ -5331,19 +5377,36 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         return frag;
     }
 
-    _renderBibliographicResource(res) {
-        return mex.renderers.bibliographicResourcesView(res, null, true);
+    _renderBibliographicResource(res, highlights) {
+        let myHighlights = {};
+        if (highlights && res.uuid in highlights) {
+            myHighlights = highlights[res.uuid];
+        }
+        return mex.renderers.bibliographicResourcesView(res, myHighlights, true);
     }
 
-    _renderActivity(res) {
-        return mex.renderers.activitiesResultView(res, null, true);
+    _renderActivity(res, highlights) {
+        let myHighlights = {};
+        if (highlights && res.uuid in highlights) {
+            myHighlights = highlights[res.uuid];
+        }
+        return mex.renderers.activitiesResultView(res, myHighlights, true);
     }
 
-    _renderVariable(res) {
+    _renderVariable(res, highlights) {
         let mex_id = res["custom_fields"]["mex:identifier"]
+
+        let myHighlights = {};
+        if (highlights && res.uuid in highlights) {
+            myHighlights = highlights[res.uuid];
+        }
+
         let label = edges.util.escapeHtml(
             mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
+        if (myHighlights[mex.constants.LABEL]) {
+            label = myHighlights[mex.constants.LABEL]
+        }
 
         let langPrefix = mex.state.lang;
         let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
@@ -5363,19 +5426,11 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let dataType = edges.util.escapeHtml(
-            edges.util.pathValue(
-                mex.constants.DATA_TYPE,
-                res,
-                ""
-            )
+            edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
         );
 
         let codingSystem = edges.util.escapeHtml(
-            edges.util.pathValue(
-                mex.constants.CODING_SYSTEM,
-                res,
-                ""
-            )
+            edges.util.pathValue(mex.constants.CODING_SYSTEM, res, "")
         );
 
         // let desc = edges.util.escapeHtml(
