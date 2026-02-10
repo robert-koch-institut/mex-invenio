@@ -149,7 +149,7 @@ def process_record_batch(
                 published = current_rdm_records_service.publish(
                     id_=draft.id, identity=identity
                 )
-                results.append({"action": "create", "id": published.id})
+                results.append({"action": "create", "id": published.id, "uuid": published._record.id})
 
                 for related_id in get_related_mex_ids(mex_data):
                     results.append({"action": "related", "id": related_id})
@@ -173,7 +173,7 @@ def process_record_batch(
                     new_record = current_rdm_records_service.publish(
                         identity=identity, id_=new_version.id
                     )
-                    results.append({"action": "update", "id": new_record.id})
+                    results.append({"action": "update", "id": new_record.id, "uuid": new_record._record.id})
 
                     for related_id in get_related_mex_ids(mex_data):
                         results.append({"action": "related", "id": related_id})
@@ -211,9 +211,9 @@ def update_report(report: dict, batch_results: list[dict]):
     """Update the report with results from a batch."""
     for result in batch_results:
         if result["action"] == "create":
-            report["created"].append(result["id"])
+            report["created"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "update":
-            report["updated"].append(result["id"])
+            report["updated"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
@@ -307,7 +307,14 @@ def import_data(
         # Re-index related records while still in app context to keep
         # SQLAlchemy instances bound to the active session
         if report["related"]:
+            logger.info(f"Indexing {len(report['related'])} related records.")
             current_rdm_records_service.indexer.bulk_index((r for r in report['related']))
+
+        if report['updated']:
+            current_rdm_records_service.indexer.bulk_index((r['uuid'] for r in report['updated']))
+
+        if report['created']:
+            current_rdm_records_service.indexer.bulk_index((r['uuid'] for r in report['created']))
 
     # End the timer after processing is done
     end_time = time.time()
@@ -317,7 +324,7 @@ def import_data(
     minutes, seconds = divmod(elapsed_time, 60)
 
     for action in report:
-        if isinstance(report[action], list):
+        if isinstance(report[action], (list, set)):
             record_count = len(report[action])
         elif isinstance(report[action], int):
             record_count = report[action]
