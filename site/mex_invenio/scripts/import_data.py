@@ -37,7 +37,6 @@ from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
     normalize_record_data,
 )
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -305,6 +304,12 @@ def import_data(
                 batch_results = process_batch(batch_records, identity)
                 update_report(report, batch_results)
 
+        # Re-index related records while still in app context to keep
+        # SQLAlchemy instances bound to the active session
+        if report["related"]:
+            for mex_id in report["related"]:
+                current_rdm_records_service.indexer.index_by_id(mex_id)
+
     # End the timer after processing is done
     end_time = time.time()
 
@@ -335,11 +340,6 @@ def import_data(
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
     logger.info(time_taken)
-
-    # Get UUIDs for related MEx IDs for indexing
-    if report["related"]:
-        for mex_id in report["related"]:
-            current_rdm_records_service.indexer.index_by_id(mex_id)
 
     return True
 
