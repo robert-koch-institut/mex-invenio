@@ -333,6 +333,10 @@ def import_data(
                 r["uuid"] for r in report["created"]
             )
 
+        # Process the bulk queue synchronously to ensure all records
+        # are indexed before the function returns
+        current_rdm_records_service.indexer.process_bulk_queue()
+
     # End the timer after processing is done
     end_time = time.time()
 
@@ -349,7 +353,11 @@ def import_data(
         if record_count > 0:
             if action == "error":
                 logger.error(f"Encountered {record_count} errors during import.")
-
+            elif action in ("created", "updated"):
+                ids = [r["id"] for r in report[action]]
+                logger.info(
+                    f"{action.capitalize()} {record_count} records. Ids: {ids}"
+                )
             else:
                 logger.info(
                     f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
