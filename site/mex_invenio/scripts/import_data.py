@@ -38,45 +38,25 @@ from mex_invenio.scripts.utils import (
     normalize_record_data,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-    # datefmt='%Y-%m-%d %H:%M:%S'
-)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-def get_record_uuids_by_mex_ids(mex_ids: list[str]) -> dict[str, str]:
-    """Get record UUIDs for given MEx IDs."""
-    if not mex_ids:
-        return {}
-
-    try:
-        # Query for record UUIDs by MEx IDs
-        records = (
-            db.session.query(RDMRecord.model_cls.id, RDMRecord.model_cls.json)
-            .filter(
-                text(
-                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
-                )
-            )
-            .params(mex_ids=mex_ids)
-            .all()
+def _setup_file_logging():
+    """Add a timestamped file handler to the logger."""
+    log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    date_str = time.strftime("%Y%m%d")
+    handler = logging.FileHandler(os.path.join(log_dir, f"import-{date_str}.log"))
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
-
-        # Map MEx ID to UUID
-        mex_id_to_uuid = {}
-        for record_id, record_json in records:
-            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
-            if mex_id in mex_ids:
-                mex_id_to_uuid[mex_id] = str(record_id)
-
-        return mex_id_to_uuid
-
-    except Exception as e:
-        logger.error(f"Error getting UUIDs for MEx IDs: {e}")
-        return {}
+    )
+    logger.addHandler(handler)
+    return handler
 
 
 def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict]:
@@ -254,6 +234,7 @@ def import_data(
     Batch size is set to 100 records by default.
     Expected data source is a JSON file with one MEx record per line.
     """
+
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
 
@@ -265,17 +246,21 @@ def import_data(
             return False
 
     with current_app.app_context():
+        file_handler = _setup_file_logging()
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
+        logger.info(f"Importing {import_file}")
 
         if not owner:
             message = f"User with email {email} not found."
+            logger.error(message)
+            logger.removeHandler(file_handler)
+            file_handler.close()
 
             if cli:
                 click.secho(message, fg="red")
                 sys.exit(1)
             else:
-                logger.error(message)
                 return False
 
     # Start the timer to measure processing time
@@ -371,6 +356,9 @@ def import_data(
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
     logger.info(time_taken)
+
+    logger.removeHandler(file_handler)
+    file_handler.close()
 
     return True
 
