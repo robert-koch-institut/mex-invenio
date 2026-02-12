@@ -36,15 +36,15 @@ from mex_invenio.scripts.utils import (
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
+    cleanup_files,
 )
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def _setup_file_logging():
+def _setup_file_logging(log_dir):
     """Add a timestamped file handler to the logger."""
-    log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
     os.makedirs(log_dir, exist_ok=True)
     date_str = time.strftime("%Y%m%d")
     handler = logging.FileHandler(os.path.join(log_dir, f"import-{date_str}.log"))
@@ -246,7 +246,8 @@ def import_data(
             return False
 
     with current_app.app_context():
-        file_handler = _setup_file_logging()
+        log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
+        file_handler = _setup_file_logging(log_dir)
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
         logger.info(f"Importing {import_file}")
@@ -359,6 +360,7 @@ def import_data(
 
     logger.removeHandler(file_handler)
     file_handler.close()
+    cleanup_files(log_dir)
 
     return True
 

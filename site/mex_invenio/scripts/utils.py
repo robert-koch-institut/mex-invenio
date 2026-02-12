@@ -143,14 +143,14 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
-def cleanup_diff_files(diffdirectory: str, keep: int = 20):
-    """Remove old diff files, keeping only the most recent ones."""
+def cleanup_files(directory: str, keep: int = 20):
+    """Remove old files, keeping only the most recent ones."""
     try:
         files = sorted(
             [
-                os.path.join(diffdirectory, f)
-                for f in os.listdir(diffdirectory)
-                if os.path.isfile(os.path.join(diffdirectory, f))
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if os.path.isfile(os.path.join(directory, f))
             ],
             key=os.path.getmtime,
             reverse=True,
@@ -158,9 +158,9 @@ def cleanup_diff_files(diffdirectory: str, keep: int = 20):
         for f in files[keep:]:
             try:
                 os.remove(f)
-                logger.info(f"Removed old diff file: {f}")
+                logger.info(f"Removed old file: {f}")
             except OSError as e:
-                logger.warning(f"Could not remove old diff file {f}: {e}")
+                logger.warning(f"Could not remove old file {f}: {e}")
     except FileNotFoundError:
         pass
 
@@ -268,7 +268,7 @@ def diff_files(directory: str, existing_file: str, new_file: str):
             f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
         )
         logger.info(f"Created diff file: {diff_file}")
-        cleanup_diff_files(diffdirectory)
+        cleanup_files(diffdirectory)
         return diff_file
 
     except Exception as e:
