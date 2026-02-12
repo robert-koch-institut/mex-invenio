@@ -65,7 +65,12 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
         return {}
 
     try:
-        # Query database with JOIN to get PID in one query using SQLAlchemy ORM
+        # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
+        # Use DISTINCT ON to return only the latest version (highest index)
+        # per mex:identifier, avoiding unnecessary updates from old versions.
+        mex_id_expr = text(
+            "rdm_records_metadata.json->'custom_fields'->>'mex:identifier'"
+        )
         records_with_pids = (
             db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
             .join(
@@ -78,6 +83,8 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
                     "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
                 )
             )
+            .distinct(mex_id_expr)
+            .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
             .params(mex_ids=mex_ids)
             .all()
         )
@@ -89,9 +96,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
             record_json = copy.deepcopy(record.json)
             mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
             if mex_id:
-                if mex_id in existing_records:
-                    logger.warning(f"Multiple records found for MEx id: {mex_id}")
-
                 # Convert database record to search result format using the joined PID
                 record_data = {
                     "id": str(pid_value),
