@@ -54,7 +54,6 @@ RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \
     export NVM_DIR="$HOME/.nvm" && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm use default && \
-    invenio webpack buildall && \
-    invenio rdm pages create
+    invenio webpack buildall
 
 ENTRYPOINT [ "bash", "-c"]
