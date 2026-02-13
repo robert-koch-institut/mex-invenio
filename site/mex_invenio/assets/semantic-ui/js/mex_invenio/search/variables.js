@@ -29,8 +29,9 @@ edges.instances.variables.init = function () {
 
     edges.active["variables-resources"] = mex.makeEdge({
         selector: "#resources-container",
+        // Comment or uncomment this to filter resources by only those with variables associated
         baseQuery: new es.Query({
-            must: [new es.ExistsFilter({field: mex.constants.USED_IN_DISPLAY})],
+            must: [new es.ExistsFilter({field: mex.constants.USED_IN_DISPLAY_BACKLINK})],
         }),
         openingQuery: new es.Query({size: 10}),
         template: new mex.templates.SingleColumnTemplate({

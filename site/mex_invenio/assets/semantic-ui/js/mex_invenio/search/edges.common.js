@@ -51,7 +51,7 @@ mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
 // isn't indexed to be used this way, so this will sort by whatever the first value is
 mex.constants.LABEL = "custom_fields.mex:label.value"
 mex.constants.LABEL_KW = "custom_fields.mex:label.value.keyword"
-mex.constants.LABEL_SORT = "index_fields.label_sort"
+mex.constants.LABEL_SORT = "index_data.label_sort"
 mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
@@ -83,6 +83,7 @@ mex.constants.END = "custom_fields.mex:end.date"
 mex.constants.PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
 mex.constants.USED_IN_EN = "index_data.enUsedInResource"
 mex.constants.USED_IN_DE = "index_data.deUsedInResource"
+mex.constants.USED_IN_DISPLAY_BACKLINK = "display_data.linked_records.backwards_linked.mex:usedIn"
 mex.constants.USED_IN_DISPLAY = "display_data.linked_records.mex:usedIn"
 mex.constants.BELONGS_TO_LABEL = "index_data.belongsToLabel"
 mex.constants.BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
@@ -109,7 +110,7 @@ mex.countFormat = edges.util.numFormat({
 
 mex.fullDateFormatter = function (datestr) {
     let date = new Date(datestr);
-    return date.toLocaleString("default", {
+    return date.toLocaleString(mex.state.lang, {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -119,12 +120,12 @@ mex.fullDateFormatter = function (datestr) {
 
 mex.yearFormatter = function (val) {
     let date = new Date(parseInt(val));
-    return date.toLocaleString("default", {year: "numeric", timeZone: "UTC"});
+    return date.toLocaleString(mex.state.lang, {year: "numeric", timeZone: "UTC"});
 };
 
 mex.monthFormatter = function (val) {
     let date = new Date(parseInt(val));
-    return date.toLocaleString("default", {
+    return date.toLocaleString(mex.state.lang, {
         month: "long",
         year: "numeric",
         timeZone: "UTC",
@@ -137,7 +138,7 @@ mex.displayYearMonthPeriod = function (params) {
 
     let frdisplay = false;
     if (from) {
-        frdisplay = new Date(parseInt(from)).toLocaleString('default', {
+        frdisplay = new Date(parseInt(from)).toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -146,7 +147,7 @@ mex.displayYearMonthPeriod = function (params) {
 
     let todisplay = false;
     if (to) {
-        todisplay = new Date(parseInt(to - 1)).toLocaleString('default', {
+        todisplay = new Date(parseInt(to - 1)).toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -266,6 +267,8 @@ mex.rankedByLang = function (path, res) {
     return ranked;
 };
 
+mex.HIGHLIGHT_PREFIX_MAX = 20;
+mex.HIGHLIGHT_SUFFIX_MAX = 20;
 mex.extractHighlights = function(results) {
     let highlights = {};
     if (!results || !results.data || !results.data.hits || !results.data.hits.hits) {
@@ -280,14 +283,120 @@ mex.extractHighlights = function(results) {
             continue;
         }
         for (let field of Object.keys(hit.highlight)) {
-            let val = hit.highlight[field][0];
-            val = val.replace(/<em>/g, "<code>");
-            val = val.replace(/<\/em>/g, "</code>");
-            highlights[hit._id][field] = val;
+            let firstHighlight = hit.highlight[field][0];
+            let original = mex.recoverStringFromHighlight(firstHighlight);
+
+            let highlightCount = hit.highlight[field].length;
+            let lastOriginal = original;
+            if (highlightCount > 1) {
+                let lastHighlight = hit.highlight[field][highlightCount - 1];
+                lastOriginal = mex.recoverStringFromHighlight(lastHighlight);
+            }
+
+            let candidates = mex.locateHighlightFieldOptions(field, hit._source);
+
+            let prefix = "";
+            let suffix = "";
+
+            for (let candidate of candidates) {
+                let startIndex = candidate.indexOf(original);
+                let lastIndex = startIndex;
+                if (highlightCount > 1) {
+                    lastIndex = candidate.indexOf(lastOriginal);
+                }
+
+                // if the start wasn't found, just move on to the next candidate, if there is one
+                if (startIndex === -1) {
+                    continue;
+                }
+
+                // now, first calculate the suffix, as this is slightly easier
+                if (lastIndex !== -1) {
+                    let endIndex = lastIndex + lastOriginal.length;
+                    if (endIndex < candidate.length) {
+                        let remaining = candidate.length - endIndex;
+                        if (remaining < mex.HIGHLIGHT_SUFFIX_MAX) {
+                            suffix = candidate.substring(endIndex);
+                        } else {
+                            suffix = "..." + candidate.substring(candidate.length - mex.HIGHLIGHT_SUFFIX_MAX);
+                        }
+                    }
+                }
+
+                if (startIndex === 0) {
+                    // original was found at the beginning of the candidate, so we don't need to add a prefix
+                    break;
+                }
+
+                if (startIndex <= mex.HIGHLIGHT_PREFIX_MAX + 3) {
+                    // original found within the prefix max, so we can just add the prefix without truncating
+                    prefix = candidate.substring(0, startIndex);
+                    break;
+                } else {
+                    // original was found after the prefix max, so we need to truncate the prefix and add "..." to indicate this
+                    prefix = prefix.substring(0, mex.HIGHLIGHT_PREFIX_MAX) + "...";
+                    break;
+                }
+            }
+
+            // assemble the final string, with the prefix (may be the empty string), and all highlights joined by ellipses
+            let final = prefix + hit.highlight[field].join("...") + suffix;
+
+            // switch out our custom tag for a display tag and attach to the highlights record
+            final = final.replace(/<xh>/g, "<code>");
+            final = final.replace(/<\/xh>/g, "</code>");
+            highlights[hit._id][field] = final;
         }
     }
 
     return highlights;
+}
+
+mex.recoverStringFromHighlight = function(highlight) {
+    return highlight.replace(/<xh>/g, "").replace(/<\/xh>/g, "");
+}
+
+mex.locateHighlightFieldOptions = function(path, record) {
+    let bits = path.split(".");
+    let val = record;
+
+    let values = [];
+
+    function recurse(val, bits, values) {
+        for (let i = 0; i < bits.length; i++) {
+            let field = bits[i];
+            if (field in val) {
+                val = val[field];
+            } else {
+                continue;
+            }
+
+            // if we've reached the end node, append the value
+            if (i === bits.length - 1) {
+                values.push(val);
+                return;
+            }
+
+            if (Array.isArray(val)) {
+                // this is an array, so we need to apply this same nested function to every value
+                let remaining_bits = bits.slice(i + 1);
+                for (let v of val) {
+                    recurse(v, remaining_bits, values);
+                }
+            } else if (val !== null && typeof val === 'object') {
+                // this is an object/dict, so we can keep going
+                continue;
+            } else {
+                // we have a primitive, but we're expecting more nested values, so this is
+                // a dead end, just break out
+                return;
+            }
+
+        }
+    }
+
+    recurse(val, bits, values);
+    return values;
 }
 
 mex.getHighlight = function(highlights, id, field) {
@@ -833,7 +942,7 @@ mex.selectedFilters = function (params) {
     defaultFieldDisplays[mex.constants.CREATED_RANGE] = i18n.t("Created")
     defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Activity Start")
     defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("Activity End")
-    defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = i18n.t("tPublication Year")
+    defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = i18n.t("Publication Year")
 
     let defaultValueFunctions = {}
     defaultValueFunctions[mex.constants.ACCESS_RESTRICTION_KW] = mex.vocabularyLookup

@@ -308,20 +308,26 @@ class HighlightParamsInterpreter(ParamInterpreter):
                 USED_IN_DE,
                 USED_IN_EN,
                 BELONGS_TO_LABEL,
-                DATA_TYPE
+                DATA_TYPE,
+                pre_tags = ["<xh>"],
+                post_tags = ["</xh>"]
             )
         elif isinstance(params.get("resource_type"), list):
             search = search.highlight(
                 DESCRIPTION,
                 ABSTRACT,
                 TITLE,
-                LABEL
+                LABEL,
+                pre_tags = ["<xh>"],
+                post_tags = ["</xh>"]
             )
         else:
             search = search.highlight(
                 DESCRIPTION,
                 ABSTRACT,
-                TITLE
+                TITLE,
+                pre_tags = ["<xh>"],
+                post_tags = ["</xh>"]
             )
 
         # Uncomment this to get a view on the query in development
