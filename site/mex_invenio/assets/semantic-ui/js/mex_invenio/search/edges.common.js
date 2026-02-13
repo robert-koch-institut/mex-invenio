@@ -334,7 +334,7 @@ mex.extractHighlights = function(results) {
                     break;
                 } else {
                     // original was found after the prefix max, so we need to truncate the prefix and add "..." to indicate this
-                    prefix = prefix.substring(0, mex.HIGHLIGHT_PREFIX_MAX) + "...";
+                    prefix = candidate.substring(0, mex.HIGHLIGHT_PREFIX_MAX) + "...";
                     break;
                 }
             }
@@ -2069,21 +2069,6 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 record,
                 i18n.t("No title")
             );
-
-            // if (this.component.edge.result) {
-            //     let hits = this.component.edge.result.data.hits.hits;
-            //     for (let hit of hits) {
-            //         if (record.uuid === hit._id) {
-            //             if (hit.highlight) {
-            //                 if (hit.highlight[edges.mex.constants.TITLE]) {
-            //                     title = hit.highlight[edges.mex.constants.TITLE][0];
-            //                     title = title.replace(/<em>/g, "<code>");
-            //                     title = title.replace(/<\/em>/g, "</code>");
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
 
             let lang = mex.state.lang;
             let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_EN;
@@ -5339,13 +5324,16 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
     }
 
-    _renderResource(res) {
+    _renderResource(res, highlights) {
         let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
         let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
 
-        let title = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
-        );
+        let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
+        if (!title) {
+            title = edges.util.escapeHtml(
+                mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
+            );
+        }
 
         let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
         if (alt) {
@@ -5354,36 +5342,14 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             alt = "";
         }
 
-        let desc = mex.getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
-        if (desc.length > 300) {
-            desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
-        }
-
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        let hits = this.component.edge.result.data.hits.hits;
-        for (let hit of hits) {
-            if (res.uuid === hit._id) {
-                if (hit.highlight) {
-                    if (hit.highlight[mex.constants.DESCRIPTION]) {
-                        desc = hit.highlight[mex.constants.DESCRIPTION][0];
-                        desc = desc.replace(/<em>/g, "<code>");
-                        desc = desc.replace(/<\/em>/g, "</code>");
-                    }
-                    if (hit.highlight[mex.constants.TITLE]) {
-                        title = hit.highlight[mex.constants.TITLE][0];
-                        title = title.replace(/<em>/g, "<code>");
-                        title = title.replace(/<\/em>/g, "</code>");
-                    }
-                }
+        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
+        if (!desc) {
+            desc = mex.getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
+            if (desc.length > 300) {
+                desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
             }
         }
 
-        // let created = edges.util.escapeHtml(
-        //     edges.util.pathValue("created", res, "")
-        // );
-        // created = mex.fullDateFormatter(created);
         let created = res["custom_fields"]["mex:created"]
         created = `<span class="tag">${created}</span>`;
         let created_ui = "";
