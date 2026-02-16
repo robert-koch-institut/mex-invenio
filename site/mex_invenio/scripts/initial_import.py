@@ -30,37 +30,12 @@ import click
 from flask import current_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
-from invenio_records_resources.services.uow import RecordCommitOp, RecordDeleteOp
 
 from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
 )
 
-
-# No-op indexer class to disable indexing during import
-class NoOpIndexer:
-    """A no-operation indexer that does nothing."""
-
-    def index(self, *args, **kwargs):
-        pass
-
-    def delete(self, *args, **kwargs):
-        pass
-
-    def delete_by_id(self, *args, **kwargs):
-        pass
-
-    def exists(self, *args, **kwargs):
-        return False
-
-    def bulk_index(self, *args, **kwargs):
-        pass
-
-    def bulk_delete(self, *args, **kwargs):
-        pass
-
-    def refresh(self, *args, **kwargs):
-        pass
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 
 
 # Configure logging
@@ -133,25 +108,9 @@ def initial_import(
             logger.error(message)
             return False
 
-    # Store original on_commit methods
-    original_record_commit_op = RecordCommitOp.on_commit
-    original_record_delete_op = RecordDeleteOp.on_commit
-
-    # Disable on_commit methods for performance
-    RecordCommitOp.on_commit = lambda self, uow: None
-    RecordDeleteOp.on_commit = lambda self, uow: None
-
-    # Temporarily disable indexing for performance
-    # IMPORTANT: indexer is a property that creates new instances, so we need to
-    # monkey-patch the property getter itself, not just set an attribute
-    # current_rdm_records_service is a LocalProxy, so we need to get the actual class
-    service_class = current_rdm_records_service.__class__
-    original_indexer_property = service_class.indexer
-    noop_indexer = NoOpIndexer()
-    service_class.indexer = property(lambda self: noop_indexer)
-    logger.info(
-        "Disabled indexing and commit operations during import for better performance"
-    )
+    # Disabling indexing to speed up import indexing has to be
+    # done manually after import has run
+    disable_indexing(logger)
 
     with current_app.app_context():
         user_datastore = current_app.extensions["security"].datastore
@@ -213,14 +172,7 @@ def initial_import(
                     batch_results = process_record_batch(batch_records, identity)
                     report.extend(batch_results)
         finally:
-            # Restore original indexer property
-            service_class.indexer = original_indexer_property
-
-            # Restore original on_commit methods
-            RecordCommitOp.on_commit = original_record_commit_op
-            RecordDeleteOp.on_commit = original_record_delete_op
-
-            logger.info("Restored indexing and commit operations")
+            re_enable_indexing(logger)
 
     # End the timer after processing is done
     end_time = time.time()

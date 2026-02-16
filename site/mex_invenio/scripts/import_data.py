@@ -39,6 +39,8 @@ from mex_invenio.scripts.utils import (
     cleanup_files,
 )
 
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -59,7 +61,7 @@ def _setup_file_logging(log_dir):
     return handler
 
 
-def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict]:
+def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
     """Search for multiple MEx IDs."""
     if not mex_ids:
         return {}
@@ -142,9 +144,6 @@ def process_record_batch(
                     }
                 )
 
-                for related_id in get_related_mex_ids(mex_data):
-                    results.append({"action": "related", "id": related_id})
-
             else:
                 # Update an existing record
                 record_pid = existing_record["id"]
@@ -169,13 +168,18 @@ def process_record_batch(
                             "action": "update",
                             "id": new_record.id,
                             "uuid": new_record._record.id,
+                            "parent": new_record._record.parent.id,
                         }
                     )
 
-                    for related_id in get_related_mex_ids(mex_data):
-                        results.append({"action": "related", "id": related_id})
                 else:
+                    # This shouldn't happen as the import files have been diffed
                     results.append({"action": "skip", "id": record_pid})
+                    continue
+
+                # Collect all related record UUIDs of created/updated records
+                for related_id in get_related_mex_ids(mex_data):
+                    results.append({"action": "related", "id": related_id})
 
         except json.JSONDecodeError:
             logger.error(f"Error decoding JSON: {json_data}")
@@ -198,7 +202,7 @@ def process_batch(batch_records: list[dict], identity) -> list[dict]:
     mex_ids = [record["identifier"] for record in batch_records]
 
     # Bulk search for existing records
-    existing_records = bulk_search_existing_records(mex_ids, identity)
+    existing_records = bulk_search_existing_records(mex_ids)
 
     # Process the batch
     return process_record_batch(batch_records, existing_records, identity)
@@ -277,35 +281,40 @@ def import_data(
     with current_app.app_context():
         identity = get_authenticated_identity(owner.id)
 
-        with open(import_file) as f:
-            batch_records = []
+        try:
+            disable_indexing(logger)
 
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
+            with open(import_file) as f:
+                batch_records = []
 
-                try:
-                    json_data = json.loads(line)
-                    batch_records.append(json_data)
-                    num_lines += 1
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                    logger.info(f"Processing line: {num_lines}")
+                    try:
+                        json_data = json.loads(line)
+                        batch_records.append(json_data)
+                        num_lines += 1
 
-                    # Process batch when it reaches batch_size
-                    if len(batch_records) >= batch_size:
-                        batch_results = process_batch(batch_records, identity)
-                        update_report(report, batch_results)
-                        batch_records = []
+                        logger.info(f"Processing line: {num_lines}")
 
-                except json.JSONDecodeError:
-                    logger.error(f"Error decoding JSON line: {line}")
-                    report["error"] += 1
+                        # Process batch when it reaches batch_size
+                        if len(batch_records) >= batch_size:
+                            batch_results = process_batch(batch_records, identity)
+                            update_report(report, batch_results)
+                            batch_records = []
 
-            # Process remaining records
-            if batch_records:
-                batch_results = process_batch(batch_records, identity)
-                update_report(report, batch_results)
+                    except json.JSONDecodeError:
+                        logger.error(f"Error decoding JSON line: {line}")
+                        report["error"] += 1
+
+                # Process remaining records
+                if batch_records:
+                    batch_results = process_batch(batch_records, identity)
+                    update_report(report, batch_results)
+        finally:
+            re_enable_indexing(logger)
 
         # Re-index related records while still in app context to keep
         # SQLAlchemy instances bound to the active session
@@ -313,9 +322,14 @@ def import_data(
             logger.info(f"Indexing {len(report['related'])} related records.")
             current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
 
+        # Re-indexing created and updated records in case there are any
+        # bi-directional relationships
+
         if report["updated"]:
+            parent_uuids = [r["parent"] for r in report["updated"]]
+            updated_all_versions = db.session.query(RDMRecord.model_cls.id).filter(RDMRecord.model_cls.parent_id.in_(parent_uuids)).all()
             current_rdm_records_service.indexer.bulk_index(
-                r["uuid"] for r in report["updated"]
+                u for u in updated_all_versions
             )
 
         if report["created"]:
