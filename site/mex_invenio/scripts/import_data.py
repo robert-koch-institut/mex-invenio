@@ -37,28 +37,13 @@ from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
     normalize_record_data,
     cleanup_files,
+    setup_file_logging,
 )
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-def _setup_file_logging(log_dir):
-    """Add a timestamped file handler to the logger."""
-    os.makedirs(log_dir, exist_ok=True)
-    date_str = time.strftime("%Y%m%d")
-    handler = logging.FileHandler(os.path.join(log_dir, f"import-{date_str}.log"))
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-    )
-    logger.addHandler(handler)
-    return handler
 
 
 def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
@@ -255,7 +240,8 @@ def import_data(
 
     with current_app.app_context():
         log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
-        file_handler = _setup_file_logging(log_dir)
+        file_handler = setup_file_logging(log_dir)
+        logger.addHandler(file_handler)
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
         logger.info(f"Importing {import_file}")
@@ -378,7 +364,7 @@ def import_data(
 
     logger.removeHandler(file_handler)
     file_handler.close()
-    cleanup_files(log_dir)
+    cleanup_files(log_dir, "import")
 
     return True
 
