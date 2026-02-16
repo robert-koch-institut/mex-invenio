@@ -199,7 +199,7 @@ def update_report(report: dict, batch_results: list[dict]):
         if result["action"] == "create":
             report["created"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "update":
-            report["updated"].append({"id": result["id"], "uuid": result["uuid"]})
+            report["updated"].append({"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]})
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
@@ -302,20 +302,14 @@ def import_data(
         finally:
             re_enable_indexing(logger)
 
-        # Re-index related records while still in app context to keep
-        # SQLAlchemy instances bound to the active session
-        if report["related"]:
-            logger.info(f"Indexing {len(report['related'])} related records.")
-            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
-
-        # Re-indexing created and updated records in case there are any
-        # bi-directional relationships
-
+        # Index created and updated records first so that when related
+        # records are re-indexed, their display_data dumper can find the
+        # latest versions in the search index.
         if report["updated"]:
             parent_uuids = [r["parent"] for r in report["updated"]]
             updated_all_versions = db.session.query(RDMRecord.model_cls.id).filter(RDMRecord.model_cls.parent_id.in_(parent_uuids)).all()
             current_rdm_records_service.indexer.bulk_index(
-                u for u in updated_all_versions
+                u[0] for u in updated_all_versions
             )
 
         if report["created"]:
@@ -323,9 +317,16 @@ def import_data(
                 r["uuid"] for r in report["created"]
             )
 
-        # Process the bulk queue synchronously to ensure all records
-        # are indexed before the function returns
+        # Flush the queue so created/updated records are searchable
+        # before re-indexing related records that depend on them.
         current_rdm_records_service.indexer.process_bulk_queue()
+
+        # Re-index related records so their display_data reflects
+        # the newly created/updated records above.
+        if report["related"]:
+            logger.info(f"Indexing {len(report['related'])} related records.")
+            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
+            current_rdm_records_service.indexer.process_bulk_queue()
 
     # End the timer after processing is done
     end_time = time.time()
