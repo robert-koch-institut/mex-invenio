@@ -68,3 +68,25 @@ components of the MEx project are open-sourced under the same license as well.
 
 - run all linters with `make lint` or `.\mex.bat lint`
 - run all tests with `make test` (see tests/TESTS.md for details)
+
+## Reindexing
+
+After deploying a new image or making schema changes, you may need to rebuild the search indices and static pages. Run these commands sequentially on a worker pod:
+
+```bash
+# Get a worker pod name
+kubectl get pods -n mex -l app=worker
+
+# Destroy and recreate search indices
+kubectl -n mex exec <worker-pod> -- invenio index destroy --yes-i-know
+kubectl -n mex exec <worker-pod> -- invenio index init
+
+# Reinitialize custom fields
+kubectl -n mex exec <worker-pod> -- invenio rdm-records custom-fields init
+
+# Rebuild the search index
+kubectl -n mex exec <worker-pod> -- invenio rdm-records rebuild-index
+
+# Recreate static pages (--force to overwrite existing)
+kubectl -n mex exec <worker-pod> -- invenio rdm pages create --force
+```
