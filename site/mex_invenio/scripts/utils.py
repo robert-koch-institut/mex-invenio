@@ -7,6 +7,7 @@ import importlib.metadata
 import json
 import logging
 import os
+import time
 from collections.abc import Callable
 from datetime import datetime
 
@@ -143,15 +144,24 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
-def cleanup_files(directory: str, keep: int = 20):
+def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
     """Remove old files, keeping only the most recent ones."""
     try:
-        files = sorted(
-            [
+        if prefix:
+            files = [
                 os.path.join(directory, f)
                 for f in os.listdir(directory)
                 if os.path.isfile(os.path.join(directory, f))
-            ],
+                and f.startswith(prefix)
+            ]
+        else:
+            files = [
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if os.path.isfile(os.path.join(directory, f))
+            ]
+
+        files = sorted(files,
             key=os.path.getmtime,
             reverse=True,
         )
@@ -354,3 +364,17 @@ def get_related_mex_ids(record: dict) -> list:
     except Exception as e:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
+
+def setup_file_logging(log_dir, name="import"):
+    """Add a timestamped file handler to the given logger."""
+    os.makedirs(log_dir, exist_ok=True)
+    date_str = time.strftime("%Y%m%d")
+    handler = logging.FileHandler(os.path.join(log_dir, f"{name}-{date_str}.log"))
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+    )
+    return handler

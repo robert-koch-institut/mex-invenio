@@ -37,29 +37,16 @@ from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
     normalize_record_data,
     cleanup_files,
+    setup_file_logging,
 )
+
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def _setup_file_logging(log_dir):
-    """Add a timestamped file handler to the logger."""
-    os.makedirs(log_dir, exist_ok=True)
-    date_str = time.strftime("%Y%m%d")
-    handler = logging.FileHandler(os.path.join(log_dir, f"import-{date_str}.log"))
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(
-        logging.Formatter(
-            "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-    )
-    logger.addHandler(handler)
-    return handler
-
-
-def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict]:
+def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
     """Search for multiple MEx IDs."""
     if not mex_ids:
         return {}
@@ -142,9 +129,6 @@ def process_record_batch(
                     }
                 )
 
-                for related_id in get_related_mex_ids(mex_data):
-                    results.append({"action": "related", "id": related_id})
-
             else:
                 # Update an existing record
                 record_pid = existing_record["id"]
@@ -169,13 +153,18 @@ def process_record_batch(
                             "action": "update",
                             "id": new_record.id,
                             "uuid": new_record._record.id,
+                            "parent": new_record._record.parent.id,
                         }
                     )
 
-                    for related_id in get_related_mex_ids(mex_data):
-                        results.append({"action": "related", "id": related_id})
                 else:
+                    # This shouldn't happen as the import files have been diffed
                     results.append({"action": "skip", "id": record_pid})
+                    continue
+
+                # Collect all related record UUIDs of created/updated records
+                for related_id in get_related_mex_ids(mex_data):
+                    results.append({"action": "related", "id": related_id})
 
         except json.JSONDecodeError:
             logger.error(f"Error decoding JSON: {json_data}")
@@ -198,7 +187,7 @@ def process_batch(batch_records: list[dict], identity) -> list[dict]:
     mex_ids = [record["identifier"] for record in batch_records]
 
     # Bulk search for existing records
-    existing_records = bulk_search_existing_records(mex_ids, identity)
+    existing_records = bulk_search_existing_records(mex_ids)
 
     # Process the batch
     return process_record_batch(batch_records, existing_records, identity)
@@ -210,7 +199,7 @@ def update_report(report: dict, batch_results: list[dict]):
         if result["action"] == "create":
             report["created"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "update":
-            report["updated"].append({"id": result["id"], "uuid": result["uuid"]})
+            report["updated"].append({"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]})
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
@@ -251,7 +240,8 @@ def import_data(
 
     with current_app.app_context():
         log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
-        file_handler = _setup_file_logging(log_dir)
+        file_handler = setup_file_logging(log_dir)
+        logger.addHandler(file_handler)
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
         logger.info(f"Importing {import_file}")
@@ -277,45 +267,49 @@ def import_data(
     with current_app.app_context():
         identity = get_authenticated_identity(owner.id)
 
-        with open(import_file) as f:
-            batch_records = []
+        try:
+            disable_indexing(logger)
 
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
+            with open(import_file) as f:
+                batch_records = []
 
-                try:
-                    json_data = json.loads(line)
-                    batch_records.append(json_data)
-                    num_lines += 1
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                    logger.info(f"Processing line: {num_lines}")
+                    try:
+                        json_data = json.loads(line)
+                        batch_records.append(json_data)
+                        num_lines += 1
 
-                    # Process batch when it reaches batch_size
-                    if len(batch_records) >= batch_size:
-                        batch_results = process_batch(batch_records, identity)
-                        update_report(report, batch_results)
-                        batch_records = []
+                        logger.info(f"Processing line: {num_lines}")
 
-                except json.JSONDecodeError:
-                    logger.error(f"Error decoding JSON line: {line}")
-                    report["error"] += 1
+                        # Process batch when it reaches batch_size
+                        if len(batch_records) >= batch_size:
+                            batch_results = process_batch(batch_records, identity)
+                            update_report(report, batch_results)
+                            batch_records = []
 
-            # Process remaining records
-            if batch_records:
-                batch_results = process_batch(batch_records, identity)
-                update_report(report, batch_results)
+                    except json.JSONDecodeError:
+                        logger.error(f"Error decoding JSON line: {line}")
+                        report["error"] += 1
 
-        # Re-index related records while still in app context to keep
-        # SQLAlchemy instances bound to the active session
-        if report["related"]:
-            logger.info(f"Indexing {len(report['related'])} related records.")
-            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
+                # Process remaining records
+                if batch_records:
+                    batch_results = process_batch(batch_records, identity)
+                    update_report(report, batch_results)
+        finally:
+            re_enable_indexing(logger)
 
+        # Index created and updated records first so that when related
+        # records are re-indexed, their display_data dumper can find the
+        # latest versions in the search index.
         if report["updated"]:
+            parent_uuids = [r["parent"] for r in report["updated"]]
+            updated_all_versions = db.session.query(RDMRecord.model_cls.id).filter(RDMRecord.model_cls.parent_id.in_(parent_uuids)).all()
             current_rdm_records_service.indexer.bulk_index(
-                r["uuid"] for r in report["updated"]
+                u[0] for u in updated_all_versions
             )
 
         if report["created"]:
@@ -323,9 +317,16 @@ def import_data(
                 r["uuid"] for r in report["created"]
             )
 
-        # Process the bulk queue synchronously to ensure all records
-        # are indexed before the function returns
+        # Flush the queue so created/updated records are searchable
+        # before re-indexing related records that depend on them.
         current_rdm_records_service.indexer.process_bulk_queue()
+
+        # Re-index related records so their display_data reflects
+        # the newly created/updated records above.
+        if report["related"]:
+            logger.info(f"Indexing {len(report['related'])} related records.")
+            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
+            current_rdm_records_service.indexer.process_bulk_queue()
 
     # End the timer after processing is done
     end_time = time.time()
@@ -364,7 +365,7 @@ def import_data(
 
     logger.removeHandler(file_handler)
     file_handler.close()
-    cleanup_files(log_dir)
+    cleanup_files(log_dir, "import")
 
     return True
 
