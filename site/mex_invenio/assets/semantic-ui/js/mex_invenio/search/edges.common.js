@@ -521,7 +521,7 @@ mex.resourceDisplayCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new mex.renderers.CompactResourcesResults({
             title: params.title || i18n.t("Resources"),
-            noResultsText: params.noResultsText || i18n.t("No resources that match your search were found."),
+            noResultsText: params.noResultsText || i18n.t("No resources containing variables that match your search were found."),
             onSelectToggle: params.onSelectToggle || false,
             hideIfNoResults: params.hideIfNoResults || false,
         }),

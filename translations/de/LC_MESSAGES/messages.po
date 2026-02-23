@@ -1728,3 +1728,6 @@ msgstr "Repository-URL"
 
 msgid "Purpose of data processing"
 msgstr "Zweck der Datenverarbeitung"
+
+msgid "No resources containing variables that match your search were found."
+msgstr "Es wurden keine Ressourcen gefunden, die Variablen enthalten, die Ihrer Suche entsprechen."
