@@ -78,12 +78,12 @@
                 {{ combined_title }}
             </a>
         {%- elif v.core -%}
-            <a href="{{ v.url }}" title="{{ combined_title }}">
-                <div class="tags"><span class="tag"><img class="ui image icon--text"
-                 src="{{ url_for('static', filename='icons/' ~ v.core ~ '-record.svg') }}"
-                 role="presentation"/> {{ config.UI_SETTINGS[v.core].label }}</span>
-                {{ combined_title }}
-                </a></div>
+        <a href="{{ v.url }}" title="{{ combined_title }}">
+        <div class="tags" style="display: block;"><span class="tag">
+                        <img class="ui image icon--text"
+                             src="{{ url_for('static', filename='icons/' ~ v.core ~ '-record.svg') }}"
+                             role="presentation"/> {{ config.UI_SETTINGS[v.core].label }}</span>{{ combined_title }}</div>
+        </a>
         {%- else -%}
             <button
             type="button"
