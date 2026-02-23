@@ -4710,12 +4710,15 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
     // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
 
     function getCreatorsNames(field) {
-        const hasMore = field.length > 1;
-        name = '';
-        if (field) {
-            const name = field[0].display_value[0].value
-        }
-        return hasMore ? `${name}, et al.` : name;
+
+        const hasMore = field.length > 2;
+
+        const names = field
+            .slice(0, 2)
+            .map(item => item.display_value[0].value)
+            .join(", ");
+
+        return hasMore ? `${names}, et al.` : names;
     }
 
     let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
