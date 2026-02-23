@@ -15,6 +15,7 @@
     overflow: hidden;
 
     .ui.button.button--close {
+        height: 2rem !important;
         position: absolute;
         top: 1.75rem;
         right: 1.75rem;
@@ -33,9 +34,9 @@
     .custom-modal-header {
         height: 8.5rem;
         button.back {
-
+            height: 2rem !important;
             position: relative;
-            top: 6rem;
+            top: calc(100% - 1.5rem);;
             left: 1.25rem;
             width: 50%;
             overflow: hidden;
