@@ -5008,15 +5008,15 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                 <th></th>
                 <th aria-sort="${currentDir(mex.constants.LABEL_KW, false)}">
                     ${sortButtonMacro(mex.constants.LABEL_KW)}
-                    ${i18n.t("Variables")}
+                    ${i18n.t("Variable")}
                 </th>
                 <th aria-sort="${currentDir(rpath, false)}">
-                    ${i18n.t("Data Source")}
                     ${sortButtonMacro(rpath)}
+                    ${i18n.t("Data Source")}
                 </th>
                 <th aria-sort="${currentDir(mex.constants.BELONGS_TO_LABEL_KW, false)}">
-                    ${i18n.t("Variable Group")}
                     ${sortButtonMacro(mex.constants.BELONGS_TO_LABEL_KW)}
+                    ${i18n.t("Variable Group")}
                 </th>
                 <th>${i18n.t("Data Type")}</th>
             </tr>
