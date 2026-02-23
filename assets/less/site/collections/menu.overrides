@@ -9,3 +9,8 @@
     }
 
 }
+@media (max-width: 1299px) {
+#invenio-nav.ui.menu.active #invenio-menu.ui.menu #rdm-close-burger-menu-icon {
+    height: 2rem !important;
+}
+}
