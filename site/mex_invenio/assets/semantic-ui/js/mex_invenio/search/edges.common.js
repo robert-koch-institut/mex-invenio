@@ -4713,12 +4713,17 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
         const hasMore = field.length > 2;
 
-        const names = field
-            .slice(0, 2)
-            .map(item => item.display_value[0].value)
-            .join(", ");
+        if (field) {
+            const names = field
+                .slice(0, 2)
+                .map(item => item.display_value[0].value)
+                .join(", ");
 
-        return hasMore ? `${names}, et al.` : names;
+            return hasMore ? `${names}, et al.` : names;
+        }
+
+        return '';
+
     }
 
     let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
@@ -5505,7 +5510,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
         let groupFrag = "";
         if (groups.length > 1) {
-            groupFrag = `<div class="groups-list"><span class="label">{{ _("Belongs to") }}:
+            groupFrag = `<div class="groups-list"><span class="label">${i18n.t("Belongs to")}:
                 <span>` +
                 groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
                 `</span>`;
