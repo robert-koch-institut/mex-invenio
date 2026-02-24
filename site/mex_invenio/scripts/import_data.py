@@ -36,56 +36,28 @@ from mex_invenio.scripts.utils import (
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
+    cleanup_files,
+    setup_file_logging,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
-    # datefmt='%Y-%m-%d %H:%M:%S'
-)
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-def get_record_uuids_by_mex_ids(mex_ids: list[str]) -> dict[str, str]:
-    """Get record UUIDs for given MEx IDs."""
-    if not mex_ids:
-        return {}
-
-    try:
-        # Query for record UUIDs by MEx IDs
-        records = (
-            db.session.query(RDMRecord.model_cls.id, RDMRecord.model_cls.json)
-            .filter(
-                text(
-                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
-                )
-            )
-            .params(mex_ids=mex_ids)
-            .all()
-        )
-
-        # Map MEx ID to UUID
-        mex_id_to_uuid = {}
-        for record_id, record_json in records:
-            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
-            if mex_id in mex_ids:
-                mex_id_to_uuid[mex_id] = str(record_id)
-
-        return mex_id_to_uuid
-
-    except Exception as e:
-        logger.error(f"Error getting UUIDs for MEx IDs: {e}")
-        return {}
-
-
-def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict]:
+def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
     """Search for multiple MEx IDs."""
     if not mex_ids:
         return {}
 
     try:
-        # Query database with JOIN to get PID in one query using SQLAlchemy ORM
+        # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
+        # Use DISTINCT ON to return only the latest version (highest index)
+        # per mex:identifier, avoiding unnecessary updates from old versions.
+        mex_id_expr = text(
+            "rdm_records_metadata.json->'custom_fields'->>'mex:identifier'"
+        )
         records_with_pids = (
             db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
             .join(
@@ -98,6 +70,8 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
                     "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
                 )
             )
+            .distinct(mex_id_expr)
+            .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
             .params(mex_ids=mex_ids)
             .all()
         )
@@ -109,9 +83,6 @@ def bulk_search_existing_records(mex_ids: list[str], identity) -> dict[str, dict
             record_json = copy.deepcopy(record.json)
             mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
             if mex_id:
-                if mex_id in existing_records:
-                    logger.warning(f"Multiple records found for MEx id: {mex_id}")
-
                 # Convert database record to search result format using the joined PID
                 record_data = {
                     "id": str(pid_value),
@@ -150,10 +121,13 @@ def process_record_batch(
                 published = current_rdm_records_service.publish(
                     id_=draft.id, identity=identity
                 )
-                results.append({"action": "create", "id": published.id})
-
-                for related_id in get_related_mex_ids(mex_data):
-                    results.append({"action": "related", "id": related_id})
+                results.append(
+                    {
+                        "action": "create",
+                        "id": published.id,
+                        "uuid": published._record.id,
+                    }
+                )
 
             else:
                 # Update an existing record
@@ -174,12 +148,23 @@ def process_record_batch(
                     new_record = current_rdm_records_service.publish(
                         identity=identity, id_=new_version.id
                     )
-                    results.append({"action": "update", "id": new_record.id})
+                    results.append(
+                        {
+                            "action": "update",
+                            "id": new_record.id,
+                            "uuid": new_record._record.id,
+                            "parent": new_record._record.parent.id,
+                        }
+                    )
 
-                    for related_id in get_related_mex_ids(mex_data):
-                        results.append({"action": "related", "id": related_id})
                 else:
+                    # This shouldn't happen as the import files have been diffed
                     results.append({"action": "skip", "id": record_pid})
+                    continue
+
+                # Collect all related record UUIDs of created/updated records
+                for related_id in get_related_mex_ids(mex_data):
+                    results.append({"action": "related", "id": related_id})
 
         except json.JSONDecodeError:
             logger.error(f"Error decoding JSON: {json_data}")
@@ -202,7 +187,7 @@ def process_batch(batch_records: list[dict], identity) -> list[dict]:
     mex_ids = [record["identifier"] for record in batch_records]
 
     # Bulk search for existing records
-    existing_records = bulk_search_existing_records(mex_ids, identity)
+    existing_records = bulk_search_existing_records(mex_ids)
 
     # Process the batch
     return process_record_batch(batch_records, existing_records, identity)
@@ -212,13 +197,13 @@ def update_report(report: dict, batch_results: list[dict]):
     """Update the report with results from a batch."""
     for result in batch_results:
         if result["action"] == "create":
-            report["created"].append(result["id"])
+            report["created"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "update":
-            report["updated"].append(result["id"])
+            report["updated"].append({"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]})
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
-            report["related"].append(result["id"])
+            report["related"].add(result["id"])
 
 
 @click.command("import_data")
@@ -242,6 +227,7 @@ def import_data(
     Batch size is set to 100 records by default.
     Expected data source is a JSON file with one MEx record per line.
     """
+
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
 
@@ -253,57 +239,94 @@ def import_data(
             return False
 
     with current_app.app_context():
+        log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
+        file_handler = setup_file_logging(log_dir)
+        logger.addHandler(file_handler)
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
+        logger.info(f"Importing {import_file}")
 
         if not owner:
             message = f"User with email {email} not found."
+            logger.error(message)
+            logger.removeHandler(file_handler)
+            file_handler.close()
 
             if cli:
                 click.secho(message, fg="red")
                 sys.exit(1)
             else:
-                logger.error(message)
                 return False
 
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
-    report = {"created": [], "updated": [], "skipped": [], "related": [], "error": 0}
+    report = {"created": [], "updated": [], "skipped": [], "related": set(), "error": 0}
 
     # Process records in batches
     with current_app.app_context():
         identity = get_authenticated_identity(owner.id)
 
-        with open(import_file) as f:
-            batch_records = []
+        try:
+            disable_indexing(logger)
 
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
+            with open(import_file) as f:
+                batch_records = []
 
-                try:
-                    json_data = json.loads(line)
-                    batch_records.append(json_data)
-                    num_lines += 1
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                    logger.info(f"Processing line: {num_lines}")
+                    try:
+                        json_data = json.loads(line)
+                        batch_records.append(json_data)
+                        num_lines += 1
 
-                    # Process batch when it reaches batch_size
-                    if len(batch_records) >= batch_size:
-                        batch_results = process_batch(batch_records, identity)
-                        update_report(report, batch_results)
-                        batch_records = []
+                        logger.info(f"Processing line: {num_lines}")
 
-                except json.JSONDecodeError:
-                    logger.error(f"Error decoding JSON line: {line}")
-                    report["error"] += 1
+                        # Process batch when it reaches batch_size
+                        if len(batch_records) >= batch_size:
+                            batch_results = process_batch(batch_records, identity)
+                            update_report(report, batch_results)
+                            batch_records = []
 
-            # Process remaining records
-            if batch_records:
-                batch_results = process_batch(batch_records, identity)
-                update_report(report, batch_results)
+                    except json.JSONDecodeError:
+                        logger.error(f"Error decoding JSON line: {line}")
+                        report["error"] += 1
+
+                # Process remaining records
+                if batch_records:
+                    batch_results = process_batch(batch_records, identity)
+                    update_report(report, batch_results)
+        finally:
+            re_enable_indexing(logger)
+
+        # Index created and updated records first so that when related
+        # records are re-indexed, their display_data dumper can find the
+        # latest versions in the search index.
+        if report["updated"]:
+            parent_uuids = [r["parent"] for r in report["updated"]]
+            updated_all_versions = db.session.query(RDMRecord.model_cls.id).filter(RDMRecord.model_cls.parent_id.in_(parent_uuids)).all()
+            current_rdm_records_service.indexer.bulk_index(
+                u[0] for u in updated_all_versions
+            )
+
+        if report["created"]:
+            current_rdm_records_service.indexer.bulk_index(
+                r["uuid"] for r in report["created"]
+            )
+
+        # Flush the queue so created/updated records are searchable
+        # before re-indexing related records that depend on them.
+        current_rdm_records_service.indexer.process_bulk_queue()
+
+        # Re-index related records so their display_data reflects
+        # the newly created/updated records above.
+        if report["related"]:
+            logger.info(f"Indexing {len(report['related'])} related records.")
+            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
+            current_rdm_records_service.indexer.process_bulk_queue()
 
     # End the timer after processing is done
     end_time = time.time()
@@ -313,7 +336,7 @@ def import_data(
     minutes, seconds = divmod(elapsed_time, 60)
 
     for action in report:
-        if isinstance(report[action], list):
+        if isinstance(report[action], (list, set)):
             record_count = len(report[action])
         elif isinstance(report[action], int):
             record_count = report[action]
@@ -321,7 +344,11 @@ def import_data(
         if record_count > 0:
             if action == "error":
                 logger.error(f"Encountered {record_count} errors during import.")
-
+            elif action in ("created", "updated"):
+                ids = [r["id"] for r in report[action]]
+                logger.info(
+                    f"{action.capitalize()} {record_count} records. Ids: {ids}"
+                )
             else:
                 logger.info(
                     f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
@@ -336,10 +363,9 @@ def import_data(
 
     logger.info(time_taken)
 
-    # Get UUIDs for related MEx IDs for indexing
-    if report["related"]:
-        for mex_id in report["related"]:
-            current_rdm_records_service.indexer.index_by_id(mex_id)
+    logger.removeHandler(file_handler)
+    file_handler.close()
+    cleanup_files(log_dir, "import")
 
     return True
 

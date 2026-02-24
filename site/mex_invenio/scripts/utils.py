@@ -7,6 +7,7 @@ import importlib.metadata
 import json
 import logging
 import os
+import time
 from collections.abc import Callable
 from datetime import datetime
 
@@ -143,6 +144,37 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
+def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
+    """Remove old files, keeping only the most recent ones."""
+    try:
+        if prefix:
+            files = [
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if os.path.isfile(os.path.join(directory, f))
+                and f.startswith(prefix)
+            ]
+        else:
+            files = [
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if os.path.isfile(os.path.join(directory, f))
+            ]
+
+        files = sorted(files,
+            key=os.path.getmtime,
+            reverse=True,
+        )
+        for f in files[keep:]:
+            try:
+                os.remove(f)
+                logger.info(f"Removed old file: {f}")
+            except OSError as e:
+                logger.warning(f"Could not remove old file {f}: {e}")
+    except FileNotFoundError:
+        pass
+
+
 def diff_files(directory: str, existing_file: str, new_file: str):
     """Create a diff file containing only new or changed records based on identifier comparison.
 
@@ -153,8 +185,8 @@ def diff_files(directory: str, existing_file: str, new_file: str):
 
     timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
     mex_model_version = importlib.metadata.version("mex-model")
-    existing_basename = os.path.basename(existing_file)
-    new_basename = os.path.basename(new_file)
+    existing_basename = os.path.basename(existing_file).removesuffix(".ndjson")
+    new_basename = os.path.basename(new_file).removesuffix(".ndjson")
     diff_file = os.path.join(
         diffdirectory,
         f"{existing_basename}-{new_basename}-{mex_model_version}_{timestamp}.ndjson",
@@ -246,6 +278,7 @@ def diff_files(directory: str, existing_file: str, new_file: str):
             f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
         )
         logger.info(f"Created diff file: {diff_file}")
+        cleanup_files(diffdirectory)
         return diff_file
 
     except Exception as e:
@@ -331,3 +364,17 @@ def get_related_mex_ids(record: dict) -> list:
     except Exception as e:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
+
+def setup_file_logging(log_dir, name="import"):
+    """Add a timestamped file handler to the given logger."""
+    os.makedirs(log_dir, exist_ok=True)
+    date_str = time.strftime("%Y%m%d")
+    handler = logging.FileHandler(os.path.join(log_dir, f"{name}-{date_str}.log"))
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+    )
+    return handler

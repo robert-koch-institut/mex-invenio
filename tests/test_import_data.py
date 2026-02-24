@@ -1,3 +1,6 @@
+import os
+import time
+
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
@@ -71,3 +74,16 @@ def test_import_contact_point(
     assert record["id"] == published_record_id
     assert "reginagarrett@example.com" in record["custom_fields"]["mex:email"]
     assert "zJBx8K7g9mQ8X03VZHnxW" in record["custom_fields"]["mex:identifier"]
+
+
+def test_import_creates_log_file(
+    app, db, location, resource_type_v, contributors_role_v, import_file
+):
+    """Test that the import creates a timestamped log file."""
+    import_file("contact-point", contact_point_data)
+
+    log_dir = os.path.join(app.config["S3_DOWNLOAD_FOLDER"], "logs")
+    expected_log = os.path.join(log_dir, f"import-{time.strftime('%Y%m%d')}.log")
+
+    assert os.path.isfile(expected_log), f"Log file not found: {expected_log}"
+    assert os.path.getsize(expected_log) > 0, "Log file is empty"

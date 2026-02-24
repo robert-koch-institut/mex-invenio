@@ -11,6 +11,7 @@ from mex_invenio.search.params import (
     GenericQueryParamsInterpreter,
     HighlightParamsInterpreter,
     TypeLimiterParamsInterpreter,
+    BoostingParamsInterpreter,
 )
 
 # from mex_invenio.custom_record import MexRDMRecord
@@ -56,6 +57,7 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
         HighlightParamsInterpreter,
+        BoostingParamsInterpreter,
         # Add other interpreters as needed
     ]
 
@@ -142,7 +144,7 @@ class MexDumper(SearchDumper):
         # log.append("**************************************")
 
         # Generate free-text search bucket
-        self._free_text_search_bucket(record, dump_data, log)
+        self._generate_sort_fields(record, dump_data, log)
 
         # PERFORMANCE FIX: Do NOT clear cache after processing
         # Cache should persist across records to avoid redundant database queries
@@ -545,9 +547,16 @@ class MexDumper(SearchDumper):
 
         return db_query.all()
 
-    def _free_text_search_bucket(self, record, dump_data, log):
-        # No implementation here for now, just a placeholder
-        pass
+    def _generate_sort_fields(self, record, dump_data, log):
+        # titles
+        titles = record.get("custom_fields", {}).get("mex:title", [])
+        values = [t.get("value") for t in titles if isinstance(t, dict) and "value" in t]
+        dump_data["index_data"]["title_sort"] = values
+
+        # labels
+        labels = record.get("custom_fields", {}).get("mex:label", [])
+        values = [l.get("value") for l in labels if isinstance(l, dict) and "value" in l]
+        dump_data["index_data"]["label_sort"] = values
 
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""

@@ -44,8 +44,10 @@ coverage.xml
 *,cover
 
 # Translations
+# messages.po needs to be generated, see README.md
 *.mo
 *.pot
+**/messages.po
 
 # Individual log files
 *.log

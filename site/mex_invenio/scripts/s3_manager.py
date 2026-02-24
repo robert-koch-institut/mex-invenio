@@ -8,7 +8,8 @@ pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
 
 ### Parameters
 The script takes the following parameters:
-**initial** Whether to import the data after downloading it from S3.
+**initial** Whether to do an initial import of the data after downloading it from S3 or
+            a standard one.
 
 ### Requirements
 Before running the script, there is a number of environment variables you can set:
@@ -38,11 +39,10 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files
+from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 envvar_prefix = "MEX_IMPORT_"
 
@@ -128,6 +128,7 @@ def get_final_import_file(existing_file, new_file, payload_folder):
     """Handles file retention based on check flag."""
     if existing_file and compare_files(existing_file, new_file):
         logger.info("No new content found. File is exactly the same as before.")
+        logger.info(f"{new_file} deleted")
         return None  # New file is identical, so discard it
 
     # Generate a timestamped filename to avoid overwriting
@@ -169,8 +170,11 @@ def manage_s3_files(initial: bool = False):
         return
 
     # Get the download folder from config
-    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER")
-    os.makedirs(s3_download_folder, exist_ok=True)
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    log_dir = os.path.join(s3_download_folder, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    file_handler = setup_file_logging(log_dir, name="s3_manager")
+    logger.addHandler(file_handler)
     logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
     logger.info(f"To download folder: {s3_download_folder}")
 
@@ -181,6 +185,8 @@ def manage_s3_files(initial: bool = False):
     new_file_path = download_file(
         s3_client, s3_bucket, latest_file_key, s3_download_folder
     )
+
+    logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
 
     if new_file_path:
         final_file_path = get_final_import_file(
@@ -201,6 +207,10 @@ def manage_s3_files(initial: bool = False):
                 sys.exit(1)
             else:
                 logger.info(f"Import successful. Data imported from {final_file_path}.")
+
+    logger.removeHandler(file_handler)
+    file_handler.close()
+    cleanup_files(log_dir, "s3_manager")
 
 
 if __name__ == "__main__":

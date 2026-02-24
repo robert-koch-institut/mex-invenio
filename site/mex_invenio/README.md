@@ -48,6 +48,14 @@ invenio rdm-records custom-fields init
 Note that this is run automatically on deployment and only applies if the indices are wiped on a running instance and
 therefore the custom field mappings need to be re-applied.
 
+## Static pages
+
+Static pages need to be created using the following command:
+
+```bash
+invenio rdm pages create
+```
+
 
 # Translation Compilation Process
 

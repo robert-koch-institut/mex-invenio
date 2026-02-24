@@ -850,7 +850,8 @@
                         "fields": {
                             "keyword": {
                                 "ignore_above": 256,
-                                "type": "keyword"
+                                "type": "keyword",
+								"normalizer": "lowercase_asciifolder"
                             }
                         },
                         "type": "text"
@@ -886,7 +887,8 @@
                         "fields": {
                             "keyword": {
                                 "ignore_above": 256,
-                                "type": "keyword"
+                                "type": "keyword",
+								"normalizer": "lowercase_asciifolder"
                             }
                         },
                         "type": "text"
@@ -927,7 +929,8 @@
                         "fields": {
                             "keyword": {
                                 "ignore_above": 256,
-                                "type": "keyword"
+                                "type": "keyword",
+								"normalizer": "lowercase_asciifolder"
                             }
                         },
                         "type": "text"
@@ -984,8 +987,16 @@
                             }
                         },
                         "type": "text"
-                    }
-                },
+                    },
+					"label_sort": {
+						"normalizer": "lowercase_asciifolder",
+						"type": "keyword"
+					},
+					"title_sort": {
+						"normalizer": "lowercase_asciifolder",
+						"type": "keyword"
+					}
+				},
                 "type": "object"
             },
             "internal_notes": {
@@ -2401,6 +2412,18 @@
     },
     "settings": {
         "analysis": {
+			"normalizer": {
+				"lowercase_asciifolder": {
+					"char_filter": [
+                        "strip_special_chars"
+                    ],
+                    "filter": [
+                        "lowercase",
+                        "asciifolding"
+                    ],
+                    "type": "custom"
+				}
+			},
             "analyzer": {
                 "accent_analyzer": {
                     "char_filter": [
@@ -2438,6 +2461,7 @@
             "custom_fields.mex:alternativeTitle.value",
             "custom_fields.mex:label.value",
             "custom_fields.mex:valueSet",
+			"custom_fields.mex:dataType",
             "index_data.belongsToLabel",
             "index_data.contributors",
             "index_data.creators",
