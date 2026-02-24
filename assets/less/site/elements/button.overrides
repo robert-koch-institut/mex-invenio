@@ -36,6 +36,7 @@ button {
         }
     }
     &.link-like {
+        height: fit-content !important;
         background-color: transparent;
         color: #32008c;
         font-weight: 400;
