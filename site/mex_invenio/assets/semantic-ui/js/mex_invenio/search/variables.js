@@ -73,7 +73,7 @@ edges.instances.variables.init = function () {
 
             mex.fullSearchController({
                 category: "column",
-                searchPlaceholder: i18n.t("Find resources..."),
+                searchPlaceholder: i18n.t("Find Find data sources & datasets..."),
                 label: "Search Data Sources & Datasets by Title",
                 inlineLabel: false,
                 searchTitle: i18n.t(" "),

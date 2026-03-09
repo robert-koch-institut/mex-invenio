@@ -1,3 +1,0 @@
-
-msgid "No resources containing variables that match your search were found."
-msgstr "No resources containing variables that match your search were found."

@@ -29,7 +29,7 @@ edges.instances.resources.init = function() {
                     {field: mex.constants.EXTERNAL_PARTNERS, "display": i18n.t("External Partner")},
                     {field: mex.constants.ICD10, "display": i18n.t("ICD-10 Code")},
                 ],
-                searchPlaceholder: i18n.t("Search resources..."),
+                searchPlaceholder: i18n.t("Search data sources & datasets..."),
                 label: "Search",
                 inlineLabel: true
             }),

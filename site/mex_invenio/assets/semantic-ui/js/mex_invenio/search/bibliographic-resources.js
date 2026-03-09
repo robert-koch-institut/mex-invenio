@@ -26,9 +26,9 @@ edges.instances.bibliographicResources.init = function () {
                     {field: mex.constants.SUBTITLE, "display": i18n.t("Involved Person")},
                     {field: mex.constants.ABSTRACT, "display": i18n.t("Abstract")},
                     {field: mex.constants.CREATOR, "display": i18n.t("Short Name")},
-                    {field: mex.constants.KEYWORD, "display": i18n.t("External Associate")}
+                    {field: mex.constants.KEYWORD, "display": i18n.t("External Partner")}
                 ],
-                searchPlaceholder: i18n.t("Search bibliographic resources..."),
+                searchPlaceholder: i18n.t("Search publications..."),
             }),
             mex.selectedFilters(),
 

@@ -16,425 +16,426 @@ msgstr ""
 
 #: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:123
 msgid "English"
-msgstr ""
+msgstr "English"
 
 #: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:297
 #, fuzzy
 msgid "Resource types"
-msgstr "Übergeordnete Ressourcen"
+msgstr "Resource types"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:18
 msgid "About MEx"
-msgstr "Über MEx"
+msgstr "About MEx"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:19
 msgid "Contact"
-msgstr "Kontakt"
+msgstr "Contact"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:20
 msgid "Data privacy"
-msgstr "Datenschutzerklärung"
+msgstr "Data privacy"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:24
 msgid "Accessibility"
-msgstr "Barrierefreiheit"
+msgstr "Accessibility"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:25
 msgid "Imprint"
-msgstr "Impressum"
+msgstr "Imprint"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:32
 #, fuzzy
 msgid "home"
-msgstr "Thema"
+msgstr "home"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:73
 msgid "Data Sources & Datasets"
-msgstr "Datenbestände & Datensätze"
+msgstr "Data Sources & Datasets"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:74
 msgid "Variables"
-msgstr "Variablen"
+msgstr "Variables"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
 msgid "Projects"
-msgstr "Projekte"
+msgstr "Projects"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
 msgid "Publications"
-msgstr "Publikationen"
+msgstr "Publications"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
 msgid "Search repository"
-msgstr "Repository durchsuchen"
+msgstr "Search repository"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
 msgid "Creators & Contributors"
-msgstr "Verantwortliche & Mitwirkende"
+msgstr "Creators & Contributors"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
 #, fuzzy
 msgid "Property description"
-msgstr "Methodenbeschreibung"
+msgstr "Property description"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:258
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:69
 msgid "Jump up"
-msgstr "Nach oben"
+msgstr "Jump up"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
 msgid "Typical age"
-msgstr "Minimales typisches Alter"
+msgstr "Typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
 msgid "Min. typical age"
-msgstr "Minimales typisches Alter"
+msgstr "Min. typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
-msgstr "Maximales typisches Alter"
+msgstr "Max. typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
 msgid "Metadata Export"
-msgstr "Metadaten Export"
+msgstr "Metadata Export"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/metrics.html:20
 #, fuzzy
 msgid "VIEWS"
-msgstr "Aufrufe"
+msgstr "VIEWS"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/versions.html:16
 msgid "Metadata Version"
-msgstr "Metadaten-Version"
+msgstr "Metadata Version"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:32
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:35
 msgid "Language"
-msgstr "Sprache"
+msgstr "Language"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:36
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:39
 msgid "Created"
-msgstr "Erstellt"
+msgstr "Created"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:5
 msgid "Edit this record"
-msgstr "Eintrag editieren"
+msgstr "Edit this record"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:23
 #, fuzzy
 msgid "Record Description"
-msgstr "Methodenbeschreibung"
+msgstr "Record Description"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:43
 msgid "Modified"
-msgstr "Letzte Änderung"
+msgstr "Modified"
 
 msgid "Search our"
-msgstr "Unsere"
+msgstr "Search our"
 
 msgid "Entire Metadata Catalogue"
-msgstr "Gesamte Metadatenkatalog"
+msgstr "Entire Metadata Catalogue"
 
 msgid "Related projects/endeavors"
-msgstr "Zugehörige Projekte"
+msgstr "Related projects/endeavors"
 
 msgid "Related data sources & datasets"
-msgstr "Zugehörige Datenbestände & Datensätze"
+msgstr "Related data sources & datasets"
 
 # All Search Pages & Landing Pages
 msgid "All MEx"
-msgstr "Alles"
+msgstr "All MEx"
 
 msgid "Search records…"
-msgstr "Nach Einträgen suchen…"
+msgstr "Search records…"
 
 msgid "Search"
-msgstr "Suche Einträge"
+msgstr "Search"
 
 msgid "All fields"
-msgstr "Alle Felder"
+msgstr "All fields"
 
 msgid "First"
-msgstr "Erste Seite"
+msgstr "First"
 
 msgid "Prev"
-msgstr "Vorherige Seite"
+msgstr "Prev"
 
 msgid "Page 1 of 1310"
-msgstr "Seite 1 von 1310"
+msgstr "Page 1 of 1310"
 
 msgid "Next"
-msgstr "Nächste Seite"
+msgstr "Next"
 
 msgid "Last"
-msgstr "Letzte Seite"
+msgstr "Last"
 
 msgid "show all"
-msgstr "Alle anzeigen"
+msgstr "show all"
 
 msgid "results"
-msgstr "Ergebnisse"
+msgstr "results"
 
 msgid "Show"
-msgstr "Zeige"
+msgstr "Show"
 
 msgid "results per page"
-msgstr "Ergebnisse pro Seite"
+msgstr "results per page"
 
 msgid "No data available"
-msgstr "Keine Daten verfügbar"
+msgstr "No data available"
 
 msgid "No results to display"
-msgstr "Keine Ergebnisse zur Anzeige vorhanden"
+msgstr "No results to display"
 
 msgid "Sort by"
-msgstr "Sortierung"
+msgstr "Sort by"
 
 msgid "Relevance"
-msgstr "Relevanz"
+msgstr "Relevance"
 
 msgid "Clear all"
-msgstr "Alle entfernen"
+msgstr "Clear all"
 
 msgid "Search resources…"
 msgstr "Search resources…"
 
 msgid "Search data sources & datasets…"
-msgstr "Datenbestände & Datensätze durchsuchen…"
+msgstr "Search data sources & datasets…"
 
 msgid "Alternative Title"
-msgstr "Alternativer Titel"
+msgstr "Alternative Title"
 
 msgid "External Partner"
-msgstr "Weitere Beteiligte"
+msgstr "External Partner"
 
 msgid "Access Restriction"
-msgstr "Zugriffsbeschränkung"
+msgstr "Access Restriction"
 
 msgid "Created (newest first)"
-msgstr "Erstellt (neueste zuerst)"
+msgstr "Created (newest first)"
 
 msgid "Variables Filter"
-msgstr "Variablen Filter"
+msgstr "Variables Filter"
 
 msgid "No resources found."
 msgstr "No resources found."
 
 msgid "No data sources & datasets found."
-msgstr "Keine Datenbestände & Datensätze gefunden."
+msgstr "No data sources & datasets found."
 
 # Project Search
 msgid "Search projects…"
-msgstr "Projekte durchsuchen…"
+msgstr "Search projects…"
 
 msgid "Short Name"
-msgstr "Kurztitel"
+msgstr "Short Name"
 
 msgid "Involved Person"
-msgstr "Mitwirkende*r"
+msgstr "Involved Person"
 
 msgid "Activity Type"
-msgstr "Projekttyp"
+msgstr "Activity Type"
 
 msgid "Activity Start"
-msgstr "Laufzeitbeginn"
+msgstr "Activity Start"
 
 msgid "Activity End"
-msgstr "Laufzeitende"
+msgstr "Activity End"
 
 msgid "Funder Or Commissioner"
-msgstr "Förderer oder Auftraggeber"
+msgstr "Funder Or Commissioner"
 
 msgid "Theme"
-msgstr "Thema"
+msgstr "Theme"
 
 msgid "Project’s duration"
-msgstr "Laufzeit"
+msgstr "Project’s duration"
 
 msgid "Project’s start"
-msgstr "Laufzeitbeginn"
+msgstr "Project’s start"
 
 msgid "Created (newest first)"
-msgstr "Erstellt (neueste zuerst)"
+msgstr "Created (newest first)"
 
 msgid "End Date (latest first)"
-msgstr "Laufzeitende (letzte zuerst)"
+msgstr "End Date (latest first)"
 
 msgid "Start Date (latest first)"
 msgstr "Start Date (latest first)"
 
 msgid "Start Date (newest first)"
-msgstr "Laufzeitbeginn (neueste zuerst)"
+msgstr "Start Date (newest first)"
 
 msgid "No activities found."
 msgstr "No activities found."
 
 msgid "No projects found."
-msgstr "Keine Projekte gefunden."
+msgstr "No projects found."
 
 # Publication Search
 msgid "Search bibliographic resources…"
 msgstr "Search bibliographic resources…"
 
 msgid "Search publications…"
-msgstr "Publikationen durchsuchen…"
+msgstr "Search publications…"
 
 msgid "Abstract"
-msgstr "Kurzbeschreibung"
+msgstr "Abstract"
 
 msgid "Publication Year"
-msgstr "Veröffentlichungsjahr"
+msgstr "Publication Year"
 
 msgid "Publication Year (newest first)"
-msgstr "Veröffentlichungsjahr (neuste zuerst)"
+msgstr "Publication Year (newest first)"
 
 msgid "No bibliographic resources found."
 msgstr "No bibliographic resources found."
 
 msgid "No publications found."
-msgstr "Keine Publikationen gefunden."
+msgstr "No publications found."
 
 # Variable Search
 msgid "Back to Data Sources & Datasets Search"
-msgstr "Zurück zur Suche nach Datenbeständen & Datensätzen"
+msgstr "Back to Data Sources & Datasets Search"
 
 msgid "All Data Sources & Datasets"
-msgstr "Alle Datenbestände & Datensätze"
+msgstr "All Data Sources & Datasets"
 
 msgid "Search Data Sources & Datasets by Title"
-msgstr "Datenbestände & Datensätze nach Titel durchsuchen"
+msgstr "Search Data Sources & Datasets by Title"
 
 msgid "Find resources…"
 msgstr "Find resources…"
 
 msgid "Find data sources & datasets…"
-msgstr "Datenbestände & Datensätze finden…"
+msgstr "Find data sources & datasets…"
 
 msgid "Find variables…"
-msgstr "Variablen finden…"
+msgstr "Find variables…"
 
 msgid "Expand all"
-msgstr "Alle ausklappen"
+msgstr "Expand all"
 
 msgid "Data Source"
-msgstr "Datenquelle"
+msgstr "Data Source"
 
 msgid "Variable Group"
-msgstr "Variablengruppe"
+msgstr "Variable Group"
 
 msgid "Data Type"
-msgstr "Datentyp"
+msgstr "Data Type"
 
 msgid "No variables found."
-msgstr "Keine Variablen gefunden."
+msgstr "No variables found."
 
 msgid "Clear All"
-msgstr "Alle zurücksetzen"
+msgstr "Clear All"
 
 msgid "Selected Data Sources & Datasets"
-msgstr "Ausgewählte Datenbestände & Datensätze"
+msgstr "Selected Data Sources & Datasets"
 
 msgid "Variable Groups"
-msgstr "Variablengruppen"
+msgstr "Variable Groups"
 
 msgid "No resources that match your search were found."
 msgstr "No resources that match your search were found."
 
 msgid "No data sources & datasets that match your search were found."
-msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
+msgstr "No data sources & datasets that match your search were found."
 
 # Global Search
 msgid "SEARCH OUR Entire Database"
-msgstr "SEARCH OUR Entire metadata catalogue"
+msgstr "SEARCH OUR Entire Database"
 
 msgid "SEARCH OUR Entire metadata catalogue"
-msgstr "DURCHSUCHEN SIE UNSEREN Gesamten Metadatenkatalog"
+msgstr "SEARCH OUR Entire metadata catalogue"
 
 msgid "Search across all records…"
-msgstr "Alle Einträge durchsuchen…"
+msgstr "Search across all records…"
 
 msgid "Search only in"
-msgstr "Suche nur in"
+msgstr "Search only in"
 
 msgid "Data source or dataset"
-msgstr "Datenbestand/Datensatz"
+msgstr "Data source or dataset"
 
 msgid "Data Source/Dataset"
-msgstr "Datenbestand/Datensatz"
+msgstr "Data Source/Dataset"
 
 msgid "Activity"
 msgstr "Activity"
 
 msgid "Project"
-msgstr "Projekt"
+msgstr "Project"
 
 # All Landing Pages
 msgid "Views"
-msgstr "Aufrufe"
+msgstr "Views"
 
 msgid "(Show more)"
-msgstr "(Mehr anzeigen)"
+msgstr "(Show more)"
 
 msgid "(Show less)"
-msgstr "(Weniger anzeigen)"
+msgstr "(Show less)"
 
 msgid "Show all"
-msgstr "Alle anzeigen"
+msgstr "Show all"
 
 msgid "Show less"
-msgstr "Weniger anzeigen"
+msgstr "Show less"
 
 msgid "Publication"
-msgstr "Publikation"
+msgstr "Publication"
 
 msgid "Explore variables for chosen datasets"
-msgstr "Variablen dieser Datenquelle erkunden"
+msgstr "Explore variables for chosen datasets"
 
 msgid "Publication"
-msgstr "Publikation"
+msgstr "Publication"
 
 msgid "Data Source/Dataset"
-msgstr "Datenbestand/Datensatz"
+msgstr "Data Source/Dataset"
 
 # Landing Page Publication
 msgid "Publication"
-msgstr "Publikation"
+msgstr "Publication"
 
 msgid "Project"
-msgstr "Projekt"
+msgstr "Project"
 
 # LC_MESSAGES/ui.po missing translations
 msgid "JSON"
 msgstr "JSON"
 
 msgid "Robert Koch Institute"
-msgstr "Robert Koch-Institut"
+msgstr "Robert Koch Institute"
 
 msgid "Menu"
-msgstr "Menü"
+msgstr "Menu"
 
 msgid "Close menu"
-msgstr "Menü schließen"
+msgstr "Close menu"
 
 msgid "Information banner"
-msgstr "Informationsbanner"
+msgstr "Information banner"
 
 msgid ""
 "There is a %(link_start)snewer version%(link_end)s of the record\n"
 "available."
 msgstr ""
-"Es ist eine neuere Version des Eintrags vorhanden."
+"There is a %(link_start)snewer version%(link_end)s of the record\n"
+"available."
 
 msgid "Reason"
-msgstr "Autor*in"
+msgstr "Reason"
 
 msgid "Back-navigation"
-msgstr "Zurück-Navigation"
+msgstr "Back-navigation"
 
 msgid "Back to edit"
-msgstr "Zurück zum Editieren"
+msgstr "Back to edit"
 
 msgid "Record title and creators"
 msgstr "Record title and creators"
@@ -443,22 +444,22 @@ msgid "Record details"
 msgstr "Record details"
 
 msgid "Jump to top of page"
-msgstr "Zum Seitenanfang springen"
+msgstr "Jump to top of page"
 
 msgid "Send email"
-msgstr "E-Mail senden"
+msgstr "Send email"
 
 msgid "Copy email address"
-msgstr "E-Mail-Adresse kopieren"
+msgstr "Copy email address"
 
 msgid "Copied!"
-msgstr "Kopiert!"
+msgstr "Copied!"
 
 msgid "Invenio ID"
-msgstr "Invenio-ID"
+msgstr "Invenio ID"
 
 msgid "Metrics"
-msgstr "Metriken"
+msgstr "Metrics"
 
 msgid "Record tags"
 msgstr "Record tags"
@@ -467,4 +468,4 @@ msgid "Record IDs"
 msgstr "Record IDs"
 
 msgid "No datasources or datasets containing variables that match your search were found."
-msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Variablen enthalten, die Ihrer Suche entsprechen."
+msgstr "No datasources or datasets containing variables that match your search were found."

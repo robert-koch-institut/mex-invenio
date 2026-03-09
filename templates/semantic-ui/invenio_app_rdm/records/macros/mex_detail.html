@@ -46,7 +46,7 @@
                 this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
             "
         >
-            Show all ({{ total }}) &#x25BE;
+            {{ _("Show all") }} ({{ total }}) &#x25BE;
         </button>
     {% endif %}
 
@@ -167,6 +167,8 @@
         </a>
         {% endfor %}
     </span>
+    {%- set buttonShowAll = "(" ~ _("Show all") ~ total ~ ")" %}
+    {%- set buttonShowLess = _("(Show less)") %}
     <button
             type="button"
             class="ui button link-like"
@@ -174,10 +176,10 @@
                     const hidden = this.previousElementSibling;
                     const isHidden = hidden.style.display === 'none';
                     hidden.style.display = isHidden ? 'unset' : 'none';
-                    this.textContent = isHidden ? '(Show less)' : '(Show all {{ total }})';
+                    this.textContent = isHidden ? '{{ buttonShowLess }}' : '{{ buttonShowAll|e }}';
                 "
     >
-        (Show all {{ total }})
+        {{ buttonShowAll }}
     </button>
     {% endif %}
 

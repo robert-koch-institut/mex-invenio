@@ -24,10 +24,10 @@ edges.instances.activities.init = function () {
                     {field: mex.constants.ALT_TITLE, "display": i18n.t("Alternative Title")},
                     {field: mex.constants.SHORT_NAME, "display": i18n.t("Short Name")},
                     {field: mex.constants.ABSTRACT, "display": i18n.t("Abstract")},
-                    {field: mex.constants.EXTERNAL_ASSOCIATE, "display": i18n.t("External Associate")},
+                    {field: mex.constants.EXTERNAL_ASSOCIATE, "display": i18n.t("External Partner")},
                     {field: mex.constants.INVOLVED_PERSON, "display": i18n.t("Involved Person")},
                 ],
-                searchPlaceholder: i18n.t("Search activities..."),
+                searchPlaceholder: i18n.t("Search projects..."),
             }),
             mex.selectedFilters(),
 
@@ -50,7 +50,7 @@ edges.instances.activities.init = function () {
                     },
                     {
                         field: mex.constants.START,
-                        display: i18n.t("Start Date (latest first)"),
+                        display: i18n.t("Start Date (newest first)"),
                         order: "desc"
                     },
                     {field: mex.constants.TITLE_SORT, "display": i18n.t("Title"), order: "asc"}

@@ -652,7 +652,7 @@ mex.resourceDisplay = function (params) {
         id: params.id || "results",
         category: params.category || "middle",
         renderer: new mex.renderers.ResourcesResults({
-            noResultsText: params.noResultsText || i18n.t("No resources found."),
+            noResultsText: params.noResultsText || i18n.t("No data sources & datasets found."),
             onSelectToggle: params.onSelectToggle || false,
         }),
     });
@@ -693,8 +693,8 @@ mex.activitiesDisplay = function (params) {
         id: params.id || "results",
         category: params.category || "middle",
         renderer: new mex.renderers.ActivitiesResults({
-            // noResultsText:
-            //     params.noResultsText || i18n.t("No activities found."),
+            noResultsText:
+                params.noResultsText || i18n.t("No projects found."),
         }),
     });
 };
@@ -716,7 +716,7 @@ mex.bibliographicResourcesDisplay = function (params) {
         renderer: new mex.renderers.BibliographicResourcesResults({
             noResultsText:
                 params.noResultsText ||
-                i18n.t("No bibliographic resources found."),
+                i18n.t("No publications found."),
         }),
     });
 };
@@ -786,7 +786,7 @@ mex.endFacet = function () {
     return mex.dateHistogram({
         id: "end",
         field: mex.constants.END_RANGE,
-        title: i18n.t("Activity End"),
+        title: i18n.t("End"),
         category: "left",
         interval: "year",
         useCheckboxes: true,
@@ -798,7 +798,7 @@ mex.startFacet = function () {
     return mex.dateHistogram({
         id: "start",
         field: mex.constants.START_RANGE,
-        title: i18n.t("Activity Start"),
+        title: i18n.t("Start"),
         category: "left",
         interval: "year",
         useCheckboxes: true,
@@ -841,7 +841,7 @@ mex.activityTypeFacet = function () {
     return mex.refiningAndFacet({
         id: "activity_type",
         field: mex.constants.ACTIVITY_TYPE_KW,
-        title: i18n.t("Activity Type"),
+        title: i18n.t("Project Type"),
         category: "left",
         valueFunction: mex.vocabularyLookup,
     });
@@ -2449,7 +2449,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
 
             field_select += `<label for="${selectId}" class="sr-only">Search by</label>
                                 <select class="ui dropdown ${searchFieldClass}" id="${selectId}">
-                                    <option value="">${i18n.t("all fields")}</option>
+                                    <option value="">${i18n.t("All fields")}</option>
                                     ${fieldOptions}
                                 </select>`;
         }
@@ -5382,7 +5382,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
                         <div class="tag resource-type">
                             <img class="ui image icon--text" src="/static/icons/resource-record.svg"
                                 role="presentation"/>
-                            &nbsp;${i18n.t('Data source or dataset')}
+                            &nbsp;${i18n.t('Data source/dataset')}
                         </div>
                         ${accessRestrictionFrag}
                     </div>`
