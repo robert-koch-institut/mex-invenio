@@ -5045,7 +5045,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
             // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
             // highlighted fragment
             if (mex.constants.BELONGS_TO_LABEL in resultHighlights) {
-                resourceFrag = resultHighlights[mex.constants.BELONGS_TO_LABEL];
+                groupFrag = resultHighlights[mex.constants.BELONGS_TO_LABEL];
             } else {
                 for (let g of groups) {
                     groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
