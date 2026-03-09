@@ -184,10 +184,12 @@ code {
               min-width: 0;
               max-width: 100%;
               button, a, span, p {
-                  overflow-wrap: break-word;
-                  word-break: break-word;
-                  white-space: normal;
-                  hyphens: auto;
+                overflow: visible;
+                text-overflow: clip;
+                white-space: normal;
+                hyphens: auto;
+                overflow-wrap: break-word;
+                word-break: break-word;
               }
           }
       }
