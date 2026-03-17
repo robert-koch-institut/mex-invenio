@@ -39,7 +39,12 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files
+from mex_invenio.scripts.utils import (
+    cleanup_files,
+    compare_files,
+    diff_files,
+    setup_file_logging,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

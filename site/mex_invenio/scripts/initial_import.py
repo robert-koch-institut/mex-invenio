@@ -31,12 +31,10 @@ from flask import current_app
 from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
     mex_to_invenio_schema,
 )
-
-from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
-
 
 # Configure logging
 logging.basicConfig(

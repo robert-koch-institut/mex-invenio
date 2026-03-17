@@ -1,3 +1,5 @@
+import logging
+
 from invenio_records_resources.services.records.params import ParamInterpreter
 
 ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
@@ -155,6 +157,9 @@ MAX_AGG_SIZE = 200
 MAX_PAGE_SIZE = 100
 MAX_FROM = 10000
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
     def _validate(self, raw):
@@ -166,7 +171,7 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
             self._validate_paging(raw)
             self._validate_sort(raw)
         except ValueError as e:
-            print(f"QUERY VALIDATION FAILURE: {e}")
+            logger.warning(f"QUERY VALIDATION FAILURE: {e}")
 
     def _validate_default_fields(self, raw):
         default_field = (
@@ -233,12 +238,12 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
 
         try:
             size = int(size)
-        except:
-            raise ValueError(f"Page size {size} is not a valid integer")
+        except (TypeError, ValueError):
+            raise ValueError(f"Page size {size} is not a valid integer") from None
         try:
             from_ = int(from_)
-        except:
-            raise ValueError(f"From {from_} is not a valid integer")
+        except (TypeError, ValueError):
+            raise ValueError(f"From {from_} is not a valid integer") from None
 
         if size > MAX_PAGE_SIZE:
             raise ValueError(
@@ -308,8 +313,8 @@ class HighlightParamsInterpreter(ParamInterpreter):
                 USED_IN_EN,
                 BELONGS_TO_LABEL,
                 DATA_TYPE,
-                pre_tags = ["<xh>"],
-                post_tags = ["</xh>"]
+                pre_tags=["<xh>"],
+                post_tags=["</xh>"],
             )
         elif isinstance(params.get("resource_type"), list):
             search = search.highlight(
@@ -317,48 +322,33 @@ class HighlightParamsInterpreter(ParamInterpreter):
                 ABSTRACT,
                 TITLE,
                 LABEL,
-                pre_tags = ["<xh>"],
-                post_tags = ["</xh>"]
+                pre_tags=["<xh>"],
+                post_tags=["</xh>"],
             )
         else:
             search = search.highlight(
-                DESCRIPTION,
-                ABSTRACT,
-                TITLE,
-                pre_tags = ["<xh>"],
-                post_tags = ["</xh>"]
+                DESCRIPTION, ABSTRACT, TITLE, pre_tags=["<xh>"], post_tags=["</xh>"]
             )
 
         # Uncomment this to get a view on the query in development
-        print("#########highlight###############")
-        import json
-        print(json.dumps(search.to_dict()))
+        # import json
+        # print("#########highlight###############")
+        # print(json.dumps(search.to_dict()))
 
         return search
 
-class BoostingParamsInterpreter(ParamInterpreter):
 
+class BoostingParamsInterpreter(ParamInterpreter):
     BOOSTS = {
-        "global": {
-            TITLE: 20,
-            LABEL: 20,
-            ALT_TITLE: 10,
-            DESCRIPTION: 10,
-            ABSTRACT: 10
-        },
-        "resource": {
-            TITLE: 20,
-            ALT_TITLE: 10,
-            DESCRIPTION: 10,
-            KEYWORD: 10
-        },
+        "global": {TITLE: 20, LABEL: 20, ALT_TITLE: 10, DESCRIPTION: 10, ABSTRACT: 10},
+        "resource": {TITLE: 20, ALT_TITLE: 10, DESCRIPTION: 10, KEYWORD: 10},
         "variable": {
             LABEL: 20,
             USED_IN_EN: 10,
             USED_IN_DE: 10,
             BELONGS_TO_LABEL: 10,
             DATA_TYPE: 10,
-            CODING_SYSTEM: 5
+            CODING_SYSTEM: 5,
         },
         "activity": {
             TITLE: 20,
@@ -374,7 +364,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
             ABSTRACT: 10,
             CREATOR: 10,
             # RESPONSIBLE_UNIT: 10
-        }
+        },
     }
 
     def _make_functions(self, typ, qs):
@@ -433,8 +423,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
             # print("-----------")
 
             return search.from_dict(raw)
-        else:
-            return search
+        return search
         # Uncomment this to get a view on the query in development
         # print("#########highlight###############")
         # print(json.dumps(search.to_dict()))

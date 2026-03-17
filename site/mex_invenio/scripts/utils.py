@@ -144,15 +144,14 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
-def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
+def cleanup_files(directory: str, prefix: str | None = None, keep: int = 20):
     """Remove old files, keeping only the most recent ones."""
     try:
         if prefix:
             files = [
                 os.path.join(directory, f)
                 for f in os.listdir(directory)
-                if os.path.isfile(os.path.join(directory, f))
-                and f.startswith(prefix)
+                if os.path.isfile(os.path.join(directory, f)) and f.startswith(prefix)
             ]
         else:
             files = [
@@ -161,7 +160,8 @@ def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
                 if os.path.isfile(os.path.join(directory, f))
             ]
 
-        files = sorted(files,
+        files = sorted(
+            files,
             key=os.path.getmtime,
             reverse=True,
         )
@@ -364,6 +364,7 @@ def get_related_mex_ids(record: dict) -> list:
     except Exception as e:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
+
 
 def setup_file_logging(log_dir, name="import"):
     """Add a timestamped file handler to the given logger."""
