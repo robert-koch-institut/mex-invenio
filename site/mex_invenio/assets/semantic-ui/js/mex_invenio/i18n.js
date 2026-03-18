@@ -29,7 +29,7 @@ i18n
     supportedLngs: ["de", "en"],
     ns: ['mextranslations'],
     defaultNS: 'mextranslations',
-    debug: true,
+    debug: false,
     returnNull: false,
     interpolation: { escapeValue: false },
     react: { useSuspense: false }

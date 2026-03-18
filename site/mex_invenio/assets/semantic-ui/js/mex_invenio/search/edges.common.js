@@ -933,15 +933,15 @@ mex.selectedFilters = function (params) {
     defaultFieldDisplays[mex.constants.ACCESS_RESTRICTION_KW] = i18n.t("Access Restriction")
     defaultFieldDisplays[mex.constants.JOURNAL_KW] = i18n.t("Journal")
     defaultFieldDisplays[mex.constants.KEYWORD_KW] = i18n.t("Keyword")
-    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = i18n.t("Activity Type")
+    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = i18n.t("Project Type")
     defaultFieldDisplays[mex.constants.THEME_KW] = i18n.t("Theme")
     defaultFieldDisplays[mex.constants.PERSONAL_DATA_KW] = i18n.t("Personal Data")
     defaultFieldDisplays[mex.constants.CREATION_METHOD_KW] = i18n.t("Resource Creation Method")
     defaultFieldDisplays[mex.constants.FUNDER_DE_KW] = i18n.t("Funder or Commissioner")
     defaultFieldDisplays[mex.constants.FUNDER_EN_KW] = i18n.t("Funder or Commissioner")
     defaultFieldDisplays[mex.constants.CREATED_RANGE] = i18n.t("Created")
-    defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Activity Start")
-    defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("Activity End")
+    defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Start")
+    defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("End")
     defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = i18n.t("Publication Year")
 
     let defaultValueFunctions = {}
@@ -1683,8 +1683,8 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
-                    Clear all
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title=${i18n.t("Clear all search and sort parameters and start again")}>
+                    ${i18n.t("Clear All")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1904,7 +1904,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
@@ -2130,7 +2130,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 <div class="">
                     ${expandAllCheckbox}
                     ${header}
-                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> ${i18n.t("Clear All")} </button>
                     <div>
                         ${recordsFrag}
                     </div>
@@ -3482,9 +3482,9 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 let slToggleId = edges.util.htmlID(namespace, "sl-toggle", this);
                 results += `<div class="${showClass}" id="${showId}">
                     <a href="#" id="${slToggleId}">
-                        <span class="all">show all</span>
+                        <span class="all">${i18n.t("show all")}</span>
                         <span class="less" style="display:none">${i18n.t(
-                    "show less"
+                    "Show less"
                 )}</span>
                     </a>
                 </div>`;

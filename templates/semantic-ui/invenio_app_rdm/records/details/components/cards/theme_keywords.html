@@ -33,10 +33,10 @@
                 hidden.forEach(el => {
                     el.style.display = isHidden ? 'flex' : 'none';
                 });
-                this.textContent = isHidden ? 'Show less &#x25B4;' : 'Show all ({{ total }}) &#x25BE;';
+                this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show all")}} ({{ total }}) &#x25BE;';
             "
         >
-            Show all ({{ total }}) &#x25BE;
+{{_("Show all")}} ({{ total }}) &#x25BE;
         </button>
     {% endif %}
 

@@ -498,7 +498,7 @@ UI_SETTINGS = {
         },
         "side_bar": {
             "contact": {
-                "title": _("contact.singular"),
+                "title": _("Contact"),
                 "template": "contact.html",
                 "icon": "contact.svg",
                 "properties": [
@@ -910,7 +910,7 @@ FRONTPAGE_SEARCH_LINKS = {
         "url": "/variables",
     },
     "general": {
-        "title": _("All Mex Records"),
+        "title": _("All MEx Records"),
         "bg_icon": "general.svg",
         "description": _(
             "Look through all records in our repository: datasets, publications, projects, and more."
