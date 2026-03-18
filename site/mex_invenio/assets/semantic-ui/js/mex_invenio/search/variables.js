@@ -158,6 +158,7 @@ edges.instances.variables.propagateSelection = function () {
     nq.removeMust(
         new es.TermsFilter({field: mex.constants.BELONGS_TO_ID_KW})
     );
+    nq.from = 0; // reset the pagination to the first page, since the results will likely have changed
     nq = edges.instances.variables.buildVariablesQuery(nq, selectedMexIds);
 
     e.pushQuery(nq);
