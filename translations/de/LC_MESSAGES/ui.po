@@ -27,10 +27,6 @@ msgstr "Übergeordnete Ressourcen"
 msgid "About MEx"
 msgstr "Über MEx"
 
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:19
-msgid "Contact"
-msgstr "Kontakt"
-
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:20
 msgid "Data privacy"
 msgstr "Datenschutzerklärung"
@@ -51,10 +47,6 @@ msgstr "Thema"
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:73
 msgid "Data Sources & Datasets"
 msgstr "Datenbestände & Datensätze"
-
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:74
-msgid "Variables"
-msgstr "Variablen"
 
 msgid "Variable"
 msgstr "Variable"
@@ -108,15 +100,6 @@ msgstr "Maximales typisches Alter"
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
 msgid "Metadata Export"
 msgstr "Metadaten Export"
-
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/metrics.html:20
-#, fuzzy
-msgid "VIEWS"
-msgstr "Aufrufe"
-
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/versions.html:16
-msgid "Metadata Version"
-msgstr "Metadaten-Version"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:32
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:35
@@ -235,9 +218,6 @@ msgstr "Weitere Beteiligte"
 msgid "Access Restriction"
 msgstr "Zugriffsbeschränkung"
 
-msgid "Created (newest first)"
-msgstr "Erstellt (neueste zuerst)"
-
 msgid "Variables Filter"
 msgstr "Variablen Filter"
 
@@ -274,9 +254,6 @@ msgstr "Förderer oder Auftraggeber"
 
 msgid "Theme"
 msgstr "Thema"
-
-msgid "Theme & Keywords"
-msgstr "Thema & Stichworte"
 
 msgid "Project's duration"
 msgstr "Laufzeit"
@@ -404,10 +381,6 @@ msgstr "Activity"
 msgid "Project"
 msgstr "Projekt"
 
-# All Landing Pages
-msgid "Views"
-msgstr "Aufrufe"
-
 msgid "(Show more)"
 msgstr "(Mehr anzeigen)"
 
@@ -521,14 +494,8 @@ msgstr "Gesamttitelangabe"
 msgid "Editor"
 msgstr "Herausgebende"
 
-msgid "Related Resources"
-msgstr "Verknüpfte Ressourcen"
-
 msgid "Access"
-msgstr "Zugriff und Nutzungsrechte"
-
-msgid "Files"
-msgstr "Dateien"
+msgstr "Zugriff"
 
 msgid "Title"
 msgstr "Titel"
@@ -567,3 +534,60 @@ msgstr "Durchsuchen Sie alle Einträge in unserem Metadatenkatalog: Datensätze,
 
 msgid "disclaimer"
 msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
+
+msgid "Theme & Keywords"
+msgstr "Thema & Schlagworte"
+
+msgid "Data Representation & Coverage"
+msgstr "Datenabdeckung"
+
+msgid "Legal Basis & Data Provenance"
+msgstr "Rechtsgrundlage & Provenienz"
+
+msgid "Data Collection & Processing"
+msgstr "Datenerhebung & -prozessierung"
+
+msgid "Methodology"
+msgstr "Methodik"
+
+msgid "Standards & Quality"
+msgstr "Standards & Qualität"
+
+msgid "Related Publications & Further Documentation"
+msgstr "Veröffentlichungen & Dokumentation"
+
+msgid "Related Resources"
+msgstr "Verknüpfte Ressourcen"
+
+msgid "Views"
+msgstr "Aufrufe"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Access & Usage Rights"
+msgstr "Zugriff & Nutzungsrechte"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Metadata Version"
+msgstr "Metadaten-Version"
+
+msgid "Access Platform"
+msgstr "Zugriffsplattform"
+
+msgid "Variables"
+msgstr "Variablen"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Partners & Funding"
+msgstr "Partner &  Fördermittelgebende"
+
+msgid "Part Of"
+msgstr "Übergeordneter Datenbestand/Datensatz"
+
+msgid "Succeeds"
+msgstr "Nachfolge von"

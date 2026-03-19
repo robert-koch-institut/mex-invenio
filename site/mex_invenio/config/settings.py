@@ -607,9 +607,9 @@ UI_SETTINGS = {
                     {"field": "mex:website", "label": _("website.singular")},
                 ],
             },
-            "parentResources": {
+            "relatedResources": {
                 "type": "container",
-                "title": _("Parent Resources"),
+                "title": _("Related Resources"),
                 "icon": "relatedResources.svg",
                 "components": [
                     {
@@ -618,14 +618,7 @@ UI_SETTINGS = {
                         "properties": [
                             {"field": "mex:isPartOfActivity"},
                         ],
-                    }
-                ],
-            },
-            "relatedResources": {
-                "type": "container",
-                "title": _("Related Resources"),
-                "icon": "relatedResources.svg",
-                "components": [
+                    },
                     {
                         "title": _("Succeeds"),
                         "properties": [
