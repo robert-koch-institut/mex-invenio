@@ -13,9 +13,6 @@ const resources = {
   en: { mextranslations: enTranslations },
 };
 
-console.log('Custom resources de.mextranslations.Welcome:', resources.de.mextranslations?.Welcome);
-console.log('Custom resources en.mextranslations.Welcome:', resources.en.mextranslations?.Welcome);
-
 // Global ready flag
 window.i18nReady = false;
 
@@ -36,7 +33,6 @@ i18n
   }, (err, t) => {
     if (err) return console.error(err);
     window.i18nReady = true;
-    console.log('i18n CALLBACK ready, t(Welcome):', t('Welcome'));
   });
 
 export default i18n;

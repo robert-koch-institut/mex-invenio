@@ -56,13 +56,23 @@ msgstr "Datenbestände & Datensätze"
 msgid "Variables"
 msgstr "Variablen"
 
+msgid "Variable"
+msgstr "Variable"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Project"
+msgstr "Projekt"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
 msgid "Publications"
 msgstr "Publikationen"
+
+msgid "Publication"
+msgstr "Publikation"
+
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
 msgid "Search repository"
@@ -147,7 +157,10 @@ msgstr "Zugehörige Datenbestände & Datensätze"
 msgid "All MEx"
 msgstr "Alles"
 
-msgid "All MEx records"
+msgid "All"
+msgstr "Alles"
+
+msgid "All MEx Records"
 msgstr "Alles MEx Einträgen"
 
 msgid "Search records"
@@ -256,7 +269,7 @@ msgstr "Laufzeitbeginn"
 msgid "End"
 msgstr "Laufzeitende"
 
-msgid "Funder Or Commissioner"
+msgid "Funder or Commissioner"
 msgstr "Förderer oder Auftraggeber"
 
 msgid "Theme"
@@ -360,8 +373,8 @@ msgstr "Ausgewählte Datenbestände & Datensätze"
 msgid "Variable Groups"
 msgstr "Variablengruppen"
 
-msgid "No resources that match your search were found."
-msgstr "No resources that match your search were found."
+msgid "noResourcesWithVariablesFound"
+msgstr "Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen enthalten und Ihrer Suche entsprechen."
 
 msgid "No data sources & datasets that match your search were found."
 msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
@@ -519,3 +532,38 @@ msgstr "Dateien"
 
 msgid "Title"
 msgstr "Titel"
+
+msgid "Data source/dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Explore the variables related to these data source"
+msgstr "Variablen dieser Datenquelle erkunden"
+
+msgid "Datasets for Variables Search"
+msgstr "Datensätze für die Variablen-Suche"
+
+msgid "Has Personal Data"
+msgstr "Personenbezogene Daten"
+
+msgid "Resource Creation Method"
+msgstr "Methodik"
+
+msgid "Journal"
+msgstr "Journal"
+
+# settings.py
+msgid "frontpageHeader"
+msgstr "Was möchten Sie heute entdecken? Durchsuchen Sie unseren Katalog."
+msgid "datasetsDescription"
+msgstr "Erkunden Sie Datenbestände und Datensätze des RKI."
+msgid "projectsDescription"
+msgstr "Entdecken Sie Forschungsaktivitäten oder amtliche Aufgaben des RKI, die Kontextinformationen zu unseren Datenbeständen und Datensätzen liefern."
+msgid "publicationsDescription"
+msgstr "Durchstöbern Sie Artikel in Fachzeitschriften, Berichte und Buchkapitel zur öffentlichen Gesundheit, die vom RKI veröffentlicht wurden."
+msgid "variablesDescription"
+msgstr "Variablen und ihre Details auf einen Blick – entdecken Sie, aus welchen Datenbeständen sie stammen."
+msgid "globalDescription"
+msgstr "Durchsuchen Sie alle Einträge in unserem Metadatenkatalog: Datensätze, Publikationen, Projekte und mehr."
+
+msgid "disclaimer"
+msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."

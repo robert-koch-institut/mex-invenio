@@ -668,7 +668,7 @@ mex.resourceDisplayCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new mex.renderers.CompactResourcesResults({
             title: params.title || i18n.t("Resources"),
-            noResultsText: params.noResultsText || i18n.t("No resources containing variables that match your search were found."),
+            noResultsText: params.noResultsText || i18n.t("noResourcesWithVariables"),
             onSelectToggle: params.onSelectToggle || false,
             hideIfNoResults: params.hideIfNoResults || false,
         }),
@@ -1911,7 +1911,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
-                         ${i18n.t("Explore the variables related to these data sources")}
+                         ${i18n.t("Explore variables for chosen datasets")}
                     </a>
         `;
         }
@@ -2356,7 +2356,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         this.label = edges.util.getParam(
             params,
             "label",
-            "Search"
+            i18n.t("Search")
         )
 
         this.labelInvisible = edges.util.getParam(
@@ -2378,7 +2378,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             500
         );
 
-        this.searchTitle = edges.util.getParam(params, "searchTitle", "Search");
+        this.searchTitle = edges.util.getParam(params, "searchTitle", i18n.t("Search"));
         this.compactDesign = edges.util.getParam(params, "compactDesign", false);
 
         ////////////////////////////////////////
@@ -4530,7 +4530,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     function resourceTypeMacro() {
         return `<span class="tag resource-type"><img class="ui image icon--text"
              src="/static/icons/activity-record.svg"
-             role="presentation"/>&nbsp;${i18n.t('Activity')}</span>`
+             role="presentation"/>&nbsp;${i18n.t('Project')}</span>`
     }
 
     let mex_id = res["custom_fields"]["mex:identifier"]

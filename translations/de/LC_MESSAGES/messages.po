@@ -1,8 +1,8 @@
 #
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-03-18 15:32\n"
-"PO-Revision-Date: 2026-03-18 15:32\n"
+"POT-Creation-Date: 2026-03-19 17:12\n"
+"PO-Revision-Date: 2026-03-19 17:12\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1187,13 +1187,22 @@ msgstr "Datenbestände & Datensätze"
 msgid "Variables"
 msgstr "Variablen"
 
+msgid "Variable"
+msgstr "Variable"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Project"
+msgstr "Projekt"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
 msgid "Publications"
 msgstr "Publikationen"
+
+msgid "Publication"
+msgstr "Publikation"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
 msgid "Search repository"
@@ -1278,7 +1287,10 @@ msgstr "Zugehörige Datenbestände & Datensätze"
 msgid "All MEx"
 msgstr "Alles"
 
-msgid "All MEx records"
+msgid "All"
+msgstr "Alles"
+
+msgid "All MEx Records"
 msgstr "Alles MEx Einträgen"
 
 msgid "Search records"
@@ -1299,8 +1311,11 @@ msgstr "Erste Seite"
 msgid "Prev"
 msgstr "Vorherige Seite"
 
-msgid "Page 1 of 1310"
-msgstr "Seite 1 von 1310"
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
 
 msgid "Next"
 msgstr "Nächste Seite"
@@ -1375,23 +1390,32 @@ msgstr "Mitwirkende*r"
 msgid "Activity Type"
 msgstr "Projekttyp"
 
-msgid "Activity Start"
+msgid "Project Type"
+msgstr "Projekttyp"
+
+msgid "Start"
 msgstr "Laufzeitbeginn"
 
-msgid "Activity End"
+msgid "End"
 msgstr "Laufzeitende"
 
-msgid "Funder Or Commissioner"
+msgid "Funder or Commissioner"
 msgstr "Förderer oder Auftraggeber"
 
 msgid "Theme"
 msgstr "Thema"
 
-msgid "Project’s duration"
+msgid "Theme & Keywords"
+msgstr "Thema & Stichworte"
+
+msgid "Project's duration"
 msgstr "Laufzeit"
 
-msgid "Project’s start"
+msgid "Project's start"
 msgstr "Laufzeitbeginn"
+
+msgid "Project's end"
+msgstr "Laufzeitende"
 
 msgid "Created (newest first)"
 msgstr "Erstellt (neueste zuerst)"
@@ -1479,8 +1503,10 @@ msgstr "Ausgewählte Datenbestände & Datensätze"
 msgid "Variable Groups"
 msgstr "Variablengruppen"
 
-msgid "No resources that match your search were found."
-msgstr "No resources that match your search were found."
+msgid "noResourcesWithVariablesFound"
+msgstr ""
+"Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen "
+"enthalten und Ihrer Suche entsprechen."
 
 msgid "No data sources & datasets that match your search were found."
 msgstr ""
@@ -1527,6 +1553,9 @@ msgstr "Alle anzeigen"
 
 msgid "Show less"
 msgstr "Weniger anzeigen"
+
+msgid "Show more"
+msgstr "Mehr anzeigen"
 
 msgid "Publication"
 msgstr "Publikation"
@@ -1613,3 +1642,81 @@ msgid ""
 msgstr ""
 "Es wurden keine Datenbestände & Datensätze gefunden, die Variablen "
 "enthalten, die Ihrer Suche entsprechen."
+
+msgid "Creators"
+msgstr "Autor*innen"
+
+msgid "Keywords"
+msgstr "Stichworte"
+
+msgid "Keyword"
+msgstr "Stichwort"
+
+msgid "Title Proper"
+msgstr "Gesamttitelangabe"
+
+msgid "Editor"
+msgstr "Herausgebende"
+
+msgid "Related Resources"
+msgstr "Verknüpfte Ressourcen"
+
+msgid "Access"
+msgstr "Zugriff und Nutzungsrechte"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Data source/dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Explore the variables related to these data source"
+msgstr "Variablen dieser Datenquelle erkunden"
+
+msgid "Datasets for Variables Search"
+msgstr "Datensätze für die Variablen-Suche"
+
+msgid "Has Personal Data"
+msgstr "Personenbezogene Daten"
+
+msgid "Resource Creation Method"
+msgstr "Methodik"
+
+msgid "Journal"
+msgstr "Journal"
+
+# settings.py
+msgid "frontpageHeader"
+msgstr "Was möchten Sie heute entdecken? Durchsuchen Sie unseren Katalog."
+
+msgid "datasetsDescription"
+msgstr "Erkunden Sie Datenbestände und Datensätze des RKI."
+
+msgid "projectsDescription"
+msgstr ""
+"Entdecken Sie Forschungsaktivitäten oder amtliche Aufgaben des RKI, die "
+"Kontextinformationen zu unseren Datenbeständen und Datensätzen liefern."
+
+msgid "publicationsDescription"
+msgstr ""
+"Durchstöbern Sie Artikel in Fachzeitschriften, Berichte und Buchkapitel zur "
+"öffentlichen Gesundheit, die vom RKI veröffentlicht wurden."
+
+msgid "variablesDescription"
+msgstr ""
+"Variablen und ihre Details auf einen Blick – entdecken Sie, aus welchen "
+"Datenbeständen sie stammen."
+
+msgid "globalDescription"
+msgstr ""
+"Durchsuchen Sie alle Einträge in unserem Metadatenkatalog: Datensätze, "
+"Publikationen, Projekte und mehr."
+
+msgid "disclaimer"
+msgstr ""
+"Alle Angaben basieren auf Informationen aus den datenhaltenden "
+"Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit "
+"und Aktualität dieser Informationen."

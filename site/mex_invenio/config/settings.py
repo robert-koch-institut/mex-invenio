@@ -872,49 +872,39 @@ TITLE_FIELDS = [
     "mex:email",
 ]
 
-DISCLAIMER = _(
-    "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
-)
+DISCLAIMER = _(_("disclaimer"))
+
+FRONTPAGE_HEADER = _("frontpageHeader")
 
 FRONTPAGE_SEARCH_LINKS = {
     "resource": {
         "title": _("Data Sources & Datasets"),
         "bg_icon": "resources.svg",
-        "description": _(
-            "Search collections of public health information from RKI research or official federal activities."
-        ),
+        "description": _("datasetsDescription"),
         "url": "/resources",
     },
     "activity": {
         "title": _("Projects"),
         "bg_icon": "projects.svg",
-        "description": _(
-            "Discover research activities or official tasks carried out by the RKI, providing context for our resources."
-        ),
+        "description": _("projectsDescription"),
         "url": "/activities",
     },
     "bibliographicresource": {
         "title": _("Publications"),
         "bg_icon": "publications.svg",
-        "description": _(
-            "Browse books, articles, and reports on public health produced by the RKI."
-        ),
+        "description": _("publicationsDescription"),
         "url": "/bibliographic-resources",
     },
     "variable": {
         "title": _("Variables"),
         "bg_icon": "variables.svg",
-        "description": _(
-            "View data points used in studies and evaluations, like measurements or categories of information."
-        ),
+        "description": _("variablesDescription"),
         "url": "/variables",
     },
     "general": {
         "title": _("All MEx Records"),
         "bg_icon": "general.svg",
-        "description": _(
-            "Look through all records in our repository: datasets, publications, projects, and more."
-        ),
+        "description": _("globalDescription"),
         "url": "",
     },
 }
