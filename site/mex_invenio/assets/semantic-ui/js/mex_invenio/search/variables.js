@@ -155,9 +155,13 @@ edges.instances.variables.propagateSelection = function () {
     nq.removeMust(
         new es.TermsFilter({field: mex.constants.USED_IN_ID_KW})
     );
-    nq.removeMust(
+    nq.removeShould(
         new es.TermsFilter({field: mex.constants.BELONGS_TO_ID_KW})
     );
+    nq.removeShould(
+        new es.BoolFilter({})
+        // new es.NotExists({field: mex.constants.BELONGS_TO_ID_KW})
+    )
     nq.from = 0; // reset the pagination to the first page, since the results will likely have changed
     nq = edges.instances.variables.buildVariablesQuery(nq, selectedMexIds);
 
@@ -201,15 +205,79 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
 
         // only add the variable group constraints if there are selected resources
         if (selectedMexIds["variable_groups"].length > 0) {
-            query.addMust(
+            // query.addMust(
+            //     new es.TermsFilter({
+            //         field: mex.constants.BELONGS_TO_ID_KW,
+            //         values: selectedMexIds["variable_groups"],
+            //     })
+            // );
+            query.addShould(
                 new es.TermsFilter({
                     field: mex.constants.BELONGS_TO_ID_KW,
                     values: selectedMexIds["variable_groups"],
                 })
-            );
+            )
+
+            let b = new es.BoolFilter({});
+            b.addMustNot(new es.ExistsFilter({field: mex.constants.BELONGS_TO_ID_KW}))
+            query.addShould(b);
+            // query.addShould(
+            //     new es.NotExists({
+            //         field: mex.constants.BELONGS_TO_ID_KW
+            //     })
+            // )
+
+            query.minimumShouldMatch = 1;
         }
     }
     return query;
+}
+
+mex.NotExists = class extends es.Filter {
+    type = "bool"
+
+    constructor(params) {
+        super(params);
+
+        if (params.raw) {
+            this.parse(params.raw);
+        }
+    }
+
+    matches(other) {
+        return this._baseMatch(other);
+    }
+
+    _baseMatch(other) {
+        // type must match
+        if (other.type !== this.type) {
+            return false;
+        }
+        // field (if set) must match
+        if (other.field && other.field !== this.field) {
+            return false;
+        }
+        // otherwise this matches
+        return true;
+    }
+
+    objectify() {
+        return {
+            "bool": {
+                "must_not": {
+                    "exists": {
+                        "field": this.field
+                    }
+                }
+            }
+        }
+    };
+
+    parse(obj) {
+        if (obj.bool && obj.bool.must_not && obj.bool.must_not.exists && obj.bool.must_not.exists.field) {
+            this.field = obj.bool.must_not.exists.field;
+        }
+    };
 }
 
 $(document).ready(function ($) {

@@ -3779,7 +3779,7 @@ mex.renderers.Pager = class extends edges.Renderer {
         let prevClass = edges.util.allClasses(this.namespace, "prev", this);
         let pageClass = edges.util.allClasses(this.namespace, "page", this);
         let nextClass = edges.util.allClasses(this.namespace, "next", this);
-        let lastClass = edges.util.allClasses(this.namespace, "last", this);
+        // let lastClass = edges.util.allClasses(this.namespace, "last", this);
         let sizeSelectClass = edges.util.allClasses(this.namespace, "size", this);
 
         // the total number of records found
@@ -3870,17 +3870,17 @@ mex.renderers.Pager = class extends edges.Renderer {
             let next = `<a href="#" class="${nextClass} cursor-pointer">${i18n.t(
                 "Next"
             )}</a>`;
-            let last = `<a href="#" class="${lastClass} cursor-pointer">${i18n.t(
-                "Last"
-            )}</a>`;
+            // let last = `<a href="#" class="${lastClass} cursor-pointer">${i18n.t(
+            //     "Last"
+            // )}</a>`;
 
             if (this.component.page === this.component.totalPages) {
                 next = `<span class="${nextClass} disabled cursor-not-allowed">${i18n.t(
                     "Next"
                 )}</a>`;
-                last = `<span class="${lastClass} disabled cursor-not-allowed">${i18n.t(
-                    "Last"
-                )}</a>`;
+                // last = `<span class="${lastClass} disabled cursor-not-allowed">${i18n.t(
+                //     "Last"
+                // )}</a>`;
             }
 
             let pageNum = this.component.page;
@@ -3905,11 +3905,11 @@ mex.renderers.Pager = class extends edges.Renderer {
                             ${next}
                             <i class="angle right icon pagination-icon"></i>
                         </div>
-                        <div class="pagination-item">
-                            ${last}
-                            <i class="angle double right icon pagination-icon"></i>
-                        </div>
                    </div>`;
+            // <div className="pagination-item">
+            //     ${last}
+            //     <i className="angle double right icon pagination-icon"></i>
+            // </div>
         }
 
         let frag = `<div class="${containerClass}">`;
@@ -3941,11 +3941,11 @@ mex.renderers.Pager = class extends edges.Renderer {
                 "next",
                 this
             );
-            let lastSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "last",
-                this
-            );
+            // let lastSelector = edges.util.jsClassSelector(
+            //     this.namespace,
+            //     "last",
+            //     this
+            // );
 
             // bind the event handlers
             if (this.component.page !== 1) {
@@ -3954,7 +3954,7 @@ mex.renderers.Pager = class extends edges.Renderer {
             }
             if (this.component.page !== this.component.totalPages) {
                 edges.on(nextSelector, "click", this, "goToNext");
-                edges.on(lastSelector, "click", this, "goToLast");
+                // edges.on(lastSelector, "click", this, "goToLast");
             }
         }
 
@@ -3998,16 +3998,16 @@ mex.renderers.Pager = class extends edges.Renderer {
         this.component.incrementPage();
     }
 
-    goToLast(element) {
-        if (this.scroll) {
-            this.doScroll();
-        }
-        const from = (this.component.totalPages - 1) * this.component.pageSize + 1;
-
-        if (from) {
-            this.component.setFrom(from);
-        }
-    }
+    // goToLast(element) {
+    //     if (this.scroll) {
+    //         this.doScroll();
+    //     }
+    //     const from = (this.component.totalPages - 1) * this.component.pageSize + 1;
+    //
+    //     if (from) {
+    //         this.component.setFrom(from);
+    //     }
+    // }
 
     changeSize(element) {
         let size = $(element).val();
