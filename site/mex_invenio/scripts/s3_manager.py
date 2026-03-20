@@ -26,7 +26,7 @@ Before running the script, there is a number of environment variables you can se
 
 You can store these credentials in a `.env` file,
 """
-
+import importlib.metadata
 import logging
 import os
 import sys
@@ -50,6 +50,9 @@ envvar_prefix = "MEX_IMPORT_"
 def load_config():
     load_dotenv()
 
+    mex_model_version = importlib.metadata.version("mex-model")[:-2]
+    object_key = f"publisher-{mex_model_version}/" + os.getenv(envvar_prefix + "OBJECT_KEY", "items.ndjson")
+
     s3_config = {
         "bucket": os.getenv(envvar_prefix + "BUCKET"),
         "aws_access_key_id": os.getenv(envvar_prefix + "AWS_KEY_ID"),
@@ -57,7 +60,7 @@ def load_config():
         "region_name": os.getenv(envvar_prefix + "REGION_NAME", "eu-central-1"),
         "email": os.getenv(envvar_prefix + "EMAIL"),
         "endpoint_url": os.getenv(envvar_prefix + "ENDPOINT_URL", None),
-        "object_key": os.getenv(envvar_prefix + "OBJECT_KEY", None),
+        "object_key": object_key,
     }
 
     # Get rid of the None values that weren't provided
