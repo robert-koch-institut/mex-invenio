@@ -155,9 +155,13 @@ edges.instances.variables.propagateSelection = function () {
     nq.removeMust(
         new es.TermsFilter({field: mex.constants.USED_IN_ID_KW})
     );
-    nq.removeMust(
+    nq.removeShould(
         new es.TermsFilter({field: mex.constants.BELONGS_TO_ID_KW})
     );
+    nq.removeShould(
+        new es.BoolFilter({})
+        // new es.NotExists({field: mex.constants.BELONGS_TO_ID_KW})
+    )
     nq.from = 0; // reset the pagination to the first page, since the results will likely have changed
     nq = edges.instances.variables.buildVariablesQuery(nq, selectedMexIds);
 
@@ -201,12 +205,17 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
 
         // only add the variable group constraints if there are selected resources
         if (selectedMexIds["variable_groups"].length > 0) {
-            query.addMust(
+            query.addShould(
                 new es.TermsFilter({
                     field: mex.constants.BELONGS_TO_ID_KW,
                     values: selectedMexIds["variable_groups"],
                 })
-            );
+            )
+
+            let b = new es.BoolFilter({});
+            b.addMustNot(new es.ExistsFilter({field: mex.constants.BELONGS_TO_ID_KW}))
+            query.addShould(b);
+            query.minimumShouldMatch = 1;
         }
     }
     return query;
