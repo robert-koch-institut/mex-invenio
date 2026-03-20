@@ -865,7 +865,7 @@ TITLE_FIELDS = [
     "mex:email",
 ]
 
-DISCLAIMER = _(_("disclaimer"))
+DISCLAIMER = _("disclaimer")
 
 FRONTPAGE_HEADER = _("frontpageHeader")
 

@@ -1683,7 +1683,7 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass}" title=${i18n.t("Clear all search and sort parameters and start again")}>
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title="${i18n.t('Clear all search and sort parameters and start again')}">
                     ${i18n.t("Clear All")}
                 </button>`;
 
