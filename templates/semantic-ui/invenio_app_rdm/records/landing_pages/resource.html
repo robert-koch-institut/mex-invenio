@@ -9,7 +9,7 @@
         <div class="tags top-tags">
             <span class="tag resource-type"><img class="ui image icon--text"
                                                  src="{{ url_for('static', filename='icons/' ~ resource_type ~ '-record.svg') }}"
-                                                 role="presentation"/> {{ config.UI_SETTINGS[resource_type].label }}</span>
+                                                 role="presentation"/> {{ _(config.UI_SETTINGS[resource_type].label) }}</span>
             {% if special_field("RESOURCE_TYPE_GENERAL") in data %}
                 <span class="tag" title="{{ _('Resource type') }}">{{render_value(data[special_field("RESOURCE_TYPE_GENERAL")][0])}}{%- if special_field("RESOURCE_TYPE_SPECIFIC") in data -%}/{{render_value(data[special_field("RESOURCE_TYPE_SPECIFIC")][0])}}{%- endif -%}</span>
             {% endif %}

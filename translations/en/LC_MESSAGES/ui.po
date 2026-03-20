@@ -469,3 +469,25 @@ msgstr "Record IDs"
 
 msgid "No datasources or datasets containing variables that match your search were found."
 msgstr "No datasources or datasets containing variables that match your search were found."
+
+msgid "Has Personal Data"
+msgstr "Personal Data"
+
+msgid "noResourcesWithVariables"
+msgstr "No data sources or datasets that contain variables were found matching your search"
+
+# settings.py
+msgid "frontpageHeader"
+msgstr "What are you looking for today? Explore our records."
+msgid "datasetsDescription"
+msgstr "Explore RKI's data sources and datasets."
+msgid "projectsDescription"
+msgstr "Discover research activities or official tasks carried out by the RKI, providing context for our data sources and datasets."
+msgid "publicationsDescription"
+msgstr "Browse journal articles, reports, and book chapters on public health published by the RKI."
+msgid "variablesDescription"
+msgstr "Get an overview of variables and their details. Explore from which data source each variable originates."
+msgid "globalDescription"
+msgstr "Look through all records in our metadata catalogue: datasets, publications, projects, and more."
+msgid "disclaimer"
+msgstr "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."

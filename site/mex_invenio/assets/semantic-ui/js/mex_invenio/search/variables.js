@@ -55,7 +55,7 @@ edges.instances.variables.init = function () {
         components: [
             mex.recordSelectorCompact({
                 category: "column",
-                title : "All Data Sources & Datasets",
+                title : i18n.t("All Data Sources & Datasets"),
                 preSeed: preSeed,
                 preSeedLoadedCallback: edges.instances.variables.selectionLoaded,
                 resourceComponentIds: ["all-resources"], //, "selected-filtered"
@@ -67,14 +67,14 @@ edges.instances.variables.init = function () {
             mex.staticHeading ({
                 id:"all-resources-heading",
                 category: "column",
-                staticTitle : "All Data Sources & Datasets",
+                staticTitle : i18n.t("All Data Sources & Datasets"),
                 fontStyle : "small"
             }),
 
             mex.fullSearchController({
                 category: "column",
-                searchPlaceholder: i18n.t("Find Find data sources & datasets..."),
-                label: "Search Data Sources & Datasets by Title",
+                searchPlaceholder: i18n.t("Find data sources & datasets..."),
+                label: i18n.t("Search Data Sources & Datasets by Title"),
                 inlineLabel: false,
                 searchTitle: i18n.t(" "),
                 defaultField: "custom_fields.mex:title.value",
