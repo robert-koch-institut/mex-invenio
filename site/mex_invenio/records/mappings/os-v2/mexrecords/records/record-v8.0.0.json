@@ -2446,6 +2446,7 @@
             }
         },
         "index.mapping.total_fields.limit": 2000,
+        "index.max_result_window": 50000,
         "index.query.default_field": [
             "id",
             "custom_fields.mex:title.value",
