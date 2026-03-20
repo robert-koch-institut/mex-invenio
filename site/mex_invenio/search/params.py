@@ -153,7 +153,7 @@ SORT = {
 
 MAX_AGG_SIZE = 200
 MAX_PAGE_SIZE = 100
-MAX_FROM = 50000
+MAX_FROM = 100000
 
 
 class GenericQueryParamsInterpreter(ParamInterpreter):
