@@ -254,18 +254,6 @@ class MexDumper(SearchDumper):
             enGroups.append({"mex_id": vg_id, "value": split["en"]})
             deGroups.append({"mex_id": vg_id, "value": split["de"]})
 
-            # we always index a value, even if one language is missing
-            # which gives us consistent browsing over English and German
-            # if en != "":
-            #     enGroups.append({"mex_id": vg_id, "value": en})
-            # else:
-            #     enGroups.append({"mex_id": vg_id, "value": de})
-            #
-            # if de != "":
-            #     deGroups.append({"mex_id": vg_id, "value": de})
-            # else:
-            #    deGroups.append({"mex_id": vg_id, "value": en})
-
         if len(enGroups) > 0:
             dump_data["index_data"]["enVariableGroups"] = enGroups
             log.append("Resource Variables Groups EN:" + str(enGroups))

@@ -668,7 +668,7 @@ mex.resourceDisplayCompact = function (params) {
         secondaryResults: params.secondaryResults || false,
         renderer: new mex.renderers.CompactResourcesResults({
             title: params.title || i18n.t("Resources"),
-            noResultsText: params.noResultsText || i18n.t("No resources containing variables that match your search were found."),
+            noResultsText: params.noResultsText || i18n.t("noResourcesWithVariables"),
             onSelectToggle: params.onSelectToggle || false,
             hideIfNoResults: params.hideIfNoResults || false,
         }),
@@ -933,15 +933,15 @@ mex.selectedFilters = function (params) {
     defaultFieldDisplays[mex.constants.ACCESS_RESTRICTION_KW] = i18n.t("Access Restriction")
     defaultFieldDisplays[mex.constants.JOURNAL_KW] = i18n.t("Journal")
     defaultFieldDisplays[mex.constants.KEYWORD_KW] = i18n.t("Keyword")
-    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = i18n.t("Activity Type")
+    defaultFieldDisplays[mex.constants.ACTIVITY_TYPE_KW] = i18n.t("Project Type")
     defaultFieldDisplays[mex.constants.THEME_KW] = i18n.t("Theme")
     defaultFieldDisplays[mex.constants.PERSONAL_DATA_KW] = i18n.t("Personal Data")
     defaultFieldDisplays[mex.constants.CREATION_METHOD_KW] = i18n.t("Resource Creation Method")
     defaultFieldDisplays[mex.constants.FUNDER_DE_KW] = i18n.t("Funder or Commissioner")
     defaultFieldDisplays[mex.constants.FUNDER_EN_KW] = i18n.t("Funder or Commissioner")
     defaultFieldDisplays[mex.constants.CREATED_RANGE] = i18n.t("Created")
-    defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Activity Start")
-    defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("Activity End")
+    defaultFieldDisplays[mex.constants.START_RANGE] = i18n.t("Start")
+    defaultFieldDisplays[mex.constants.END_RANGE] = i18n.t("End")
     defaultFieldDisplays[mex.constants.PUBLICATION_YEAR_RANGE] = i18n.t("Publication Year")
 
     let defaultValueFunctions = {}
@@ -1683,8 +1683,8 @@ mex.renderers.SelectedFilters = class extends edges.Renderer {
 
         if (showClear) {
             let clearClass = edges.util.allClasses(this.namespace, "clear", this);
-            let clearFrag = `<button type="button" class="filters ${clearClass}" title="Clear all search and sort parameters and start again">
-                    Clear all
+            let clearFrag = `<button type="button" class="filters ${clearClass}" title="${i18n.t('Clear all search and sort parameters and start again')}">
+                    ${i18n.t("Clear All")}
                 </button>`;
 
             filters += '<span class="' + clearAllClass + '">' + clearFrag + '</span>';
@@ -1904,14 +1904,14 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
                 <div class="title-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                     <h4 class="title" style="margin:0px">${this.title}</h4>
-                    <button class="ui button tetriary ${clearAllRecordsClass}"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}"> ${i18n.t("Clear All")} </button>
                 </div>`
         if (recordsFrag) {
             frag += `<div>
                         ${recordsFrag}
                     </div>
                     <a class="link-button" href="/search/variables" title="${title}">
-                         ${i18n.t("Explore the variables related to these data sources")}
+                         ${i18n.t("Explore variables for chosen datasets")}
                     </a>
         `;
         }
@@ -2130,7 +2130,7 @@ mex.renderers.CompactSelectedRecords = class extends mex.renderers.SelectedRecor
                 <div class="">
                     ${expandAllCheckbox}
                     ${header}
-                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> Clear All </button>
+                    <button class="ui button tetriary ${clearAllRecordsClass}" style="margin-bottom: .5rem;"> ${i18n.t("Clear All")} </button>
                     <div>
                         ${recordsFrag}
                     </div>
@@ -2356,7 +2356,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         this.label = edges.util.getParam(
             params,
             "label",
-            "Search"
+            i18n.t("Search")
         )
 
         this.labelInvisible = edges.util.getParam(
@@ -2378,7 +2378,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             500
         );
 
-        this.searchTitle = edges.util.getParam(params, "searchTitle", "Search");
+        this.searchTitle = edges.util.getParam(params, "searchTitle", i18n.t("Search"));
         this.compactDesign = edges.util.getParam(params, "compactDesign", false);
 
         ////////////////////////////////////////
@@ -3482,9 +3482,9 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
                 let slToggleId = edges.util.htmlID(namespace, "sl-toggle", this);
                 results += `<div class="${showClass}" id="${showId}">
                     <a href="#" id="${slToggleId}">
-                        <span class="all">show all</span>
+                        <span class="all">${i18n.t("show all")}</span>
                         <span class="less" style="display:none">${i18n.t(
-                    "show less"
+                    "Show less"
                 )}</span>
                     </a>
                 </div>`;
@@ -3779,7 +3779,6 @@ mex.renderers.Pager = class extends edges.Renderer {
         let prevClass = edges.util.allClasses(this.namespace, "prev", this);
         let pageClass = edges.util.allClasses(this.namespace, "page", this);
         let nextClass = edges.util.allClasses(this.namespace, "next", this);
-        let lastClass = edges.util.allClasses(this.namespace, "last", this);
         let sizeSelectClass = edges.util.allClasses(this.namespace, "size", this);
 
         // the total number of records found
@@ -3870,16 +3869,10 @@ mex.renderers.Pager = class extends edges.Renderer {
             let next = `<a href="#" class="${nextClass} cursor-pointer">${i18n.t(
                 "Next"
             )}</a>`;
-            let last = `<a href="#" class="${lastClass} cursor-pointer">${i18n.t(
-                "Last"
-            )}</a>`;
 
             if (this.component.page === this.component.totalPages) {
                 next = `<span class="${nextClass} disabled cursor-not-allowed">${i18n.t(
                     "Next"
-                )}</a>`;
-                last = `<span class="${lastClass} disabled cursor-not-allowed">${i18n.t(
-                    "Last"
                 )}</a>`;
             }
 
@@ -3904,10 +3897,6 @@ mex.renderers.Pager = class extends edges.Renderer {
                         <div class="pagination-item">
                             ${next}
                             <i class="angle right icon pagination-icon"></i>
-                        </div>
-                        <div class="pagination-item">
-                            ${last}
-                            <i class="angle double right icon pagination-icon"></i>
                         </div>
                    </div>`;
         }
@@ -3941,11 +3930,6 @@ mex.renderers.Pager = class extends edges.Renderer {
                 "next",
                 this
             );
-            let lastSelector = edges.util.jsClassSelector(
-                this.namespace,
-                "last",
-                this
-            );
 
             // bind the event handlers
             if (this.component.page !== 1) {
@@ -3954,7 +3938,6 @@ mex.renderers.Pager = class extends edges.Renderer {
             }
             if (this.component.page !== this.component.totalPages) {
                 edges.on(nextSelector, "click", this, "goToNext");
-                edges.on(lastSelector, "click", this, "goToLast");
             }
         }
 
@@ -3996,17 +3979,6 @@ mex.renderers.Pager = class extends edges.Renderer {
             this.doScroll();
         }
         this.component.incrementPage();
-    }
-
-    goToLast(element) {
-        if (this.scroll) {
-            this.doScroll();
-        }
-        const from = (this.component.totalPages - 1) * this.component.pageSize + 1;
-
-        if (from) {
-            this.component.setFrom(from);
-        }
     }
 
     changeSize(element) {
@@ -4530,7 +4502,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
     function resourceTypeMacro() {
         return `<span class="tag resource-type"><img class="ui image icon--text"
              src="/static/icons/activity-record.svg"
-             role="presentation"/>&nbsp;${i18n.t('Activity')}</span>`
+             role="presentation"/>&nbsp;${i18n.t('Project')}</span>`
     }
 
     let mex_id = res["custom_fields"]["mex:identifier"]

@@ -20,18 +20,18 @@ under the terms of the MIT License; see LICENSE file for more details.
             <div class="sixteen wide column">
                 {% block frontpage_title %}
                 <h1 class="ui left aligned header">
-                    {{_('What are you looking for today? Explore our records.')}}
+                    {{_(config.FRONTPAGE_HEADER)}}
                 </h1>
                 {%- endblock frontpage_title %}
-                <div class="search-cards" style="display: flex; flex-wrap: wrap; gap: 1.4rem;">
+                <div class="search-cards">
                     {% for search_config in config.FRONTPAGE_SEARCH_LINKS %}
                     {% set search_card = config.FRONTPAGE_SEARCH_LINKS[search_config] %}
-                    <a class="card card-{{ search_config }}" href="/search{{ search_card.url }}" style="width: 33%; max-width: 30%; min-height: 12.5rem;">
-                            <h3 style="margin-bottom: 2rem;">
+                    <a class="card card-{{ search_config }}" href="/search{{ search_card.url }}">
+                            <h3>
                                 {{ _(search_card.title) }}
                             </h3>
                             <div class="card-props-p forced-vertical">
-                                <div class="card-prop-value"  style="color: black;">
+                                <div class="card-prop-value">
                                     <p>
                                         {{ _(search_card.description) }}
                                     </p>

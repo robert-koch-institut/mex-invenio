@@ -155,7 +155,7 @@ SORT = {
 
 MAX_AGG_SIZE = 200
 MAX_PAGE_SIZE = 100
-MAX_FROM = 10000
+MAX_FROM = 100000
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -275,11 +275,12 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
 
     def apply(self, identity, search, params):
         """Apply generic query parameters to the search."""
-        # print("#########raw###############")
+        #print("#########raw###############")
         # print(json.dumps(params["raw"]))
         self._validate(params["raw"])
         q = search.from_dict(params["raw"])
-        # print(json.dumps(q.to_dict()))
+        #import json
+        #print(json.dumps(q.to_dict()))
         return self._constrain(q)
         # print(json.dumps(q.to_dict()))
 
@@ -331,8 +332,8 @@ class HighlightParamsInterpreter(ParamInterpreter):
             )
 
         # Uncomment this to get a view on the query in development
-        # import json
         # print("#########highlight###############")
+        # import json
         # print(json.dumps(search.to_dict()))
 
         return search

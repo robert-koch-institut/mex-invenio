@@ -55,7 +55,7 @@ edges.instances.variables.init = function () {
         components: [
             mex.recordSelectorCompact({
                 category: "column",
-                title : "All Data Sources & Datasets",
+                title : i18n.t("All Data Sources & Datasets"),
                 preSeed: preSeed,
                 preSeedLoadedCallback: edges.instances.variables.selectionLoaded,
                 resourceComponentIds: ["all-resources"], //, "selected-filtered"
@@ -67,14 +67,14 @@ edges.instances.variables.init = function () {
             mex.staticHeading ({
                 id:"all-resources-heading",
                 category: "column",
-                staticTitle : "All Data Sources & Datasets",
+                staticTitle : i18n.t("All Data Sources & Datasets"),
                 fontStyle : "small"
             }),
 
             mex.fullSearchController({
                 category: "column",
-                searchPlaceholder: i18n.t("Find Find data sources & datasets..."),
-                label: "Search Data Sources & Datasets by Title",
+                searchPlaceholder: i18n.t("Find data sources & datasets..."),
+                label: i18n.t("Search Data Sources & Datasets by Title"),
                 inlineLabel: false,
                 searchTitle: i18n.t(" "),
                 defaultField: "custom_fields.mex:title.value",
@@ -155,9 +155,14 @@ edges.instances.variables.propagateSelection = function () {
     nq.removeMust(
         new es.TermsFilter({field: mex.constants.USED_IN_ID_KW})
     );
-    nq.removeMust(
+    nq.removeShould(
         new es.TermsFilter({field: mex.constants.BELONGS_TO_ID_KW})
     );
+    nq.removeShould(
+        new es.BoolFilter({})
+        // new es.NotExists({field: mex.constants.BELONGS_TO_ID_KW})
+    )
+    nq.from = 0; // reset the pagination to the first page, since the results will likely have changed
     nq = edges.instances.variables.buildVariablesQuery(nq, selectedMexIds);
 
     e.pushQuery(nq);
@@ -200,12 +205,17 @@ edges.instances.variables.buildVariablesQuery = function (query, selectedMexIds)
 
         // only add the variable group constraints if there are selected resources
         if (selectedMexIds["variable_groups"].length > 0) {
-            query.addMust(
+            query.addShould(
                 new es.TermsFilter({
                     field: mex.constants.BELONGS_TO_ID_KW,
                     values: selectedMexIds["variable_groups"],
                 })
-            );
+            )
+
+            let b = new es.BoolFilter({});
+            b.addMustNot(new es.ExistsFilter({field: mex.constants.BELONGS_TO_ID_KW}))
+            query.addShould(b);
+            query.minimumShouldMatch = 1;
         }
     }
     return query;

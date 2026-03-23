@@ -5,7 +5,7 @@
             <div class="tags top-tags">
                 <span class="tag resource-type"><img class="ui image icon--text"
                                                      src="{{ url_for('static', filename='icons/' ~ resource_type ~ '-record.svg') }}"
-                                                    role="presentation"/> {{ config.UI_SETTINGS[resource_type].label }}</span>
+                                                    role="presentation"/> {{ _(config.UI_SETTINGS[resource_type].label) }}</span>
                 {% if special_field("ACTIVITY_TYPE") in data %}
                     <span class="tags"><span class="tag">{{ render_value(data[special_field("ACTIVITY_TYPE")][0]) }}</span></span>
                 {% endif %}

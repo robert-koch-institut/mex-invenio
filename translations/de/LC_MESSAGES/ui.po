@@ -27,10 +27,6 @@ msgstr "Übergeordnete Ressourcen"
 msgid "About MEx"
 msgstr "Über MEx"
 
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:19
-msgid "Contact"
-msgstr "Kontakt"
-
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:20
 msgid "Data privacy"
 msgstr "Datenschutzerklärung"
@@ -52,17 +48,23 @@ msgstr "Thema"
 msgid "Data Sources & Datasets"
 msgstr "Datenbestände & Datensätze"
 
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:74
-msgid "Variables"
-msgstr "Variablen"
+msgid "Variable"
+msgstr "Variable"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
 msgid "Projects"
 msgstr "Projekte"
 
+msgid "Project"
+msgstr "Projekt"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
 msgid "Publications"
 msgstr "Publikationen"
+
+msgid "Publication"
+msgstr "Publikation"
+
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
 msgid "Search repository"
@@ -98,15 +100,6 @@ msgstr "Maximales typisches Alter"
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
 msgid "Metadata Export"
 msgstr "Metadaten Export"
-
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/metrics.html:20
-#, fuzzy
-msgid "VIEWS"
-msgstr "Aufrufe"
-
-#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/versions.html:16
-msgid "Metadata Version"
-msgstr "Metadaten-Version"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:32
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:35
@@ -147,8 +140,17 @@ msgstr "Zugehörige Datenbestände & Datensätze"
 msgid "All MEx"
 msgstr "Alles"
 
-msgid "Search records…"
-msgstr "Nach Einträgen suchen…"
+msgid "All"
+msgstr "Alles"
+
+msgid "All MEx Records"
+msgstr "Alles MEx Einträgen"
+
+msgid "Search records"
+msgstr "Nach Einträgen suchen"
+
+msgid "Search records..."
+msgstr "Nach Einträgen suchen..."
 
 msgid "Search"
 msgstr "Suche Einträge"
@@ -162,8 +164,11 @@ msgstr "Erste Seite"
 msgid "Prev"
 msgstr "Vorherige Seite"
 
-msgid "Page 1 of 1310"
-msgstr "Seite 1 von 1310"
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
 
 msgid "Next"
 msgstr "Nächste Seite"
@@ -198,11 +203,11 @@ msgstr "Relevanz"
 msgid "Clear all"
 msgstr "Alle entfernen"
 
-msgid "Search resources…"
-msgstr "Search resources…"
+msgid "Search resources..."
+msgstr "Search resources..."
 
-msgid "Search data sources & datasets…"
-msgstr "Datenbestände & Datensätze durchsuchen…"
+msgid "Search data sources & datasets..."
+msgstr "Datenbestände & Datensätze durchsuchen..."
 
 msgid "Alternative Title"
 msgstr "Alternativer Titel"
@@ -212,9 +217,6 @@ msgstr "Weitere Beteiligte"
 
 msgid "Access Restriction"
 msgstr "Zugriffsbeschränkung"
-
-msgid "Created (newest first)"
-msgstr "Erstellt (neueste zuerst)"
 
 msgid "Variables Filter"
 msgstr "Variablen Filter"
@@ -226,8 +228,8 @@ msgid "No data sources & datasets found."
 msgstr "Keine Datenbestände & Datensätze gefunden."
 
 # Project Search
-msgid "Search projects…"
-msgstr "Projekte durchsuchen…"
+msgid "Search projects..."
+msgstr "Projekte durchsuchen..."
 
 msgid "Short Name"
 msgstr "Kurztitel"
@@ -238,23 +240,29 @@ msgstr "Mitwirkende*r"
 msgid "Activity Type"
 msgstr "Projekttyp"
 
-msgid "Activity Start"
+msgid "Project Type"
+msgstr "Projekttyp"
+
+msgid "Start"
 msgstr "Laufzeitbeginn"
 
-msgid "Activity End"
+msgid "End"
 msgstr "Laufzeitende"
 
-msgid "Funder Or Commissioner"
+msgid "Funder or Commissioner"
 msgstr "Förderer oder Auftraggeber"
 
 msgid "Theme"
 msgstr "Thema"
 
-msgid "Project’s duration"
+msgid "Project's duration"
 msgstr "Laufzeit"
 
-msgid "Project’s start"
+msgid "Project's start"
 msgstr "Laufzeitbeginn"
+
+msgid "Project's end"
+msgstr "Laufzeitende"
 
 msgid "Created (newest first)"
 msgstr "Erstellt (neueste zuerst)"
@@ -275,11 +283,11 @@ msgid "No projects found."
 msgstr "Keine Projekte gefunden."
 
 # Publication Search
-msgid "Search bibliographic resources…"
-msgstr "Search bibliographic resources…"
+msgid "Search bibliographic resources..."
+msgstr "Search bibliographic resources..."
 
-msgid "Search publications…"
-msgstr "Publikationen durchsuchen…"
+msgid "Search publications..."
+msgstr "Publikationen durchsuchen..."
 
 msgid "Abstract"
 msgstr "Kurzbeschreibung"
@@ -300,20 +308,23 @@ msgstr "Keine Publikationen gefunden."
 msgid "Back to Data Sources & Datasets Search"
 msgstr "Zurück zur Suche nach Datenbeständen & Datensätzen"
 
+msgid "Back to Data Sources &amp; Datasets Search"
+msgstr "Zurück zur Suche nach Datenbeständen & Datensätzen"
+
 msgid "All Data Sources & Datasets"
 msgstr "Alle Datenbestände & Datensätze"
 
 msgid "Search Data Sources & Datasets by Title"
 msgstr "Datenbestände & Datensätze nach Titel durchsuchen"
 
-msgid "Find resources…"
-msgstr "Find resources…"
+msgid "Find resources..."
+msgstr "Find resources..."
 
-msgid "Find data sources & datasets…"
-msgstr "Datenbestände & Datensätze finden…"
+msgid "Find data sources & datasets..."
+msgstr "Datenbestände & Datensätze finden..."
 
-msgid "Find variables…"
-msgstr "Variablen finden…"
+msgid "Find variables..."
+msgstr "Variablen finden..."
 
 msgid "Expand all"
 msgstr "Alle ausklappen"
@@ -339,8 +350,8 @@ msgstr "Ausgewählte Datenbestände & Datensätze"
 msgid "Variable Groups"
 msgstr "Variablengruppen"
 
-msgid "No resources that match your search were found."
-msgstr "No resources that match your search were found."
+msgid "noResourcesWithVariablesFound"
+msgstr "Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen enthalten und Ihrer Suche entsprechen."
 
 msgid "No data sources & datasets that match your search were found."
 msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
@@ -352,8 +363,8 @@ msgstr "SEARCH OUR Entire metadata catalogue"
 msgid "SEARCH OUR Entire metadata catalogue"
 msgstr "DURCHSUCHEN SIE UNSEREN Gesamten Metadatenkatalog"
 
-msgid "Search across all records…"
-msgstr "Alle Einträge durchsuchen…"
+msgid "Search across all records..."
+msgstr "Alle Einträge durchsuchen..."
 
 msgid "Search only in"
 msgstr "Suche nur in"
@@ -370,10 +381,6 @@ msgstr "Activity"
 msgid "Project"
 msgstr "Projekt"
 
-# All Landing Pages
-msgid "Views"
-msgstr "Aufrufe"
-
 msgid "(Show more)"
 msgstr "(Mehr anzeigen)"
 
@@ -385,6 +392,9 @@ msgstr "Alle anzeigen"
 
 msgid "Show less"
 msgstr "Weniger anzeigen"
+
+msgid "Show more"
+msgstr "Mehr anzeigen"
 
 msgid "Publication"
 msgstr "Publikation"
@@ -468,3 +478,116 @@ msgstr "Record IDs"
 
 msgid "No datasources or datasets containing variables that match your search were found."
 msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Variablen enthalten, die Ihrer Suche entsprechen."
+
+msgid "Creators"
+msgstr "Autor*innen"
+
+msgid "Keywords"
+msgstr "Stichworte"
+
+msgid "Keyword"
+msgstr "Stichwort"
+
+msgid "Title Proper"
+msgstr "Gesamttitelangabe"
+
+msgid "Editor"
+msgstr "Herausgebende"
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Data source/dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Explore the variables related to these data source"
+msgstr "Variablen dieser Datenquelle erkunden"
+
+msgid "Datasets for Variables Search"
+msgstr "Datensätze für die Variablen-Suche"
+
+msgid "Has Personal Data"
+msgstr "Personenbezogene Daten"
+
+msgid "Resource Creation Method"
+msgstr "Methodik"
+
+msgid "Journal"
+msgstr "Journal"
+
+# settings.py
+msgid "frontpageHeader"
+msgstr "Was möchten Sie heute entdecken? Durchsuchen Sie unseren Katalog."
+msgid "datasetsDescription"
+msgstr "Erkunden Sie Datenbestände und Datensätze des RKI."
+msgid "projectsDescription"
+msgstr "Entdecken Sie Forschungsaktivitäten oder amtliche Aufgaben des RKI, die Kontextinformationen zu unseren Datenbeständen und Datensätzen liefern."
+msgid "publicationsDescription"
+msgstr "Durchstöbern Sie Artikel in Fachzeitschriften, Berichte und Buchkapitel zur öffentlichen Gesundheit, die vom RKI veröffentlicht wurden."
+msgid "variablesDescription"
+msgstr "Variablen und ihre Details auf einen Blick – entdecken Sie, aus welchen Datenbeständen sie stammen."
+msgid "globalDescription"
+msgstr "Durchsuchen Sie alle Einträge in unserem Metadatenkatalog: Datensätze, Publikationen, Projekte und mehr."
+
+msgid "disclaimer"
+msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
+
+msgid "Theme & Keywords"
+msgstr "Thema & Schlagworte"
+
+msgid "Data Representation & Coverage"
+msgstr "Datenabdeckung"
+
+msgid "Legal Basis & Data Provenance"
+msgstr "Rechtsgrundlage & Provenienz"
+
+msgid "Data Collection & Processing"
+msgstr "Datenerhebung & -prozessierung"
+
+msgid "Methodology"
+msgstr "Methodik"
+
+msgid "Standards & Quality"
+msgstr "Standards & Qualität"
+
+msgid "Related Publications & Further Documentation"
+msgstr "Veröffentlichungen & Dokumentation"
+
+msgid "Related Resources"
+msgstr "Verknüpfte Ressourcen"
+
+msgid "Views"
+msgstr "Aufrufe"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Access & Usage Rights"
+msgstr "Zugriff & Nutzungsrechte"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Metadata Version"
+msgstr "Metadaten-Version"
+
+msgid "Access Platform"
+msgstr "Zugriffsplattform"
+
+msgid "Variables"
+msgstr "Variablen"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Partners & Funding"
+msgstr "Partner &  Fördermittelgebende"
+
+msgid "Part Of"
+msgstr "Übergeordneter Datenbestand/Datensatz"
+
+msgid "Succeeds"
+msgstr "Nachfolge von"
