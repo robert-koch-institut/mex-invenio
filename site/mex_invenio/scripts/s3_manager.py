@@ -39,7 +39,7 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files
+from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files, _read_lock, _write_lock
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -174,46 +174,74 @@ def manage_s3_files(initial: bool = False):
 
     # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    lock_file = os.path.join(s3_download_folder, ".import_lock")
+    lock = _read_lock(lock_file)
+    if lock:
+        lock_status = lock.get("status")
+        if lock_status == "in_progress":
+            # This should not happen because of "concurrencyPolicy: Forbid" in the
+            # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
+            logger.warning("Import already in progress (lock file found). Skipping.")
+            return
+        elif lock_status == "failed":
+            logger.error(
+                f"Previous import failed (lock file: {lock_file}). "
+                "Resolve the issue and delete the lock file to re-enable imports."
+            )
+            sys.exit(1)
+
     log_dir = os.path.join(s3_download_folder, "logs")
     os.makedirs(log_dir, exist_ok=True)
     file_handler = setup_file_logging(log_dir, name="s3_manager")
     logger.addHandler(file_handler)
-    logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
-    logger.info(f"To download folder: {s3_download_folder}")
 
-    # This will be the most recently modified file in the download folder
-    existing_file_path = get_latest_existing_file(s3_download_folder)
+    started_at = datetime.now(timezone.utc).isoformat()
+    _write_lock(lock_file, "in_progress", started_at=started_at)
 
-    # This is the most recently modified file in the S3 bucket
-    new_file_path = download_file(
-        s3_client, s3_bucket, latest_file_key, s3_download_folder
-    )
+    try:
+        logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
+        logger.info(f"To download folder: {s3_download_folder}")
 
-    logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
+        # This will be the most recently modified file in the download folder
+        existing_file_path = get_latest_existing_file(s3_download_folder)
 
-    if new_file_path:
-        final_file_path = get_final_import_file(
-            existing_file_path, new_file_path, s3_download_folder
+        # This is the most recently modified file in the S3 bucket
+        new_file_path = download_file(
+            s3_client, s3_bucket, latest_file_key, s3_download_folder
         )
-        if final_file_path:
-            logger.info(f"Importing data using file {final_file_path}")
 
-            if initial:
-                result = initial_import(user_email, final_file_path)
-            else:
-                result = import_data(user_email, final_file_path)
+        logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
 
-            if not result:
-                logger.error(
-                    "Error in import_data, check the import log files for more details."
-                )
-                sys.exit(1)
-            else:
-                logger.info(f"Import successful. Data imported from {final_file_path}.")
+        if new_file_path:
+            final_file_path = get_final_import_file(
+                existing_file_path, new_file_path, s3_download_folder
+            )
+            if final_file_path:
+                logger.info(f"Importing data using file {final_file_path}")
 
-    logger.removeHandler(file_handler)
-    file_handler.close()
-    cleanup_files(log_dir, "s3_manager")
+                if initial:
+                    result = initial_import(user_email, final_file_path)
+                else:
+                    result = import_data(user_email, final_file_path)
+
+                if not result:
+                    logger.error(
+                        "Error in import_data, check the import log files for more details."
+                    )
+                    _write_lock(lock_file, "failed", started_at=started_at)
+                    sys.exit(1)
+                else:
+                    logger.info(f"Import successful. Data imported from {final_file_path}.")
+                    _write_lock(lock_file, "success", started_at=started_at)
+
+    except Exception:
+        _write_lock(lock_file, "failed", started_at=started_at)
+        raise
+
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()
+        cleanup_files(log_dir, "s3_manager")
 
 
 if __name__ == "__main__":
