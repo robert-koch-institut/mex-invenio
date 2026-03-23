@@ -122,6 +122,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:stateOfDataProcessing", multiple=True),
     MultiLanguageTextCF(name="mex:subtitle", multiple=True),
     TextCF(name="mex:succeeds", multiple=True),
+    TextCF(name="mex:supersededBy"),
     TextCF(name="mex:technicalAccessibility"),
     TextCF(name="mex:temporal"),
     TextCF(name="mex:theme", multiple=True, use_as_filter=True),
