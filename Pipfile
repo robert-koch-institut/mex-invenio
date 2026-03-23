@@ -30,7 +30,7 @@ urllib3 = "==1.26.20"
 boto3 = "*"
 dotenv = "*"
 # mex-model version has implications for rendering so breaking changes should be considered carefully
-mex-model = "==4.4.0"
+mex-model = "==4.10.0"
 polib = "*"
 
 [requires]
