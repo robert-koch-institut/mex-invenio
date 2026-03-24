@@ -60,7 +60,7 @@ def test_identical_files(
     assert result.exit_code == 0
     assert os.path.exists(existing_file_path)
     assert not os.path.exists(downloaded_file_path)
-    assert len([f for f in os.listdir(download_path) if os.path.isfile(os.path.join(download_path, f))]) == 1
+    assert len([f for f in os.listdir(download_path) if os.path.isfile(os.path.join(download_path, f)) and not f.startswith(".")]) == 1
 
 
 @freeze_time("2023-01-01")

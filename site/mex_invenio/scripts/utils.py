@@ -308,7 +308,7 @@ def get_related_mex_ids(record: dict) -> list:
     if record_type in mapping:
         record_type = mapping[record_type]
 
-    target_id = f"/schema/entities/{record_type}#/identifier"
+    target_id = f"/mex/model/entities/merged-{record_type}#/identifier"
 
     # Find fields that reference this record type
     target_fields = []
@@ -365,6 +365,7 @@ def get_related_mex_ids(record: dict) -> list:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
 
+
 def setup_file_logging(log_dir, name="import"):
     """Add a timestamped file handler to the given logger."""
     os.makedirs(log_dir, exist_ok=True)
@@ -378,3 +379,24 @@ def setup_file_logging(log_dir, name="import"):
         )
     )
     return handler
+
+
+def _read_state(state_file: str) -> dict | None:
+    """Read the import state file, returning its contents or None if absent/corrupt."""
+    try:
+        with open(state_file) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def _write_state(state_file: str, status: str, started_at: str | None = None,
+                 finished_at: str | None = None):
+    """Write the import state file with the given status and timestamps."""
+    data = {"status": status}
+    if started_at:
+        data["started_at"] = started_at
+    if finished_at:
+        data["finished_at"] = finished_at
+    with open(state_file, "w") as f:
+        json.dump(data, f)

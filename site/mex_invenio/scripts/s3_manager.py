@@ -26,20 +26,21 @@ Before running the script, there is a number of environment variables you can se
 
 You can store these credentials in a `.env` file,
 """
-
+import importlib.metadata
 import logging
 import os
 import sys
 from datetime import datetime, timezone
 
 import boto3
+import packaging.version
 import click
 from dotenv import load_dotenv
 from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files
+from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files, _read_state, _write_state
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -50,6 +51,11 @@ envvar_prefix = "MEX_IMPORT_"
 def load_config():
     load_dotenv()
 
+    v = packaging.version.Version(importlib.metadata.version("mex-model"))
+    mex_model_version = f"{v.major}.{v.minor}"
+    env_object_key = os.getenv(envvar_prefix + "OBJECT_KEY")
+    object_key = f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
+
     s3_config = {
         "bucket": os.getenv(envvar_prefix + "BUCKET"),
         "aws_access_key_id": os.getenv(envvar_prefix + "AWS_KEY_ID"),
@@ -57,7 +63,7 @@ def load_config():
         "region_name": os.getenv(envvar_prefix + "REGION_NAME", "eu-central-1"),
         "email": os.getenv(envvar_prefix + "EMAIL"),
         "endpoint_url": os.getenv(envvar_prefix + "ENDPOINT_URL", None),
-        "object_key": os.getenv(envvar_prefix + "OBJECT_KEY", None),
+        "object_key": object_key,
     }
 
     # Get rid of the None values that weren't provided
@@ -99,6 +105,7 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
         return local_filename
     except Exception as e:
         logger.error(f"Error downloading file: {e}")
+        raise
 
 
 def get_latest_existing_file(payload_folder):
@@ -107,7 +114,7 @@ def get_latest_existing_file(payload_folder):
         [
             os.path.join(payload_folder, f)
             for f in os.listdir(payload_folder)
-            if os.path.isfile(os.path.join(payload_folder, f))
+            if os.path.isfile(os.path.join(payload_folder, f)) and not f.startswith(".")
         ],
         key=os.path.getmtime,  # Sort by last modified time
         reverse=True,  # Most recent first
@@ -159,6 +166,14 @@ def get_final_import_file(existing_file, new_file, payload_folder):
 @click.option("--initial", is_flag=True, default=False)
 def manage_s3_files(initial: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
+    # Get the download folder from config
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    # Set up logging at start
+    log_dir = os.path.join(s3_download_folder, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    file_handler = setup_file_logging(log_dir, name="s3_manager")
+    logger.addHandler(file_handler)
+
     s3_config = load_config()
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")
@@ -169,48 +184,75 @@ def manage_s3_files(initial: bool = False):
     if not latest_file_key:
         return
 
-    # Get the download folder from config
-    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
-    log_dir = os.path.join(s3_download_folder, "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    file_handler = setup_file_logging(log_dir, name="s3_manager")
-    logger.addHandler(file_handler)
-    logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
-    logger.info(f"To download folder: {s3_download_folder}")
+    state_file = os.path.join(s3_download_folder, ".import_state")
+    state = _read_state(state_file)
+    if state:
+        status = state.get("status")
+        if status == "in_progress":
+            # This should not happen because of "concurrencyPolicy: Forbid" in the
+            # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
+            logger.warning("Import already in progress (state file found). Skipping.")
+            sys.exit(1)
+        elif status == "failed":
+            logger.error(
+                f"Previous import failed (state file: {state_file}). "
+                "Resolve the issue and delete the state file to re-enable imports."
+            )
+            sys.exit(1)
 
-    # This will be the most recently modified file in the download folder
-    existing_file_path = get_latest_existing_file(s3_download_folder)
+    started_at = datetime.now(timezone.utc).isoformat()
+    _write_state(state_file, "in_progress", started_at=started_at)
 
-    # This is the most recently modified file in the S3 bucket
-    new_file_path = download_file(
-        s3_client, s3_bucket, latest_file_key, s3_download_folder
-    )
+    try:
+        logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
+        logger.info(f"To download folder: {s3_download_folder}")
 
-    logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
+        # This will be the most recently modified file in the download folder
+        existing_file_path = get_latest_existing_file(s3_download_folder)
 
-    if new_file_path:
+        # This is the most recently modified file in the S3 bucket
+        new_file_path = download_file(
+            s3_client, s3_bucket, latest_file_key, s3_download_folder
+        )
+
+        logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
+
         final_file_path = get_final_import_file(
             existing_file_path, new_file_path, s3_download_folder
         )
-        if final_file_path:
-            logger.info(f"Importing data using file {final_file_path}")
 
-            if initial:
-                result = initial_import(user_email, final_file_path)
-            else:
-                result = import_data(user_email, final_file_path)
+        if not final_file_path:
+            logger.info("No new content to import.")
+            _write_state(state_file, "success", started_at=started_at,
+                        finished_at=datetime.now(timezone.utc).isoformat())
+            sys.exit(0)
 
-            if not result:
-                logger.error(
-                    "Error in import_data, check the import log files for more details."
-                )
-                sys.exit(1)
-            else:
-                logger.info(f"Import successful. Data imported from {final_file_path}.")
+        logger.info(f"Importing data using file {final_file_path}")
 
-    logger.removeHandler(file_handler)
-    file_handler.close()
-    cleanup_files(log_dir, "s3_manager")
+        if initial:
+            result = initial_import(user_email, final_file_path)
+        else:
+            result = import_data(user_email, final_file_path)
+
+        finished_at = datetime.now(timezone.utc).isoformat()
+
+        if not result:
+            logger.error(
+                "Error in import_data, check the import log files for more details."
+            )
+            _write_state(state_file, "failed", started_at=started_at, finished_at=finished_at)
+            sys.exit(1)
+        else:
+            logger.info(f"Import successful. Data imported from {final_file_path}.")
+            _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
+    except Exception:
+        _write_state(state_file, "failed", started_at=started_at, finished_at=datetime.now(timezone.utc).isoformat())
+        raise
+
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()
+        cleanup_files(log_dir, "s3_manager")
 
 
 if __name__ == "__main__":
