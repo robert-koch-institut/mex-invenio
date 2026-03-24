@@ -103,6 +103,7 @@ def download_file(s3_client, bucket_name, file_key, payload_folder):
         return local_filename
     except Exception as e:
         logger.error(f"Error downloading file: {e}")
+        raise
 
 
 def get_latest_existing_file(payload_folder):
@@ -214,28 +215,28 @@ def manage_s3_files(initial: bool = False):
         logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
 
         import_ran = False
-        if new_file_path:
-            final_file_path = get_final_import_file(
-                existing_file_path, new_file_path, s3_download_folder
-            )
-            if final_file_path:
-                logger.info(f"Importing data using file {final_file_path}")
 
-                if initial:
-                    result = initial_import(user_email, final_file_path)
-                else:
-                    result = import_data(user_email, final_file_path)
+        final_file_path = get_final_import_file(
+            existing_file_path, new_file_path, s3_download_folder
+        )
+        if final_file_path:
+            logger.info(f"Importing data using file {final_file_path}")
 
-                if not result:
-                    logger.error(
-                        "Error in import_data, check the import log files for more details."
-                    )
-                    _write_lock(lock_file, "failed", started_at=started_at)
-                    sys.exit(1)
-                else:
-                    logger.info(f"Import successful. Data imported from {final_file_path}.")
-                    _write_lock(lock_file, "success", started_at=started_at)
-                    import_ran = True
+            if initial:
+                result = initial_import(user_email, final_file_path)
+            else:
+                result = import_data(user_email, final_file_path)
+
+            if not result:
+                logger.error(
+                    "Error in import_data, check the import log files for more details."
+                )
+                _write_lock(lock_file, "failed", started_at=started_at)
+                sys.exit(1)
+            else:
+                logger.info(f"Import successful. Data imported from {final_file_path}.")
+                _write_lock(lock_file, "success", started_at=started_at)
+                import_ran = True
 
         if not import_ran:
             _write_lock(lock_file, "success", started_at=started_at)
