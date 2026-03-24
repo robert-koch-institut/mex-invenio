@@ -164,6 +164,14 @@ def get_final_import_file(existing_file, new_file, payload_folder):
 @click.option("--initial", is_flag=True, default=False)
 def manage_s3_files(initial: bool = False):
     """Main function to download the latest file from S3, compare, and manage local storage."""
+    # Get the download folder from config
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    # Set up logging at start
+    log_dir = os.path.join(s3_download_folder, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    file_handler = setup_file_logging(log_dir, name="s3_manager")
+    logger.addHandler(file_handler)
+
     s3_config = load_config()
     user_email = s3_config.pop("email")
     s3_bucket = s3_config.pop("bucket")
@@ -174,8 +182,6 @@ def manage_s3_files(initial: bool = False):
     if not latest_file_key:
         return
 
-    # Get the download folder from config
-    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
     lock_file = os.path.join(s3_download_folder, ".import_lock")
     lock = _read_lock(lock_file)
     if lock:
@@ -184,18 +190,13 @@ def manage_s3_files(initial: bool = False):
             # This should not happen because of "concurrencyPolicy: Forbid" in the
             # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
             logger.warning("Import already in progress (lock file found). Skipping.")
-            return
+            sys.exit(1)
         elif lock_status == "failed":
             logger.error(
                 f"Previous import failed (lock file: {lock_file}). "
                 "Resolve the issue and delete the lock file to re-enable imports."
             )
             sys.exit(1)
-
-    log_dir = os.path.join(s3_download_folder, "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    file_handler = setup_file_logging(log_dir, name="s3_manager")
-    logger.addHandler(file_handler)
 
     started_at = datetime.now(timezone.utc).isoformat()
     _write_lock(lock_file, "in_progress", started_at=started_at)
@@ -214,35 +215,36 @@ def manage_s3_files(initial: bool = False):
 
         logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
 
-        import_ran = False
-
         final_file_path = get_final_import_file(
             existing_file_path, new_file_path, s3_download_folder
         )
-        if final_file_path:
-            logger.info(f"Importing data using file {final_file_path}")
 
-            if initial:
-                result = initial_import(user_email, final_file_path)
-            else:
-                result = import_data(user_email, final_file_path)
+        if not final_file_path:
+            logger.info("No new content to import.")
+            _write_lock(lock_file, "success", started_at=started_at,
+                        finished_at=datetime.now(timezone.utc).isoformat())
+            sys.exit(0)
 
-            if not result:
-                logger.error(
-                    "Error in import_data, check the import log files for more details."
-                )
-                _write_lock(lock_file, "failed", started_at=started_at)
-                sys.exit(1)
-            else:
-                logger.info(f"Import successful. Data imported from {final_file_path}.")
-                _write_lock(lock_file, "success", started_at=started_at)
-                import_ran = True
+        logger.info(f"Importing data using file {final_file_path}")
 
-        if not import_ran:
-            _write_lock(lock_file, "success", started_at=started_at)
+        if initial:
+            result = initial_import(user_email, final_file_path)
+        else:
+            result = import_data(user_email, final_file_path)
 
+        finished_at = datetime.now(timezone.utc).isoformat()
+
+        if not result:
+            logger.error(
+                "Error in import_data, check the import log files for more details."
+            )
+            _write_lock(lock_file, "failed", started_at=started_at, finished_at=finished_at)
+            sys.exit(1)
+        else:
+            logger.info(f"Import successful. Data imported from {final_file_path}.")
+            _write_lock(lock_file, "success", started_at=started_at, finished_at=finished_at)
     except Exception:
-        _write_lock(lock_file, "failed", started_at=started_at)
+        _write_lock(lock_file, "failed", started_at=started_at, finished_at=datetime.now(timezone.utc).isoformat())
         raise
 
     finally:

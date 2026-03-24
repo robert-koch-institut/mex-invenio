@@ -9,7 +9,7 @@ import logging
 import os
 import time
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime
 
 from invenio_db import db
 from invenio_rdm_records.records.api import RDMRecord
@@ -365,6 +365,7 @@ def get_related_mex_ids(record: dict) -> list:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
         return []
 
+
 def setup_file_logging(log_dir, name="import"):
     """Add a timestamped file handler to the given logger."""
     os.makedirs(log_dir, exist_ok=True)
@@ -389,10 +390,13 @@ def _read_lock(lock_file: str) -> dict | None:
         return None
 
 
-def _write_lock(lock_file: str, status: str, started_at: str | None = None):
+def _write_lock(lock_file: str, status: str, started_at: str | None = None,
+                finished_at: str | None = None):
     """Write the import lock file with the given status and current timestamp."""
-    data = {"status": status, "finished_at": datetime.now(timezone.utc).isoformat()}
+    data = {"status": status}
     if started_at:
         data["started_at"] = started_at
+    if finished_at:
+        data["finished_at"] = finished_at
     with open(lock_file, "w") as f:
         json.dump(data, f)
