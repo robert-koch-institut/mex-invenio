@@ -40,7 +40,7 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files, _read_lock, _write_lock
+from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files, _read_state, _write_state
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -184,24 +184,24 @@ def manage_s3_files(initial: bool = False):
     if not latest_file_key:
         return
 
-    lock_file = os.path.join(s3_download_folder, ".import_lock")
-    lock = _read_lock(lock_file)
-    if lock:
-        lock_status = lock.get("status")
-        if lock_status == "in_progress":
+    state_file = os.path.join(s3_download_folder, ".import_state")
+    state = _read_state(state_file)
+    if state:
+        status = state.get("status")
+        if status == "in_progress":
             # This should not happen because of "concurrencyPolicy: Forbid" in the
             # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
-            logger.warning("Import already in progress (lock file found). Skipping.")
+            logger.warning("Import already in progress (state file found). Skipping.")
             sys.exit(1)
-        elif lock_status == "failed":
+        elif status == "failed":
             logger.error(
-                f"Previous import failed (lock file: {lock_file}). "
-                "Resolve the issue and delete the lock file to re-enable imports."
+                f"Previous import failed (state file: {state_file}). "
+                "Resolve the issue and delete the state file to re-enable imports."
             )
             sys.exit(1)
 
     started_at = datetime.now(timezone.utc).isoformat()
-    _write_lock(lock_file, "in_progress", started_at=started_at)
+    _write_state(state_file, "in_progress", started_at=started_at)
 
     try:
         logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
@@ -223,7 +223,7 @@ def manage_s3_files(initial: bool = False):
 
         if not final_file_path:
             logger.info("No new content to import.")
-            _write_lock(lock_file, "success", started_at=started_at,
+            _write_state(state_file, "success", started_at=started_at,
                         finished_at=datetime.now(timezone.utc).isoformat())
             sys.exit(0)
 
@@ -240,13 +240,13 @@ def manage_s3_files(initial: bool = False):
             logger.error(
                 "Error in import_data, check the import log files for more details."
             )
-            _write_lock(lock_file, "failed", started_at=started_at, finished_at=finished_at)
+            _write_state(state_file, "failed", started_at=started_at, finished_at=finished_at)
             sys.exit(1)
         else:
             logger.info(f"Import successful. Data imported from {final_file_path}.")
-            _write_lock(lock_file, "success", started_at=started_at, finished_at=finished_at)
+            _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
     except Exception:
-        _write_lock(lock_file, "failed", started_at=started_at, finished_at=datetime.now(timezone.utc).isoformat())
+        _write_state(state_file, "failed", started_at=started_at, finished_at=datetime.now(timezone.utc).isoformat())
         raise
 
     finally:

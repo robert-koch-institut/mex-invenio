@@ -381,22 +381,22 @@ def setup_file_logging(log_dir, name="import"):
     return handler
 
 
-def _read_lock(lock_file: str) -> dict | None:
-    """Read the import lock file, returning its contents or None if absent/corrupt."""
+def _read_state(state_file: str) -> dict | None:
+    """Read the import state file, returning its contents or None if absent/corrupt."""
     try:
-        with open(lock_file) as f:
+        with open(state_file) as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return None
 
 
-def _write_lock(lock_file: str, status: str, started_at: str | None = None,
-                finished_at: str | None = None):
-    """Write the import lock file with the given status and current timestamp."""
+def _write_state(state_file: str, status: str, started_at: str | None = None,
+                 finished_at: str | None = None):
+    """Write the import state file with the given status and timestamps."""
     data = {"status": status}
     if started_at:
         data["started_at"] = started_at
     if finished_at:
         data["finished_at"] = finished_at
-    with open(lock_file, "w") as f:
+    with open(state_file, "w") as f:
         json.dump(data, f)
