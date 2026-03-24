@@ -33,6 +33,7 @@ import sys
 from datetime import datetime, timezone
 
 import boto3
+import packaging.version
 import click
 from dotenv import load_dotenv
 from flask import current_app
@@ -50,7 +51,8 @@ envvar_prefix = "MEX_IMPORT_"
 def load_config():
     load_dotenv()
 
-    mex_model_version = importlib.metadata.version("mex-model")[:-2]
+    v = packaging.version.Version(importlib.metadata.version("mex-model"))
+    mex_model_version = f"{v.major}.{v.minor}"
     env_object_key = os.getenv(envvar_prefix + "OBJECT_KEY")
     object_key = f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
 
