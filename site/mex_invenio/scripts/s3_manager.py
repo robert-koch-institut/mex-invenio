@@ -51,7 +51,8 @@ def load_config():
     load_dotenv()
 
     mex_model_version = importlib.metadata.version("mex-model")[:-2]
-    object_key = f"publisher-{mex_model_version}/" + os.getenv(envvar_prefix + "OBJECT_KEY", "items.ndjson")
+    env_object_key = os.getenv(envvar_prefix + "OBJECT_KEY")
+    object_key = f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
 
     s3_config = {
         "bucket": os.getenv(envvar_prefix + "BUCKET"),
@@ -110,7 +111,7 @@ def get_latest_existing_file(payload_folder):
         [
             os.path.join(payload_folder, f)
             for f in os.listdir(payload_folder)
-            if os.path.isfile(os.path.join(payload_folder, f))
+            if os.path.isfile(os.path.join(payload_folder, f)) and not f.startswith(".")
         ],
         key=os.path.getmtime,  # Sort by last modified time
         reverse=True,  # Most recent first
@@ -212,6 +213,7 @@ def manage_s3_files(initial: bool = False):
 
         logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
 
+        import_ran = False
         if new_file_path:
             final_file_path = get_final_import_file(
                 existing_file_path, new_file_path, s3_download_folder
@@ -233,6 +235,10 @@ def manage_s3_files(initial: bool = False):
                 else:
                     logger.info(f"Import successful. Data imported from {final_file_path}.")
                     _write_lock(lock_file, "success", started_at=started_at)
+                    import_ran = True
+
+        if not import_ran:
+            _write_lock(lock_file, "success", started_at=started_at)
 
     except Exception:
         _write_lock(lock_file, "failed", started_at=started_at)

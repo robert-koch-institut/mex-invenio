@@ -14,6 +14,11 @@ class CUSTOM_TYPES:
 
 # Mapping for JSON $ref checks
 CUSTOM_FIELDS_UI_TYPES_AUTO = {
+    "/mex/model/entities/concept#/": CUSTOM_TYPES.LABEL,
+    "/mex/model/entities/": CUSTOM_TYPES.IDENTIFIER,
+    "/mex/model/fields/text": CUSTOM_TYPES.TEXT,
+    "/mex/model/fields/link": CUSTOM_TYPES.URL,
+    # Legacy format (kept for backward compatibility)
     "/schema/entities/concept#/": CUSTOM_TYPES.LABEL,
     "/schema/entities/": CUSTOM_TYPES.IDENTIFIER,
     "/schema/fields/text": CUSTOM_TYPES.TEXT,
@@ -103,7 +108,7 @@ def get_field_types() -> dict:
     for entity_name, entity_data in ENTITY_JSON_BY_NAME.items():
         try:
             properties = entity_data.get("properties", {})
-            resource_type = entity_data.get("$id", "").split("/")[-1].replace("-", "")
+            resource_type = entity_name.replace("_", "")
 
             # Initialize the result for this entity
             field_types[resource_type] = {}

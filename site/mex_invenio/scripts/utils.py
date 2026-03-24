@@ -308,7 +308,7 @@ def get_related_mex_ids(record: dict) -> list:
     if record_type in mapping:
         record_type = mapping[record_type]
 
-    target_id = f"/schema/entities/{record_type}#/identifier"
+    target_id = f"/mex/model/entities/merged-{record_type}#/identifier"
 
     # Find fields that reference this record type
     target_fields = []
