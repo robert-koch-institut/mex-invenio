@@ -328,7 +328,11 @@ class HighlightParamsInterpreter(ParamInterpreter):
             )
         else:
             search = search.highlight(
-                DESCRIPTION, ABSTRACT, TITLE, pre_tags=["<xh>"], post_tags=["</xh>"]
+                DESCRIPTION,
+                ABSTRACT,
+                TITLE,
+                pre_tags=["<xh>"],
+                post_tags=["</xh>"],
             )
 
         # Uncomment this to get a view on the query in development
@@ -341,8 +345,19 @@ class HighlightParamsInterpreter(ParamInterpreter):
 
 class BoostingParamsInterpreter(ParamInterpreter):
     BOOSTS = {
-        "global": {TITLE: 20, LABEL: 20, ALT_TITLE: 10, DESCRIPTION: 10, ABSTRACT: 10},
-        "resource": {TITLE: 20, ALT_TITLE: 10, DESCRIPTION: 10, KEYWORD: 10},
+        "global": {
+            TITLE: 20,
+            LABEL: 20,
+            ALT_TITLE: 10,
+            DESCRIPTION: 10,
+            ABSTRACT: 10,
+        },
+        "resource": {
+            TITLE: 20,
+            ALT_TITLE: 10,
+            DESCRIPTION: 10,
+            KEYWORD: 10,
+        },
         "variable": {
             LABEL: 20,
             USED_IN_EN: 10,
