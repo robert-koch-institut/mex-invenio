@@ -64,6 +64,7 @@ def test_identical_files(
         file
         for file in os.listdir(download_path)
         if os.path.isfile(os.path.join(download_path, file))
+        and not file.startswith(".")
     ]
     assert len(files) == 1
 
