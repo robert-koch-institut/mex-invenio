@@ -26,6 +26,7 @@ Before running the script, there is a number of environment variables you can se
 
 You can store these credentials in a `.env` file,
 """
+
 import importlib.metadata
 import logging
 import os
@@ -33,14 +34,21 @@ import sys
 from datetime import datetime, timezone
 
 import boto3
-import packaging.version
 import click
+import packaging.version
 from dotenv import load_dotenv
 from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
-from mex_invenio.scripts.utils import compare_files, diff_files, setup_file_logging, cleanup_files, _read_state, _write_state
+from mex_invenio.scripts.utils import (
+    _read_state,
+    _write_state,
+    cleanup_files,
+    compare_files,
+    diff_files,
+    setup_file_logging,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -54,7 +62,9 @@ def load_config():
     v = packaging.version.Version(importlib.metadata.version("mex-model"))
     mex_model_version = f"{v.major}.{v.minor}"
     env_object_key = os.getenv(envvar_prefix + "OBJECT_KEY")
-    object_key = f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
+    object_key = (
+        f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
+    )
 
     s3_config = {
         "bucket": os.getenv(envvar_prefix + "BUCKET"),
@@ -223,8 +233,12 @@ def manage_s3_files(initial: bool = False):
 
         if not final_file_path:
             logger.info("No new content to import.")
-            _write_state(state_file, "success", started_at=started_at,
-                        finished_at=datetime.now(timezone.utc).isoformat())
+            _write_state(
+                state_file,
+                "success",
+                started_at=started_at,
+                finished_at=datetime.now(timezone.utc).isoformat(),
+            )
             sys.exit(0)
 
         logger.info(f"Importing data using file {final_file_path}")
@@ -240,13 +254,22 @@ def manage_s3_files(initial: bool = False):
             logger.error(
                 "Error in import_data, check the import log files for more details."
             )
-            _write_state(state_file, "failed", started_at=started_at, finished_at=finished_at)
+            _write_state(
+                state_file, "failed", started_at=started_at, finished_at=finished_at
+            )
             sys.exit(1)
         else:
             logger.info(f"Import successful. Data imported from {final_file_path}.")
-            _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
+            _write_state(
+                state_file, "success", started_at=started_at, finished_at=finished_at
+            )
     except Exception:
-        _write_state(state_file, "failed", started_at=started_at, finished_at=datetime.now(timezone.utc).isoformat())
+        _write_state(
+            state_file,
+            "failed",
+            started_at=started_at,
+            finished_at=datetime.now(timezone.utc).isoformat(),
+        )
         raise
 
     finally:

@@ -24,9 +24,7 @@ def normalised_value(
 ) -> NormalisedValue:
     return {
         "url": url,
-        "display_data": create_display_data_obj(
-            display_value if display_value else url, language
-        ),
+        "display_data": create_display_data_obj(display_value or url, language),
         "email": email,
         "core": core,
     }

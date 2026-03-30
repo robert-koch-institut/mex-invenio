@@ -144,15 +144,14 @@ def compare_files(existing_file: str, new_file: str) -> bool:
     return False
 
 
-def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
+def cleanup_files(directory: str, prefix: str | None = None, keep: int = 20):
     """Remove old files, keeping only the most recent ones."""
     try:
         if prefix:
             files = [
                 os.path.join(directory, f)
                 for f in os.listdir(directory)
-                if os.path.isfile(os.path.join(directory, f))
-                and f.startswith(prefix)
+                if os.path.isfile(os.path.join(directory, f)) and f.startswith(prefix)
             ]
         else:
             files = [
@@ -161,7 +160,8 @@ def cleanup_files(directory: str, prefix: str = None, keep: int = 20):
                 if os.path.isfile(os.path.join(directory, f))
             ]
 
-        files = sorted(files,
+        files = sorted(
+            files,
             key=os.path.getmtime,
             reverse=True,
         )
@@ -390,8 +390,12 @@ def _read_state(state_file: str) -> dict | None:
         return None
 
 
-def _write_state(state_file: str, status: str, started_at: str | None = None,
-                 finished_at: str | None = None):
+def _write_state(
+    state_file: str,
+    status: str,
+    started_at: str | None = None,
+    finished_at: str | None = None,
+):
     """Write the import state file with the given status and timestamps."""
     data = {"status": status}
     if started_at:

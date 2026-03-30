@@ -32,15 +32,14 @@ from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
 from sqlalchemy import text
 
+from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
+    cleanup_files,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
-    cleanup_files,
     setup_file_logging,
 )
-
-from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -199,7 +198,9 @@ def update_report(report: dict, batch_results: list[dict]):
         if result["action"] == "create":
             report["created"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "update":
-            report["updated"].append({"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]})
+            report["updated"].append(
+                {"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]}
+            )
         elif result["action"] == "skip":
             report["skipped"].append(result["id"])
         elif result["action"] == "related":
@@ -239,7 +240,9 @@ def import_data(
             return False
 
     with current_app.app_context():
-        log_dir = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), 'logs')
+        log_dir = os.path.join(
+            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), "logs"
+        )
         file_handler = setup_file_logging(log_dir)
         logger.addHandler(file_handler)
         user_datastore = current_app.extensions["security"].datastore
@@ -307,7 +310,11 @@ def import_data(
         # latest versions in the search index.
         if report["updated"]:
             parent_uuids = [r["parent"] for r in report["updated"]]
-            updated_all_versions = db.session.query(RDMRecord.model_cls.id).filter(RDMRecord.model_cls.parent_id.in_(parent_uuids)).all()
+            updated_all_versions = (
+                db.session.query(RDMRecord.model_cls.id)
+                .filter(RDMRecord.model_cls.parent_id.in_(parent_uuids))
+                .all()
+            )
             current_rdm_records_service.indexer.bulk_index(
                 u[0] for u in updated_all_versions
             )
@@ -346,9 +353,7 @@ def import_data(
                 logger.error(f"Encountered {record_count} errors during import.")
             elif action in ("created", "updated"):
                 ids = [r["id"] for r in report[action]]
-                logger.info(
-                    f"{action.capitalize()} {record_count} records. Ids: {ids}"
-                )
+                logger.info(f"{action.capitalize()} {record_count} records. Ids: {ids}")
             else:
                 logger.info(
                     f"{action.capitalize()} {record_count} records. Ids: {report[action]}"
