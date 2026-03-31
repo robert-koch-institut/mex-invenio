@@ -1916,7 +1916,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         `;
         }
         else {
-            frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter</p>`
+            frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> ${i18n.t('Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter')} </p>`
         }
         frag += `</div>`
 
