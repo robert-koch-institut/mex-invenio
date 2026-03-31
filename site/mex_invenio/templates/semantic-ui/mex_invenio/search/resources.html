@@ -1,0 +1,35 @@
+{%- extends config.BASE_TEMPLATE %}
+
+{% block page_body %}
+    <style>
+    </style>
+
+    <div id="search-page" class="ui container search_page search-page--resources">
+        <section class="banner banner-resource">
+            <small>{{ _("Search our") }}</small>
+            <h1>{{ _("Data Sources & Datasets") }}</h1>
+        </section>
+        {% block root_section %}
+            <div id="root-container" class="panel-body">
+                <div id="edge-container"></div>
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
+        document.title = "MEx: Data Sources & Datasets"
+    </script>
+    {{ super() }}
+    {{ webpack['search_resources.js'] }}
+
+<script>
+    window.mex = window.mex || {};
+    window.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    window.mex.state = mex.state || {};
+    window.mex.state.lang = "{{ current_i18n.language }}"
+</script>
+
+{% endblock %}

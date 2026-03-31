@@ -1,0 +1,16 @@
+#invenio-nav.ui.menu {
+
+    &:not(.active) #invenio-menu.ui.menu {
+        padding: 0;
+    }
+
+    &.active #invenio-menu.ui.menu {
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+
+}
+@media (max-width: 1299px) {
+#invenio-nav.ui.menu.active #invenio-menu.ui.menu #rdm-close-burger-menu-icon {
+    height: 2rem !important;
+}
+}

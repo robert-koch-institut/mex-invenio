@@ -16,11 +16,15 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {%- endblock css %}
 {% endif %}
 
-{%- from "invenio_app_rdm/records/macros/mex_detail.html" import val with context %}
-
-{%- set title = record.metadata.title %}
+{%- set title = "MEx: " + record.metadata.title %}
 {%- set metadata = record.metadata %}
-{% set resource_type = record.ui.resource_type.id %}
+{% set resource_type = record.metadata.resource_type.id %}
+
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import val with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import get_icon with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import show_section_custom_fields with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import display_values, display_value, render_value, display_extids, with context %}
+{%- from "invenio_app_rdm/records/macros/mex_detail.html" import special_field with context %}
 
 {%- set can_manage_record = permissions is defined and (permissions.can_edit or permissions.can_review) %}
 
@@ -69,11 +73,11 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {% endif %}
     </section>
     {% if resource_type == "resource" %}
-    {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
     {% elif resource_type == "activity" %}
-    {% include "invenio_app_rdm/records/landing_pages/activity.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/activity.html" %}
     {% elif resource_type == "bibliographicresource" %}
-    {% include "invenio_app_rdm/records/landing_pages/bibliographicresource.html" %}
+        {% include "invenio_app_rdm/records/landing_pages/bibliographicresource.html" %}
     {% else %}
     <div class="ui container">
         <div class="ui relaxed grid mt-5">
@@ -266,10 +270,12 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {%- endblock page_body %}
 
 {%- block javascript %}
+<script>
+    window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
+</script>
 {% if use_theme_basic_template|default(true) %}
 {{ super() }}
-{% else %}
-{% include config.THEME_JAVASCRIPT_TEMPLATE %}
+{{ webpack['support-record.js'] }}
 {% endif %}
 {%- block record_jsonld %}
 {% set jsonld_serialization = record | transform_record('SchemaorgJSONLDSerializer', throws=False) %}
@@ -299,18 +305,13 @@ it under the terms of the MIT License; see LICENSE file for more details.
     window.addEventListener('DOMContentLoaded', updateCardStyles);
     window.addEventListener('resize', updateCardStyles);
 
-    document.querySelectorAll(".card-prop-value > *").forEach(el => {
-        const text = el.textContent.trim();
-        if (text.length > 0){
-            if (text.split(/\s+/).length === 1) {
-                el.classList.add("single-word");
-            } else {
-                el.classList.add("multi-word");
-            }
-        }
+    const supportRecordHandler = (mex_id, combined_title) => {
+    window.dispatchEvent(
+        new CustomEvent("supportRecord:update", { detail: { mex_id, combined_title } })
+    );
+};
 
-    });
+window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
 
 </script>
-
 {%- endblock javascript %}

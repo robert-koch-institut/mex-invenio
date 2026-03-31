@@ -1,18 +1,58 @@
-from flask import Blueprint, redirect, url_for, current_app, abort, g
+import json
+import urllib.parse
+from functools import wraps
 
-from .record.record import MexRecord
-
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    g,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from invenio_access.permissions import system_identity
 from invenio_pidstore.errors import (
     PIDDoesNotExistError,
     PIDUnregistered,
 )
 from invenio_rdm_records.proxies import current_rdm_records_service
 
+from mex_invenio.record.record import MexRecord
+from mex_invenio.services.search import MexSearchOptions
+
+
+# Decorator which can be used to wrap a function to return JSONP responses.
+def jsonp(f):
+    """Wraps JSONified output for JSONP."""
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        callback = request.args.get("callback", False)
+        if callback:
+            content = (
+                str(callback) + "(" + str(f(*args, **kwargs).data.decode("utf-8")) + ")"
+            )
+            return current_app.response_class(
+                content, mimetype="application/javascript"
+            )
+        return f(*args, **kwargs)
+
+    return decorated_function
+
 
 #
 # Registration
 #
 def create_blueprint(app):
+    @app.before_request
+    def force_search():
+        if request.path == "/search":
+            return search_global()  # returns a Response, bypassing normal routing
+        return None
+
     """Register blueprint routes on app."""
     blueprint = Blueprint(
         "mex_invenio",
@@ -40,15 +80,112 @@ def create_blueprint(app):
         defaults={"as_json": True},
     )
 
+    blueprint.add_url_rule("/search/activities", view_func=search_activities)
+
+    blueprint.add_url_rule(
+        "/search/bibliographic-resources", view_func=search_bibliographic_resources
+    )
+
+    # this overrides the /search route to point to our global search page
+    blueprint.add_url_rule(
+        "/search",
+        view_func=search_global,
+    )
+
+    blueprint.add_url_rule("/search/resources", view_func=search_resources)
+
+    blueprint.add_url_rule("/search/variables", view_func=search_variables)
+
+    blueprint.add_url_rule("/query/api/<resource_type>", view_func=os_query_api)
+
     return blueprint
 
 
+def search_activities():
+    return render_template("mex_invenio/search/activities.html")
+
+
+def search_bibliographic_resources():
+    return render_template("mex_invenio/search/bibliographic-resources.html")
+
+
+def search_global():
+    return render_template("mex_invenio/search/global.html")
+
+
+def search_resources():
+    return render_template("mex_invenio/search/resources.html")
+
+
+def search_variables():
+    return render_template("mex_invenio/search/variables.html")
+
+
+# mapping from URL query arguments on the /query/api/<resource_type> endpoint
+# to the resource_type used in the OpenSearch query.
+URL_RESOURCE_TYPE_MAP = {
+    "bibliographic-resources": "bibliographicresource",
+    "activities": "activity",
+    "resources": "resource",
+    "variables": "variable",
+    "global": ["bibliographicresource", "activity", "resource", "variable"],
+}
+
+
+@jsonp
+def os_query_api(resource_type):
+    """Execute an OpenSearch query for the given resource type."""
+    q = None
+    # if this is a POST, read the contents out of the body
+    if request.method == "POST":
+        q = request.json
+    # if there is a source param, load the json from it
+    elif "source" in request.values:
+        try:
+            q = json.loads(urllib.parse.unquote(request.values["source"]))
+        except ValueError:
+            abort(400)
+
+    search_opts = MexSearchOptions()
+
+    if q is None:
+        # If no query is provided, use a match_all query
+        q = {"query": {"match_all": {}}}
+
+    rt = URL_RESOURCE_TYPE_MAP.get(resource_type)
+    if rt is None:
+        abort(400, description=f"Resource type '{resource_type}' is not supported.")
+
+    # Define search parameters
+    search_params = {"raw": q, "resource_type": rt}
+
+    # Perform the search
+    search_result = current_rdm_records_service.search(
+        identity=system_identity, params=search_params, search_opts=search_opts
+    )
+
+    # print("####################################")
+    # print(search_result)
+    #
+    # print("####################################")
+    # print(search_result._results.to_dict())
+    #
+    # from speaklater import _LazyString
+    # def custom_serialiser(obj):
+    #     if isinstance(obj, _LazyString):
+    #         return str(obj)
+
+    # Access the search results
+    result = search_result._results.to_dict()
+    response = make_response(json.dumps(result), 200)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+
 def redirect_to_mex(record_id):
-    """
-    Redirects to the MEX view based on the record ID,
-    also passes the version id if it is not the latest record.
-    :param record_id:
-    :return:
+    """Redirects to the MEX view based on the record ID.
+
+    Also passes the version id if it is not the latest record.
     """
     record = None
 
@@ -63,7 +200,7 @@ def redirect_to_mex(record_id):
     try:
         mex_id = record.data["custom_fields"]["mex:identifier"]
     except Exception as e:
-        current_app.logger.exception("No mex id for the record {0}.".format(e))
+        current_app.logger.exception(f"No mex id for the record {e}.")
         abort(500)
 
     if not record.data["versions"]["is_latest"]:

@@ -1,193 +1,184 @@
-{#
-Copyright (C) 2020-2024 CERN.
-Copyright (C) 2024 Northwestern University.
+{%- macro special_field(field_name) -%}
+    {{config.UI_SETTINGS[resource_type].special_fields[field_name].field}}
+{%- endmacro -%}
 
-Invenio RDM Records is free software; you can redistribute it and/or modify
-it under the terms of the MIT License; see LICENSE file for more details.
-#}
-
-{# Display date in user-friendly format #}
-{% macro render_date(dates) %}
-    {%- set months = {
-        '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
-        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
-        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
-    } %}
-    {% for date_str in dates %}
-        {%- if date_str is string and date_str|length == 10 or date_str|length == 20 %}
-            {# Format: YYYY-MM-DD or full timestamp #}
-            {%- set year = date_str[0:4] %}
-            {%- set month = date_str[5:7] %}
-            {%- set day = date_str[8:10] %}
-            <span>{{ months[month] }} {{ day|int }}, {{ year }}</span>
-
-        {%- elif date_str is string and date_str|length == 7 %}
-            {# Format: YYYY-MM #}
-            {%- set year = date_str[0:4] %}
-            {%- set month = date_str[5:7] %}
-            <span>{{ months[month] }} {{ year }}</span>
-
-        {%- elif date_str is string and date_str|length == 4 %}
-            {# Format: YYYY #}
-            <span>{{ date_str }}</span>
-
-        {%- else %}
-            <span>{{ date_str }}</span> {# fallback if it doesn't match any expected format #}
-        {%- endif %}
-    {% endfor %}
-{% endmacro %}
-
-{% macro render_text(field_name, items) %}
-    {%- set lang = current_i18n.language -%}
-    {%- set first_item = items[0] if items|length > 0 else {} -%}
-    {%- set has_language = 'language' in first_item -%}
-
-    {%- if has_language -%}
-        {%- set matching_items = items | selectattr('language', 'equalto', lang) | list -%}
-        {%- set items_to_display = matching_items if matching_items | length > 0 else items -%}
+{% macro smart_translate(context, msgid) %}
+    {%- set plural_msgid = msgid.replace('.singular', '.plural') if '.singular' in msgid else msgid + '.plural' -%}
+    {%- set plural_result = npgettext(context, msgid, plural_msgid, 1) -%}
+    {%- if plural_result != msgid -%}
+        {{- plural_result -}}
     {%- else -%}
-        {%- set items_to_display = items -%}
+        {%- set ctx_result = pgettext(context, msgid) -%}
+        {%- if ctx_result != msgid -%}
+            {{- ctx_result -}}
+        {%- else -%}
+            {{- _(msgid) -}}
+        {%- endif -%}
     {%- endif -%}
-    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
-    {%- for item in items_to_display -%}
-        {% if field_name in config.TAGS %}<div class="tag">{% endif %}<span>{{ item.value }}</span>{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %}</br>{% endif %}
-    {%- endfor -%}
-    {% if field_name in config.TAGS %}</div>{% endif %}
 {% endmacro %}
 
-{% macro render_url(field_name, items) %}
-    {%- for item in items -%}
-        <a href="{{ item.url }}">
-            {%- if item.title -%}
-                {{ render_text(field_name,[{"value": item.title, "language": item.language}]) }}
-            {%- else -%}
-                <span>{{ item.url }}</span>
-            {%- endif -%}
+{% macro display_values(values, max_values, max_str_length) %}
+    {% set max_visible = max_values if max_values else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+    {% set max_str_length = max_str_length if max_str_length else 0 %}
+
+    {% set total = values | length %}
+    {% set visible = values[:max_visible] %}
+    {% set hidden = values[max_visible:] %}
+
+    {%- for v in visible  -%}
+        {{ display_value(v, max_str_length) }}
+    {%- endfor -%}
+
+    {# If there are more, show "Add more" button #}
+    {% if hidden %}
+        <div class="more-values card-prop-value" style="display: none;">
+            {% for v in hidden %}
+                {{ display_value(v, max_str_length) }}
+            {% endfor %}
+        </div>
+        <button
+            type="button"
+            class="ui button link-like"
+            onclick="
+                const hidden = this.previousElementSibling;
+                const isHidden = hidden.style.display === 'none';
+                hidden.style.display = isHidden ? 'flex' : 'none';
+                this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show more")}} ({{ total }}) &#x25BE;';
+            "
+        >
+            {{ _("Show more") }} ({{ total }}) &#x25BE;
+        </button>
+    {% endif %}
+
+{% endmacro %}
+
+{% macro display_value(v, max_str_length) %}
+
+    {%- set lang = current_i18n.language -%}
+    {%- set dd = v["display_data"] -%}
+    {%- if dd[0].language -%}
+        {%- set correct_lang = dd | selectattr("language", "equalto", lang) | list -%}
+        {%- if correct_lang | length > 0 -%}
+            {%- set empty_lang = dd | selectattr("language", "equalto", "") | list -%}
+            {%- set selected = correct_lang  + empty_lang -%}
+        {%- else -%}
+            {%- set selected = dd -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set selected = dd -%}
+    {%- endif -%}
+    {% set ns = namespace(titles=[]) %}
+    {% for s in selected %}
+        {% set _ = ns.titles.append(s.value) %}
+    {% endfor %}
+    {% set combined_title = ns.titles | join(', ') %}
+    {%- if v.url -%}
+        {% if "http" in v.url %}
+            <a href="{{ v.url }}" title="{{ combined_title }}">
+                {{ combined_title }}
+            </a>
+        {%- elif v.core -%}
+        <a href="{{ v.url }}" title="{{ combined_title }}">
+        <div class="tags" style="display: block;"><span class="tag">
+                        <img class="ui image icon--text"
+                             src="{{ url_for('static', filename='icons/' ~ v.core ~ '-record.svg') }}"
+                             role="presentation"/> {{ _(config.UI_SETTINGS[v.core].label) }}</span>&nbsp;{{ combined_title }}</div>
+        </a>
+        {%- else -%}
+            <button
+            type="button"
+            class="ui button link-like"
+            data-record-id="{{ v.url }}"
+            onclick="supportRecordHandler('{{ v.url }}', '{{ combined_title }}')"
+            >
+            {{ combined_title }}
+            </button>
+        {%- endif -%}
+    {%- else -%}
+        {%- if (max_str_length) -%}
+            {% set combined_title_short = combined_title[:max_str_length] %}
+            <p><span>{{combined_title[:max_str_length]}}</span>{% if combined_title|length > max_str_length %}<span class="cut-off" style="display: none"> {{combined_title[max_str_length+1:]}}</span>
+                <button
+                        type="button"
+                        class="ui button link-like"
+                        onclick="
+                                const hidden = this.previousElementSibling;
+                                const isHidden = hidden.style.display === 'none';
+                                hidden.style.display = isHidden ? 'contents' : 'none';
+                                this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show more")}} &#x25BE;';
+                            "
+                >
+                {{_("Show more")}}
+                </button>
+            {% endif %}
+            </p>
+        {%- else -%}
+            <p>{{ combined_title }}</p>
+        {%- endif -%}
+    {%- endif -%}
+{% endmacro %}
+
+
+{% macro render_value(v) %}
+
+    {%- set lang = current_i18n.language -%}
+    {%- set dd = v["display_data"] -%}
+    {%- if dd[0].language -%}
+        {%- set correct_lang = dd | selectattr("language", "equalto", lang) | list -%}
+        {%- if correct_lang | length > 0 -%}
+            {%- set empty_lang = dd | selectattr("language", "equalto", "") | list -%}
+            {%- set selected = correct_lang  + empty_lang -%}
+        {%- else -%}
+            {%- set selected = dd -%}
+        {%- endif -%}
+    {%- else -%}
+        {%- set selected = dd -%}
+    {%- endif -%}
+    {% set ns = namespace(titles=[]) %}
+    {% for s in selected %}
+        {% set _ = ns.titles.append(s.value) %}
+    {% endfor %}
+    {% set combined_title = ns.titles | join(', ') %}
+
+    {{ combined_title }}
+
+{% endmacro %}
+
+{% macro display_extids(values, max_values) %}
+    {% set max_visible = max_values if max_values else config.get("VALUES_DISPLAYED_DEFAULT", 3) %}
+    {% set max_str_length = max_str_length if max_str_length else 0 %}
+
+    {% set total = values | length %}
+    {% set visible = values[:max_visible] %}
+    {% set hidden = values[max_visible:] %}
+
+    {%- for v in visible  -%}
+        <a href="{{ v.url }}" style="padding: 0 .5rem">
+            {{ v.display_data[0].value }}
         </a>
     {%- endfor -%}
-{% endmacro %}
 
-{% macro render_extid(field_name, values) %}
-{% set ns = namespace(matched=false, displayed=val) %}
-    {%- for val in values -%}
-        {%- if val.startswith("http") -%}
-            {%- for prefix in config.EXTIDS[field_name].urls -%}
-                {%- if not matched and val.startswith(prefix) -%}
-                    {%- set ns.displayed = val | replace(prefix, '') -%}
-                    {%- set ns.matched = true -%}
-                {%- endif -%}
-            {%- endfor -%}
-            <a href="{{ val }}">{{ ns.displayed }}</a>
-        {%- else -%}
-            <span>{{ val }}</span>
-        {%- endif -%}
-        {% if not loop.last %}&nbsp;&nbsp;{% endif %}
-    {%- endfor -%}
-{% endmacro %}
-
-{% macro render_label(field_name, values) %}
-    {%- set lang = current_i18n.language -%}
-    {% set default = {"en": "Invalid label", "de": "Invalid label"} %}
-    {% if field_name in config.TAGS %}<div class="tags">{% endif %}
-    {%- for val in values -%}
-        {% if config.PREF_LABELS %}
-            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ config.PREF_LABELS.get(val, default).get(lang, val) }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
-        {% else %}
-            {% if field_name in config.TAGS %}<div class="tag">{% endif %}{{ val }}{% if field_name in config.TAGS %}</div>{% endif %}{% if not loop.last and field_name not in config.TAGS %},{% endif %}
-        {% endif %}
-    {%- endfor -%}
-     {% if field_name in config.TAGS %}</div>{% endif %}
-{% endmacro %}
-
-{% macro render_identifier(field_name, identifiers, backwards_linked) %}
-    {% if linked_records_data %}
-        {% if backwards_linked %}
-            {% set value = linked_records_data["backwards_linked"][field_name] %}
-        {% else %}
-            {% set value = linked_records_data[field_name] %}
-        {% endif %}
-
-        {% if value %}
-            {%- if value is string or value is mapping -%}
-                {%- set values = [value] -%}
-            {%- else -%}
-                {%- set values = value -%}
-            {%- endif -%}
-
-            {% set first = values[0]["display_value"][0] %}
-            {% if first is string %}
-                {% for v in values %}
-                    {% if v["display_value"][0] == config.NO_RECORD_STRING %}
-                        <i class="muted">Record {{ v.link_id }} not found.</i>
-                    {% else %}
-                        {% if "email" in v %}
-                            {% for display_value in v["display_value"] %}
-                                <span class="email-container">
-                                  <a href="{{ v.link_id }}" class="display-text">{{ display_value }}</a>
-                                    <a href="mailto:{{ v.email[loop.index0] }}?cc=mex@rki.de" class="send-email">
-                                    <img class="ui image icon"
-                                        src="{{ url_for('static', filename='icons/mailto.svg') }}"
-                                        alt="send email"
-                                    />
-                                    </a>
-                                    {% with emailAddress = v.email[loop.index0] ~ "?cc=mex\@rki.de" %}
-                                        {%- include "invenio_app_rdm/records/details/components/includes/clickToCopy.html" -%}
-                                    {% endwith %}
-                                </span>
-                            {% endfor %}
-                        {% else %}
-                            <a href="{{ v.link_id }}">{{ v["display_value"] | join(", ")}}</a>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                {% for v in values %}
-                    {% if v != config.NO_RECORD_STRING %}
-                        <a href="{{ v.link_id }}">{% if v.display_value is not none %} {{ render_text(field_name,v.display_value) }} {% else %} {{ v.link_id }} {% endif %}</a>
-                    {% else %}
-                        <i class="muted">Record {{ v.link_id }} not found.</i>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% else %}
-            <i class="muted">[No value]</i>
-        {% endif %}
+    {# If there are more, show "Add more" button #}
+    {% if hidden %}
+    <span style="display: none;">
+        {% for v in hidden %}
+        <a href="{{ v.url }}" style="padding: 0 .5rem">
+            {{ v.display_data[0].value }}
+        </a>
+        {% endfor %}
+    </span>
+    <button
+            type="button"
+            class="ui button link-like"
+            onclick="
+                    const hidden = this.previousElementSibling;
+                    const isHidden = hidden.style.display === 'none';
+                    hidden.style.display = isHidden ? 'unset' : 'none';
+                    this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show more")}} ({{ total }}) &#x25BE;';
+                "
+    >
+{{_("Show more")}}
+    </button>
     {% endif %}
+
 {% endmacro %}
-
-{%- macro val(field_name, field_raw_value, resource_type, backwards_linked=false) -%}
-    {%- if field_raw_value and field_raw_value is not none and config.FIELD_TYPES is not none -%}
-
-        {# Normalize: wrap single values into a list #}
-        {%- if field_raw_value is string or field_raw_value is number or field_raw_value is mapping -%}
-            {%- set values = [field_raw_value] -%}
-        {%- else -%}
-            {%- set values = field_raw_value -%}
-        {%- endif -%}
-
-        {# Infer type from config #}
-        {%- set type = config.FIELD_TYPES.get(resource_type).get(field_name) -%}
-        {%- if type == None -%}
-            {%- if field_name in config.RECORDS_LINKED_BACKWARDS.get(resource_type) -%}
-                {%- set type = config.CUSTOM_TYPES.IDENTIFIER -%}
-            {%- endif -%}
-        {%- endif -%}
-        {%- if field_name in config.EXTIDS -%}
-            {{ render_extid(field_name, values) }}
-        {%- elif type == "string" or type == "int" -%}
-            {{ values | join(", ") }}
-        {%- elif type == "text" -%}
-            {{ render_text(field_name, values) }}
-        {%- elif type == "url" -%}
-            {{ render_url(field_name, values) }}
-        {%- elif type == "date" -%}
-            {{ render_date(values) }}
-        {%- elif type == "label" -%}
-            {{ render_label(field_name, values) }}
-        {%- elif type == "identifier" -%}
-            {{ render_identifier(field_name, values, backwards_linked) }}
-        {%- else -%}
-            {%- for val in values -%}{{ val }}{% if not loop.last %}, {% endif %}{% endfor %}
-        {%- endif -%}
-    {%- endif -%}
-{%- endmacro %}

@@ -74,6 +74,7 @@ They can be found in [invenio_rdm_recods.tests.conftest](https://github.com/inve
 To see tests we've done for Mex, please refer to the [tests](https://github.com/robert-koch-institut/mex-invenio/tree/main/tests) directory.
 
 ## Running unit tests
+
 Tests are stored in `./tests`. The tests can be run using the bash script `run_tests.sh`
 in the root directory of the project.
 

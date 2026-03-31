@@ -1,23 +1,28 @@
 
+
 <div class="edit-btn"><a id="edit-record" class="button edit"
-                         href="https://mex-editor.rki.local/item/{{ record.ui.custom_fields['mex:identifier'] }}"
+                         href="https://mex-editor.rki.local/item/{{ record.custom_fields['mex:identifier'] }}"
                          target="_blank">{{ _('Edit this record') }}</a></div>
 <div class="ui container">
-    <div class="ui relaxed stackable reversed mobile grid mt-5">
+    <div class="ui relaxed reversed mobile grid mt-5">
         <div class="two column row top-padded">
-            <article class="eleven wide tablet eleven wide computer sixteen wide mobile column main-record-content">
+            <article class="eleven wide computer sixteen wide tablet sixteen wide mobile column main-record-content">
 
                 {%- block toptags -%}
+                {%- endblock -%}
+
+                {%- block supportrecords %}
+                    <div id="support-record"></div>
                 {%- endblock -%}
 
                 {%- block title -%}
                 <section id="record-title-section">
                     <div class="first-line">
-                        <h1 id="record-title" class="wrap-overflowing-text">{{ metadata.title }}
+                        <h1 id="record-title" class="wrap-overflowing-text">{{ display_values(data[special_field("TITLE")]) }}</h1>
                     </div>
-                    {% set alttitle = val(config.RECORD_SPECIAL_FIELDS.ALT_TITLE,record.ui.custom_fields[config.RECORD_SPECIAL_FIELDS.ALT_TITLE], resource_type) %}
-                    {% if alttitle %}
-                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ alttitle }}</h2>
+
+                    {% if "ALT_TITLE" in config.UI_SETTINGS[resource_type].special_fields and special_field("ALT_TITLE") in data  %}
+                        <h2 id="record-alttitle" class="alttitle wrap-overflowing-text">{{ display_values(data[special_field("ALT_TITLE")]) }}</h2>
                     {% endif %}
                 </section>
                 {%- endblock title -%}
@@ -34,15 +39,15 @@
                 {%- endblock -%}
 
                 <section id="record-card" class="record-cards">
-                    {%- set column = "left" -%}
+                    {%- set column = "main" -%}
                     {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
                 </section>
 
             </article>
 
-            <aside class="five wide tablet five wide computer column sixteen wide mobile sidebar record-cards vertical"
+            <aside class="five wide computer column sixteen wide tablet sixteen wide mobile sidebar record-cards vertical"
                    aria-label="{{ _('Record details') }}">
-                {%- set column = "right" -%}
+                {%- set column = "side_bar" -%}
                 {%- include "invenio_app_rdm/records/details/components/card_wrapper.html" with context %}
                 {% block record_sidebar %}
                     {%- include "invenio_app_rdm/records/details/side_bar.html" %}

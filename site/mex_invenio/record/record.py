@@ -1,23 +1,24 @@
-from flask import render_template, abort, request, g, current_app
-from flask.views import MethodView
-
-from invenio_rdm_records.records.api import RDMRecord
-from invenio_rdm_records.resources.serializers import UIJSONSerializer
-from invenio_rdm_records.proxies import current_rdm_records_service
-from invenio_pidstore.errors import PIDDoesNotExistError
-from invenio_stats import current_stats
-
 import json
 
-from mex_invenio.record.utils import _get_linked_records_data, _get_record_by_mex_id
+from flask import abort, current_app, g, render_template, request
+from flask.views import MethodView
+from invenio_pidstore.errors import PIDDoesNotExistError
+from invenio_rdm_records.proxies import current_rdm_records_service
+from invenio_rdm_records.records.api import RDMRecord
+from invenio_rdm_records.resources.serializers import UIJSONSerializer
+from invenio_stats import current_stats
+
+from mex_invenio.record.data_processing import normalise_record_data
+from mex_invenio.record.utils import _get_record_by_mex_id
 
 
 class MexRecord(MethodView):
-    def __init__(self):
+    def __init__(self) -> None:
         self.template = "invenio_app_rdm/records/detail.html"
 
     def get(self, mex_id, as_json=False):
         version_id = request.args.get("version_id", None)
+        normalised = "normalised" in request.args
 
         # Establish the version_id as an integer if it is provided
         if version_id:
@@ -48,8 +49,7 @@ class MexRecord(MethodView):
             except Exception:
                 abort(500)
 
-            pid = record["id"]
-
+            pid = record["id"]  # type: ignore
         record_item = current_rdm_records_service.read(g.identity, pid)
 
         # emit a record view stats event
@@ -59,17 +59,27 @@ class MexRecord(MethodView):
 
         ui_serializer = UIJSONSerializer()
         record_ui = ui_serializer.serialize_object(record_item.data)
-
-        # Just return the record as JSON if requested
-        if as_json:
-            return json.loads(record_ui)
-
-        linked_records_data = _get_linked_records_data(record_item, mex_id)
         record = json.loads(record_ui)
+
+        data = normalise_record_data(record)
+        record_type = (
+            record.get("metadata", {}).get("resource_type", {}).get("id", None)
+        )
+        core_records = ["activity", "resource", "bibliographicresource"]
+
+        if as_json:
+            if normalised:
+                record["normalised"] = data
+            return record
+
+        # return the record as JSON if it is not a core type
+        if record_type not in core_records:
+            record["normalised"] = data
+            return record
 
         return render_template(
             self.template,
             record=record,
-            linked_records_data=linked_records_data,
             is_preview=False,
+            data=data,
         )

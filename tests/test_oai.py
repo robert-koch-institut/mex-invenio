@@ -1,12 +1,11 @@
 import xml.etree.ElementTree as ET
 
-from tests.conftest import search_messages, created_regex
+from tests.conftest import created_regex, search_messages
 from tests.data import resource_data
 
 
 def test_oai_mex_format_exists(app, client):
     """Test that the OAI-PMH Mex crosswalk exists."""
-
     res = client.get("/oai2d?verb=ListMetadataFormats")
 
     tree = ET.ElementTree(ET.fromstring(res.data))
@@ -30,7 +29,6 @@ def test_get_oai_record(
 
     assert match is not None
     rec_id = match.group("record_id")
-    # oai_url = f"/oai2d?verb=GetRecord&identifier=oai:{oai_prefix}:{rec_id}&metadataPrefix=oai_mex"
 
     res = client.get("/oai2d?verb=ListRecords&metadataPrefix=oai_dc")
     assert res.status_code == 200

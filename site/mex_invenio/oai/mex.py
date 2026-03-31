@@ -1,6 +1,5 @@
-from dcxml.simpledc import container_element, rules, ns, container_attribs
-
-from flask import g, current_app
+from dcxml.simpledc import container_attribs, container_element, ns, rules
+from flask import current_app, g
 from invenio_rdm_records.proxies import current_rdm_records_service
 from lxml import etree
 
@@ -45,6 +44,7 @@ def dump_etree_helper(container_name, data, rules, nsmap, attrib):
 
 def mex_dublincore_etree(pid, record, **serializer_kwargs):
     """Get DublinCore XML etree for OAI-PMH.
+
     This function is a modified version of invenio_rdm_records.oai.dublincore_etree
     in order to crosswalk the MEx custom fields.
     """

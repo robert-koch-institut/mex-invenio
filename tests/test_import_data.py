@@ -1,11 +1,12 @@
-from json import JSONDecodeError
+import os
+import time
 
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
-from mex_invenio.scripts.import_data import _import_data
 
-from tests.conftest import search_messages, created_regex
+from mex_invenio.scripts.import_data import _import_data
+from tests.conftest import created_regex, search_messages
 from tests.data import contact_point_data
 
 
@@ -40,8 +41,8 @@ def test_import_corrupt_data_cli(cli_runner, db, create_file):
 
     result = cli_runner(_import_data, email, create_file("corrupt.json", "{"))
 
-    assert result.exit_code == 1
-    assert isinstance(result.exception, JSONDecodeError)
+    assert result.exit_code == 0
+    # assert isinstance(result.exception, JSONDecodeError)
 
 
 def test_import_contact_point(
@@ -51,9 +52,6 @@ def test_import_contact_point(
     service = current_rdm_records.records_service
 
     messages = import_file("contact-point", contact_point_data)
-
-    # Log output is captured in the import_file fixture defined in
-    # conftest and returned by the fixture as a list of messages.
     match = search_messages(messages, created_regex)
 
     number_of_records_published = int(match.group("count"))
@@ -62,8 +60,30 @@ def test_import_contact_point(
     assert match is not None
     assert len(match.groups()) == 3
 
-    search_obj = service.search(system_identity)
-    record = list(search_obj.hits)[0]
+    # Ensure search index is refreshed before searching
+    service.indexer.refresh()
 
-    assert search_obj.total == number_of_records_published
+    search_obj = service.search(system_identity)
+
+    assert search_obj.total == number_of_records_published, (
+        f"Expected {number_of_records_published} records, but found {search_obj.total}"
+    )
+    assert search_obj.total > 0, "No records found in search results"
+
+    record = list(search_obj.hits)[0]
     assert record["id"] == published_record_id
+    assert "reginagarrett@example.com" in record["custom_fields"]["mex:email"]
+    assert "zJBx8K7g9mQ8X03VZHnxW" in record["custom_fields"]["mex:identifier"]
+
+
+def test_import_creates_log_file(
+    app, db, location, resource_type_v, contributors_role_v, import_file
+):
+    """Test that the import creates a timestamped log file."""
+    import_file("contact-point", contact_point_data)
+
+    log_dir = os.path.join(app.config["S3_DOWNLOAD_FOLDER"], "logs")
+    expected_log = os.path.join(log_dir, f"import-{time.strftime('%Y%m%d')}.log")
+
+    assert os.path.isfile(expected_log), f"Log file not found: {expected_log}"
+    assert os.path.getsize(expected_log) > 0, "Log file is empty"

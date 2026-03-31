@@ -1,0 +1,593 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-11-14 11:53+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:123
+msgid "English"
+msgstr ""
+
+#: /home/amdomanska/Work/mex-invenio/site/mex_invenio/config/settings.py:297
+#, fuzzy
+msgid "Resource types"
+msgstr "Übergeordnete Ressourcen"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:18
+msgid "About MEx"
+msgstr "Über MEx"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:20
+msgid "Data privacy"
+msgstr "Datenschutzerklärung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:24
+msgid "Accessibility"
+msgstr "Barrierefreiheit"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/footer.html:25
+msgid "Imprint"
+msgstr "Impressum"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:32
+#, fuzzy
+msgid "home"
+msgstr "Thema"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:73
+msgid "Data Sources & Datasets"
+msgstr "Datenbestände & Datensätze"
+
+msgid "Variable"
+msgstr "Variable"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:75
+msgid "Projects"
+msgstr "Projekte"
+
+msgid "Project"
+msgstr "Projekt"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header.html:76
+msgid "Publications"
+msgstr "Publikationen"
+
+msgid "Publication"
+msgstr "Publikation"
+
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/header_frontpage.html:26
+msgid "Search repository"
+msgstr "Repository durchsuchen"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
+msgid "Creators & Contributors"
+msgstr "Verantwortliche & Mitwirkende"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
+#, fuzzy
+msgid "Property description"
+msgstr "Methodenbeschreibung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:258
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:69
+msgid "Jump up"
+msgstr "Nach oben"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
+#, fuzzy
+msgid "Typical age"
+msgstr "Minimales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
+msgid "Min. typical age"
+msgstr "Minimales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
+msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
+msgid "Metadata Export"
+msgstr "Metadaten Export"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:32
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:35
+msgid "Language"
+msgstr "Sprache"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/bibliographicresource.html:36
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:39
+msgid "Created"
+msgstr "Erstellt"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/core_landing_page.html:5
+msgid "Edit this record"
+msgstr "Eintrag editieren"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:23
+#, fuzzy
+msgid "Record Description"
+msgstr "Methodenbeschreibung"
+
+#: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/landing_pages/resource.html:43
+msgid "Modified"
+msgstr "Letzte Änderung"
+
+msgid "Search our"
+msgstr "Unsere"
+
+msgid "Entire Metadata Catalogue"
+msgstr "Gesamte Metadatenkatalog"
+
+msgid "Related projects/endeavors"
+msgstr "Zugehörige Projekte"
+
+msgid "Related data sources & datasets"
+msgstr "Zugehörige Datenbestände & Datensätze"
+
+# All Search Pages & Landing Pages
+msgid "All MEx"
+msgstr "Alles"
+
+msgid "All"
+msgstr "Alles"
+
+msgid "All MEx Records"
+msgstr "Alles MEx Einträgen"
+
+msgid "Search records"
+msgstr "Nach Einträgen suchen"
+
+msgid "Search records..."
+msgstr "Nach Einträgen suchen..."
+
+msgid "Search"
+msgstr "Suche Einträge"
+
+msgid "All fields"
+msgstr "Alle Felder"
+
+msgid "First"
+msgstr "Erste Seite"
+
+msgid "Prev"
+msgstr "Vorherige Seite"
+
+msgid "Page"
+msgstr "Seite"
+
+msgid "of"
+msgstr "von"
+
+msgid "Next"
+msgstr "Nächste Seite"
+
+msgid "Last"
+msgstr "Letzte Seite"
+
+msgid "show all"
+msgstr "Alle anzeigen"
+
+msgid "results"
+msgstr "Ergebnisse"
+
+msgid "Show"
+msgstr "Zeige"
+
+msgid "results per page"
+msgstr "Ergebnisse pro Seite"
+
+msgid "No data available"
+msgstr "Keine Daten verfügbar"
+
+msgid "No results to display"
+msgstr "Keine Ergebnisse zur Anzeige vorhanden"
+
+msgid "Sort by"
+msgstr "Sortierung"
+
+msgid "Relevance"
+msgstr "Relevanz"
+
+msgid "Clear all"
+msgstr "Alle entfernen"
+
+msgid "Search resources..."
+msgstr "Search resources..."
+
+msgid "Search data sources & datasets..."
+msgstr "Datenbestände & Datensätze durchsuchen..."
+
+msgid "Alternative Title"
+msgstr "Alternativer Titel"
+
+msgid "External Partner"
+msgstr "Weitere Beteiligte"
+
+msgid "Access Restriction"
+msgstr "Zugriffsbeschränkung"
+
+msgid "Variables Filter"
+msgstr "Variablen Filter"
+
+msgid "No resources found."
+msgstr "No resources found."
+
+msgid "No data sources & datasets found."
+msgstr "Keine Datenbestände & Datensätze gefunden."
+
+# Project Search
+msgid "Search projects..."
+msgstr "Projekte durchsuchen..."
+
+msgid "Short Name"
+msgstr "Kurztitel"
+
+msgid "Involved Person"
+msgstr "Mitwirkende*r"
+
+msgid "Activity Type"
+msgstr "Projekttyp"
+
+msgid "Project Type"
+msgstr "Projekttyp"
+
+msgid "Start"
+msgstr "Laufzeitbeginn"
+
+msgid "End"
+msgstr "Laufzeitende"
+
+msgid "Funder or Commissioner"
+msgstr "Förderer oder Auftraggeber"
+
+msgid "Theme"
+msgstr "Thema"
+
+msgid "Project's duration"
+msgstr "Laufzeit"
+
+msgid "Project's start"
+msgstr "Laufzeitbeginn"
+
+msgid "Project's end"
+msgstr "Laufzeitende"
+
+msgid "Created (newest first)"
+msgstr "Erstellt (neueste zuerst)"
+
+msgid "End Date (latest first)"
+msgstr "Laufzeitende (letzte zuerst)"
+
+msgid "Start Date (latest first)"
+msgstr "Start Date (latest first)"
+
+msgid "Start Date (newest first)"
+msgstr "Laufzeitbeginn (neueste zuerst)"
+
+msgid "No activities found."
+msgstr "No activities found."
+
+msgid "No projects found."
+msgstr "Keine Projekte gefunden."
+
+# Publication Search
+msgid "Search bibliographic resources..."
+msgstr "Search bibliographic resources..."
+
+msgid "Search publications..."
+msgstr "Publikationen durchsuchen..."
+
+msgid "Abstract"
+msgstr "Kurzbeschreibung"
+
+msgid "Publication Year"
+msgstr "Veröffentlichungsjahr"
+
+msgid "Publication Year (newest first)"
+msgstr "Veröffentlichungsjahr (neuste zuerst)"
+
+msgid "No bibliographic resources found."
+msgstr "No bibliographic resources found."
+
+msgid "No publications found."
+msgstr "Keine Publikationen gefunden."
+
+# Variable Search
+msgid "Back to Data Sources & Datasets Search"
+msgstr "Zurück zur Suche nach Datenbeständen & Datensätzen"
+
+msgid "Back to Data Sources &amp; Datasets Search"
+msgstr "Zurück zur Suche nach Datenbeständen & Datensätzen"
+
+msgid "All Data Sources & Datasets"
+msgstr "Alle Datenbestände & Datensätze"
+
+msgid "Search Data Sources & Datasets by Title"
+msgstr "Datenbestände & Datensätze nach Titel durchsuchen"
+
+msgid "Find resources..."
+msgstr "Find resources..."
+
+msgid "Find data sources & datasets..."
+msgstr "Datenbestände & Datensätze finden..."
+
+msgid "Find variables..."
+msgstr "Variablen finden..."
+
+msgid "Expand all"
+msgstr "Alle ausklappen"
+
+msgid "Data Source"
+msgstr "Datenquelle"
+
+msgid "Variable Group"
+msgstr "Variablengruppe"
+
+msgid "Data Type"
+msgstr "Datentyp"
+
+msgid "No variables found."
+msgstr "Keine Variablen gefunden."
+
+msgid "Clear All"
+msgstr "Alle zurücksetzen"
+
+msgid "Selected Data Sources & Datasets"
+msgstr "Ausgewählte Datenbestände & Datensätze"
+
+msgid "Variable Groups"
+msgstr "Variablengruppen"
+
+msgid "noResourcesWithVariablesFound"
+msgstr "Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen enthalten und Ihrer Suche entsprechen."
+
+msgid "No data sources & datasets that match your search were found."
+msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
+
+# Global Search
+msgid "SEARCH OUR Entire Database"
+msgstr "SEARCH OUR Entire metadata catalogue"
+
+msgid "SEARCH OUR Entire metadata catalogue"
+msgstr "DURCHSUCHEN SIE UNSEREN Gesamten Metadatenkatalog"
+
+msgid "Search across all records..."
+msgstr "Alle Einträge durchsuchen..."
+
+msgid "Search only in"
+msgstr "Suche nur in"
+
+msgid "Data source or dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Data Source/Dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Activity"
+msgstr "Activity"
+
+msgid "Project"
+msgstr "Projekt"
+
+msgid "(Show more)"
+msgstr "(Mehr anzeigen)"
+
+msgid "(Show less)"
+msgstr "(Weniger anzeigen)"
+
+msgid "Show all"
+msgstr "Alle anzeigen"
+
+msgid "Show less"
+msgstr "Weniger anzeigen"
+
+msgid "Show more"
+msgstr "Mehr anzeigen"
+
+msgid "Publication"
+msgstr "Publikation"
+
+msgid "Explore variables for chosen datasets"
+msgstr "Variablen dieser Datenquelle erkunden"
+
+msgid "Publication"
+msgstr "Publikation"
+
+msgid "Data Source/Dataset"
+msgstr "Datenbestand/Datensatz"
+
+# Landing Page Publication
+msgid "Publication"
+msgstr "Publikation"
+
+msgid "Project"
+msgstr "Projekt"
+
+# LC_MESSAGES/ui.po missing translations
+msgid "JSON"
+msgstr "JSON"
+
+msgid "Robert Koch Institute"
+msgstr "Robert Koch-Institut"
+
+msgid "Menu"
+msgstr "Menü"
+
+msgid "Close menu"
+msgstr "Menü schließen"
+
+msgid "Information banner"
+msgstr "Informationsbanner"
+
+msgid ""
+"There is a %(link_start)snewer version%(link_end)s of the record\n"
+"available."
+msgstr ""
+"Es ist eine neuere Version des Eintrags vorhanden."
+
+msgid "Reason"
+msgstr "Autor*in"
+
+msgid "Back-navigation"
+msgstr "Zurück-Navigation"
+
+msgid "Back to edit"
+msgstr "Zurück zum Editieren"
+
+msgid "Record title and creators"
+msgstr "Record title and creators"
+
+msgid "Record details"
+msgstr "Record details"
+
+msgid "Jump to top of page"
+msgstr "Zum Seitenanfang springen"
+
+msgid "Send email"
+msgstr "E-Mail senden"
+
+msgid "Copy email address"
+msgstr "E-Mail-Adresse kopieren"
+
+msgid "Copied!"
+msgstr "Kopiert!"
+
+msgid "Invenio ID"
+msgstr "Invenio-ID"
+
+msgid "Metrics"
+msgstr "Metriken"
+
+msgid "Record tags"
+msgstr "Record tags"
+
+msgid "Record IDs"
+msgstr "Record IDs"
+
+msgid "No datasources or datasets containing variables that match your search were found."
+msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Variablen enthalten, die Ihrer Suche entsprechen."
+
+msgid "Creators"
+msgstr "Autor*innen"
+
+msgid "Keywords"
+msgstr "Stichworte"
+
+msgid "Keyword"
+msgstr "Stichwort"
+
+msgid "Title Proper"
+msgstr "Gesamttitelangabe"
+
+msgid "Editor"
+msgstr "Herausgebende"
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Data source/dataset"
+msgstr "Datenbestand/Datensatz"
+
+msgid "Explore the variables related to these data source"
+msgstr "Variablen dieser Datenquelle erkunden"
+
+msgid "Datasets for Variables Search"
+msgstr "Datensätze für die Variablen-Suche"
+
+msgid "Has Personal Data"
+msgstr "Personenbezogene Daten"
+
+msgid "Resource Creation Method"
+msgstr "Methodik"
+
+msgid "Journal"
+msgstr "Journal"
+
+# settings.py
+msgid "frontpageHeader"
+msgstr "Was möchten Sie heute entdecken? Durchsuchen Sie unseren Katalog."
+msgid "datasetsDescription"
+msgstr "Erkunden Sie Datenbestände und Datensätze des RKI."
+msgid "projectsDescription"
+msgstr "Entdecken Sie Forschungsaktivitäten oder amtliche Aufgaben des RKI, die Kontextinformationen zu unseren Datenbeständen und Datensätzen liefern."
+msgid "publicationsDescription"
+msgstr "Durchstöbern Sie Artikel in Fachzeitschriften, Berichte und Buchkapitel zur öffentlichen Gesundheit, die vom RKI veröffentlicht wurden."
+msgid "variablesDescription"
+msgstr "Variablen und ihre Details auf einen Blick – entdecken Sie, aus welchen Datenbeständen sie stammen."
+msgid "globalDescription"
+msgstr "Durchsuchen Sie alle Einträge in unserem Metadatenkatalog: Datensätze, Publikationen, Projekte und mehr."
+
+msgid "disclaimer"
+msgstr "Alle Angaben basieren auf Informationen aus den datenhaltenden Originalsystemen. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität dieser Informationen."
+
+msgid "Theme & Keywords"
+msgstr "Thema & Schlagworte"
+
+msgid "Data Representation & Coverage"
+msgstr "Datenabdeckung"
+
+msgid "Legal Basis & Data Provenance"
+msgstr "Rechtsgrundlage & Provenienz"
+
+msgid "Data Collection & Processing"
+msgstr "Datenerhebung & -prozessierung"
+
+msgid "Methodology"
+msgstr "Methodik"
+
+msgid "Standards & Quality"
+msgstr "Standards & Qualität"
+
+msgid "Related Publications & Further Documentation"
+msgstr "Veröffentlichungen & Dokumentation"
+
+msgid "Related Resources"
+msgstr "Verknüpfte Ressourcen"
+
+msgid "Views"
+msgstr "Aufrufe"
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "Access & Usage Rights"
+msgstr "Zugriff & Nutzungsrechte"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Metadata Version"
+msgstr "Metadaten-Version"
+
+msgid "Access Platform"
+msgstr "Zugriffsplattform"
+
+msgid "Variables"
+msgstr "Variablen"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "Partners & Funding"
+msgstr "Partner &  Fördermittelgebende"
+
+msgid "Part Of"
+msgstr "Übergeordneter Datenbestand/Datensatz"
+
+msgid "Succeeds"
+msgstr "Nachfolge von"

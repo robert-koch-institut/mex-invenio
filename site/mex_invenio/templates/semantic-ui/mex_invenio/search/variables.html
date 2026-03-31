@@ -1,0 +1,34 @@
+{%- extends config.BASE_TEMPLATE %}
+{% block page_body %}
+<style></style>
+
+<div id="variable-page" class="ui container search_page">
+  <section class="banner banner-variable">
+    <small> {{ _("Search our") }}</small>
+    <h1>{{ _("Variables") }}</h1>
+  </section>
+  {% block root_section %}
+  <div id="root-container" class="panel-body ui grid ml-0">
+    <div id="resources-container" class="five wide column pl-0"></div>
+    <div id="variables-container" class="eleven wide column pr-0"></div>
+  </div>
+  {% endblock %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+    <script>
+        window.APP_CONFIG = {current_lang: "{{current_i18n.language}}" }
+    </script>
+    {{ webpack['search_variables.js'] }}
+
+<script>
+    window.mex = window.mex || {};
+    window.mex.VOCABULARY = {{ config.get("PREF_LABELS", {}) | tojson | safe }};
+    window.mex.state = mex.state || {};
+    window.mex.state.lang = "{{ current_i18n.language }}"
+    document.title = "MEx: Variables"
+</script>
+
+{% endblock javascript %}
