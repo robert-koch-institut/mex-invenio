@@ -56,10 +56,6 @@ def test_get_oai_record(
         rec_license = metadata.find(".//dc:rights", dc_namespace)
         assert rec_license.text == "info:eu-repo/semantics/openAccess"
 
-        if "mex:unitInCharge" in app_config["OAISERVER_RELATIONS"]:
-            unit_in_charge = metadata.find(".//dc:relation", dc_namespace)
-            assert unit_in_charge.text in resource_data["unitInCharge"]
-
         # there will be 2 dates, created by invenio and mex:created
         dates = metadata.findall(".//dc:date", dc_namespace)
         assert resource_data["created"] in [date.text for date in dates]

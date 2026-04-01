@@ -46,7 +46,7 @@ RUN cd site/mex_invenio && \
     npm run convert-po
 
 # Compile Py translations
-RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
+RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations --domain=ui
 
 RUN cp -r ./static/. ${INVENIO_INSTANCE_PATH}/static/ && \
     cp -r ./assets/. ${INVENIO_INSTANCE_PATH}/assets/ && \

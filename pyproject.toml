@@ -10,10 +10,21 @@ addopts = [
     "--cov",
     "--no-cov-on-fail",
     "--cov-report=term-missing:skip-covered",
-    "--cov-fail-under=65",
+    "--cov-fail-under=75",
     "--cov-branch",
     "--pdbcls=IPython.terminal.debugger:TerminalPdb",
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = false
+strict = false
+warn_return_any = false
+warn_unused_ignores = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+exclude = ["os-v2"]
 
 [tool.ruff]
 fix = true
@@ -63,7 +74,6 @@ select = ["ALL"]
     "SLF",      # Allow private member access
 ]
 # TODO: re-enable these rules one-by-one
-"site/mex_invenio/alembic/*" = ["E501"]
 "site/mex_invenio/config/*" = ["DTZ005", "E501", "F401", "S104", "S105", "TD002"]
 "site/mex_invenio/custom*" = ["A002", "ANN001", "ANN003", "ANN201", "ANN202", "BLE001", "D101", "D103", "C901", "E501", "ERA001", "FBT002", "N801", "PERF203", "PLR0912", "T201", "TD"]
 "site/mex_invenio/fields/*" = ["ANN001", "ANN003", "ANN201", "ANN204", "ARG002", "BLE001", "E501", "ERA001", "FBT002", "SLF001"]

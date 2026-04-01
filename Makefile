@@ -2,6 +2,11 @@
 all: install lint test
 
 setup:
+	# sync and update git submodules
+	@ echo syncing git submodules; \
+	git submodule sync; \
+	git submodule update --init --recursive; \
+
 	# install meta requirements system-wide
 	@ echo installing requirements; \
 	pip --disable-pip-version-check install --force-reinstall -r requirements.txt; \
@@ -16,7 +21,12 @@ install: setup hooks
 	# install packages from lock file in local virtual environment
 	@ echo installing package; \
 	pipenv install --dev; \
-	pipenv run pybabel compile --directory=translations; \
+	cp -r ./translations/. .venv/var/instance/translations/; \
+	pipenv run python ./site/mex_invenio/scripts/merge_translations.py .venv/var/instance; \
+	(cd site/mex_invenio && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm install && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm run convert-po); \
+	pipenv run pybabel compile --directory=.venv/var/instance/translations --domain=ui; \
+	cp -r ./static/. .venv/var/instance/static/; \
+	cp -r ./assets/. .venv/var/instance/assets/; \
 	pipenv run invenio collect; \
 	pipenv run invenio webpack buildall; \
 

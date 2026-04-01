@@ -91,10 +91,9 @@ def test_display_data_contact_creator(
 
         # Extract display values
         for display_val in creator["display_value"]:
-            if isinstance(display_val, dict) and "value" in display_val:
-                creator_display_values.append(display_val["value"])
-            elif isinstance(display_val, str):
-                creator_display_values.append(display_val)
+            assert isinstance(display_val, dict)
+            assert "value" in display_val
+            creator_display_values.append(display_val["value"])
 
     assert "John Bazooge" in creator_display_values, (
         "Missing John Bazooge in creator display values"
@@ -119,10 +118,9 @@ def test_display_data_contact_creator(
 
         # Extract display values
         for display_val in contributor["display_value"]:
-            if isinstance(display_val, dict) and "value" in display_val:
-                contributor_display_values.append(display_val["value"])
-            elif isinstance(display_val, str):
-                contributor_display_values.append(display_val)
+            assert isinstance(display_val, dict)
+            assert "value" in display_val
+            contributor_display_values.append(display_val["value"])
 
     assert "John Bazooge" in contributor_display_values, (
         "Missing John Bazooge in contributor display values"
