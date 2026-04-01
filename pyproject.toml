@@ -15,17 +15,6 @@ addopts = [
     "--pdbcls=IPython.terminal.debugger:TerminalPdb",
 ]
 
-[tool.mypy]
-ignore_missing_imports = true
-no_implicit_optional = false
-strict = false
-warn_return_any = false
-warn_unused_ignores = false
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-check_untyped_defs = false
-exclude = ["os-v2"]
-
 [tool.ruff]
 fix = true
 line-length = 88
