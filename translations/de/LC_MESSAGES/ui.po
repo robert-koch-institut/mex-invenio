@@ -72,7 +72,7 @@ msgstr "Repository durchsuchen"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
 msgid "Creators & Contributors"
-msgstr "Verantwortliche & Mitwirkende"
+msgstr "Verantwortliche & Mitwirkende*r"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
 #, fuzzy
@@ -144,7 +144,7 @@ msgid "All"
 msgstr "Alles"
 
 msgid "All MEx Records"
-msgstr "Alles MEx Einträgen"
+msgstr "Alle MEx Einträge"
 
 msgid "Search records"
 msgstr "Nach Einträgen suchen"
@@ -181,6 +181,12 @@ msgstr "Alle anzeigen"
 
 msgid "results"
 msgstr "Ergebnisse"
+
+msgid "No results found"
+msgstr "Keine Ergebnisse gefunden"
+
+msgid "issued"
+msgstr "Erstellt"
 
 msgid "Show"
 msgstr "Zeige"
@@ -337,6 +343,9 @@ msgstr "Variablengruppe"
 
 msgid "Data Type"
 msgstr "Datentyp"
+
+msgid "Value set"
+msgstr "Merkmalsausprägung"
 
 msgid "No variables found."
 msgstr "Keine Variablen gefunden."
@@ -591,3 +600,30 @@ msgstr "Übergeordneter Datenbestand/Datensatz"
 
 msgid "Succeeds"
 msgstr "Nachfolge von"
+
+msgid "Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter"
+msgstr "Noch nichts ausgewählt. Klicken Sie auf das Plus-Symbol in der Ergebnisliste, um Datenbestände / Datensätze zum Variablenfilter hinzuzufügen."
+
+msgid "to"
+msgstr "bis"
+
+msgid "Contributor"
+msgstr "Mitwirkende*r"
+
+msgid "Coding system"
+msgstr "Kodierungssystem"
+
+msgid "No data sources or datasets that contain variables were found matching your search"
+msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
+
+msgid "Views"
+msgstr "Aufrufe"
+
+msgid "There is a newer version of the record available"
+msgstr "Es ist eine neuere Version des Eintrags vorhanden"
+
+msgid "send email"
+msgstr "E-Mail senden"
+
+msgid "Explore the variables related to this data source"
+msgstr "Erkunden Sie die Variablen dieses Datenbestands"
