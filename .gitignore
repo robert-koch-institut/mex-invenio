@@ -97,3 +97,5 @@ translations/**/*.backup
 # Generated translation files
 translations/**/*.mo
 translations/**/messages.po
+site/mex_invenio/assets/semantic-ui/js/locales/de/translations.json
+site/mex_invenio/assets/semantic-ui/js/locales/en/translations.json
