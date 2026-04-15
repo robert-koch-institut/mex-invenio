@@ -8,10 +8,10 @@ from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_search import RecordsSearchV2
 
 from mex_invenio.search.params import (
+    BoostingParamsInterpreter,
     GenericQueryParamsInterpreter,
     HighlightParamsInterpreter,
     TypeLimiterParamsInterpreter,
-    BoostingParamsInterpreter,
 )
 
 # from mex_invenio.custom_record import MexRDMRecord
@@ -538,12 +538,20 @@ class MexDumper(SearchDumper):
     def _generate_sort_fields(self, record, dump_data, log):
         # titles
         titles = record.get("custom_fields", {}).get("mex:title", [])
-        values = [t.get("value") for t in titles if isinstance(t, dict) and "value" in t]
+        values = [
+            title.get("value")
+            for title in titles
+            if isinstance(title, dict) and "value" in title
+        ]
         dump_data["index_data"]["title_sort"] = values
 
         # labels
         labels = record.get("custom_fields", {}).get("mex:label", [])
-        values = [l.get("value") for l in labels if isinstance(l, dict) and "value" in l]
+        values = [
+            label.get("value")
+            for label in labels
+            if isinstance(label, dict) and "value" in label
+        ]
         dump_data["index_data"]["label_sort"] = values
 
     def _linked_records_data(self, record, dump_data, log):
@@ -734,7 +742,7 @@ class MexDumper(SearchDumper):
                                     "mex:identifier"
                                 ),
                                 "display_value": normalize_display_value(display_value),
-                                "core": record_core if record_core else "",
+                                "core": record_core or "",
                             }
                         )
                         break
@@ -749,7 +757,7 @@ class MexDumper(SearchDumper):
                             "display_value": [{"value": identifier}]
                             if identifier
                             else [{"value": "Unknown"}],
-                            "core": record_core if record_core else "",
+                            "core": record_core or "",
                         }
                     )
 
