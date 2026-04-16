@@ -72,7 +72,7 @@ msgstr "Repository durchsuchen"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:124
 msgid "Creators & Contributors"
-msgstr "Verantwortliche & Mitwirkende*r"
+msgstr "Verantwortliche & Mitwirkende"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/detail.html:208
 #, fuzzy
