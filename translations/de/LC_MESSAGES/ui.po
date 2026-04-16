@@ -125,10 +125,10 @@ msgid "Modified"
 msgstr "Letzte Änderung"
 
 msgid "Search our"
-msgstr "Unsere"
+msgstr "Unser"
 
 msgid "Entire Metadata Catalogue"
-msgstr "Gesamte Metadatenkatalog"
+msgstr "Gesamter Metadatenkatalog"
 
 msgid "Related projects/endeavors"
 msgstr "Zugehörige Projekte"
@@ -138,10 +138,10 @@ msgstr "Zugehörige Datenbestände & Datensätze"
 
 # All Search Pages & Landing Pages
 msgid "All MEx"
-msgstr "Alles"
+msgstr "Alle MEx"
 
 msgid "All"
-msgstr "Alles"
+msgstr "Alle"
 
 msgid "All MEx Records"
 msgstr "Alle MEx Einträge"
@@ -601,7 +601,7 @@ msgstr "Übergeordneter Datenbestand/Datensatz"
 msgid "Succeeds"
 msgstr "Nachfolge von"
 
-msgid "Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter"
+msgid "VariablesFilterNoDatasets"
 msgstr "Noch nichts ausgewählt. Klicken Sie auf das Plus-Symbol in der Ergebnisliste, um Datenbestände / Datensätze zum Variablenfilter hinzuzufügen."
 
 msgid "to"
@@ -613,11 +613,12 @@ msgstr "Mitwirkende*r"
 msgid "Coding system"
 msgstr "Kodierungssystem"
 
-msgid "No data sources or datasets that contain variables were found matching your search"
+
+msgid "noResourcesWithVariables"
 msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
 
-msgid "Views"
-msgstr "Aufrufe"
+msgid "No results found."
+msgstr "Keine Ergebnisse gefunden."
 
 msgid "There is a newer version of the record available"
 msgstr "Es ist eine neuere Version des Eintrags vorhanden"
@@ -626,4 +627,4 @@ msgid "send email"
 msgstr "E-Mail senden"
 
 msgid "Explore the variables related to this data source"
-msgstr "Erkunden Sie die Variablen dieses Datenbestands"
+msgstr "Erkunden Sie die Variablen dieses Datenbestands."
