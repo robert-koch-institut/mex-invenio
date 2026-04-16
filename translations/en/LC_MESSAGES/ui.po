@@ -518,3 +518,12 @@ msgstr "Explore the variables related to this data source"
 
 msgid "to"
 msgstr "to"
+
+msgid "Data type"
+msgstr "Data type"
+
+msgid "viewAllVersionsStart"
+msgstr "View all"
+
+msgid "viewAllVersionsEnd"
+msgstr "versions"

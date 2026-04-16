@@ -610,6 +610,14 @@ msgstr "Mitwirkende*r"
 msgid "Coding system"
 msgstr "Kodierungssystem"
 
+msgid "Data type"
+msgstr "Datentyp"
+
+msgid "viewAllVersionsStart"
+msgstr "Alle"
+
+msgid "viewAllVersionsEnd"
+msgstr "Versionen anzeigen"
 
 msgid "noResourcesWithVariables"
 msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
@@ -624,7 +632,7 @@ msgid "sendEmail"
 msgstr "E-Mail senden"
 
 msgid "views"
-msgstr "AUFRUFE"
+msgstr "Aufrufe"
 
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
