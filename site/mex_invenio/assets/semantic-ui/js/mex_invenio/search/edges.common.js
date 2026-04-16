@@ -753,7 +753,7 @@ mex.globalDisplay = function (params) {
         category: params.category || "middle",
         renderer: new mex.renderers.GlobalResults({
             noResultsText:
-                params.noResultsText || i18n.t("No results found."),
+                params.noResultsText || i18n.t("noResultsFound"),
         }),
     });
 };

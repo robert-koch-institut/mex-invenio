@@ -124,10 +124,10 @@ msgstr "Methodenbeschreibung"
 msgid "Modified"
 msgstr "Letzte Änderung"
 
-msgid "Search our"
+msgid "searchOur"
 msgstr "Unser"
 
-msgid "Entire Metadata Catalogue"
+msgid "entireMetadataCatalogue"
 msgstr "Gesamter Metadatenkatalog"
 
 msgid "Related projects/endeavors"
@@ -143,7 +143,7 @@ msgstr "Alle MEx"
 msgid "All"
 msgstr "Alle"
 
-msgid "All MEx Records"
+msgid "allMexRecords"
 msgstr "Alle MEx Einträge"
 
 msgid "Search records"
@@ -358,9 +358,6 @@ msgstr "Ausgewählte Datenbestände & Datensätze"
 
 msgid "Variable Groups"
 msgstr "Variablengruppen"
-
-msgid "noResourcesWithVariablesFound"
-msgstr "Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen enthalten und Ihrer Suche entsprechen."
 
 msgid "No data sources & datasets that match your search were found."
 msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
@@ -617,14 +614,17 @@ msgstr "Kodierungssystem"
 msgid "noResourcesWithVariables"
 msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
 
-msgid "No results found."
+msgid "noResultsFound"
 msgstr "Keine Ergebnisse gefunden."
 
 msgid "There is a newer version of the record available"
 msgstr "Es ist eine neuere Version des Eintrags vorhanden"
 
-msgid "send email"
+msgid "sendEmail"
 msgstr "E-Mail senden"
 
-msgid "Explore the variables related to this data source"
+msgid "views"
+msgstr "AUFRUFE"
+
+msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
