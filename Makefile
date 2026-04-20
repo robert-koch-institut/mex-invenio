@@ -20,7 +20,7 @@ install: setup hooks
 	pipenv run python ./site/mex_invenio/scripts/merge_translations.py .venv/var/instance; \
 	(cd site/mex_invenio && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm install && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm run convert-po); \
 	pipenv run pybabel compile --directory=.venv/var/instance/translations; \
-	pipenv run invenio collect; \
+	(cd /home/runner/work/mex-invenio && pipenv run invenio collect); \
 	pipenv run invenio webpack buildall; \
 
 lint:
