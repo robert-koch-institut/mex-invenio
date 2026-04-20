@@ -77,7 +77,7 @@
                             {% endif %}
                         </div>
                         {% set mex_id = data["mex:identifier"][0]["display_data"][0]["value"] %}
-                        <a href="/search/variables?resource={{ mex_id }}" target="_blank" class="ui button primary link-like-button" style="margin-top: 1rem;">{{ _("Explore the variables related to this data source") }}</a>
+                        <a href="/search/variables?resource={{ mex_id }}" target="_blank" class="ui button primary link-like-button" style="margin-top: 1rem;">{{ _("exploreVariables") }}</a>
                     </div>
                 {% endif %}
             {% endfor %}
