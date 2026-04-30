@@ -591,3 +591,45 @@ msgstr "Übergeordneter Datenbestand/Datensatz"
 
 msgid "Succeeds"
 msgstr "Nachfolge von"
+
+msgid "VariablesFilterNoDatasets"
+msgstr "Noch nichts ausgewählt. Klicken Sie auf das Plus-Symbol in der Ergebnisliste, um Datenbestände / Datensätze zum Variablenfilter hinzuzufügen."
+
+msgid "to"
+msgstr "bis"
+
+msgid "Contributor"
+msgstr "Mitwirkende*r"
+
+msgid "Coding system"
+msgstr "Kodierungssystem"
+
+msgid "Data type"
+msgstr "Datentyp"
+
+msgid "viewAllVersionsStart"
+msgstr "Alle"
+
+msgid "viewAllVersionsEnd"
+msgstr "Versionen anzeigen"
+
+msgid "noResourcesWithVariables"
+msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
+
+msgid "noResultsFound"
+msgstr "Keine Ergebnisse gefunden."
+
+msgid "There is a newer version of the record available"
+msgstr "Es ist eine neuere Version des Eintrags vorhanden"
+
+msgid "sendEmail"
+msgstr "E-Mail senden"
+
+msgid "views"
+msgstr "Aufrufe"
+
+msgid "exploreVariables"
+msgstr "Erkunden Sie die Variablen dieses Datenbestands."
+
+msgid "belongsTo"
+msgstr "Gehört zu"

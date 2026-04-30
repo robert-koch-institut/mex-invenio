@@ -491,3 +491,33 @@ msgid "globalDescription"
 msgstr "Look through all records in our metadata catalogue: datasets, publications, projects, and more."
 msgid "disclaimer"
 msgstr "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
+
+msgid "VariablesFilterNoDatasets"
+msgstr "Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter"
+
+msgid "noResultsFound"
+msgstr "No results found."
+
+msgid "sendEmail"
+msgstr "Send email"
+
+msgid "views"
+msgstr "VIEWS"
+
+msgid "exploreVariables"
+msgstr "Explore the variables related to this data source"
+
+msgid "to"
+msgstr "to"
+
+msgid "Data type"
+msgstr "Data type"
+
+msgid "viewAllVersionsStart"
+msgstr "View all"
+
+msgid "viewAllVersionsEnd"
+msgstr "versions"
+
+msgid "belongsTo"
+msgstr "Belongs to"
