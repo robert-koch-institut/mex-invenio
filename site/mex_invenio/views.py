@@ -193,13 +193,13 @@ def redirect_to_mex(record_id):
         record = current_rdm_records_service.read(g.identity, record_id)
     except (PIDDoesNotExistError, PIDUnregistered):
         abort(404)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         current_app.logger.exception("Unknown error occurred.", extra={"error": e})
         abort(500)
 
     try:
         mex_id = record.data["custom_fields"]["mex:identifier"]
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         current_app.logger.exception(f"No mex id for the record {e}.")
         abort(500)
 

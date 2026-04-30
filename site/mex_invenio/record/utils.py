@@ -4,7 +4,7 @@ from flask import g
 from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_rdm_records.proxies import current_rdm_records_service
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from invenio_rdm_records.services.results import RDMRecordList
 
 
