@@ -46,7 +46,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 set INVENIO_INSTANCE_PATH=
 cd ..\..
 
-pipenv run pybabel compile --directory=.venv\var\instance\translations --domain=ui
+pipenv run pybabel compile --directory=.venv\var\instance\translations
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 xcopy /s /e /y /i static .venv\var\instance\static
