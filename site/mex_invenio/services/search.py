@@ -91,6 +91,8 @@ FREE_TEXT_SEARCH_FIELDS = [
     "index_data.externalAssociates",
     "index_data.externalPartners",
     "index_data.involvedPersons",
+    "index_data.enContributingUnits",
+    "index_data.deContributingUnits"
 ]
 
 
@@ -137,6 +139,7 @@ class MexDumper(SearchDumper):
         self._involved_persons(record, dump_data, log)
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
+        self._contributing_unit(record, dump_data, log)
 
         # log.append("**************************************")
         # log.append("Display data:")
@@ -174,7 +177,8 @@ class MexDumper(SearchDumper):
             record.json, "mex:alternativeName"
         )
         short_names = self._get_custom_field_list(record.json, "mex:shortName")
-        return official_names + alternative_names + short_names
+        general_name = self._get_custom_field_list(record.json, "mex:name")
+        return official_names + alternative_names + short_names + general_name
 
     def _get_all_possible_names(self, record):
         person = self._get_person_names(record)
@@ -463,6 +467,42 @@ class MexDumper(SearchDumper):
 
         if len(used_in_de) > 0:
             dump_data["index_data"]["deUsedInResource"] = used_in_de
+
+    def _contributing_unit(self, record, dump_data, log):
+        unit_ids = self._get_custom_field_list(record, "mex:contributingUnit")
+
+        if len(unit_ids) == 0:
+            return
+
+        log.append("Contributing Unit IDs:" + str(unit_ids))
+
+        results = self._records_by_mex_identifiers(record, unit_ids, log)
+        log.append("Contributing Unit results:" + str(len(results)))
+
+        units = []
+        for unit in results:
+            official_names = self._get_custom_field_list(
+                unit.json, "mex:name"
+            )
+            lang_names = self._split_by_language(official_names)
+            units.append(lang_names)
+
+        units_en = [fc["en"] for fc in units]
+        units_de = [fc["de"] for fc in units]
+
+        log.append("Contributing Units EN:" + str(units_en))
+        log.append("Contributing Units DE:" + str(units_de))
+
+        if len(units_en) == 0:
+            units_en = units_de
+        if len(units_de) == 0:
+            units_de = units_en
+
+        if len(units_de) > 0:
+            dump_data["index_data"]["deContributingUnits"] = units_de
+
+        if len(units_en) > 0:
+            dump_data["index_data"]["enContributingUnits"] = units_en
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
