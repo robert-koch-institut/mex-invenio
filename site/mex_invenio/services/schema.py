@@ -22,6 +22,8 @@ class IndexDataSchema(Schema):
     involvedPersons = fields.List(SanitizedUnicode(), dump_only=True)
     enUsedInResource = fields.List(SanitizedUnicode(), dump_only=True)
     deUsedInResource = fields.List(SanitizedUnicode(), dump_only=True)
+    enContributingUnits = fields.List(SanitizedUnicode(), dump_only=True)
+    deContributingUnits = fields.List(SanitizedUnicode(), dump_only=True)
 
 
 class MexRDMRecordSchema(RDMRecordSchema):
