@@ -29,6 +29,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import shutil
 import sys
 
@@ -41,7 +42,6 @@ from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
     cleanup_files,
-    compare_files,
     get_timestamp,
     normalize_record_data,
     read_json_file,
@@ -74,14 +74,14 @@ def load_config():
         [
             bucket,
             email,
-            s3_config["aws_access_key_id"],
-            s3_config["aws_secret_access_key"],
+            "aws_access_key_id" in s3_config,
+            "aws_secret_access_key" in s3_config,
         ]
     ):
         logger.error(
             "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
         )
-        sys.exit(0)
+        raise ValueError
 
     return s3_config, email, bucket
 
@@ -207,7 +207,7 @@ def diff_files(download_path: str, processed_path: str, diff_path: str):
 
         # Rename diff folder as non-draft
         os.rename(diff_folder, os.path.join(diff_path, timestamp))
-        diff_file = diff_file.replace("draft-", "")
+        diff_file = os.path.join(diff_path, timestamp, "diff.ndjson")
 
         logger.info(diff_file)
 
@@ -228,6 +228,9 @@ def make_diff_files(model_version: str):
 
     downloads = [d for d in os.listdir(downloaded_path) if not d.startswith("draft-")]
     processed = [d for d in os.listdir(processed_path) if not d.startswith("draft-")]
+
+    if not downloads or not processed:
+        return None
 
     download_folder_timestamp = sorted(downloads)[0]
     most_recent_processed_timestamp = sorted(processed, reverse=True)[0]
@@ -266,7 +269,11 @@ def manage_s3_files(initial: bool = False):
     logger.addHandler(file_handler)
 
     # Load config
-    s3_config, user_email, s3_bucket = load_config()
+    try:
+        s3_config, user_email, s3_bucket = load_config()
+    except ValueError as e:
+        logger.error(f"Error loading config: {e}")
+        return None
     s3_client = boto3.client("s3", **s3_config)
 
     response = s3_client.list_objects_v2(Bucket=s3_bucket)
@@ -321,14 +328,21 @@ def manage_s3_files(initial: bool = False):
 
             diff_file = make_diff_files(model_version)
 
+            if not diff_file:
+                logger.error(f"Error creating diff files for model version: {model_version}.")
+                continue
+
             logger.info(f"Downloaded {diff_file}.")
 
             result = import_data(model_version, user_email, diff_file)
 
             # Import was successful
             if result:
-                diff_path = os.path.join(*diff_file.split("/")[:-1])
-                diff_history_path = os.path.join(s3_download_folder, "history", *diff_file.split("/")[-3:-1])
+                diff_path = os.path.dirname(diff_file)
+                diffs_root = os.path.join(s3_download_folder, "diffs")
+                rel = os.path.relpath(os.path.dirname(diff_file), diffs_root)  # e.g. "1.2/20260430104905"
+                diff_history_path = os.path.join(s3_download_folder, "history", rel)
+                os.makedirs(os.path.dirname(diff_history_path), exist_ok=True)
                 logger.info(f"Moving {diff_path} to {diff_history_path}")
                 shutil.move(diff_path, diff_history_path)
 
@@ -339,85 +353,16 @@ def manage_s3_files(initial: bool = False):
             if re.search(r'^\d*\.\d*$', name):
                 continue
 
+            model_version = os.path.basename(dirpath)
             diff_dir = os.path.join(dirpath, name)
-            diff_file = os.path.join(diff_dir, "items.ndjson")
+            diff_file = os.path.join(diff_dir, "diff.ndjson")
             diff_metadata_file = os.path.join(diff_dir, "metadata.json")
 
             if os.path.isfile(diff_file) and os.path.isfile(diff_metadata_file):
-                model_version, _, __ = read_json_file(diff_metadata_file)
                 result =  import_data(model_version, user_email, diff_file)
 
                 if not result:
                     break
-
-    return
-
-    '''started_at = datetime.now(timezone.utc).isoformat()
-    _write_state(state_file, "in_progress", started_at=started_at)
-
-    try:
-        logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
-        logger.info(f"To download folder: {s3_download_folder}")
-
-        # This will be the most recently modified file in the download folder
-        existing_file_path = get_latest_existing_file(s3_download_folder)
-
-        # This is the most recently modified file in the S3 bucket
-        new_file_path = download_file(
-            s3_client, s3_bucket, latest_file_key, s3_download_folder
-        )
-
-        logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
-
-        final_file_path = get_final_import_file(
-            existing_file_path, new_file_path, s3_download_folder
-        )
-
-        if not final_file_path:
-            logger.info("No new content to import.")
-            _write_state(
-                state_file,
-                "success",
-                started_at=started_at,
-                finished_at=datetime.now(timezone.utc).isoformat(),
-            )
-            sys.exit(0)
-
-        logger.info(f"Importing data using file {final_file_path}")
-
-        if initial:
-            result = initial_import(user_email, final_file_path)
-        else:
-            result = import_data(user_email, final_file_path)
-
-        finished_at = datetime.now(timezone.utc).isoformat()
-
-        if not result:
-            logger.error(
-                "Error in import_data, check the import log files for more details."
-            )
-            _write_state(
-                state_file, "failed", started_at=started_at, finished_at=finished_at
-            )
-            sys.exit(1)
-        else:
-            logger.info(f"Import successful. Data imported from {final_file_path}.")
-            _write_state(
-                state_file, "success", started_at=started_at, finished_at=finished_at
-            )
-    except Exception:
-        _write_state(
-            state_file,
-            "failed",
-            started_at=started_at,
-            finished_at=datetime.now(timezone.utc).isoformat(),
-        )
-        raise
-
-    finally:
-        logger.removeHandler(file_handler)
-        file_handler.close()
-        cleanup_files(log_dir, "s3_manager")'''
 
 
 if __name__ == "__main__":

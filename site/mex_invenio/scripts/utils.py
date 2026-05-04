@@ -1,6 +1,5 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
-import filecmp
 import html
 import json
 import logging
@@ -152,16 +151,6 @@ def normalize_record_data(value):
             if v is not None and v != []
         }
     return value
-
-
-def compare_files(existing_file: str, new_file: str) -> bool:
-    """Compares files and deletes the new file if it's the same."""
-    if os.path.exists(existing_file) and filecmp.cmp(
-        existing_file, new_file, shallow=False
-    ):
-        os.remove(new_file)  # Remove duplicate file
-        return True
-    return False
 
 
 def cleanup_files(directory: str, prefix: str | None = None, keep: int = 20):
