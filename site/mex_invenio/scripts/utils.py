@@ -1,15 +1,13 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
 import filecmp
-import hashlib
 import html
-import importlib.metadata
 import json
 import logging
 import os
 import time
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 
 from invenio_db import db
 from invenio_rdm_records.records.api import RDMRecord
@@ -23,6 +21,28 @@ logging.basicConfig(
     # datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
+
+
+def get_timestamp():
+    return datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+
+def read_json_file(file_path):
+    with open(file_path, "r") as f:
+        metadata = json.load(f)
+        model_version = metadata['versions']['mex-model']
+
+        # omit patch version if present
+        if len(model_version.split('.')) > 2:
+            model_version = '.'.join(model_version.split('.')[:2])
+
+        checksum = metadata['sha256_checksum']
+        timestamp = metadata['write_completed_at']
+
+        return model_version, checksum, timestamp
+
+def write_json_file(file_path, json_data):
+    with open(file_path, "w") as f:
+        json.dump(json_data, f)
 
 
 def _get_value_by_lang(
@@ -173,118 +193,6 @@ def cleanup_files(directory: str, prefix: str | None = None, keep: int = 20):
                 logger.warning(f"Could not remove old file {f}: {e}")
     except FileNotFoundError:
         pass
-
-
-def diff_files(directory: str, existing_file: str, new_file: str):
-    """Create a diff file containing only new or changed records based on identifier comparison.
-
-    Optimized for large files by using streaming and hash-based comparison.
-    """
-    diffdirectory = os.path.join(directory, "diffs")
-    os.makedirs(diffdirectory, exist_ok=True)
-
-    timestamp = datetime.today().strftime("%d-%m-%Y_%I_%M_%S")
-    mex_model_version = importlib.metadata.version("mex-model")
-    existing_basename = os.path.basename(existing_file).removesuffix(".ndjson")
-    new_basename = os.path.basename(new_file).removesuffix(".ndjson")
-    diff_file = os.path.join(
-        diffdirectory,
-        f"{existing_basename}-{new_basename}-{mex_model_version}_{timestamp}.ndjson",
-    )
-
-    try:
-        # Read existing records and create hash index (memory efficient)
-        existing_hashes = {}  # identifier -> content_hash
-        existing_count = 0
-
-        logger.info(f"Reading existing file: {existing_file}")
-        if os.path.exists(existing_file):
-            with open(existing_file, encoding="utf-8") as f:
-                for line_num, line in enumerate(f, 1):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        record = json.loads(line)
-                        record_id = record.get("identifier")
-                        if record_id:
-                            # Create hash of normalized content for efficient comparison
-                            normalized = normalize_record_data(record)
-                            content_hash = hashlib.md5(
-                                json.dumps(normalized, sort_keys=True).encode("utf-8")
-                            ).hexdigest()
-                            existing_hashes[record_id] = content_hash
-                            existing_count += 1
-                    except json.JSONDecodeError as e:
-                        logger.warning(
-                            f"Invalid JSON at line {line_num} in {existing_file}: {e}"
-                        )
-
-                    # Log progress for large files
-                    if line_num % 10000 == 0:
-                        logger.info(f"Processed {line_num} lines from existing file")
-
-        logger.info(f"Indexed {existing_count} existing records")
-
-        # Stream process new file and write diff directly
-        new_or_changed_count = 0
-        processed_count = 0
-
-        logger.info(f"Processing new file: {new_file}")
-        with (
-            open(new_file, encoding="utf-8") as infile,
-            open(diff_file, "w", encoding="utf-8") as outfile,
-        ):
-            for line_num, line in enumerate(infile, 1):
-                line = line.strip()
-                if not line:
-                    continue
-
-                try:
-                    record = json.loads(line)
-                    record_id = record.get("identifier")
-                    if record_id:
-                        # Create hash of new record
-                        normalized = normalize_record_data(record)
-                        content_hash = hashlib.md5(
-                            json.dumps(normalized, sort_keys=True).encode("utf-8")
-                        ).hexdigest()
-
-                        existing_hash = existing_hashes.get(record_id)
-                        if existing_hash is None or existing_hash != content_hash:
-                            # New or changed record - write to diff file immediately
-                            json.dump(record, outfile, ensure_ascii=False)
-                            outfile.write("\n")
-                            new_or_changed_count += 1
-
-                        processed_count += 1
-                    else:
-                        logger.warning(
-                            f"Record without identifier at line {line_num} in {new_file}"
-                        )
-
-                except json.JSONDecodeError as e:
-                    logger.warning(
-                        f"Invalid JSON at line {line_num} in {new_file}: {e}"
-                    )
-
-                # Log progress for large files
-                if line_num % 10000 == 0:
-                    logger.info(
-                        f"Processed {line_num} lines, found {new_or_changed_count} changes"
-                    )
-
-        logger.info(
-            f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
-        )
-        logger.info(f"Created diff file: {diff_file}")
-        cleanup_files(diffdirectory)
-        return diff_file
-
-    except Exception as e:
-        logger.error(f"Error during JSON-based file comparison: {e}")
-
-        return None
 
 
 def get_related_mex_ids(record: dict) -> list:

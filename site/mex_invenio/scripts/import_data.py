@@ -18,7 +18,9 @@ To run the script, go to the repository root directory and use the following com
 import copy
 import json
 import logging
+import importlib.metadata
 import os.path
+import packaging.version
 import sys
 import time
 
@@ -34,6 +36,8 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
+    _read_state,
+    _write_state,
     cleanup_files,
     get_related_mex_ids,
     mex_to_invenio_schema,
@@ -165,8 +169,6 @@ def process_record_batch(
                 for related_id in get_related_mex_ids(mex_data):
                     results.append({"action": "related", "id": related_id})
 
-        except json.JSONDecodeError:
-            logger.error(f"Error decoding JSON: {json_data}")
         except KeyError as ke:
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
@@ -208,16 +210,18 @@ def update_report(report: dict, batch_results: list[dict]):
 
 
 @click.command("import_data")
+@click.argument("model_version")
 @click.argument("email")
 @click.argument("import_file")
 @click.option(
     "--batch-size", default=100, help="Number of records to process in each batch."
 )
-def _import_data(email: str, import_file: str, batch_size: int) -> bool:
-    return import_data(email, import_file, batch_size, cli=True)
+def _import_data(model_version: str, email: str, import_file: str, batch_size: int) -> bool:
+    return import_data(model_version, email, import_file, batch_size, cli=True)
 
 
 def import_data(
+    model_version: str,
     email: str,
     import_file: str,
     batch_size: int = 100,
@@ -228,6 +232,35 @@ def import_data(
     Batch size is set to 100 records by default.
     Expected data source is a JSON file with one MEx record per line.
     """
+
+    with current_app.app_context():
+        s3_download_folder = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"))
+        state_file = os.path.join(s3_download_folder, ".import_state")
+        state = _read_state(state_file)
+        if state:
+            status = state.get("status")
+            if status == "in_progress":
+                # This should not happen because of "concurrencyPolicy: Forbid" in the
+                # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
+                logger.warning("Import already in progress (state file found). Skipping.")
+                # Exiting silently
+                return False
+            elif status == "failed":
+                logger.error(
+                    f"Previous import failed (state file: {state_file}). "
+                    "Resolve the issue and delete the state file to re-enable imports."
+                )
+                return False
+
+    v = packaging.version.Version(importlib.metadata.version("mex-model"))
+    installed_model_version = f"{v.major}.{v.minor}"
+
+    if model_version != installed_model_version:
+        # No interest in attempting to import incompatible data
+        # exit gracefully so job does not restart
+        logger.warning(f"Attempted to import data with model version {model_version}"
+                       f" (installed: {installed_model_version}).")
+        sys.exit(0)
 
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
