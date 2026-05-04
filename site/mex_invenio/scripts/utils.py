@@ -4,6 +4,7 @@ import html
 import json
 import logging
 import os
+import re
 import time
 from collections.abc import Callable
 from datetime import datetime, timezone
@@ -286,6 +287,16 @@ def _read_state(state_file: str) -> dict | None:
     except (FileNotFoundError, json.JSONDecodeError):
         return None
 
+
+def most_recent_subdir(root: str) -> str | None:
+    latest = None
+
+    for dirpath, dirnames, _ in os.walk(root):
+        for name in dirnames:
+            if re.match(r'^\d+$', name) and (latest is None or name > latest[1]):
+                latest = (os.path.join(dirpath, name), name)
+
+    return latest[0] if latest else None
 
 def _write_state(
     state_file: str,

@@ -25,13 +25,13 @@ Before running the script, there is a number of environment variables you can se
 You can store these credentials in a `.env` file,
 """
 
+from datetime import datetime, timezone
 import hashlib
 import json
 import logging
 import os
 import re
 import shutil
-import sys
 
 import boto3
 import click
@@ -43,6 +43,7 @@ from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
     cleanup_files,
     get_timestamp,
+    most_recent_subdir,
     normalize_record_data,
     read_json_file,
     setup_file_logging,
@@ -200,7 +201,7 @@ def diff_files(download_path: str, processed_path: str, diff_path: str):
         diff_metadata = {
             'processed': processed_file,
             'downloaded': downloaded_file,
-            'timestamp': get_timestamp(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
         }
 
         write_json_file(os.path.join(diff_folder, "metadata.json"), diff_metadata)
@@ -250,7 +251,6 @@ def make_diff_files(model_version: str):
     return diff_file
 
 
-
 @click.command("manage_s3_files")
 @click.option("--initial", is_flag=True, default=False)
 def manage_s3_files(initial: bool = False):
@@ -271,9 +271,9 @@ def manage_s3_files(initial: bool = False):
     # Load config
     try:
         s3_config, user_email, s3_bucket = load_config()
-    except ValueError as e:
-        logger.error(f"Error loading config: {e}")
+    except ValueError:
         return None
+
     s3_client = boto3.client("s3", **s3_config)
 
     response = s3_client.list_objects_v2(Bucket=s3_bucket)
@@ -285,6 +285,7 @@ def manage_s3_files(initial: bool = False):
     metadata_files = [m for m in response['Contents'] if m['Key'].endswith("metadata.json")]
     downloaded_path = os.path.join(s3_download_folder, "downloaded")
 
+    # There should only ever be one metadata.json file
     for metadata_file in metadata_files:
         # Create tmp draft downloaded location for dump
         dump_folder = f"draft-{get_timestamp()}"
@@ -298,42 +299,42 @@ def manage_s3_files(initial: bool = False):
         s3_client.download_file(s3_bucket, metadata_file['Key'], downloaded_metadata_file)
         model_version, checksum, timestamp = read_json_file(downloaded_metadata_file)
 
-        latest_download_path = os.path.join(downloaded_path, model_version)
         logger.info(read_json_file(downloaded_metadata_file))
         # All previous downloads
-        downloads = [d for d in os.listdir(latest_download_path) if not d.startswith("draft-")]
+        most_recent_download_path = most_recent_subdir(downloaded_path)
 
-        # TODO there might not be previous downloads
-        #if not downloads:
-        #    logger.info(f"No files found in the downloaded folder: {downloaded_metadata_file}")
-        #    continue
+        if not most_recent_download_path:
+            logger.info(f"No files found in the downloaded folder: {downloaded_metadata_file}")
+            continue
 
-        most_recent_download_path  = os.path.join(latest_download_path, sorted(downloads, reverse=True)[0])
         most_recent_metadata_file = os.path.join(most_recent_download_path, "metadata.json")
         last_model_version, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
 
-        #logger.info(f'{model_version} -> {last_model_version}\n {checksum} -> {last_checksum}\n {timestamp} -> {last_timestamp}')
-
         # Only download if there is a new dump
         # TODO is it required to check both checksum and timestamp?
-        if checksum != last_checksum and timestamp > last_timestamp:
-            logger.info('Moving!')
-            destination_path = os.path.join(latest_download_path, dump_folder)
-            shutil.move(tmp_dump_path, destination_path)
-            downloaded_items_file = os.path.join(destination_path, "items.ndjson")
-            s3_client.download_file(s3_bucket, metadata_file['Key'].replace('metadata.json', 'items.ndjson'),
-                                    downloaded_items_file)
+        if checksum == last_checksum and timestamp == last_timestamp:
+            logger.info('Checksums and timestamps match.')
+            shutil.rmtree(tmp_dump_path)
+            continue
 
-            os.rename(destination_path, os.path.join(latest_download_path, dump_folder.removeprefix('draft-')))
+        destination_path = os.path.join(downloaded_path, model_version, dump_folder)
+        logger.info(f'Moving! {destination_path} -> {most_recent_metadata_file}')
+        shutil.move(tmp_dump_path, destination_path)
+        downloaded_items_file = os.path.join(destination_path, "items.ndjson")
+        s3_client.download_file(s3_bucket, metadata_file['Key'].replace('metadata.json', 'items.ndjson'),
+                                downloaded_items_file)
 
-            diff_file = make_diff_files(model_version)
+        os.rename(destination_path, os.path.join(downloaded_path, model_version, dump_folder.removeprefix('draft-')))
 
-            if not diff_file:
-                logger.error(f"Error creating diff files for model version: {model_version}.")
-                continue
+        diff_file = make_diff_files(model_version)
 
-            logger.info(f"Downloaded {diff_file}.")
+        if not diff_file:
+            logger.error(f"Error creating diff files for model version: {model_version}.")
+            continue
 
+        logger.info(f"Downloaded {diff_file}.")
+
+        try:
             result = import_data(model_version, user_email, diff_file)
 
             # Import was successful
@@ -345,11 +346,14 @@ def manage_s3_files(initial: bool = False):
                 os.makedirs(os.path.dirname(diff_history_path), exist_ok=True)
                 logger.info(f"Moving {diff_path} to {diff_history_path}")
                 shutil.move(diff_path, diff_history_path)
+        except Exception as e:
+            logger.error(f"Error importing {diff_file}.")
 
 
+    return
     for dirpath, dirnames, _ in os.walk(os.path.join(s3_download_folder, "diffs")):
         for name in dirnames:
-            # Skip the parent model name
+            # Skip the parent model namost_recent_subdirme
             if re.search(r'^\d*\.\d*$', name):
                 continue
 
