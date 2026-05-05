@@ -74,3 +74,15 @@ processed dump and the oldest downloaded dump and creating a md5 hash of each li
 
 Then an import is attempted using the oldest diff file. If successfully imported, the diff file is moved to the
 history folder.
+
+The diff metadata file is structured like so:
+
+```json
+{
+  "processed_file": "s3_downloads/processed/4.10/20260430192021/items.ndjson",
+  "downloaded_file": "s3_downloads/downloaded/4.10/20260504230139/items.ndjson",
+  "timestamp": "2026-05-05T14:41:57.474220+00:00",
+  "new_or_changed_count": 139,
+  "processed_count": 175374
+}
+```
