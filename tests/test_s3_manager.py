@@ -1,137 +1,163 @@
-import datetime
-import importlib.metadata
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from freezegun import freeze_time
+import pytest
 
 from mex_invenio.scripts.s3_manager import manage_s3_files
 
+_MODULE = "mex_invenio.scripts.s3_manager"
 
-@patch("mex_invenio.scripts.s3_manager.import_data")
-@patch("mex_invenio.scripts.s3_manager.initial_import")
-def test_identical_files(
-    mock_initial_import,
-    mock_import_data,
-    app_config,
-    db,
-    create_file,
-    load_env,
-    mock_s3_client,
-    cli_runner,
-):
-    """Test that the script does not import files that are identical."""
-    # Mock the import functions to return True
-    mock_import_data.return_value = True
-    mock_initial_import.return_value = True
-    # download_path is a module scope temp path, so we need to be careful about
-    # file names
-    download_path = app_config["S3_DOWNLOAD_FOLDER"]
 
-    # Create the existing file in the S3_DOWNLOAD_FOLDER
-    existing_file = "test_identical_files_1.json"
-    existing_file_path = create_file(
-        f"{download_path}/{existing_file}", "{}", absolute=True
-    )
+@pytest.fixture
+def s3_client(base_app):
+    """Push the app context and patch get_s3_client_and_config for each test."""
+    mock_client = MagicMock()
+    with base_app.app_context():
+        with patch(f"{_MODULE}.get_s3_client_and_config") as mock_cfg:
+            mock_cfg.return_value = (mock_client, "importer@example.com", "test-bucket")
+            yield mock_client
 
-    # Establish the file path of the file to be downloaded from S3
-    downloaded_file = "test_identical_files_2.json"
-    downloaded_file_path = f"{download_path}/{downloaded_file}"
 
-    # Mock the download_file function to create the file locally
-    def download_file(Bucket, Key, Filename):
-        create_file(downloaded_file_path, "{}", absolute=True)
+def test_no_s3_contents(cli_runner, app_config, s3_client):
+    """Script exits cleanly when S3 bucket returns no contents."""
+    s3_client.list_objects_v2.return_value = {}
+    result = cli_runner(manage_s3_files)
+    assert result.exit_code == 0
 
-    mock_s3_client.download_file = download_file
 
-    # Pretend S3 is returning them, the returned dict has more information than
-    # the single key 'Contents' and each file has more information than just the
-    # 'Key' and 'LastModified' keys but this is all we need for unit testing.
-    mock_s3_client.list_objects_v2.return_value = {
+def test_no_metadata_file(cli_runner, app_config, s3_client):
+    """Script exits cleanly when S3 bucket has no metadata.json."""
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "items.ndjson", "LastModified": "2024-01-01"}]
+    }
+    result = cli_runner(manage_s3_files)
+    assert result.exit_code == 0
+
+
+def test_multiple_metadata_files(cli_runner, app_config, s3_client):
+    """Script exits cleanly when S3 bucket has multiple metadata.json files."""
+    s3_client.list_objects_v2.return_value = {
         "Contents": [
-            {"Key": downloaded_file_path, "LastModified": datetime.datetime.now()}
+            {"Key": "v1/metadata.json", "LastModified": "2024-01-01"},
+            {"Key": "v2/metadata.json", "LastModified": "2024-01-02"},
         ]
     }
-    # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
+    result = cli_runner(manage_s3_files)
+    assert result.exit_code == 0
 
-    # Import should not import anything and the younger file should be removed
+
+def test_s3_list_failure(cli_runner, app_config, s3_client):
+    """Script exits cleanly when list_objects_v2 raises an exception."""
+    s3_client.list_objects_v2.side_effect = Exception("Connection refused")
+    result = cli_runner(manage_s3_files)
+    assert result.exit_code == 0
+
+
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_identical_checksums_skips_download(
+    mock_get_subdir,
+    mock_read_json,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """Script skips download when new metadata matches existing checksum and timestamp."""
+    download_path = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
+    mock_get_subdir.return_value = os.path.join(download_path, "4.10", "20240101000000")
+    mock_read_json.return_value = ("4.10", "abc123checksum", "2024-01-01T00:00:00Z")
+
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
+    }
+
     result = cli_runner(manage_s3_files)
 
     assert result.exit_code == 0
-    assert os.path.exists(existing_file_path)
-    assert not os.path.exists(downloaded_file_path)
-    files = [
-        file
-        for file in os.listdir(download_path)
-        if os.path.isfile(os.path.join(download_path, file))
-        and not file.startswith(".")
+    assert s3_client.download_file.call_count == 1
+
+
+@patch(f"{_MODULE}.get_timestamp", return_value="20240102000001")
+@patch(f"{_MODULE}.import_pending_diffs")
+@patch(f"{_MODULE}.get_diff_file")
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_new_checksum_triggers_download_and_import(
+    mock_get_subdir,
+    mock_read_json,
+    mock_get_diff,
+    mock_import_pending,
+    _mock_ts,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """Script downloads new dump and imports diffs when checksum differs from existing."""
+    download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
+    download_path = os.path.join(download_folder, "downloaded")
+    mock_get_subdir.return_value = os.path.join(download_path, "4.10", "20240101000000")
+    mock_read_json.side_effect = [
+        ("4.10", "new_checksum_xyz", "2024-01-02T00:00:00Z"),
+        ("4.10", "old_checksum_abc", "2024-01-01T00:00:00Z"),
     ]
-    assert len(files) == 1
-
-
-@freeze_time("2023-01-01")
-@patch("mex_invenio.scripts.s3_manager.import_data")
-@patch("mex_invenio.scripts.s3_manager.initial_import")
-def test_replace_file_but_fail_import(
-    mock_initial_import,
-    mock_import_data,
-    app_config,
-    db,
-    create_file,
-    load_env,
-    mock_s3_client,
-    cli_runner,
-):
-    """Test that the script replaces a file but fails to import it."""
-    # Mock the import functions to return True
-    mock_import_data.return_value = True
-    mock_initial_import.return_value = True
-    # download_path is a module scope temp path, so we need to be careful about
-    # file names
-    download_path = app_config["S3_DOWNLOAD_FOLDER"]
-
-    # Create the existing file in the S3_DOWNLOAD_FOLDER
-    existing_file = "test_replace_file_but_fail_import1.json"
-    existing_file_path = create_file(
-        f"{download_path}/{existing_file}",
-        '{"identifier": "unique", "b":"a"}',
+    mock_get_diff.return_value = os.path.join(
+        download_folder, "diffs", "20240102000000", "diff.ndjson"
     )
+    mock_import_pending.return_value = True
 
-    # Establish the file path of the file to be downloaded from S3
-    downloaded_file = "test_replace_file_but_fail_import2.json"
-    downloaded_file_path = f"{download_path}/{downloaded_file}"
+    def fake_download(bucket, key, dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write("{}")
 
-    # Mock the download_file function to create the file locally
-    def download_file(Bucket, Key, Filename):
-        create_file(downloaded_file_path, '{"identifier": "unique", "s":"b"}')
-
-    mock_s3_client.download_file = download_file
-
-    # Pretend S3 is returning them, the returned dict has more information than
-    # the single key 'Contents' and each file has more information than just the
-    # 'Key' and 'LastModified' keys but this is all we need for unit testing.
-    mock_s3_client.list_objects_v2.return_value = {
-        "Contents": [
-            {"Key": downloaded_file_path, "LastModified": datetime.datetime.now()}
-        ]
+    s3_client.download_file.side_effect = fake_download
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-02"}]
     }
-    # {'Key': file_path2, 'LastModified': datetime.datetime.now()}]}
 
-    # Import should not import anything
     result = cli_runner(manage_s3_files)
 
-    renamed_downloaded_file = f"{download_path}/20230101000000_{downloaded_file}"
-    directory_contents = os.listdir(download_path)
-    diff_directory_contents = os.listdir(os.path.join(download_path, "diffs"))
-    mex_model_version = importlib.metadata.version("mex-model")
-    renamed_downloaded_filename = f"20230101000000_{downloaded_file}"
-    diff_filename = f"{existing_file}-{renamed_downloaded_filename}-{mex_model_version}_01-01-2023_12_00_00.ndjson"
+    assert result.exit_code == 0
+    mock_get_diff.assert_called_once_with("4.10")
+    mock_import_pending.assert_called_once()
+
+
+@patch(f"{_MODULE}.get_timestamp", return_value="20240103000001")
+@patch(f"{_MODULE}.import_pending_diffs")
+@patch(f"{_MODULE}.get_diff_file")
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_diff_failure_skips_import(
+    mock_get_subdir,
+    mock_read_json,
+    mock_get_diff,
+    mock_import_pending,
+    _mock_ts,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """Script logs error and does not call import_pending_diffs when get_diff_file returns None."""
+    download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
+    download_path = os.path.join(download_folder, "downloaded")
+    mock_get_subdir.return_value = os.path.join(download_path, "4.10", "20240101000000")
+    mock_read_json.side_effect = [
+        ("4.10", "new_checksum_xyz", "2024-01-02T00:00:00Z"),
+        ("4.10", "old_checksum_abc", "2024-01-01T00:00:00Z"),
+    ]
+    mock_get_diff.return_value = None
+
+    def fake_download(bucket, key, dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write("{}")
+
+    s3_client.download_file.side_effect = fake_download
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-02"}]
+    }
+
+    result = cli_runner(manage_s3_files)
 
     assert result.exit_code == 0
-    assert os.path.exists(renamed_downloaded_file)
-    assert "diffs" in directory_contents
-    assert diff_filename in diff_directory_contents
-
-    with open(os.path.join(download_path, "diffs", diff_filename)) as diff_file:
-        diff_content = diff_file.read()
-        assert diff_content.strip() == '{"identifier": "unique", "s": "b"}'
+    mock_import_pending.assert_not_called()
