@@ -358,12 +358,13 @@ def manage_s3_files():
         return None
 
     # Move from tmp path to download folder, download items file and remove draft- prefix
-    destination_path = os.path.join(download_path, new_model_version, dump_folder)
-    shutil.move(tmp_dump_path, destination_path)
-    downloaded_items_file = os.path.join(destination_path, "items.ndjson")
-    bucket_key = metadata_file['Key'].replace('metadata.json', 'items.ndjson')
-    s3_client.download_file(s3_bucket, bucket_key, downloaded_items_file)
-    os.rename(destination_path, os.path.join(download_path, new_model_version, dump_folder.removeprefix('draft-')))
+    perm_download_path = os.path.join(download_path, new_model_version, dump_folder)
+    shutil.move(tmp_dump_path, perm_download_path)
+    new_items_file = os.path.join(perm_download_path, "items.ndjson")
+    new_items_key = metadata_file['Key'].replace('metadata.json', 'items.ndjson')
+    s3_client.download_file(s3_bucket, new_items_key, new_items_file)
+    perm_download_folder_name = os.path.join(download_path, new_model_version, dump_folder.removeprefix('draft-'))
+    os.rename(perm_download_path, perm_download_folder_name)
 
     # Compute diff file
     diff_file = get_diff_file()
