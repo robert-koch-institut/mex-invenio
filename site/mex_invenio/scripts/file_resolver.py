@@ -39,7 +39,6 @@ from dotenv import load_dotenv
 from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
-from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
     cleanup_files,
     get_timestamp,
@@ -248,9 +247,46 @@ def get_diff_file():
     return None
 
 
+def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
+    """Import all pending diff files in chronological order, oldest first."""
+    diffs_root = os.path.join(s3_download_folder, "diffs")
+
+    pending = []
+    for dirpath, _, filenames in os.walk(diffs_root):
+        if "diff.ndjson" not in filenames or "metadata.json" not in filenames:
+            continue
+
+        dir_name = os.path.basename(dirpath)
+        if not re.match(r'^\d+$', dir_name):
+            continue
+
+        model_version = os.path.basename(os.path.dirname(dirpath))
+        if not re.match(r'^\d+\.\d+$', model_version):
+            continue
+
+        pending.append((dir_name, model_version, os.path.join(dirpath, "diff.ndjson")))
+
+    pending.sort(key=lambda x: x[0])  # oldest timestamp first
+
+    for _, model_version, diff_file in pending:
+        logger.info(f"Importing {diff_file} (model: {model_version})")
+        result = import_data(model_version, user_email, diff_file)
+
+        if not result:
+            logger.error(f"Failed to import {diff_file}. Stopping.")
+            return False
+
+        diff_dir = os.path.dirname(diff_file)
+        rel = os.path.relpath(diff_dir, diffs_root)
+        history_path = os.path.join(s3_download_folder, "history", rel)
+        os.makedirs(os.path.dirname(history_path), exist_ok=True)
+        shutil.move(diff_dir, history_path)
+
+    return True
+
+
 @click.command("manage_s3_files")
-@click.option("--initial", is_flag=True, default=False)
-def manage_s3_files(initial: bool = False):
+def manage_s3_files():
     """Main function to download the latest file from S3, compare, and manage local storage."""
     # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
@@ -333,45 +369,12 @@ def manage_s3_files(initial: bool = False):
     diff_file = get_diff_file()
 
     if not diff_file:
-        logger.error(f"Error creating diff files for model version: {new_model_version}.")
+        logger.error(f"Error creating diff file for model version: {new_model_version}.")
         return None
 
-    logger.info(f"Downloaded {diff_file}.")
+    import_pending_diffs(s3_download_folder, user_email)
 
-    try:
-        result = import_data(new_model_version, user_email, diff_file)
-
-        # Import was successful
-        if result:
-            diff_path = os.path.dirname(diff_file)
-            diffs_root = os.path.join(s3_download_folder, "diffs")
-            rel = os.path.relpath(os.path.dirname(diff_file), diffs_root)  # e.g. "1.2/20260430104905"
-            diff_history_path = os.path.join(s3_download_folder, "history", rel)
-            logger.info(f"{diff_path}\n{diffs_root}\n{diff_history_path}")
-            os.makedirs(os.path.dirname(diff_history_path), exist_ok=True)
-            logger.info(f"Moving {diff_path} to {diff_history_path}")
-            shutil.move(diff_path, diff_history_path)
-    except Exception as e:
-        logger.error(f"Error importing {diff_file}.")
-
-
-    return
-    for dirpath, dirnames, _ in os.walk(os.path.join(s3_download_folder, "diffs")):
-        for name in dirnames:
-            # Skip the parent model
-            if re.search(r'^\d*\.\d*$', name):
-                continue
-
-            new_model_version = os.path.basename(dirpath)
-            diff_dir = os.path.join(dirpath, name)
-            diff_file = os.path.join(diff_dir, "diff.ndjson")
-            diff_metadata_file = os.path.join(diff_dir, "metadata.json")
-
-            if os.path.isfile(diff_file) and os.path.isfile(diff_metadata_file):
-                result =  import_data(new_model_version, user_email, diff_file)
-
-                if not result:
-                    break
+    return None
 
 
 if __name__ == "__main__":
