@@ -387,7 +387,7 @@ def test_identical_checksums_skips_download(
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
 def test_items_download_failure(mock_subdir, mock_read, _ts, cli_runner, app_config, s3_client):
-    """Script exits cleanly when the S3 items file download fails."""
+    """Script exits with code 1 (retry) when the S3 items file download fails."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
     mock_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
     mock_read.side_effect = [
@@ -408,7 +408,7 @@ def test_items_download_failure(mock_subdir, mock_read, _ts, cli_runner, app_con
             raise Exception("S3 items error")
 
     s3_client.download_file.side_effect = fake_download
-    assert cli_runner(manage_s3_files).exit_code == 0
+    assert cli_runner(manage_s3_files).exit_code == 1
 
 
 @patch(f"{_MODULE}.get_timestamp", return_value="20240102000001")

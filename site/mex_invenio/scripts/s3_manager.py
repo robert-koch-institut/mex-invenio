@@ -41,7 +41,6 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import (
-    cleanup_files,
     get_timestamp,
     get_subdir_by_order,
     normalize_record_data,
@@ -200,11 +199,11 @@ def get_diff_file(model_version: str):
     most_recent_processed_path = get_subdir_by_order(processed_path)
 
     if not oldest_download_path:
-        logger.error(f"No downloaded file found for {downloaded_path}.")
+        logger.warning(f"No pending download found in {downloaded_path}.")
         return None
 
     if not most_recent_processed_path:
-        logger.error(f"No processed file found for {downloaded_path}.")
+        logger.warning(f"No processed dump found in {processed_path}.")
         return None
 
     timestamp = get_timestamp()
@@ -231,15 +230,13 @@ def get_diff_file(model_version: str):
         os.rename(diff_folder, os.path.join(diff_path, timestamp))
         diff_file = os.path.join(diff_path, timestamp, "diff.ndjson")
 
-        logger.info(diff_file)
-
         # Move dump from downloaded to processed
         rel = os.path.relpath(oldest_download_path, downloaded_path)  # e.g. "4.10/20260504230150"
         destination = os.path.join(processed_path, rel)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.move(oldest_download_path, destination)
 
-        logger.info(f"Found {diff_file}.")
+        logger.info(f"Diff file created: {diff_file}")
 
         return diff_file
 
@@ -270,6 +267,7 @@ def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
         pending.append((dir_name, model_version, os.path.join(dirpath, "diff.ndjson")))
 
     pending.sort(key=lambda x: x[0])  # oldest timestamp first
+    logger.info(f"Found {len(pending)} pending diff(s) to import.")
 
     for _, model_version, diff_file in pending:
         logger.info(f"Importing {diff_file} (model: {model_version})")
@@ -303,6 +301,7 @@ def manage_s3_files():
 
     file_handler = setup_file_logging(log_dir, name="s3_manager")
     logger.addHandler(file_handler)
+    logger.info("Starting S3 sync.")
 
     # Load s3_client and config
     try:
@@ -310,8 +309,8 @@ def manage_s3_files():
     except ValueError:
         # Config mis-configured
         return None
-    except Exception:
-        # Possible network issue, try again
+    except Exception as e:
+        logger.error(f"Failed to initialise S3 client: {e}")
         sys.exit(1)
 
     try:
@@ -344,8 +343,8 @@ def manage_s3_files():
     dump_folder = f"draft-{get_timestamp()}"
     # e.g. s3_downloads/downloaded/tmp/draft-20260430104905
     tmp_dump_path = os.path.join(download_path, 'tmp', dump_folder)
-    logger.info(f"Downloading file {metadata_file['Key']} to {tmp_dump_path}")
     os.makedirs(tmp_dump_path, exist_ok=True)
+    logger.info(f"Fetching metadata: {metadata_file['Key']}")
 
     # Download metadata file
     new_metadata_file = os.path.join(tmp_dump_path, "metadata.json")
@@ -362,11 +361,10 @@ def manage_s3_files():
         logger.error(f"Failed to read file {new_metadata_file}: {e}")
         return None
 
-    # All check for previous download
     last_processed_path = get_subdir_by_order(processed_path)
 
     if not last_processed_path:
-        logger.info(f"No files found in the processed folder: {new_metadata_file}")
+        logger.warning("No processed dump found; cannot determine if new data is available.")
         return None
 
     most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
@@ -379,11 +377,14 @@ def manage_s3_files():
 
     # Only download if there is a new dump
     if new_checksum == last_checksum and new_timestamp == last_timestamp:
-        logger.info('Checksums and timestamps match.')
-        logger.info(f'{most_recent_metadata_file}\n{new_metadata_file}')
-        logger.info(f'Removing {tmp_dump_path}')
+        logger.info("Dump is unchanged (checksum and timestamp match); nothing to import.")
         shutil.rmtree(tmp_dump_path)
         return None
+
+    logger.info(
+        f"New dump detected (model={new_model_version}, timestamp={new_timestamp}, "
+        f"checksum={new_checksum}). Previous: timestamp={last_timestamp}, checksum={last_checksum}."
+    )
 
     # Move from tmp path to download folder, download items file and remove draft- prefix
     perm_download_path = os.path.join(download_path, new_model_version, dump_folder)
@@ -410,6 +411,7 @@ def manage_s3_files():
 
     import_pending_diffs(s3_download_folder, user_email)
 
+    logger.info("S3 sync complete.")
     return None
 
 
