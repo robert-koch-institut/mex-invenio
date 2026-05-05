@@ -19,7 +19,6 @@ Before running the script, there is a number of environment variables you can se
 You can store these credentials in a `.env` file,
 """
 
-from datetime import datetime, timezone
 import hashlib
 import json
 import logging
@@ -27,6 +26,7 @@ import os
 import re
 import shutil
 import sys
+from datetime import datetime, timezone
 
 import boto3
 import click
@@ -35,8 +35,8 @@ from flask import current_app
 
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import (
-    get_timestamp,
     get_subdir_by_order,
+    get_timestamp,
     normalize_record_data,
     read_json_file,
     setup_file_logging,
@@ -72,10 +72,9 @@ def get_s3_client_and_config():
             "aws_secret_access_key" in s3_config,
         ]
     ):
-        logger.error(
-            "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
-        )
-        raise ValueError
+        msg = "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
+        logger.error(msg)
+        raise ValueError(msg)
 
     s3_client = boto3.client("s3", **s3_config)
 
@@ -174,7 +173,10 @@ def compute_diff(downloaded_file: str, processed_file: str, diff_file: str):
             f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
         )
 
-        return { "new_or_changed_count": new_or_changed_count, "processed_count": processed_count }
+        return {
+            "new_or_changed_count": new_or_changed_count,
+            "processed_count": processed_count,
+        }
 
     except Exception as e:
         logger.error(f"Error during JSON-based file comparison: {e}")
@@ -212,10 +214,10 @@ def get_diff_file(model_version: str):
     if diff_result:
         # Write process output to metadata.json
         diff_metadata = {
-            'model_version': model_version,
-            'processed_file': processed_file,
-            'downloaded_file': downloaded_file,
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            "model_version": model_version,
+            "processed_file": processed_file,
+            "downloaded_file": downloaded_file,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             **diff_result,
         }
         write_json_file(os.path.join(diff_folder, "metadata.json"), diff_metadata)
@@ -225,7 +227,9 @@ def get_diff_file(model_version: str):
         diff_file = os.path.join(diff_path, timestamp, "diff.ndjson")
 
         # Move dump from downloaded to processed
-        rel = os.path.relpath(oldest_download_path, downloaded_path)  # e.g. "4.10/20260504230150"
+        rel = os.path.relpath(
+            oldest_download_path, downloaded_path
+        )  # e.g. "4.10/20260504230150"
         destination = os.path.join(processed_path, rel)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.move(oldest_download_path, destination)
@@ -247,15 +251,17 @@ def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
             continue
 
         dir_name = os.path.basename(dirpath)
-        if not re.match(r'^\d+$', dir_name):
+        if not re.match(r"^\d+$", dir_name):
             continue
 
         try:
-            with open(os.path.join(dirpath, "metadata.json"), "r") as f:
+            with open(os.path.join(dirpath, "metadata.json")) as f:
                 metadata = json.load(f)
                 model_version = metadata["model_version"]
         except Exception as e:
-            logger.warning(f"Skipping {dirpath}: could not read model_version from metadata: {e}")
+            logger.warning(
+                f"Skipping {dirpath}: could not read model_version from metadata: {e}"
+            )
             continue
 
         pending.append((dir_name, model_version, os.path.join(dirpath, "diff.ndjson")))
@@ -287,7 +293,7 @@ def manage_s3_files():
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
 
     # Create directories and set up logging at start
-    for sub_dir in ['logs', 'downloaded', 'processed', 'diffs', 'history']:
+    for sub_dir in ["logs", "downloaded", "processed", "diffs", "history"]:
         sub_dir = os.path.join(s3_download_folder, sub_dir)
         os.makedirs(sub_dir, exist_ok=True)
 
@@ -302,7 +308,7 @@ def manage_s3_files():
         s3_client, user_email, s3_bucket = get_s3_client_and_config()
     except ValueError:
         # Config mis-configured
-        return None
+        return
     except Exception as e:
         logger.error(f"Failed to initialise S3 client: {e}")
         sys.exit(1)
@@ -316,27 +322,29 @@ def manage_s3_files():
 
     if "Contents" not in response:
         logger.info("No files found in the bucket.")
-        return None
+        return
 
     download_path = os.path.join(s3_download_folder, "downloaded")
     processed_path = os.path.join(s3_download_folder, "processed")
 
     # Get the metadata file
-    metadata_files = [m for m in response['Contents'] if m['Key'].endswith("metadata.json")]
+    metadata_files = [
+        m for m in response["Contents"] if m["Key"].endswith("metadata.json")
+    ]
 
     if len(metadata_files) == 0:
         logger.info("No metadata files found in the bucket.")
-        return None
-    elif len(metadata_files) > 1:
+        return
+    if len(metadata_files) > 1:
         logger.info("Multiple metadata files found in the bucket.")
-        return None
+        return
 
     metadata_file = metadata_files[0]
 
     # Create tmp draft downloaded location for dump
     dump_folder = f"draft-{get_timestamp()}"
     # e.g. s3_downloads/downloaded/tmp/draft-20260430104905
-    tmp_dump_path = os.path.join(download_path, 'tmp', dump_folder)
+    tmp_dump_path = os.path.join(download_path, "tmp", dump_folder)
     os.makedirs(tmp_dump_path, exist_ok=True)
     logger.info(f"Fetching metadata: {metadata_file['Key']}")
 
@@ -344,22 +352,26 @@ def manage_s3_files():
     new_metadata_file = os.path.join(tmp_dump_path, "metadata.json")
 
     try:
-        s3_client.download_file(s3_bucket, metadata_file['Key'], new_metadata_file)
+        s3_client.download_file(s3_bucket, metadata_file["Key"], new_metadata_file)
     except Exception as e:
         logger.error(f"Failed to download file {new_metadata_file}: {e}")
         sys.exit(1)
 
     try:
-        new_model_version, new_checksum, new_timestamp = read_json_file(new_metadata_file)
+        new_model_version, new_checksum, new_timestamp = read_json_file(
+            new_metadata_file
+        )
     except Exception as e:
         logger.error(f"Failed to read file {new_metadata_file}: {e}")
-        return None
+        return
 
     last_processed_path = get_subdir_by_order(processed_path)
 
     if not last_processed_path:
-        logger.warning("No processed dump found; cannot determine if new data is available.")
-        return None
+        logger.warning(
+            "No processed dump found; cannot determine if new data is available."
+        )
+        return
 
     most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
 
@@ -367,13 +379,15 @@ def manage_s3_files():
         _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
     except Exception as e:
         logger.error(f"Failed to read file {most_recent_metadata_file}: {e}")
-        return None
+        return
 
     # Only download if there is a new dump
     if new_checksum == last_checksum and new_timestamp == last_timestamp:
-        logger.info("Dump is unchanged (checksum and timestamp match); nothing to import.")
+        logger.info(
+            "Dump is unchanged (checksum and timestamp match); nothing to import."
+        )
         shutil.rmtree(tmp_dump_path)
-        return None
+        return
 
     logger.info(
         f"New dump detected (model={new_model_version}, timestamp={new_timestamp}, "
@@ -385,7 +399,7 @@ def manage_s3_files():
     os.makedirs(os.path.dirname(perm_download_path), exist_ok=True)
     shutil.move(tmp_dump_path, perm_download_path)
     new_items_file = os.path.join(perm_download_path, "items.ndjson")
-    new_items_key = metadata_file['Key'].replace('metadata.json', 'items.ndjson')
+    new_items_key = metadata_file["Key"].replace("metadata.json", "items.ndjson")
 
     try:
         s3_client.download_file(s3_bucket, new_items_key, new_items_file)
@@ -393,23 +407,29 @@ def manage_s3_files():
         logger.error(f"Failed to download file {new_items_file}: {e}")
         sys.exit(1)
 
-    perm_download_folder_name = os.path.join(download_path, new_model_version, dump_folder.removeprefix('draft-'))
+    perm_download_folder_name = os.path.join(
+        download_path, new_model_version, dump_folder.removeprefix("draft-")
+    )
     os.rename(perm_download_path, perm_download_folder_name)
 
     # Compute diff file
     diff_file = get_diff_file(new_model_version)
 
     if not diff_file:
-        logger.error(f"Error creating diff file for model version: {new_model_version}.")
-        return None
+        logger.error(
+            f"Error creating diff file for model version: {new_model_version}."
+        )
+        return
 
     successful_import = import_pending_diffs(s3_download_folder, user_email)
 
     if not successful_import:
-        logger.error(f"Failed to import pending diffs for model version: {new_model_version}.")
+        logger.error(
+            f"Failed to import pending diffs for model version: {new_model_version}."
+        )
 
     logger.info("S3 sync complete.")
-    return None
+    return
 
 
 if __name__ == "__main__":

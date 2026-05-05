@@ -19,10 +19,12 @@ _MODULE = "mex_invenio.scripts.s3_manager"
 def s3_client(base_app):
     """Push the app context and patch get_s3_client_and_config for each test."""
     mock_client = MagicMock()
-    with base_app.app_context():
-        with patch(f"{_MODULE}.get_s3_client_and_config") as mock_cfg:
-            mock_cfg.return_value = (mock_client, "importer@example.com", "test-bucket")
-            yield mock_client
+    with (
+        base_app.app_context(),
+        patch(f"{_MODULE}.get_s3_client_and_config") as mock_cfg,
+    ):
+        mock_cfg.return_value = (mock_client, "importer@example.com", "test-bucket")
+        yield mock_client
 
 
 @pytest.fixture
@@ -36,6 +38,7 @@ def app_ctx(base_app):
 # get_s3_client_and_config
 # ---------------------------------------------------------------------------
 
+
 def test_get_s3_client_config_raises_on_missing_credentials():
     """get_s3_client_and_config raises ValueError when bucket/email are absent."""
     empty = {
@@ -44,9 +47,11 @@ def test_get_s3_client_config_raises_on_missing_credentials():
         "MEX_IMPORT_AWS_SECRET": "",
         "MEX_IMPORT_EMAIL": "",
     }
-    with patch.dict(os.environ, empty):
-        with pytest.raises(ValueError):
-            get_s3_client_and_config()
+    with (
+        patch.dict(os.environ, empty),
+        pytest.raises(ValueError, match="Missing required"),
+    ):
+        get_s3_client_and_config()
 
 
 def test_get_s3_client_config_success():
@@ -58,9 +63,8 @@ def test_get_s3_client_config_success():
         "MEX_IMPORT_EMAIL": "admin@example.com",
     }
     mock_s3 = MagicMock()
-    with patch.dict(os.environ, valid):
-        with patch("boto3.client", return_value=mock_s3):
-            client, email, bucket = get_s3_client_and_config()
+    with patch.dict(os.environ, valid), patch("boto3.client", return_value=mock_s3):
+        client, email, bucket = get_s3_client_and_config()
     assert client is mock_s3
     assert email == "admin@example.com"
     assert bucket == "my-bucket"
@@ -70,13 +74,18 @@ def test_get_s3_client_config_success():
 # compute_diff  (pure filesystem — no Flask needed)
 # ---------------------------------------------------------------------------
 
+
 def test_compute_diff_all_new(tmp_path):
     """All records are written to diff when no processed file exists."""
     downloaded = tmp_path / "new.ndjson"
     diff_out = tmp_path / "diff.ndjson"
-    downloaded.write_text('{"identifier": "a", "val": 1}\n{"identifier": "b", "val": 2}\n')
+    downloaded.write_text(
+        '{"identifier": "a", "val": 1}\n{"identifier": "b", "val": 2}\n'
+    )
 
-    result = compute_diff(str(downloaded), str(tmp_path / "missing.ndjson"), str(diff_out))
+    result = compute_diff(
+        str(downloaded), str(tmp_path / "missing.ndjson"), str(diff_out)
+    )
 
     assert result == {"new_or_changed_count": 2, "processed_count": 2}
     lines = [ln for ln in diff_out.read_text().strip().split("\n") if ln]
@@ -155,6 +164,7 @@ def test_compute_diff_returns_none_on_exception(tmp_path):
 # get_diff_file  (needs app context via app_ctx)
 # ---------------------------------------------------------------------------
 
+
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
 def test_get_diff_file_no_downloaded(mock_subdir, app_ctx):
     """get_diff_file returns None when no downloaded dump exists."""
@@ -163,17 +173,18 @@ def test_get_diff_file_no_downloaded(mock_subdir, app_ctx):
 
 def test_get_diff_file_no_processed(app_ctx):
     """get_diff_file returns None when no processed dump exists."""
-    def subdir(root, most_recent=True):
+
+    def subdir(root, most_recent=True):  # noqa: FBT002
         return None if most_recent else "/some/download/path"
 
     with patch(f"{_MODULE}.get_subdir_by_order", side_effect=subdir):
         assert get_diff_file("4.10") is None
 
 
-@patch(f"{_MODULE}.get_timestamp", return_value="20240201000001")
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20240201000001")
 @patch(f"{_MODULE}.compute_diff", return_value=None)
 @patch(f"{_MODULE}.get_subdir_by_order")
-def test_get_diff_file_compute_fails(mock_subdir, mock_compute, _ts, app_ctx, app_config):
+def test_get_diff_file_compute_fails(mock_subdir, mock_compute, app_ctx, app_config):
     """get_diff_file returns None when compute_diff returns None."""
     base = str(app_config["S3_DOWNLOAD_FOLDER"])
     mock_subdir.side_effect = [
@@ -183,14 +194,16 @@ def test_get_diff_file_compute_fails(mock_subdir, mock_compute, _ts, app_ctx, ap
     assert get_diff_file("4.10") is None
 
 
-@patch(f"{_MODULE}.get_timestamp", return_value="20240301000001")
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20240301000001")
 @patch(f"{_MODULE}.shutil.move")
 @patch(
     f"{_MODULE}.compute_diff",
     return_value={"new_or_changed_count": 5, "processed_count": 10},
 )
 @patch(f"{_MODULE}.get_subdir_by_order")
-def test_get_diff_file_success(mock_subdir, mock_compute, mock_move, _ts, app_ctx, app_config):
+def test_get_diff_file_success(
+    mock_subdir, mock_compute, mock_move, app_ctx, app_config
+):
     """get_diff_file returns the diff.ndjson path when compute_diff succeeds."""
     base = str(app_config["S3_DOWNLOAD_FOLDER"])
     dl_sub = os.path.join(base, "downloaded", "4.10", "20240301000000")
@@ -211,6 +224,7 @@ def test_get_diff_file_success(mock_subdir, mock_compute, mock_move, _ts, app_ct
 # ---------------------------------------------------------------------------
 # import_pending_diffs  (pure filesystem — no Flask needed)
 # ---------------------------------------------------------------------------
+
 
 @patch(f"{_MODULE}.import_data")
 def test_import_pending_diffs_empty(mock_import, tmp_path):
@@ -260,8 +274,7 @@ def test_import_pending_diffs_ordered(mock_import, tmp_path):
     import_pending_diffs(str(tmp_path), "user@example.com")
 
     timestamps = [
-        os.path.basename(os.path.dirname(c.args[2]))
-        for c in mock_import.call_args_list
+        os.path.basename(os.path.dirname(c.args[2])) for c in mock_import.call_args_list
     ]
     assert timestamps == sorted(timestamps)
 
@@ -281,6 +294,7 @@ def test_import_pending_diffs_skips_corrupt_metadata(mock_import, tmp_path):
 # ---------------------------------------------------------------------------
 # manage_s3_files  (existing tests)
 # ---------------------------------------------------------------------------
+
 
 def test_no_s3_contents(cli_runner, app_config, s3_client):
     """Script exits cleanly when S3 bucket returns no contents."""
@@ -315,9 +329,11 @@ def test_s3_list_failure(cli_runner, app_config, s3_client):
 
 def test_s3_client_config_failure(cli_runner, app_config, base_app):
     """Script exits cleanly (no retry) when credentials are misconfigured."""
-    with base_app.app_context():
-        with patch(f"{_MODULE}.get_s3_client_and_config", side_effect=ValueError):
-            assert cli_runner(manage_s3_files).exit_code == 0
+    with (
+        base_app.app_context(),
+        patch(f"{_MODULE}.get_s3_client_and_config", side_effect=ValueError),
+    ):
+        assert cli_runner(manage_s3_files).exit_code == 0
 
 
 def test_metadata_download_failure(cli_runner, app_config, s3_client):
@@ -339,7 +355,9 @@ def test_read_new_metadata_failure(mock_read, cli_runner, app_config, s3_client)
 
 
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
-@patch(f"{_MODULE}.read_json_file", return_value=("4.10", "abc", "2024-01-01T00:00:00Z"))
+@patch(
+    f"{_MODULE}.read_json_file", return_value=("4.10", "abc", "2024-01-01T00:00:00Z")
+)
 def test_no_processed_dump(mock_read, mock_subdir, cli_runner, app_config, s3_client):
     """Script exits cleanly when no processed dump exists to compare the checksum against."""
     s3_client.list_objects_v2.return_value = {
@@ -350,7 +368,9 @@ def test_no_processed_dump(mock_read, mock_subdir, cli_runner, app_config, s3_cl
 
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
-def test_read_last_metadata_failure(mock_subdir, mock_read, cli_runner, app_config, s3_client):
+def test_read_last_metadata_failure(
+    mock_subdir, mock_read, cli_runner, app_config, s3_client
+):
     """Script exits cleanly when reading the existing local metadata.json fails."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
     mock_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
@@ -383,10 +403,12 @@ def test_identical_checksums_skips_download(
     assert s3_client.download_file.call_count == 1
 
 
-@patch(f"{_MODULE}.get_timestamp", return_value="20240105000001")
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20240105000001")
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
-def test_items_download_failure(mock_subdir, mock_read, _ts, cli_runner, app_config, s3_client):
+def test_items_download_failure(
+    mock_subdir, mock_read, cli_runner, app_config, s3_client
+):
     """Script exits with code 1 (retry) when the S3 items file download fails."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
     mock_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
@@ -405,13 +427,14 @@ def test_items_download_failure(mock_subdir, mock_read, _ts, cli_runner, app_con
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             open(dest, "w").close()
         else:
-            raise Exception("S3 items error")
+            msg = "S3 items error"
+            raise RuntimeError(msg)
 
     s3_client.download_file.side_effect = fake_download
     assert cli_runner(manage_s3_files).exit_code == 1
 
 
-@patch(f"{_MODULE}.get_timestamp", return_value="20240102000001")
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20240102000001")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.get_diff_file")
 @patch(f"{_MODULE}.read_json_file")
@@ -421,7 +444,6 @@ def test_new_checksum_triggers_download_and_import(
     mock_read_json,
     mock_get_diff,
     mock_import_pending,
-    _mock_ts,
     cli_runner,
     app_config,
     s3_client,
@@ -456,7 +478,7 @@ def test_new_checksum_triggers_download_and_import(
     mock_import_pending.assert_called_once()
 
 
-@patch(f"{_MODULE}.get_timestamp", return_value="20240103000001")
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20240103000001")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.get_diff_file")
 @patch(f"{_MODULE}.read_json_file")
@@ -466,7 +488,6 @@ def test_diff_failure_skips_import(
     mock_read_json,
     mock_get_diff,
     mock_import_pending,
-    _mock_ts,
     cli_runner,
     app_config,
     s3_client,

@@ -16,17 +16,17 @@ To run the script, go to the repository root directory and use the following com
 """
 
 import copy
-from datetime import datetime, timezone
+import importlib.metadata
 import json
 import logging
-import importlib.metadata
 import os.path
-import packaging.version
 import sys
 import time
 import traceback
+from datetime import datetime, timezone
 
 import click
+import packaging.version
 from dictdiffer import diff
 from flask import current_app
 from invenio_db import db
@@ -40,7 +40,6 @@ from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexi
 from mex_invenio.scripts.utils import (
     _read_state,
     _write_state,
-    cleanup_files,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
@@ -325,7 +324,9 @@ def process_import(owner, import_file, batch_size):
 @click.option(
     "--batch-size", default=100, help="Number of records to process in each batch."
 )
-def _import_data(model_version: str, email: str, import_file: str, batch_size: int) -> bool:
+def _import_data(
+    model_version: str, email: str, import_file: str, batch_size: int
+) -> bool:
     return import_data(model_version, email, import_file, batch_size, cli=True)
 
 
@@ -343,7 +344,9 @@ def import_data(
     """
 
     with current_app.app_context():
-        s3_download_folder = os.path.join(current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"))
+        s3_download_folder = os.path.join(
+            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+        )
         state_file = os.path.join(s3_download_folder, ".import_state")
         state = _read_state(state_file)
         if state:
@@ -351,10 +354,12 @@ def import_data(
             if status == "in_progress":
                 # This should not happen because of "concurrencyPolicy: Forbid" in the
                 # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
-                logger.warning("Import already in progress (state file found). Skipping.")
+                logger.warning(
+                    "Import already in progress (state file found). Skipping."
+                )
                 # Exiting silently
                 return False
-            elif status == "failed":
+            if status == "failed":
                 logger.error(
                     f"Previous import failed (state file: {state_file}). "
                     "Resolve the issue and delete the state file to re-enable imports."
@@ -367,8 +372,10 @@ def import_data(
     if model_version != installed_model_version:
         # No interest in attempting to import incompatible data
         # exit gracefully so job does not restart
-        logger.warning(f"Attempted to import data with model version {model_version}"
-                       f" (installed: {installed_model_version}).")
+        logger.warning(
+            f"Attempted to import data with model version {model_version}"
+            f" (installed: {installed_model_version})."
+        )
         sys.exit(0)
 
     if not os.path.isfile(import_file):
@@ -417,7 +424,9 @@ def import_data(
     except Exception:
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.exception("Failed to process import.")
-        _write_state(state_file, "failed", started_at=started_at, finished_at=finished_at)
+        _write_state(
+            state_file, "failed", started_at=started_at, finished_at=finished_at
+        )
         return False
     finally:
         logger.removeHandler(file_handler)

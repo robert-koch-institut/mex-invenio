@@ -26,19 +26,21 @@ logger = logging.getLogger(__name__)
 def get_timestamp():
     return datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
 
+
 def read_json_file(file_path):
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         metadata = json.load(f)
-        model_version = metadata['versions']['mex-model']
+        model_version = metadata["versions"]["mex-model"]
 
         # omit patch version if present
-        if len(model_version.split('.')) > 2:
-            model_version = '.'.join(model_version.split('.')[:2])
+        if len(model_version.split(".")) > 2:
+            model_version = ".".join(model_version.split(".")[:2])
 
-        checksum = metadata['sha256_checksum']
-        timestamp = metadata['write_completed_at']
+        checksum = metadata["sha256_checksum"]
+        timestamp = metadata["write_completed_at"]
 
         return model_version, checksum, timestamp
+
 
 def write_json_file(file_path, json_data):
     with open(file_path, "w") as f:
@@ -291,17 +293,21 @@ def _read_state(state_file: str) -> dict | None:
 def get_subdir_by_order(root: str, most_recent: bool = True) -> str | None:
     latest = None
 
-    if most_recent:
-        condition = lambda name: name > latest[1]
-    else:
-        condition = lambda name: name < latest[1]
+    def is_newer(name):
+        return name > latest[1]
+
+    def is_older(name):
+        return name < latest[1]
+
+    condition = is_newer if most_recent else is_older
 
     for dirpath, dirnames, _ in os.walk(root):
         for name in dirnames:
-            if re.match(r'^\d+$', name) and (latest is None or condition(name)):
+            if re.match(r"^\d+$", name) and (latest is None or condition(name)):
                 latest = (os.path.join(dirpath, name), name)
 
     return latest[0] if latest else None
+
 
 def _write_state(
     state_file: str,

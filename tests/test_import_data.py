@@ -27,7 +27,9 @@ def test_nonexistent_file_error_cli(cli_runner, db, model_version):
 def test_nonexistent_user_error_cli(cli_runner, db, create_file, model_version):
     """Test that the CLI command exits with an error when the user does not exist."""
     email = "non-existent-user@address.com"
-    result = cli_runner(_import_data, model_version, email, create_file("empty.json", "{}"))
+    result = cli_runner(
+        _import_data, model_version, email, create_file("empty.json", "{}")
+    )
 
     assert result.exit_code == 1
     assert f"User with email {email} not found." in result.output
@@ -39,7 +41,9 @@ def test_import_corrupt_data_cli(cli_runner, db, create_file, model_version):
     db.session.add(User(username="importer", email=email))
     db.session.commit()
 
-    result = cli_runner(_import_data, model_version, email, create_file("corrupt.json", "{"))
+    result = cli_runner(
+        _import_data, model_version, email, create_file("corrupt.json", "{")
+    )
 
     assert result.exit_code == 0
     # assert isinstance(result.exception, JSONDecodeError)
