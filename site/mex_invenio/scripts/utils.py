@@ -288,12 +288,17 @@ def _read_state(state_file: str) -> dict | None:
         return None
 
 
-def most_recent_subdir(root: str) -> str | None:
+def get_subdir_by_order(root: str, most_recent: bool = True) -> str | None:
     latest = None
+
+    if most_recent:
+        condition = lambda name: name > latest[1]
+    else:
+        condition = lambda name: name < latest[1]
 
     for dirpath, dirnames, _ in os.walk(root):
         for name in dirnames:
-            if re.match(r'^\d+$', name) and (latest is None or name > latest[1]):
+            if re.match(r'^\d+$', name) and (latest is None or condition(name)):
                 latest = (os.path.join(dirpath, name), name)
 
     return latest[0] if latest else None

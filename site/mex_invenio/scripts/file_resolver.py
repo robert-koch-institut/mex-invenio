@@ -43,7 +43,7 @@ from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
     cleanup_files,
     get_timestamp,
-    most_recent_subdir,
+    get_subdir_by_order,
     normalize_record_data,
     read_json_file,
     setup_file_logging,
@@ -220,31 +220,25 @@ def diff_files(download_path: str, processed_path: str, diff_path: str):
         return None
 
 
-def make_diff_files(model_version: str):
+def make_diff_files():
     # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    downloaded_path = os.path.join(s3_download_folder, "downloaded")
+    processed_path = os.path.join(s3_download_folder, "processed")
 
-    downloaded_path = os.path.join(s3_download_folder, "downloaded", model_version)
-    processed_path = os.path.join(s3_download_folder, "processed", model_version)
+    oldest_download_path = get_subdir_by_order(downloaded_path, False)
+    most_recent_processed_path = get_subdir_by_order(processed_path)
 
-    downloads = [d for d in os.listdir(downloaded_path) if not d.startswith("draft-")]
-    processed = [d for d in os.listdir(processed_path) if not d.startswith("draft-")]
-
-    if not downloads or not processed:
-        return None
-
-    download_folder_timestamp = sorted(downloads)[0]
-    most_recent_processed_timestamp = sorted(processed, reverse=True)[0]
-
-    oldest_download_path = os.path.join(downloaded_path, download_folder_timestamp)
-    most_recent_processed_path = os.path.join(processed_path, most_recent_processed_timestamp)
-    diff_destination_path = os.path.join(s3_download_folder, "diffs", model_version)
+    diff_destination_path = os.path.join(s3_download_folder, "diffs")
 
     diff_file = diff_files(oldest_download_path, most_recent_processed_path, diff_destination_path)
 
     if diff_file:
-        most_recent_processed_path = os.path.join(processed_path, download_folder_timestamp)
-        shutil.move(oldest_download_path, most_recent_processed_path)
+        rel = os.path.relpath(oldest_download_path, downloaded_path)  # e.g. "4.10/20260504230150"
+        destination = os.path.join(processed_path, rel)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+
+        shutil.move(oldest_download_path, destination)
 
     logger.info(f"Found {diff_file}.")
 
@@ -301,7 +295,7 @@ def manage_s3_files(initial: bool = False):
 
         logger.info(read_json_file(downloaded_metadata_file))
         # All previous downloads
-        most_recent_download_path = most_recent_subdir(downloaded_path)
+        most_recent_download_path = get_subdir_by_order(downloaded_path)
 
         if not most_recent_download_path:
             logger.info(f"No files found in the downloaded folder: {downloaded_metadata_file}")
@@ -314,6 +308,8 @@ def manage_s3_files(initial: bool = False):
         # TODO is it required to check both checksum and timestamp?
         if checksum == last_checksum and timestamp == last_timestamp:
             logger.info('Checksums and timestamps match.')
+            logger.info(f'{most_recent_metadata_file}\n{downloaded_metadata_file}')
+            logger.info(f'Removing {tmp_dump_path}')
             shutil.rmtree(tmp_dump_path)
             continue
 
@@ -326,7 +322,7 @@ def manage_s3_files(initial: bool = False):
 
         os.rename(destination_path, os.path.join(downloaded_path, model_version, dump_folder.removeprefix('draft-')))
 
-        diff_file = make_diff_files(model_version)
+        diff_file = make_diff_files()
 
         if not diff_file:
             logger.error(f"Error creating diff files for model version: {model_version}.")
@@ -353,7 +349,7 @@ def manage_s3_files(initial: bool = False):
     return
     for dirpath, dirnames, _ in os.walk(os.path.join(s3_download_folder, "diffs")):
         for name in dirnames:
-            # Skip the parent model namost_recent_subdirme
+            # Skip the parent model
             if re.search(r'^\d*\.\d*$', name):
                 continue
 

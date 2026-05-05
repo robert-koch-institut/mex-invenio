@@ -24,15 +24,13 @@ s3_downloads/
 │           ├── items.ndjson
 │           └── metadata.json
 ├── diffs/
-│   └── [model version]/
-│       └── [timestamp]/
-│           ├── diff.ndjson
-│           └── metadata.json
+│   └── [timestamp]/
+│       ├── diff.ndjson
+│       └── metadata.json
 ├── history/
-│   └── [model version]/
-│       └── [timestamp]/
-│           ├── diff.ndjson
-│           └── metadata.json
+│   └── [timestamp]/
+│       ├── diff.ndjson
+│       └── metadata.json
 └── logs/
     └── [name]-[date].log
 ```
