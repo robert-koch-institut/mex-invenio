@@ -32,6 +32,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 
 import boto3
 import click
@@ -307,19 +308,25 @@ def manage_s3_files():
     try:
         s3_client, user_email, s3_bucket = get_s3_client_and_config()
     except ValueError:
+        # Config mis-configured
         return None
+    except Exception:
+        # Possible network issue, try again
+        sys.exit(1)
 
     try:
         response = s3_client.list_objects_v2(Bucket=s3_bucket)
     except Exception as e:
+        # Possible network issue, try again
         logger.error(f"Failed to list S3 bucket contents: {e}")
-        return None
+        sys.exit(1)
 
     if "Contents" not in response:
         logger.info("No files found in the bucket.")
         return None
 
     download_path = os.path.join(s3_download_folder, "downloaded")
+    processed_path = os.path.join(s3_download_folder, "processed")
 
     # Get the metadata file
     metadata_files = [m for m in response['Contents'] if m['Key'].endswith("metadata.json")]
@@ -347,7 +354,7 @@ def manage_s3_files():
         s3_client.download_file(s3_bucket, metadata_file['Key'], new_metadata_file)
     except Exception as e:
         logger.error(f"Failed to download file {new_metadata_file}: {e}")
-        return None
+        sys.exit(1)
 
     try:
         new_model_version, new_checksum, new_timestamp = read_json_file(new_metadata_file)
@@ -356,13 +363,13 @@ def manage_s3_files():
         return None
 
     # All check for previous download
-    last_download_path = get_subdir_by_order(download_path)
+    last_processed_path = get_subdir_by_order(processed_path)
 
-    if not last_download_path:
-        logger.info(f"No files found in the downloaded folder: {new_metadata_file}")
+    if not last_processed_path:
+        logger.info(f"No files found in the processed folder: {new_metadata_file}")
         return None
 
-    most_recent_metadata_file = os.path.join(last_download_path, "metadata.json")
+    most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
 
     try:
         _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
@@ -389,7 +396,7 @@ def manage_s3_files():
         s3_client.download_file(s3_bucket, new_items_key, new_items_file)
     except Exception as e:
         logger.error(f"Failed to download file {new_items_file}: {e}")
-        return None
+        sys.exit(1)
 
     perm_download_folder_name = os.path.join(download_path, new_model_version, dump_folder.removeprefix('draft-'))
     os.rename(perm_download_path, perm_download_folder_name)

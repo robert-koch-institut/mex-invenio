@@ -308,25 +308,25 @@ def test_multiple_metadata_files(cli_runner, app_config, s3_client):
 
 
 def test_s3_list_failure(cli_runner, app_config, s3_client):
-    """Script exits cleanly when list_objects_v2 raises an exception."""
+    """Script exits with code 1 (retry) when list_objects_v2 raises a network error."""
     s3_client.list_objects_v2.side_effect = Exception("Connection refused")
-    assert cli_runner(manage_s3_files).exit_code == 0
+    assert cli_runner(manage_s3_files).exit_code == 1
 
 
 def test_s3_client_config_failure(cli_runner, app_config, base_app):
-    """Script exits cleanly when get_s3_client_and_config raises ValueError."""
+    """Script exits cleanly (no retry) when credentials are misconfigured."""
     with base_app.app_context():
         with patch(f"{_MODULE}.get_s3_client_and_config", side_effect=ValueError):
             assert cli_runner(manage_s3_files).exit_code == 0
 
 
 def test_metadata_download_failure(cli_runner, app_config, s3_client):
-    """Script exits cleanly when the S3 metadata download fails."""
+    """Script exits with code 1 (retry) when the S3 metadata download fails."""
     s3_client.list_objects_v2.return_value = {
         "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
     }
     s3_client.download_file.side_effect = Exception("network error")
-    assert cli_runner(manage_s3_files).exit_code == 0
+    assert cli_runner(manage_s3_files).exit_code == 1
 
 
 @patch(f"{_MODULE}.read_json_file", side_effect=Exception("parse error"))
@@ -340,8 +340,8 @@ def test_read_new_metadata_failure(mock_read, cli_runner, app_config, s3_client)
 
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
 @patch(f"{_MODULE}.read_json_file", return_value=("4.10", "abc", "2024-01-01T00:00:00Z"))
-def test_no_previous_download(mock_read, mock_subdir, cli_runner, app_config, s3_client):
-    """Script exits cleanly when no previous download exists to compare against."""
+def test_no_processed_dump(mock_read, mock_subdir, cli_runner, app_config, s3_client):
+    """Script exits cleanly when no processed dump exists to compare the checksum against."""
     s3_client.list_objects_v2.return_value = {
         "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
     }
