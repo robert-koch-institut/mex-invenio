@@ -1,15 +1,9 @@
-"""This script fetches the latest file from an S3 store and imports it to the server.
-
-If more than 20 files are present in the local download folder, the oldest ones are deleted.
+"""This script fetches a single dump from an S3 store, generates a diff file
+ and imports it to the server.
 
 ### How to Run
 To execute the script, run:
 pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
-
-### Parameters
-The script takes the following parameters:
-**initial** Whether to do an initial import of the data after downloading it from S3 or
-            a standard one.
 
 ### Requirements
 Before running the script, there is a number of environment variables you can set:
@@ -409,7 +403,10 @@ def manage_s3_files():
         logger.error(f"Error creating diff file for model version: {new_model_version}.")
         return None
 
-    import_pending_diffs(s3_download_folder, user_email)
+    successful_import = import_pending_diffs(s3_download_folder, user_email)
+
+    if not successful_import:
+        logger.error(f"Failed to import pending diffs for model version: {new_model_version}.")
 
     logger.info("S3 sync complete.")
     return None
