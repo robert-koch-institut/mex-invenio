@@ -19,28 +19,25 @@ Before running the script, there is a number of environment variables you can se
 You can store these credentials in a `.env` file,
 """
 
-import hashlib
 import json
 import logging
 import os
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
 
 import boto3
 import click
 from dotenv import load_dotenv
 from flask import current_app
 
+from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import (
     get_subdir_by_order,
     get_timestamp,
-    normalize_record_data,
     read_json_file,
     setup_file_logging,
-    write_json_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,166 +76,6 @@ def get_s3_client_and_config():
     s3_client = boto3.client("s3", **s3_config)
 
     return s3_client, email, bucket
-
-
-def compute_diff(downloaded_file: str, processed_file: str, diff_file: str):
-    """Create a diff file containing only new or changed records based on identifier comparison.
-
-    Optimized for large files by using streaming and hash-based comparison.
-    """
-
-    try:
-        # Read existing records and create hash index (memory efficient)
-        existing_hashes = {}  # identifier -> content_hash
-        existing_count = 0
-
-        logger.info(f"Reading existing file: {processed_file}")
-        if os.path.exists(processed_file):
-            with open(processed_file, encoding="utf-8") as f:
-                for line_num, line in enumerate(f, 1):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        record = json.loads(line)
-                        record_id = record.get("identifier")
-                        if record_id:
-                            # Create hash of normalized content for efficient comparison
-                            normalized = normalize_record_data(record)
-                            content_hash = hashlib.md5(
-                                json.dumps(normalized, sort_keys=True).encode("utf-8")
-                            ).hexdigest()
-                            existing_hashes[record_id] = content_hash
-                            existing_count += 1
-                    except json.JSONDecodeError as e:
-                        logger.warning(
-                            f"Invalid JSON at line {line_num} in {processed_file}: {e}"
-                        )
-
-                    # Log progress for large files
-                    if line_num % 10000 == 0:
-                        logger.info(f"Processed {line_num} lines from existing file")
-
-        logger.info(f"Indexed {existing_count} existing records")
-
-        # Stream process new file and write diff directly
-        new_or_changed_count = 0
-        processed_count = 0
-
-        logger.info(f"Processing new file: {downloaded_file}")
-        with (
-            open(downloaded_file, encoding="utf-8") as infile,
-            open(diff_file, "w", encoding="utf-8") as outfile,
-        ):
-            for line_num, line in enumerate(infile, 1):
-                line = line.strip()
-                if not line:
-                    continue
-
-                try:
-                    record = json.loads(line)
-                    record_id = record.get("identifier")
-                    if record_id:
-                        # Create hash of new record
-                        normalized = normalize_record_data(record)
-                        content_hash = hashlib.md5(
-                            json.dumps(normalized, sort_keys=True).encode("utf-8")
-                        ).hexdigest()
-
-                        existing_hash = existing_hashes.get(record_id)
-                        if existing_hash is None or existing_hash != content_hash:
-                            # New or changed record - write to diff file immediately
-                            json.dump(record, outfile, ensure_ascii=False)
-                            outfile.write("\n")
-                            new_or_changed_count += 1
-
-                        processed_count += 1
-                    else:
-                        logger.warning(
-                            f"Record without identifier at line {line_num} in {downloaded_file}"
-                        )
-
-                except json.JSONDecodeError as e:
-                    logger.warning(
-                        f"Invalid JSON at line {line_num} in {downloaded_file}: {e}"
-                    )
-
-                # Log progress for large files
-                if line_num % 10000 == 0:
-                    logger.info(
-                        f"Processed {line_num} lines, found {new_or_changed_count} changes"
-                    )
-
-        logger.info(
-            f"Comparison complete: {new_or_changed_count} new/changed records out of {processed_count} total"
-        )
-
-        return {
-            "new_or_changed_count": new_or_changed_count,
-            "processed_count": processed_count,
-        }
-
-    except Exception as e:
-        logger.error(f"Error during JSON-based file comparison: {e}")
-        return None
-
-
-def get_diff_file(model_version: str):
-    # Define folder locations
-    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
-    downloaded_path = os.path.join(s3_download_folder, "downloaded")
-    processed_path = os.path.join(s3_download_folder, "processed")
-    diff_path = os.path.join(s3_download_folder, "diffs")
-
-    # Get the oldest downloaded dump and the most recently processed one
-    oldest_download_path = get_subdir_by_order(downloaded_path, False)
-    most_recent_processed_path = get_subdir_by_order(processed_path)
-
-    if not oldest_download_path:
-        logger.warning(f"No pending download found in {downloaded_path}.")
-        return None
-
-    if not most_recent_processed_path:
-        logger.warning(f"No processed dump found in {processed_path}.")
-        return None
-
-    timestamp = get_timestamp()
-    diff_folder = os.path.join(diff_path, f"draft-{timestamp}")
-    os.makedirs(diff_folder, exist_ok=True)
-    processed_file = os.path.join(most_recent_processed_path, "items.ndjson")
-    downloaded_file = os.path.join(oldest_download_path, "items.ndjson")
-    diff_file = os.path.join(diff_folder, "diff.ndjson")
-
-    diff_result = compute_diff(downloaded_file, processed_file, diff_file)
-
-    if diff_result:
-        # Write process output to metadata.json
-        diff_metadata = {
-            "model_version": model_version,
-            "processed_file": processed_file,
-            "downloaded_file": downloaded_file,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            **diff_result,
-        }
-        write_json_file(os.path.join(diff_folder, "metadata.json"), diff_metadata)
-
-        # Rename diff folder as non-draft
-        os.rename(diff_folder, os.path.join(diff_path, timestamp))
-        diff_file = os.path.join(diff_path, timestamp, "diff.ndjson")
-
-        # Move dump from downloaded to processed
-        rel = os.path.relpath(
-            oldest_download_path, downloaded_path
-        )  # e.g. "4.10/20260504230150"
-        destination = os.path.join(processed_path, rel)
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        shutil.move(oldest_download_path, destination)
-
-        logger.info(f"Diff file created: {diff_file}")
-
-        return diff_file
-
-    return None
 
 
 def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
@@ -419,7 +256,7 @@ def manage_s3_files():
     os.rename(perm_download_path, perm_download_folder_name)
 
     # Compute diff file
-    diff_file = get_diff_file(new_model_version)
+    diff_file = generate_diff(new_model_version)
 
     if not diff_file:
         logger.error(
