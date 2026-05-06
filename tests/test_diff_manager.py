@@ -147,7 +147,9 @@ def test_generate_diff_compute_fails(mock_subdir, mock_compute, app_ctx, app_con
     return_value={"new_or_changed_count": 5, "processed_count": 10},
 )
 @patch(f"{_MODULE}.get_subdir_by_order")
-def test_generate_diff_success(mock_subdir, mock_compute, mock_move, app_ctx, app_config):
+def test_generate_diff_success(
+    mock_subdir, mock_compute, mock_move, app_ctx, app_config
+):
     """generate_diff returns the diff.ndjson path when compute_diff succeeds."""
     base = str(app_config["S3_DOWNLOAD_FOLDER"])
     dl_sub = os.path.join(base, "downloaded", "4.10", "20240301000000")
