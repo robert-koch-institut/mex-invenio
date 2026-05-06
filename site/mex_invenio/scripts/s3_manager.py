@@ -1,15 +1,9 @@
-"""This script fetches the latest file from an S3 store and imports it to the server.
-
-If more than 20 files are present in the local download folder, the oldest ones are deleted.
+"""This script fetches a single dump from an S3 store, generates a diff file
+ and imports it to the server.
 
 ### How to Run
 To execute the script, run:
 pipenv run invenio shell site/mex_invenio/scripts/s3_manager.py
-
-### Parameters
-The script takes the following parameters:
-**initial** Whether to do an initial import of the data after downloading it from S3 or
-            a standard one.
 
 ### Requirements
 Before running the script, there is a number of environment variables you can set:
@@ -20,33 +14,29 @@ Before running the script, there is a number of environment variables you can se
   - `MEX_IMPORT_REGION_NAME`: the AWS region where your bucket is located, optional and defaults to
    `eu-central-1`
   - `MEX_IMPORT_ENDPOINT_URL`: optional, if you are using a custom S3 endpoint
-  - `MEX_IMPORT_OBJECT_KEY`: optional, if you want to download a specific file from S3 if it
-   is not set the script will download the latest file in the bucket
 - Make sure you also have added email (used for uploading data on mex) in your file via MEX_IMPORT_EMAIL
 
 You can store these credentials in a `.env` file,
 """
 
-import importlib.metadata
+import json
 import logging
 import os
+import re
+import shutil
 import sys
-from datetime import datetime, timezone
 
 import boto3
 import click
-import packaging.version
 from dotenv import load_dotenv
 from flask import current_app
 
+from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
-from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
-    _read_state,
-    _write_state,
-    cleanup_files,
-    compare_files,
-    diff_files,
+    get_subdir_by_order,
+    get_timestamp,
+    read_json_file,
     setup_file_logging,
 )
 
@@ -56,226 +46,231 @@ logger.setLevel(logging.INFO)
 envvar_prefix = "MEX_IMPORT_"
 
 
-def load_config():
+def get_s3_client_and_config():
     load_dotenv()
 
-    v = packaging.version.Version(importlib.metadata.version("mex-model"))
-    mex_model_version = f"{v.major}.{v.minor}"
-    env_object_key = os.getenv(envvar_prefix + "OBJECT_KEY")
-    object_key = (
-        f"publisher-{mex_model_version}/{env_object_key}" if env_object_key else None
-    )
-
     s3_config = {
-        "bucket": os.getenv(envvar_prefix + "BUCKET"),
         "aws_access_key_id": os.getenv(envvar_prefix + "AWS_KEY_ID"),
         "aws_secret_access_key": os.getenv(envvar_prefix + "AWS_SECRET"),
         "region_name": os.getenv(envvar_prefix + "REGION_NAME", "eu-central-1"),
-        "email": os.getenv(envvar_prefix + "EMAIL"),
-        "endpoint_url": os.getenv(envvar_prefix + "ENDPOINT_URL", None),
-        "object_key": object_key,
+        "endpoint_url": os.getenv(envvar_prefix + "ENDPOINT_URL"),
     }
+    bucket = os.getenv(envvar_prefix + "BUCKET")
+    email = os.getenv(envvar_prefix + "EMAIL")
 
     # Get rid of the None values that weren't provided
     s3_config = {k: v for k, v in s3_config.items() if v is not None}
 
     if not all(
         [
-            s3_config["bucket"],
-            s3_config["aws_access_key_id"],
-            s3_config["aws_secret_access_key"],
-            s3_config["email"],
+            bucket,
+            email,
+            "aws_access_key_id" in s3_config,
+            "aws_secret_access_key" in s3_config,
         ]
     ):
-        logger.error(
-            "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
-        )
-        sys.exit(1)
+        msg = "Missing required configurations (bucket, aws_access_key, aws_secret_key, email)."
+        logger.error(msg)
+        raise ValueError(msg)
 
-    return s3_config
+    s3_client = boto3.client("s3", **s3_config)
 
-
-def get_latest_file(s3_client, bucket_name):
-    try:
-        response = s3_client.list_objects_v2(Bucket=bucket_name)
-        if "Contents" not in response:
-            logger.info("No files found in the bucket.")
-            return None
-        latest_file = max(response["Contents"], key=lambda obj: obj["LastModified"])
-        return latest_file["Key"]
-    except Exception as e:
-        logger.error(f"Error fetching latest file: {e}")
+    return s3_client, email, bucket
 
 
-def download_file(s3_client, bucket_name, file_key, payload_folder):
-    try:
-        local_filename = os.path.join(payload_folder, os.path.basename(file_key))
-        s3_client.download_file(bucket_name, file_key, local_filename)
+def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
+    """Import all pending diff files in chronological order, oldest first."""
+    diffs_root = os.path.join(s3_download_folder, "diffs")
 
-        return local_filename
-    except Exception as e:
-        logger.error(f"Error downloading file: {e}")
-        raise
+    pending = []
+    for dirpath, _, filenames in os.walk(diffs_root):
+        if "diff.ndjson" not in filenames or "metadata.json" not in filenames:
+            continue
 
+        dir_name = os.path.basename(dirpath)
+        if not re.match(r"^\d+$", dir_name):
+            continue
 
-def get_latest_existing_file(payload_folder):
-    """Fetches the most recent file in the payload folder and removes files older than the 20 most recent ones."""
-    files = sorted(
-        [
-            os.path.join(payload_folder, f)
-            for f in os.listdir(payload_folder)
-            if os.path.isfile(os.path.join(payload_folder, f)) and not f.startswith(".")
-        ],
-        key=os.path.getmtime,  # Sort by last modified time
-        reverse=True,  # Most recent first
-    )
-
-    if len(files) > 20:
-        for f in files[20:]:
-            try:
-                os.remove(f)
-                logger.info(f"Removed old file: {f}")
-            except OSError as e:
-                logger.warning(f"Could not remove old file {f}: {e}")
-
-    return files[0] if files else None
-
-
-def get_final_import_file(existing_file, new_file, payload_folder):
-    """Handles file retention based on check flag."""
-    if existing_file and compare_files(existing_file, new_file):
-        logger.info("No new content found. File is exactly the same as before.")
-        logger.info(f"{new_file} deleted")
-        return None  # New file is identical, so discard it
-
-    # Generate a timestamped filename to avoid overwriting
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
-    new_filename = f"{timestamp}_{os.path.basename(new_file)}"
-    final_new_file_path = os.path.join(payload_folder, new_filename)
-
-    os.rename(new_file, final_new_file_path)  # Rename new file
-
-    # Create diff file if both files exist
-    diff_file_path = final_new_file_path
-    if existing_file and os.path.exists(existing_file):
         try:
-            diff_file_path = diff_files(
-                payload_folder, existing_file, final_new_file_path
+            with open(os.path.join(dirpath, "metadata.json")) as f:
+                metadata = json.load(f)
+                model_version = metadata["model_version"]
+        except Exception as e:
+            logger.error(
+                f"Skipping {dirpath}: could not read model_version from metadata: {e}"
             )
-            # os.remove(existing_file)
-            logger.info(
-                f"Replaced old file: {existing_file} with new file: {final_new_file_path}"
-            )
-        except OSError as e:
-            logger.warning(f"Could not remove existing file {existing_file}: {e}")
+            continue
 
-    return diff_file_path
+        pending.append((dir_name, model_version, os.path.join(dirpath, "diff.ndjson")))
+
+    pending.sort(key=lambda x: x[0])  # oldest timestamp first
+    logger.info(f"Found {len(pending)} pending diff(s) to import.")
+
+    for _, model_version, diff_file in pending:
+        logger.info(f"Importing {diff_file} (model: {model_version})")
+        result = import_data(model_version, user_email, diff_file)
+
+        if not result:
+            logger.error(f"Failed to import {diff_file}. Stopping.")
+            return False
+
+        diff_dir = os.path.dirname(diff_file)
+        rel = os.path.relpath(diff_dir, diffs_root)
+        history_path = os.path.join(s3_download_folder, "history", rel)
+        os.makedirs(os.path.dirname(history_path), exist_ok=True)
+        shutil.move(diff_dir, history_path)
+        logger.info(f"Moved {diff_file} to {history_path}")
+
+    return True
 
 
 @click.command("manage_s3_files")
-@click.option("--initial", is_flag=True, default=False)
-def manage_s3_files(initial: bool = False):
+def manage_s3_files():
     """Main function to download the latest file from S3, compare, and manage local storage."""
     # Get the download folder from config
     s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
-    # Set up logging at start
+
+    # Create directories and set up logging at start
+    for sub_dir in ["logs", "downloaded", "processed", "diffs", "history"]:
+        sub_dir = os.path.join(s3_download_folder, sub_dir)
+        os.makedirs(sub_dir, exist_ok=True)
+
     log_dir = os.path.join(s3_download_folder, "logs")
-    os.makedirs(log_dir, exist_ok=True)
+
     file_handler = setup_file_logging(log_dir, name="s3_manager")
     logger.addHandler(file_handler)
+    logger.info("Starting S3 sync.")
 
-    s3_config = load_config()
-    user_email = s3_config.pop("email")
-    s3_bucket = s3_config.pop("bucket")
-    s3_object_key = s3_config.pop("object_key", None)
-    s3_client = boto3.client("s3", **s3_config)
-
-    latest_file_key = s3_object_key or get_latest_file(s3_client, s3_bucket)
-    if not latest_file_key:
+    # Load s3_client and config
+    try:
+        s3_client, user_email, s3_bucket = get_s3_client_and_config()
+    except ValueError:
+        # Config mis-configured
         return
-
-    state_file = os.path.join(s3_download_folder, ".import_state")
-    state = _read_state(state_file)
-    if state:
-        status = state.get("status")
-        if status == "in_progress":
-            # This should not happen because of "concurrencyPolicy: Forbid" in the
-            # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
-            logger.warning("Import already in progress (state file found). Skipping.")
-            sys.exit(1)
-        elif status == "failed":
-            logger.error(
-                f"Previous import failed (state file: {state_file}). "
-                "Resolve the issue and delete the state file to re-enable imports."
-            )
-            sys.exit(1)
-
-    started_at = datetime.now(timezone.utc).isoformat()
-    _write_state(state_file, "in_progress", started_at=started_at)
+    except Exception as e:
+        logger.error(f"Failed to initialise S3 client: {e}")
+        sys.exit(1)
 
     try:
-        logger.info(f"Downloading file {latest_file_key} from bucket {s3_bucket}")
-        logger.info(f"To download folder: {s3_download_folder}")
+        response = s3_client.list_objects_v2(Bucket=s3_bucket)
+    except Exception as e:
+        # Possible network issue, try again
+        logger.error(f"Failed to list S3 bucket contents: {e}")
+        sys.exit(1)
 
-        # This will be the most recently modified file in the download folder
-        existing_file_path = get_latest_existing_file(s3_download_folder)
+    if "Contents" not in response:
+        logger.info("No files found in the bucket.")
+        return
 
-        # This is the most recently modified file in the S3 bucket
-        new_file_path = download_file(
-            s3_client, s3_bucket, latest_file_key, s3_download_folder
+    download_path = os.path.join(s3_download_folder, "downloaded")
+    processed_path = os.path.join(s3_download_folder, "processed")
+
+    # Get the metadata file
+    metadata_files = [
+        m for m in response["Contents"] if m["Key"].endswith("metadata.json")
+    ]
+
+    if len(metadata_files) == 0:
+        logger.info("No metadata files found in the bucket.")
+        return
+    if len(metadata_files) > 1:
+        logger.info("Multiple metadata files found in the bucket.")
+        return
+
+    metadata_file = metadata_files[0]
+
+    # Create tmp draft downloaded location for dump
+    dump_folder = f"draft-{get_timestamp()}"
+    # e.g. s3_downloads/downloaded/tmp/draft-20260430104905
+    tmp_dump_path = os.path.join(download_path, "tmp", dump_folder)
+    os.makedirs(tmp_dump_path, exist_ok=True)
+    logger.info(f"Fetching metadata: {metadata_file['Key']}")
+
+    # Download metadata file
+    new_metadata_file = os.path.join(tmp_dump_path, "metadata.json")
+
+    try:
+        s3_client.download_file(s3_bucket, metadata_file["Key"], new_metadata_file)
+    except Exception as e:
+        logger.error(f"Failed to download file {new_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
+        sys.exit(1)
+
+    try:
+        new_model_version, new_checksum, new_timestamp = read_json_file(
+            new_metadata_file
         )
+    except Exception as e:
+        logger.error(f"Failed to read file {new_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
+        return
 
-        logger.info(f"Download file {new_file_path} from bucket {s3_bucket}")
+    last_processed_path = get_subdir_by_order(processed_path)
 
-        final_file_path = get_final_import_file(
-            existing_file_path, new_file_path, s3_download_folder
+    if not last_processed_path:
+        logger.warning(
+            "No processed dump found; cannot determine if new data is available."
         )
+        shutil.rmtree(tmp_dump_path)
+        return
 
-        if not final_file_path:
-            logger.info("No new content to import.")
-            _write_state(
-                state_file,
-                "success",
-                started_at=started_at,
-                finished_at=datetime.now(timezone.utc).isoformat(),
-            )
-            sys.exit(0)
+    most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
 
-        logger.info(f"Importing data using file {final_file_path}")
+    try:
+        _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
+    except Exception as e:
+        logger.error(f"Failed to read file {most_recent_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
+        return
 
-        if initial:
-            result = initial_import(user_email, final_file_path)
-        else:
-            result = import_data(user_email, final_file_path)
-
-        finished_at = datetime.now(timezone.utc).isoformat()
-
-        if not result:
-            logger.error(
-                "Error in import_data, check the import log files for more details."
-            )
-            _write_state(
-                state_file, "failed", started_at=started_at, finished_at=finished_at
-            )
-            sys.exit(1)
-        else:
-            logger.info(f"Import successful. Data imported from {final_file_path}.")
-            _write_state(
-                state_file, "success", started_at=started_at, finished_at=finished_at
-            )
-    except Exception:
-        _write_state(
-            state_file,
-            "failed",
-            started_at=started_at,
-            finished_at=datetime.now(timezone.utc).isoformat(),
+    # Only download if there is a new dump
+    if new_checksum == last_checksum and new_timestamp == last_timestamp:
+        logger.info(
+            "Dump is unchanged (checksum and timestamp match); nothing to import."
         )
-        raise
+        shutil.rmtree(tmp_dump_path)
+        return
 
-    finally:
-        logger.removeHandler(file_handler)
-        file_handler.close()
-        cleanup_files(log_dir, "s3_manager")
+    logger.info(
+        f"New dump detected (model={new_model_version}, timestamp={new_timestamp}, "
+        f"checksum={new_checksum}). Previous: timestamp={last_timestamp}, checksum={last_checksum}."
+    )
+
+    # Move from tmp path to download folder, download items file and remove draft- prefix
+    perm_download_path = os.path.join(download_path, new_model_version, dump_folder)
+    os.makedirs(os.path.dirname(perm_download_path), exist_ok=True)
+    shutil.move(tmp_dump_path, perm_download_path)
+    new_items_file = os.path.join(perm_download_path, "items.ndjson")
+    new_items_key = metadata_file["Key"].replace("metadata.json", "items.ndjson")
+
+    try:
+        s3_client.download_file(s3_bucket, new_items_key, new_items_file)
+    except Exception as e:
+        logger.error(f"Failed to download file {new_items_file}: {e}")
+        shutil.rmtree(perm_download_path)
+        sys.exit(1)
+
+    perm_download_folder_name = os.path.join(
+        download_path, new_model_version, dump_folder.removeprefix("draft-")
+    )
+    os.rename(perm_download_path, perm_download_folder_name)
+
+    # Compute diff file
+    diff_file = generate_diff(new_model_version)
+
+    if not diff_file:
+        logger.error(
+            f"Error creating diff file for model version: {new_model_version}."
+        )
+        return
+
+    successful_import = import_pending_diffs(s3_download_folder, user_email)
+
+    if not successful_import:
+        logger.error("Failed to import pending diffs.")
+
+    logger.info("S3 sync complete.")
+    return
 
 
 if __name__ == "__main__":

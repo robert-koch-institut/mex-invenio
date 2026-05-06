@@ -10,36 +10,40 @@ from tests.conftest import created_regex, search_messages
 from tests.data import contact_point_data
 
 
-def test_nonexistent_file_error_cli(cli_runner, db):
+def test_nonexistent_file_error_cli(cli_runner, db, model_version):
     """Test that the CLI command exits with an error when the file does not exist."""
     email = "alice@address.com"
     filepath = "path/to/file"
     db.session.add(User(username="alice", email=email))
     db.session.commit()
 
-    result = cli_runner(_import_data, email, filepath)
+    result = cli_runner(_import_data, model_version, email, filepath)
 
     assert result.exit_code == 1
     assert f"File {filepath} not found." in result.output
     assert User.query.count() == 1
 
 
-def test_nonexistent_user_error_cli(cli_runner, db, create_file):
+def test_nonexistent_user_error_cli(cli_runner, db, create_file, model_version):
     """Test that the CLI command exits with an error when the user does not exist."""
     email = "non-existent-user@address.com"
-    result = cli_runner(_import_data, email, create_file("empty.json", "{}"))
+    result = cli_runner(
+        _import_data, model_version, email, create_file("empty.json", "{}")
+    )
 
     assert result.exit_code == 1
     assert f"User with email {email} not found." in result.output
 
 
-def test_import_corrupt_data_cli(cli_runner, db, create_file):
+def test_import_corrupt_data_cli(cli_runner, db, create_file, model_version):
     """Test that the CLI command logs an error when the data is corrupt."""
     email = "importer@address.com"
     db.session.add(User(username="importer", email=email))
     db.session.commit()
 
-    result = cli_runner(_import_data, email, create_file("corrupt.json", "{"))
+    result = cli_runner(
+        _import_data, model_version, email, create_file("corrupt.json", "{")
+    )
 
     assert result.exit_code == 0
     # assert isinstance(result.exception, JSONDecodeError)
