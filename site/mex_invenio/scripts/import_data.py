@@ -372,11 +372,12 @@ def import_data(
     if model_version != installed_model_version:
         # No interest in attempting to import incompatible data
         # exit gracefully so job does not restart
-        logger.warning(
+        logger.error(
             f"Attempted to import data with model version {model_version}"
-            f" (installed: {installed_model_version})."
+            f" (installed: {installed_model_version}). Import did not proceed."
+            " Mex-model might need to be updated."
         )
-        sys.exit(0)
+        return False
 
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
@@ -423,7 +424,10 @@ def import_data(
 
     except Exception:
         finished_at = datetime.now(timezone.utc).isoformat()
-        logger.exception("Failed to process import.")
+        logger.exception(
+            f"Failed to process import from {import_file}. "
+            f"Imports will not be possible until .import_state is deleted."
+        )
         _write_state(
             state_file, "failed", started_at=started_at, finished_at=finished_at
         )

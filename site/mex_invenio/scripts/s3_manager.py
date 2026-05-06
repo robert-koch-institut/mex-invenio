@@ -259,7 +259,7 @@ def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
                 metadata = json.load(f)
                 model_version = metadata["model_version"]
         except Exception as e:
-            logger.warning(
+            logger.error(
                 f"Skipping {dirpath}: could not read model_version from metadata: {e}"
             )
             continue
@@ -282,6 +282,7 @@ def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
         history_path = os.path.join(s3_download_folder, "history", rel)
         os.makedirs(os.path.dirname(history_path), exist_ok=True)
         shutil.move(diff_dir, history_path)
+        logger.info(f"Moved {diff_file} to {history_path}")
 
     return True
 
@@ -355,6 +356,7 @@ def manage_s3_files():
         s3_client.download_file(s3_bucket, metadata_file["Key"], new_metadata_file)
     except Exception as e:
         logger.error(f"Failed to download file {new_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
         sys.exit(1)
 
     try:
@@ -363,6 +365,7 @@ def manage_s3_files():
         )
     except Exception as e:
         logger.error(f"Failed to read file {new_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
         return
 
     last_processed_path = get_subdir_by_order(processed_path)
@@ -371,6 +374,7 @@ def manage_s3_files():
         logger.warning(
             "No processed dump found; cannot determine if new data is available."
         )
+        shutil.rmtree(tmp_dump_path)
         return
 
     most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
@@ -379,6 +383,7 @@ def manage_s3_files():
         _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
     except Exception as e:
         logger.error(f"Failed to read file {most_recent_metadata_file}: {e}")
+        shutil.rmtree(tmp_dump_path)
         return
 
     # Only download if there is a new dump
@@ -405,6 +410,7 @@ def manage_s3_files():
         s3_client.download_file(s3_bucket, new_items_key, new_items_file)
     except Exception as e:
         logger.error(f"Failed to download file {new_items_file}: {e}")
+        shutil.rmtree(perm_download_path)
         sys.exit(1)
 
     perm_download_folder_name = os.path.join(
@@ -424,9 +430,7 @@ def manage_s3_files():
     successful_import = import_pending_diffs(s3_download_folder, user_email)
 
     if not successful_import:
-        logger.error(
-            f"Failed to import pending diffs for model version: {new_model_version}."
-        )
+        logger.error("Failed to import pending diffs.")
 
     logger.info("S3 sync complete.")
     return
