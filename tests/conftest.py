@@ -1,3 +1,4 @@
+import importlib.metadata
 import json
 import logging
 import os
@@ -5,6 +6,7 @@ import re
 from contextlib import suppress
 from unittest.mock import MagicMock, patch
 
+import packaging.version
 import pytest
 import sqlalchemy as sa
 
@@ -150,6 +152,12 @@ def db_session_transaction_restart(db):
 def load_env():
     env_file = find_dotenv(".env.tests")
     load_dotenv(env_file)
+
+
+@pytest.fixture(scope="session")
+def model_version():
+    v = packaging.version.Version(importlib.metadata.version("mex-model"))
+    return f"{v.major}.{v.minor}"
 
 
 @pytest.fixture(scope="module")
@@ -410,6 +418,7 @@ def import_file(
     create_user,
     create_file,
     tmp_path,
+    model_version,
 ):
     email = "importer@address.com"
     create_user("importer", email)
@@ -421,7 +430,7 @@ def import_file(
             if initial:
                 result = cli_runner(_initial_import, email, file)
             else:
-                result = cli_runner(_import_data, email, file)
+                result = cli_runner(_import_data, model_version, email, file)
 
         assert result.exit_code == 0, (
             f"CLI command failed with exit code {result.exit_code}: {result.exception}"
