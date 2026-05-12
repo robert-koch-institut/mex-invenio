@@ -829,7 +829,13 @@ APP_RDM_RECORD_EXPORTERS = {
         "params": {"options": {"indent": 2, "sort_keys": True}},
         "content-type": "application/json",
         "filename": "{id}.json",
-    }
+    },
+    "bibtex": {
+        "name": _("BibTeX"),
+        "serializer": "mex_invenio.resources.serializers:MExBibTexSerializer",
+        "content-type": "application/x-bibtex",
+        "filename": "{id}.bib",
+    },
 }
 
 # List of entities available in mex model
