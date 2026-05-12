@@ -822,7 +822,7 @@ APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
     "invenio_app_rdm/records/details/side_bar/export.html",
 ]
 
-EXPORTER_SETS = {
+APP_RDM_RECORD_EXPORTERS = {
     "json": {
         "name": _("JSON"),
         "serializer": ("flask_resources.serializers:JSONSerializer"),
@@ -832,19 +832,19 @@ EXPORTER_SETS = {
     },
     "bibtex": {
         "name": _("BibTeX"),
-        "serializer": "mex_invenio.resources.serializers:MExBibTexSerializer",
+        "serializer": ("mex_invenio.resources.serializers:MExBibTexSerializer"),
         "content-type": "application/x-bibtex",
         "filename": "{id}.bib",
     },
 }
 
 EXPORTERS_PER_RECORD_TYPE = {
-    "resource": {"json": EXPORTER_SETS["json"]},
+    "resource": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
     "bibliographicresource": {
-        "json": EXPORTER_SETS["json"],
-        "bibtex": EXPORTER_SETS["bibtex"],
+        "json": APP_RDM_RECORD_EXPORTERS["json"],
+        "bibtex": APP_RDM_RECORD_EXPORTERS["bibtex"],
     },
-    "activity": {"json": EXPORTER_SETS["json"]},
+    "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
 
 # List of entities available in mex model
