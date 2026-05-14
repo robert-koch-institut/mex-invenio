@@ -24,5 +24,4 @@ class MExBibTexSerializer(MarshmallowSerializer):
 
     def dump_obj(self, obj) -> dict:
         """Dump the object using object schema class."""
-        data = self.object_schema.dump(obj)
-        return {k: v for k, v in data.items() if v}
+        return self.object_schema.to_bibtex(obj)

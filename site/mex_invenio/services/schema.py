@@ -1,3 +1,6 @@
+import re
+
+from flask import current_app
 from flask_babel import get_locale
 from invenio_rdm_records.services.schemas import RDMRecordSchema
 from marshmallow import Schema, fields
@@ -46,6 +49,55 @@ class MExCustomBibTeXSchema(Schema):
     abstract = fields.Method("get_abstract")
     keywords = fields.Method("get_keywords")
 
+    entry_mappings = {
+        "journal-article": "article",
+        "book": "book",
+        "book-chapter": "inbook",
+        "book-section": "inbook",
+        "conference-paper": "inproceedings",
+        "conference-proceedings": "proceedings",
+        "thesis": "phdthesis",
+        "report": "techreport",
+        "technical-report": "techreport",
+        "working-paper": "techreport",
+        "preprint": "unpublished",
+        "manuscripts": "unpublished",
+        "booklet": "booklet",
+        "manual": "manual",
+    }
+
+    def _normalize_doi(value):
+        DOI_PATTERN = re.compile(r"(10\.\d{4,9}/[-._;()/:A-Za-z0-9]+)")
+        if not value:
+            return None
+
+        match = DOI_PATTERN.search(value)
+        if match:
+            return match.group(1)
+
+        # fallback: keep original value
+        return value
+
+    def _extract_by_lang(self, field_values):
+        """Returns array of values in users language if available, otherwise all values."""
+        by_lang = {}
+
+        if not field_values:
+            return []
+
+        for fv in field_values:
+            if not fv:
+                continue
+            lang = fv.get("language", "und")
+            if lang in by_lang:
+                by_lang[lang].append(fv.get("value"))
+            else:
+                by_lang[lang] = [fv.get("value")]
+        user_lang = str(get_locale())
+        if user_lang in by_lang:
+            return by_lang[user_lang]
+        return [v for values in by_lang.values() for v in values]
+
     def get_creator(self, obj):
         creator_values = (
             obj["display_data"].get("linked_records", {}).get("mex:creator", [])
@@ -53,32 +105,18 @@ class MExCustomBibTeXSchema(Schema):
         names = [creator["display_value"][0]["value"] for creator in creator_values]
         return " and ".join(names)
 
-    def _extract_by_lang(self, obj, field):
-        """Returns array of values in users language if available, otherwise all values."""
-        by_lang = {}
-        if field:
-            for f in field:
-                lang = f.get("language", "und")
-                if lang in by_lang:
-                    by_lang[lang].append(f.get("value"))
-                else:
-                    by_lang[lang] = [f.get("value")]
-            user_lang = str(get_locale())
-            if user_lang in by_lang:
-                return by_lang[user_lang]
-            return [v for values in by_lang.values() for v in values]
-        return []
-
     def get_title(self, obj):
         titles = obj.get("custom_fields", {}).get("mex:title", [])
-        return self._extract_by_lang(obj, titles)[0]
+        values = self._extract_by_lang(titles)
+        return values[0] if values else None
 
     def get_publication_year(self, obj):
         return obj.get("custom_fields", {}).get("mex:publicationYear", None)
 
     def get_journal(self, obj):
         journals = obj.get("custom_fields", {}).get("mex:journal", None)
-        return " and ".join(self._extract_by_lang(obj, journals))
+        values = self._extract_by_lang(journals)
+        return " and ".join(values) if values else None
 
     def get_volume(self, obj):
         return obj.get("custom_fields", {}).get("mex:volume", None)
@@ -90,14 +128,95 @@ class MExCustomBibTeXSchema(Schema):
         return obj.get("custom_fields", {}).get("mex:pages", None)
 
     def get_doi(self, obj):
-        return obj.get("custom_fields", {}).get("mex:doi", None)
+        value = obj.get("custom_fields", {}).get("mex:doi", None)
+        return self._normalize_doi(value)
 
     def get_abstract(self, obj):
         abstract = obj.get("custom_fields", {}).get("mex:abstract", [])
-        abstract = self._extract_by_lang(obj, abstract)
-        return None if not abstract else abstract[0]
+        abstract = self._extract_by_lang(abstract)
+        return abstract[0] if abstract else None
 
     def get_keywords(self, obj):
         keywords_fields = obj.get("custom_fields", {}).get("mex:keyword", [])
         keywords = [k.get("value") for k in keywords_fields]
-        return ", ".join(keywords)
+        return ", ".join(keywords) if keywords else None
+
+    def resolve_bibtex_type(self, obj):
+        """Heuristic-based BibTeX type resolver."""
+        cf = obj.get("custom_fields", {})
+        rTf = cf.get("mex:bibliographicResourceType")
+        rT_label = rTf[0] if rTf else None
+        if rT_label:
+            resourceType = (
+                current_app.config.get("PREF_LABELS")
+                .get(rT_label, {})
+                .get("en", "")
+                .lower()
+            )
+            return self.entry_mappings.get(resourceType, "misc")
+        return "misc"
+
+    def build_citation_key(self, obj):
+        return obj.get("custom_fields", {}).get("mex:identifier")
+
+    def extract_fields(self, obj):
+        """Normalize schema → BibTeX fields."""
+        cf = obj.get("custom_fields", {})
+
+        return {
+            "title": self.get_title(obj),
+            "author": self.get_creator(obj),
+            "journal": self.get_journal(obj),
+            "year": cf.get("mex:publicationYear"),
+            "volume": cf.get("mex:volume"),
+            "number": cf.get("mex:issue"),
+            "pages": cf.get("mex:pages"),
+            "doi": cf.get("mex:doi"),
+            "abstract": self.get_abstract(obj),
+            "keywords": self.get_keywords(obj),
+        }
+
+    def format_field(self, key, value):
+        """Format a single BibTeX field."""
+        if value is None:
+            return None
+
+        if isinstance(value, str):
+            value = value.strip()
+
+        if not value:
+            return None
+
+        # special cases
+        if key == "author":
+            return f"  author = {{{value}}}"
+
+        if key == "keywords":
+            return f"  keywords = {{{value}}}"
+
+        if key == "doi":
+            return f"  doi = {{{value}}}"
+
+        return f"  {key} = {{{value}}}"
+
+    def to_bibtex(self, obj):
+        """Convert record dict → BibTeX string."""
+        entry_type = self.resolve_bibtex_type(obj)
+        fields = self.extract_fields(obj)
+
+        citation_key = self.build_citation_key(obj)
+
+        lines = [f"@{entry_type}{{{citation_key},"]
+
+        for k, v in fields.items():
+            formatted = self.format_field(k, v)
+            if formatted:
+                lines.append(formatted + ",")
+
+        # remove trailing comma from last field (optional polish)
+        if len(lines) > 1:
+            lines[-1] = lines[-1].rstrip(",")
+
+        lines.append("}")
+
+        return "\n".join(lines)
