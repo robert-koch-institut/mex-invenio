@@ -90,6 +90,7 @@ def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
                 # Convert database record to search result format using the joined PID
                 record_data = {
                     "id": str(pid_value),
+                    "uuid": str(record.id),
                     "custom_fields": copy.deepcopy(
                         record_json.get("custom_fields", {})
                     ),
@@ -163,8 +164,7 @@ def process_record_batch(
 
                 else:
                     # This shouldn't happen as the import files have been diffed
-                    results.append({"action": "skip", "id": record_pid})
-                    continue
+                    results.append({"action": "skip", "id": record_pid, "uuid": existing_record["uuid"]})
 
                 # Collect all related record UUIDs of created/updated records
                 for related_id in get_related_mex_ids(mex_data):
@@ -203,7 +203,7 @@ def update_report(report: dict, batch_results: list[dict]):
                 {"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]}
             )
         elif result["action"] == "skip":
-            report["skipped"].append(result["id"])
+            report["skipped"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "related":
             report["related"].add(result["id"])
 
@@ -272,6 +272,14 @@ def process_import(owner, import_file, batch_size):
                 r["uuid"] for r in report["created"]
             )
 
+        # If there are any skipped records, that means that a previous import
+        # job has failed and this is a rerun. In that event we need to make sure
+        # that all imported records have been indexed.
+        if report["skipped"]:
+            current_rdm_records_service.indexer.bulk_index(
+                r["uuid"] for r in report["skipped"]
+            )
+
         # Flush the queue so created/updated records are searchable
         # before re-indexing related records that depend on them.
         current_rdm_records_service.indexer.process_bulk_queue()
@@ -299,7 +307,7 @@ def process_import(owner, import_file, batch_size):
         if record_count > 0:
             if action == "error":
                 logger.error(f"Encountered {record_count} errors during import.")
-            elif action in ("created", "updated"):
+            elif action in ("created", "updated", "skipped"):
                 ids = [r["id"] for r in report[action]]
                 logger.info(f"{action.capitalize()} {record_count} records. Ids: {ids}")
             else:
