@@ -895,7 +895,7 @@ FRONTPAGE_SEARCH_LINKS = {
         "url": "/variables",
     },
     "general": {
-        "title": _("All MEx Records"),
+        "title": _("allMexRecords"),
         "bg_icon": "general.svg",
         "description": _("globalDescription"),
         "url": "",

@@ -124,11 +124,11 @@ msgstr "Methodenbeschreibung"
 msgid "Modified"
 msgstr "Letzte Änderung"
 
-msgid "Search our"
-msgstr "Unsere"
+msgid "searchOur"
+msgstr "Unser"
 
-msgid "Entire Metadata Catalogue"
-msgstr "Gesamte Metadatenkatalog"
+msgid "entireMetadataCatalogue"
+msgstr "Gesamter Metadatenkatalog"
 
 msgid "Related projects/endeavors"
 msgstr "Zugehörige Projekte"
@@ -138,13 +138,13 @@ msgstr "Zugehörige Datenbestände & Datensätze"
 
 # All Search Pages & Landing Pages
 msgid "All MEx"
-msgstr "Alles"
+msgstr "Alle MEx"
 
 msgid "All"
-msgstr "Alles"
+msgstr "Alle"
 
-msgid "All MEx Records"
-msgstr "Alles MEx Einträgen"
+msgid "allMexRecords"
+msgstr "Alle MEx Einträge"
 
 msgid "Search records"
 msgstr "Nach Einträgen suchen"
@@ -181,6 +181,12 @@ msgstr "Alle anzeigen"
 
 msgid "results"
 msgstr "Ergebnisse"
+
+msgid "No results found"
+msgstr "Keine Ergebnisse gefunden"
+
+msgid "issued"
+msgstr "Erstellt"
 
 msgid "Show"
 msgstr "Zeige"
@@ -338,6 +344,9 @@ msgstr "Variablengruppe"
 msgid "Data Type"
 msgstr "Datentyp"
 
+msgid "Value set"
+msgstr "Merkmalsausprägung"
+
 msgid "No variables found."
 msgstr "Keine Variablen gefunden."
 
@@ -349,9 +358,6 @@ msgstr "Ausgewählte Datenbestände & Datensätze"
 
 msgid "Variable Groups"
 msgstr "Variablengruppen"
-
-msgid "noResourcesWithVariablesFound"
-msgstr "Es wurden keine Datenquellen oder Datensätze gefunden, die Variablen enthalten und Ihrer Suche entsprechen."
 
 msgid "No data sources & datasets that match your search were found."
 msgstr "Es wurden keine Datenbestände & Datensätze gefunden, die Ihrer Suche entsprechen."
@@ -591,3 +597,42 @@ msgstr "Übergeordneter Datenbestand/Datensatz"
 
 msgid "Succeeds"
 msgstr "Nachfolge von"
+
+msgid "VariablesFilterNoDatasets"
+msgstr "Noch nichts ausgewählt. Klicken Sie auf das Plus-Symbol in der Ergebnisliste, um Datenbestände / Datensätze zum Variablenfilter hinzuzufügen."
+
+msgid "to"
+msgstr "bis"
+
+msgid "Contributor"
+msgstr "Mitwirkende*r"
+
+msgid "Coding system"
+msgstr "Kodierungssystem"
+
+msgid "Data type"
+msgstr "Datentyp"
+
+msgid "viewAllVersionsStart"
+msgstr "Alle"
+
+msgid "viewAllVersionsEnd"
+msgstr "Versionen anzeigen"
+
+msgid "noResourcesWithVariables"
+msgstr "Es wurden keine Datenbestände & Datensätze mit Variablen gefunden, die Ihrer Suche entsprechen"
+
+msgid "noResultsFound"
+msgstr "Keine Ergebnisse gefunden."
+
+msgid "There is a newer version of the record available"
+msgstr "Es ist eine neuere Version des Eintrags vorhanden"
+
+msgid "sendEmail"
+msgstr "E-Mail senden"
+
+msgid "views"
+msgstr "Aufrufe"
+
+msgid "exploreVariables"
+msgstr "Erkunden Sie die Variablen dieses Datenbestands."

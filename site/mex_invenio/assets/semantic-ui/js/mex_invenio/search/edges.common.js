@@ -157,7 +157,7 @@ mex.displayYearMonthPeriod = function (params) {
     let range = frdisplay;
     if (to) {
         if (todisplay !== frdisplay) {
-            range += ` to ${todisplay}`;
+            range += ` ${i18n.t("to")} ${todisplay}`;
         }
     } else {
         range += "+";
@@ -753,7 +753,7 @@ mex.globalDisplay = function (params) {
         category: params.category || "middle",
         renderer: new mex.renderers.GlobalResults({
             noResultsText:
-                params.noResultsText || i18n.t("No results found."),
+                params.noResultsText || i18n.t("noResultsFound"),
         }),
     });
 };
@@ -1916,7 +1916,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         `;
         }
         else {
-            frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter</p>`
+            frag += `<p class="muted" style="font-size: 1rem; font-style: italic"> ${i18n.t('VariablesFilterNoDatasets')} </p>`
         }
         frag += `</div>`
 

@@ -131,10 +131,10 @@ msgstr "Record Description"
 msgid "Modified"
 msgstr "Modified"
 
-msgid "Search our"
+msgid "searchOur"
 msgstr "Search our"
 
-msgid "Entire Metadata Catalogue"
+msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
 msgid "Related projects/endeavors"
@@ -146,6 +146,9 @@ msgstr "Related data sources & datasets"
 # All Search Pages & Landing Pages
 msgid "All MEx"
 msgstr "All MEx"
+
+msgid "allMexRecords"
+msgstr "All MEx Records"
 
 msgid "Search records…"
 msgstr "Search records…"
@@ -164,6 +167,12 @@ msgstr "Prev"
 
 msgid "Page 1 of 1310"
 msgstr "Page 1 of 1310"
+
+msgid "of"
+msgstr "of"
+
+msgid "issued"
+msgstr "issued"
 
 msgid "Next"
 msgstr "Next"
@@ -491,3 +500,30 @@ msgid "globalDescription"
 msgstr "Look through all records in our metadata catalogue: datasets, publications, projects, and more."
 msgid "disclaimer"
 msgstr "All information is based on information from the original data-storing systems. No guarantee is given for the accuracy, completeness, or timeliness of this information."
+
+msgid "VariablesFilterNoDatasets"
+msgstr "Nothing here yet. Click the plus button on the results list to add the Data Source/Dataset to the Variables Filter"
+
+msgid "noResultsFound"
+msgstr "No results found."
+
+msgid "sendEmail"
+msgstr "Send email"
+
+msgid "views"
+msgstr "VIEWS"
+
+msgid "exploreVariables"
+msgstr "Explore the variables related to this data source"
+
+msgid "to"
+msgstr "to"
+
+msgid "Data type"
+msgstr "Data type"
+
+msgid "viewAllVersionsStart"
+msgstr "View all"
+
+msgid "viewAllVersionsEnd"
+msgstr "versions"
