@@ -153,23 +153,6 @@ class MExCustomBibTeXSchema(Schema):
     def build_citation_key(self, obj):
         return obj.get("custom_fields", {}).get("mex:identifier")
 
-    def extract_fields(self, obj):
-        """Normalize schema → BibTeX fields."""
-        cf = obj.get("custom_fields", {})
-
-        return {
-            "title": self.get_title(obj),
-            "author": self.get_creator(obj),
-            "journal": self.get_journal(obj),
-            "year": cf.get("mex:publicationYear"),
-            "volume": cf.get("mex:volume"),
-            "number": cf.get("mex:issue"),
-            "pages": cf.get("mex:pages"),
-            "doi": cf.get("mex:doi"),
-            "abstract": self.get_abstract(obj),
-            "keywords": self.get_keywords(obj),
-        }
-
     def format_field(self, key, value):
         """Format a single BibTeX field."""
         if value is None:
@@ -186,7 +169,7 @@ class MExCustomBibTeXSchema(Schema):
     def to_bibtex(self, obj):
         """Convert record dict → BibTeX string."""
         entry_type = self.resolve_bibtex_type(obj)
-        fields = self.extract_fields(obj)
+        fields = self.dump(obj)
 
         citation_key = self.build_citation_key(obj)
 
