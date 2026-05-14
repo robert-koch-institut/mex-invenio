@@ -164,7 +164,14 @@ def process_record_batch(
 
                 else:
                     # This shouldn't happen as the import files have been diffed
-                    results.append({"action": "skip", "id": record_pid, "uuid": existing_record["uuid"]})
+                    # It might happen if a previous import failed and is being re-run
+                    results.append(
+                        {
+                            "action": "skip",
+                            "id": record_pid,
+                            "uuid": existing_record["uuid"],
+                        }
+                    )
 
                 # Collect all related record UUIDs of created/updated records
                 for related_id in get_related_mex_ids(mex_data):
