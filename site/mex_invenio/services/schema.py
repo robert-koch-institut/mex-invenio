@@ -61,7 +61,8 @@ class MExCustomBibTeXSchema(Schema):
         "Thesis": "mastersthesis",
     }
 
-    def _normalize_doi(value):
+    @staticmethod
+    def _normalize_doi(value) -> str:
         DOI_PATTERN = re.compile(r"(10\.\d{4,9}/[-._;()/:A-Za-z0-9]+)")
         if not value:
             return None
@@ -73,7 +74,8 @@ class MExCustomBibTeXSchema(Schema):
         # fallback: keep original value
         return value
 
-    def _extract_by_lang(self, field_values):
+    @staticmethod
+    def _extract_by_lang(field_values) -> str:
         """Returns array of values in users language if available, otherwise all values."""
         by_lang = {}
 
@@ -178,16 +180,6 @@ class MExCustomBibTeXSchema(Schema):
 
         if not value:
             return None
-
-        # special cases
-        if key == "author":
-            return f"  author = {{{value}}}"
-
-        if key == "keywords":
-            return f"  keywords = {{{value}}}"
-
-        if key == "doi":
-            return f"  doi = {{{value}}}"
 
         return f"  {key} = {{{value}}}"
 
