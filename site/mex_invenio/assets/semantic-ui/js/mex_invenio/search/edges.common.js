@@ -829,7 +829,7 @@ mex.contributingUnitFacet = function () {
     return mex.refiningAndFacet({
         id: "contributing_unit",
         field: field,
-        title: i18n.t("Contributing Unit"),
+        title: i18n.t("contributingUnit.singular"),
         category: "left",
     });
 };
