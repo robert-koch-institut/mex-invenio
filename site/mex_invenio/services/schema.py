@@ -50,20 +50,15 @@ class MExCustomBibTeXSchema(Schema):
     keywords = fields.Method("get_keywords")
 
     entry_mappings = {
-        "journal-article": "article",
-        "book": "book",
-        "book-chapter": "inbook",
-        "book-section": "inbook",
-        "conference-paper": "inproceedings",
-        "conference-proceedings": "proceedings",
-        "thesis": "phdthesis",
-        "report": "techreport",
-        "technical-report": "techreport",
-        "working-paper": "techreport",
-        "preprint": "unpublished",
-        "manuscripts": "unpublished",
-        "booklet": "booklet",
-        "manual": "manual",
+        "Book": "book",
+        "Book chapter": "inbook",
+        "Conference Paper": "inproceedings",
+        "Doctoral thesis": "phdthesis",
+        "Habilitation thesis": "phdthesis",
+        "Journal Article": "article",
+        "Bericht": "techreport",
+        "Seminar paper": "unpublished",
+        "Thesis": "mastersthesis",
     }
 
     def _normalize_doi(value):
@@ -148,10 +143,7 @@ class MExCustomBibTeXSchema(Schema):
         rT_label = rTf[0] if rTf else None
         if rT_label:
             resourceType = (
-                current_app.config.get("PREF_LABELS")
-                .get(rT_label, {})
-                .get("en", "")
-                .lower()
+                current_app.config.get("PREF_LABELS").get(rT_label, {}).get("en", "")
             )
             return self.entry_mappings.get(resourceType, "misc")
         return "misc"
