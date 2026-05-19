@@ -56,7 +56,8 @@ class MExCustomBibTeXSchema(Schema):
         "Doctoral thesis": "phdthesis",
         "Habilitation thesis": "phdthesis",
         "Journal Article": "article",
-        "Bericht": "techreport",
+        "Report": "techreport",
+        "Preprint": "unpublished",
         "Seminar paper": "unpublished",
         "Thesis": "mastersthesis",
     }
