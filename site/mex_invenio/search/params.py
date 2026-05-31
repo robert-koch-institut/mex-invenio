@@ -1,6 +1,9 @@
 import logging
+import re
+import unicodedata
 
 from invenio_records_resources.services.records.params import ParamInterpreter
+from typing import List
 
 ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
 ABSTRACT = "custom_fields.mex:abstract.value"
@@ -344,62 +347,230 @@ class HighlightParamsInterpreter(ParamInterpreter):
 
 
 class BoostingParamsInterpreter(ParamInterpreter):
-    BOOSTS = {
-        "global": {
-            TITLE: 20,
-            LABEL: 20,
-            ALT_TITLE: 10,
-            DESCRIPTION: 10,
-            ABSTRACT: 10,
-        },
-        "resource": {
-            TITLE: 20,
-            ALT_TITLE: 10,
-            DESCRIPTION: 10,
-            KEYWORD: 10,
-        },
-        "variable": {
-            LABEL: 20,
-            USED_IN_EN: 10,
-            USED_IN_DE: 10,
-            BELONGS_TO_LABEL: 10,
-            DATA_TYPE: 10,
-            CODING_SYSTEM: 5,
-        },
-        "activity": {
-            TITLE: 20,
-            ALT_TITLE: 10,
-            ABSTRACT: 10,
-            # START: 10,
-            # END: 10
-        },
-        "bibliographicresource": {
-            TITLE: 20,
-            ALT_TITLE: 10,
-            SUBTITLE: 10,
-            ABSTRACT: 10,
-            CREATOR: 10,
-            # RESPONSIBLE_UNIT: 10
-        },
+    TITLE_AGG = [TITLE, LABEL]
+    DESC_AGG = [ALT_TITLE, DESCRIPTION, ABSTRACT]
+    DISPLAYED_AGG = [KEYWORD, USED_IN_DE, USED_IN_EN, BELONGS_TO_LABEL, DATA_TYPE, CODING_SYSTEM, SUBTITLE, CREATOR]
+
+    # These are the fields that we would lump into a single bucket if we needed
+    # to optimise the free-text search.  For now these are also reflected in the record
+    # mapping, and the free-text bucket is not implemented.
+    FREE_TEXT_SEARCH_FIELDS = [
+        "custom_fields.mex:title.value",
+        "custom_fields.mex:method.value",
+        "custom_fields.mex:keyword.value",
+        "custom_fields.mex:description.value",
+        "custom_fields.mex:instrumentToolOrApparatus.value",
+        "custom_fields.mex:website.url",
+        "custom_fields.mex:website.title",
+        "custom_fields.mex:abstract.value",
+        "custom_fields.mex:shortName.value",
+        "custom_fields.mex:documentation.title",
+        "custom_fields.mex:alternativeTitle.value",
+        "custom_fields.mex:label.value",
+        "custom_fields.mex:valueSet",
+        "index_data.belongsToLabel",
+        "index_data.contributors",
+        "index_data.creators",
+        "index_data.deFunderOrCommissioners",
+        "index_data.enFunderOrCommissioners",
+        "index_data.deUsedInResource",
+        "index_data.enUsedInResource",
+        "index_data.deVariableGroups.value",
+        "index_data.enVariableGroups.value",
+        "index_data.externalAssociates",
+        "index_data.externalPartners",
+        "index_data.involvedPersons",
+        "index_data.enContributingUnits",
+        "index_data.deContributingUnits"
+    ]
+
+    STOP_WORDS = {
+        "a", "an", "and", "the", "of", "in", "on", "for", "to", "is", "are", "with", # english
+        "und", "der", "die", "das", "ein", "eine", "in", "auf", "zu", "von", "ist" # german
     }
 
-    def _make_functions(self, typ, qs):
+    MIN_TOKEN = 4
+
+    # BOOSTS = {
+    #     "global": {
+    #         TITLE: 20,
+    #         LABEL: 20,
+    #         ALT_TITLE: 10,
+    #         DESCRIPTION: 10,
+    #         ABSTRACT: 10,
+    #     },
+    #     "resource": {
+    #         TITLE: 20,
+    #         ALT_TITLE: 10,
+    #         DESCRIPTION: 10,
+    #         KEYWORD: 10,
+    #     },
+    #     "variable": {
+    #         LABEL: 20,
+    #         USED_IN_EN: 10,
+    #         USED_IN_DE: 10,
+    #         BELONGS_TO_LABEL: 10,
+    #         DATA_TYPE: 10,
+    #         CODING_SYSTEM: 5,
+    #     },
+    #     "activity": {
+    #         TITLE: 20,
+    #         ALT_TITLE: 10,
+    #         ABSTRACT: 10,
+    #         # START: 10,
+    #         # END: 10
+    #     },
+    #     "bibliographicresource": {
+    #         TITLE: 20,
+    #         ALT_TITLE: 10,
+    #         SUBTITLE: 10,
+    #         ABSTRACT: 10,
+    #         CREATOR: 10,
+    #         # RESPONSIBLE_UNIT: 10
+    #     },
+    # }
+
+    # def _make_functions_old(self, typ, qs):
+    #     functions = []
+    #     if typ not in self.BOOSTS:
+    #         return functions
+    #     for field, weight in self.BOOSTS[typ].items():
+    #         functions.append(
+    #             {
+    #                 "filter": {
+    #                     "query_string": {
+    #                         "default_field": field,
+    #                         "query": qs,
+    #                     }
+    #                 },
+    #                 "weight": weight,
+    #             }
+    #         )
+    #     return functions
+
+    def _make_functions(self, norm, base, words) -> list:
         functions = []
-        if typ not in self.BOOSTS:
-            return functions
-        for field, weight in self.BOOSTS[typ].items():
-            functions.append(
-                {
-                    "filter": {
-                        "query_string": {
-                            "default_field": field,
-                            "query": qs,
-                        }
-                    },
-                    "weight": weight,
-                }
-            )
+
+        # 1. Exact unpunctuated, ascii-folded string appears in the field "title" -> boost 10
+        if norm:
+            functions.append({
+                "filter": _match_phrase_any_field(self.TITLE_AGG, norm),
+                # "filter": {"match_phrase": {TITLE: {"query": norm}}},
+                "weight": 50,
+            })
+
+        # 2. Any variation of any word in the query string appears in "title" -> boost 9
+        if words:
+            # functions.append({
+            #     "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.TITLE_AGG],
+            #                         "minimum_should_match": 1}},
+            #     "weight": 9,
+            # })
+            functions.append({
+                "filter": {"bool": {"should": [_wildcard_must(f, words) for f in self.TITLE_AGG],
+                                    "minimum_should_match": 1}},
+                "weight": 45,
+            })
+
+        # 3. Exact query string appears in "description" or "abstract" -> boost 8
+        if norm:
+            functions.append({
+                "filter": _match_phrase_any_field(self.DESC_AGG, norm),
+                "weight": 8,
+            })
+
+        # 4. Exact query string appears in "keyword" or "coding_system" -> boost 7
+        if norm:
+            functions.append({
+                "filter": _match_phrase_any_field(self.DISPLAYED_AGG, norm),
+                "weight": 7,
+            })
+
+        # 5. Any variation of any word in "description" or "abstract" -> boost 6
+        if words:
+            functions.append({
+                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.DESC_AGG], "minimum_should_match": 1}},
+                "weight": 6,
+            })
+
+        # 6. Any variation of any word in "keyword" or "coding_system" -> boost 5
+        if words:
+            functions.append({
+                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.DISPLAYED_AGG], "minimum_should_match": 1}},
+                "weight": 5,
+            })
+
+        # 7. Any combination of the exact words in "title" -> boost 4
+        if norm:
+            functions.append({
+                "filter": _match_and_any_field(self.TITLE_AGG, norm),
+                # "filter": {"match": {TITLE: {"query": norm, "operator": "and"}}},
+                "weight": 4,
+            })
+
+        # 8. Any combination of the exact words in "description" or "abstract" -> boost 3
+        if norm:
+            functions.append({
+                "filter": _match_and_any_field(self.DESC_AGG, norm),
+                "weight": 3,
+            })
+
+        # 9. Any combination of the exact words in "keyword" or "coding_system" -> boost 2
+        if norm:
+            functions.append({
+                "filter": _match_and_any_field(self.DISPLAYED_AGG, norm),
+                "weight": 2,
+            })
+
+        # 10. Any combination of the exact words in any other field -> boost 1.5
+        # Use a multi_match across all fields (best-effort) with operator 'and'.
+        if norm:
+            functions.append({
+                "filter": {"multi_match": {"query": norm, "operator": "and", "fields": self.FREE_TEXT_SEARCH_FIELDS}},
+                "weight": 1.5,
+            })
+
         return functions
+
+    def _normalize_text(self, text: str) -> str:
+        """Remove punctuation, ascii-fold (remove diacritics), normalize spacing.
+
+        Keeps word spacing (collapses runs of whitespace to single spaces) and
+        returns lower-cased text.
+        """
+        if not text:
+            return ""
+
+        # Replace any punctuation characters with a space. We use Unicode
+        # character categories to detect punctuation (categories starting with 'P').
+        out_chars = []
+        for ch in text:
+            if unicodedata.category(ch).startswith("P"):
+                out_chars.append(" ")
+            else:
+                out_chars.append(ch)
+        without_punct = "".join(out_chars)
+
+        # Decompose and strip diacritics, then keep only ASCII characters
+        folded = unicodedata.normalize("NFKD", without_punct)
+        ascii_only = folded.encode("ascii", "ignore").decode("ascii")
+
+        # Normalize whitespace and lowercase
+        normalized = re.sub(r"\s+", " ", ascii_only).strip().lower()
+        return normalized
+
+    def _generalise_query_string(self, qs):
+        norm = self._normalize_text(qs)
+        words = [w for w in norm.split(" ") if w and w not in self.STOP_WORDS]
+
+        # Broad query_string that searches for any variation of any word: *w1* OR *w2*
+        if words:
+            broad_query = " OR ".join([f"*{w}*" if len(w) >= self.MIN_TOKEN else w for w in words])
+        else:
+            # If no words after normalization, fall back to match_all
+            broad_query = "*"
+
+        return norm, broad_query, words
 
     def apply(self, identity, search, params):
         """Specify the highlighter fields."""
@@ -419,27 +590,83 @@ class BoostingParamsInterpreter(ParamInterpreter):
                 break
 
         if qs is not None:
-            typ = params.get("resource_type")
-            if isinstance(typ, list):
-                typ = "global"
-            functions = self._make_functions(typ, qs)
+            norm, broad_qs, words = self._generalise_query_string(qs)
+
+            # typ = params.get("resource_type")
+            # if isinstance(typ, list):
+            #     typ = "global"
+
+            functions = self._make_functions(norm, broad_qs, words)
+
+            # functions = self._make_functions(typ, qs)
             if len(functions) == 0:
                 return search
+
+            if broad_qs == "*":
+                base_query = {"match_all": {}}
+            else:
+                base_query = {"query_string": {"query": broad_qs, "default_operator": "OR", "fields": self.FREE_TEXT_SEARCH_FIELDS}}
 
             raw["query"] = {
                 "function_score": {
                     "query": base_query,
                     "functions": functions,
                     "score_mode": "sum",
-                    "boost_mode": "multiply",
+                    "boost_mode": "sum", # could also try `multiply`
                 }
             }
 
             # print(json.dumps(raw, indent=2))
             # print("-----------")
 
-            return search.from_dict(raw)
-        return search
+            search = search.from_dict(raw)
+            search = search.extra(explain=True)
+
+            # Uncomment this to get a view on the query in development
+            print("#########boosting - with query###############")
+            import json
+            print(json.dumps(search.to_dict()))
+
+            return search
+
         # Uncomment this to get a view on the query in development
-        # print("#########highlight###############")
-        # print(json.dumps(search.to_dict()))
+        print("#########boosting - no query###############")
+        import json
+        print(json.dumps(search.to_dict()))
+
+        return search
+
+
+def _wildcard_must(field: str, words: List[str]) -> dict:
+    """Build a 'bool should' wildcard filter for any of the words in a field.
+
+	Each word becomes a wildcard '*word*' on `field`.
+	"""
+    must = [{"wildcard": {field: f"*{w}*"}} for w in words if w]
+    if not must:
+        # Match nothing if no words
+        return {"bool": {"must_not": {"match_all": {}}}}
+    return {"bool": {"must": must}}
+
+def _wildcard_should(field: str, words: List[str]) -> dict:
+    """Build a 'bool should' wildcard filter for any of the words in a field.
+
+	Each word becomes a wildcard '*word*' on `field`.
+	"""
+    should = [{"wildcard": {field: f"*{w}*"}} for w in words if w]
+    if not should:
+        # Match nothing if no words
+        return {"bool": {"must_not": {"match_all": {}}}}
+    return {"bool": {"should": should, "minimum_should_match": 1}}
+
+
+def _match_phrase_any_field(fields: List[str], phrase: str) -> dict:
+    """Return a bool should of match_phrase queries for the phrase across fields."""
+    should = [{"match_phrase": {f: {"query": phrase}}} for f in fields]
+    return {"bool": {"should": should, "minimum_should_match": 1}}
+
+
+def _match_and_any_field(fields: List[str], phrase: str) -> dict:
+    """Return a bool should of match (operator: and) queries across fields."""
+    should = [{"match": {f: {"query": phrase, "operator": "and"}}} for f in fields]
+    return {"bool": {"should": should, "minimum_should_match": 1}}
