@@ -79,3 +79,8 @@ known-first-party = ["mex_invenio", "tests"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
