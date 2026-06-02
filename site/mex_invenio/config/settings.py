@@ -459,7 +459,6 @@ UI_SETTINGS = {
                     {
                         "field": "mex:publication",
                         "label": _("publication.singular"),
-                        "is_backwards_linked": True,
                     },
                     {
                         "field": "mex:documentation",
