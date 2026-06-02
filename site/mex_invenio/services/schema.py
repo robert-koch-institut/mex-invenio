@@ -1,7 +1,5 @@
 import re
 
-from flask import current_app
-from flask_babel import get_locale
 from invenio_rdm_records.services.schemas import RDMRecordSchema
 from marshmallow import Schema, fields
 from marshmallow_utils.fields import NestedAttribute, SanitizedUnicode
@@ -57,10 +55,15 @@ class MExCustomBibTeXSchema(Schema):
         "Habilitation thesis": "phdthesis",
         "Journal Article": "article",
         "Report": "techreport",
+        "Bericht": "techreport",  # this is to cover the bug in mex-model 4.10
         "Preprint": "unpublished",
         "Seminar paper": "unpublished",
         "Thesis": "mastersthesis",
     }
+
+    def __init__(self, lang="de") -> None:
+        super().__init__()
+        self.lang = lang
 
     @staticmethod
     def _normalize_doi(value) -> str:
@@ -75,8 +78,7 @@ class MExCustomBibTeXSchema(Schema):
         # fallback: keep original value
         return value
 
-    @staticmethod
-    def _extract_by_lang(field_values) -> str:
+    def _extract_by_lang(self, field_values) -> str:
         """Returns array of values in users language if available, otherwise all values."""
         by_lang = {}
 
@@ -91,9 +93,8 @@ class MExCustomBibTeXSchema(Schema):
                 by_lang[lang].append(fv.get("value"))
             else:
                 by_lang[lang] = [fv.get("value")]
-        user_lang = str(get_locale())
-        if user_lang in by_lang:
-            return by_lang[user_lang]
+        if self.lang in by_lang:
+            return by_lang[self.lang]
         return [v for values in by_lang.values() for v in values]
 
     def get_creator(self, obj):
@@ -139,15 +140,13 @@ class MExCustomBibTeXSchema(Schema):
         keywords = [k.get("value") for k in keywords_fields]
         return ", ".join(keywords) if keywords else None
 
-    def resolve_bibtex_type(self, obj):
+    def resolve_bibtex_type(self, obj, pref_labels):
         """Heuristic-based BibTeX type resolver."""
         cf = obj.get("custom_fields", {})
         rTf = cf.get("mex:bibliographicResourceType")
         rT_label = rTf[0] if rTf else None
         if rT_label:
-            resourceType = (
-                current_app.config.get("PREF_LABELS").get(rT_label, {}).get("en", "")
-            )
+            resourceType = pref_labels.get(rT_label, {}).get("en", "")
             return self.entry_mappings.get(resourceType, "misc")
         return "misc"
 
@@ -165,11 +164,11 @@ class MExCustomBibTeXSchema(Schema):
         if not value:
             return None
 
-        return f"  {key} = {{{value}}}"
+        return f"{key} = {{{value}}}"
 
-    def to_bibtex(self, obj):
+    def to_bibtex(self, obj, pref_labels):
         """Convert record dict → BibTeX string."""
-        entry_type = self.resolve_bibtex_type(obj)
+        entry_type = self.resolve_bibtex_type(obj, pref_labels)
         fields = self.dump(obj)
 
         citation_key = self.build_citation_key(obj)

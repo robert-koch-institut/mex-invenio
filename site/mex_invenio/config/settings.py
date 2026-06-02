@@ -841,8 +841,8 @@ APP_RDM_RECORD_EXPORTERS = {
 EXPORTERS_PER_RECORD_TYPE = {
     "resource": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
     "bibliographicresource": {
-        "json": APP_RDM_RECORD_EXPORTERS["json"],
         "bibtex": APP_RDM_RECORD_EXPORTERS["bibtex"],
+        "json": APP_RDM_RECORD_EXPORTERS["json"],
     },
     "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }

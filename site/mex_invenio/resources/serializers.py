@@ -1,3 +1,5 @@
+from flask import current_app
+from flask_babel import get_locale
 from flask_resources import BaseListSchema, MarshmallowSerializer
 from flask_resources.serializers import SimpleSerializer
 
@@ -12,6 +14,7 @@ class MExBibTexSerializer(MarshmallowSerializer):
         super().__init__(
             format_serializer_cls=SimpleSerializer,
             object_schema_cls=MExCustomBibTeXSchema,
+            schema_kwargs={"lang": get_locale()},
             list_schema_cls=BaseListSchema,
             encoder=self.bibtex_tostring,
             **options,
@@ -24,4 +27,5 @@ class MExBibTexSerializer(MarshmallowSerializer):
 
     def dump_obj(self, obj) -> dict:
         """Dump the object using object schema class."""
-        return self.object_schema.to_bibtex(obj)
+        pref_labels = current_app.config.get("PREF_LABELS")
+        return self.object_schema.to_bibtex(obj, pref_labels)
