@@ -131,10 +131,10 @@ msgstr "Record Description"
 msgid "Modified"
 msgstr "Modified"
 
-msgid "Search our"
+msgid "searchOur"
 msgstr "Search our"
 
-msgid "Entire Metadata Catalogue"
+msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
 msgid "Related projects/endeavors"
@@ -146,6 +146,9 @@ msgstr "Related data sources & datasets"
 # All Search Pages & Landing Pages
 msgid "All MEx"
 msgstr "All MEx"
+
+msgid "allMexRecords"
+msgstr "All MEx Records"
 
 msgid "Search records…"
 msgstr "Search records…"
@@ -164,6 +167,12 @@ msgstr "Prev"
 
 msgid "Page 1 of 1310"
 msgstr "Page 1 of 1310"
+
+msgid "of"
+msgstr "of"
+
+msgid "issued"
+msgstr "issued"
 
 msgid "Next"
 msgstr "Next"
