@@ -146,13 +146,13 @@ def test_to_bibtex(app):
     assert result.endswith("}")
 
     # Required fields are present
-    assert "creator = {Elias Morgenstern and Bruce Willis}" in result
+    assert "author = {Elias Morgenstern and Bruce Willis}" in result
     assert (
         "title = {Moonlight Contamination in Amateur Telescope Snack Selection}"
         in result
     )
-    assert "publication_year = {2002}" in result
-    assert "issue = {Q3}" in result
+    assert "year = {2002}" in result
+    assert "number = {Q3}" in result
     assert "pages = {10-12}" in result
     assert "doi = {10.1016/j.anaerobe.2016.04.006}" in result
     assert (

@@ -36,12 +36,12 @@ class MexRDMRecordSchema(RDMRecordSchema):
 class MExCustomBibTeXSchema(Schema):
     """Custom BibTeX schema replacement."""
 
-    creator = fields.Method("get_creator")
+    author = fields.Method("get_creator")
     title = fields.Method("get_title")
-    publication_year = fields.Method("get_publication_year")
+    year = fields.Method("get_publication_year")
     journal = fields.Method("get_journal")
     volume = fields.Method("get_volume")
-    issue = fields.Method("get_issue")
+    number = fields.Method("get_issue")
     pages = fields.Method("get_pages")
     doi = fields.Method("get_doi")
     abstract = fields.Method("get_abstract")
