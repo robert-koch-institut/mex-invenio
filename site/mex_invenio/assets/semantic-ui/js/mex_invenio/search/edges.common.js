@@ -5439,7 +5439,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
         let groupFrag = "";
         if (groups.length > 1) {
-            groupFrag = `<div class="groups-list"><span class="label">${i18n.t("Belongs to")}:
+            groupFrag = `<div class="groups-list"><span class="label">${i18n.t("belongsTo")}:
                 <span>` +
                 groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
                 `</span>`;

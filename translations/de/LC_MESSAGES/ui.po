@@ -636,3 +636,6 @@ msgstr "Aufrufe"
 
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
+
+msgid "belongsTo"
+msgstr "Gehört zu"
