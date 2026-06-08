@@ -41,7 +41,7 @@
                         {% if prop.field in record_data %}
                             {{ display_values(record_data[prop.field]) }}
                         {% else %}
-                            <i>{{ _("noValueProvided") }}</i>
+                            <i class="muted">{{ smart_translate(recource_type, "noValueProvided") }}</i>
                         {% endif %}
                         </div>
 

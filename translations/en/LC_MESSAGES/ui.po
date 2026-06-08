@@ -530,3 +530,9 @@ msgstr "versions"
 
 msgid "belongsTo"
 msgstr "Belongs to"
+
+msgid "noValueProvided"
+msgstr "No value provided"
+
+msgid "showMissingValues"
+msgstr "Show missing values"
