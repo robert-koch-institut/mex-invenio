@@ -37,7 +37,7 @@
     {%- endfor -%}
 {% endmacro %}
 
-{% if ns.prop_exist %}
+
     <div class="card">
         <h3>
             <img class="ui image icon"
@@ -51,36 +51,39 @@
                     {% set values = record_data[prop.field] %}
                     <div class="card-props-p forced-vertical">
                         <div class="card-prop-value">
-                            {% set total = values | length %}
-                            {% set visible = values[:max_visible] %}
-                            {% set hidden = values[max_visible:] %}
+                            {% if ns.prop_exist %}
+                                {% set total = values | length %}
+                                {% set visible = values[:max_visible] %}
+                                {% set hidden = values[max_visible:] %}
 
-                            {{ display(visible) }}
+                                {{ display(visible) }}
 
-                            {# If there are more, show "Add more" button #}
-                            {% if hidden %}
-                                <div class="more-values" style="display: none;">
-                                    {{ display(hidden) }}
-                                </div>
-                                <button
-                                    type="button"
-                                    class="ui button link-like"
-                                    onclick="
-                                        const hidden = this.previousElementSibling;
-                                        const isHidden = hidden.style.display === 'none';
-                                        hidden.style.display = isHidden ? 'block' : 'none';
-                                        this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show all")}} ({{ total }}) &#x25BE;';
-                                    "
-                                >
-                                {{_("Show all")}} ({{ total }}) &#x25BE;
-                                </button>
-                            {% endif %}
-                        </div>
+                                {# If there are more, show "Add more" button #}
+                                {% if hidden %}
+                                    <div class="more-values" style="display: none;">
+                                        {{ display(hidden) }}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="ui button link-like"
+                                        onclick="
+                                            const hidden = this.previousElementSibling;
+                                            const isHidden = hidden.style.display === 'none';
+                                            hidden.style.display = isHidden ? 'block' : 'none';
+                                            this.textContent = isHidden ? '{{_("Show less")}} &#x25B4;' : '{{_("Show all")}} ({{ total }}) &#x25BE;';
+                                        "
+                                    >
+                                    {{_("Show all")}} ({{ total }}) &#x25BE;
+                                    </button>
+                                {% endif %}
+                            </div>
                         {% set mex_id = data["mex:identifier"][0]["display_data"][0]["value"] %}
                         <a href="/search/variables?resource={{ mex_id }}" target="_blank" class="ui button primary link-like-button" style="margin-top: 1rem;">{{ _("exploreVariables") }}</a>
+                        {% else %}
+                            <i class="muted">{{ _("NoVariablesAssociatedWithThisDataset") }}</i>
+                        {% endif %}
                     </div>
                 {% endif %}
             {% endfor %}
         </div>
     </div>
-{% endif %}

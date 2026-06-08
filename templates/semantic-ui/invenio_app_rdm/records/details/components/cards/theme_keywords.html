@@ -48,8 +48,7 @@
 {% if keyword_field in data %}
     {% set keywords_raw = data[keyword_field] %}
 {% endif %}
-{% if theme_raw or keywords_raw %}
-    <div class="card">
+    <div class="card {% if not theme_raw and not keywords_raw %} hidden_when_missing {% endif %}">
         <h3>
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
@@ -63,6 +62,12 @@
                     {{ display_values(data[theme_field]) }}</p>
                 </div>
             </div>
+            {% else %}
+            <div class="card-props-p forced-vertical hidden_when_missing">
+                <div class="card-prop-value">
+                    <i class="muted">{{ smart_translate(recource_type, "noTheme") }}</i>
+                </div>
+            </div>
             {% endif %}
             {% if keywords_raw %}
             <div class="card-props-p forced-vertical">
@@ -70,7 +75,12 @@
                     {{ display_keywords(config.get("VALUES_DISPLAYED_DEFAULT", 3)) }}
                 </div>
             </div>
+            {% else %}
+            <div class="card-props-p forced-vertical hidden_when_missing">
+                <div class="card-prop-value">
+                    <i class="muted">{{ smart_translate(recource_type, "noKeywords") }}</i>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>
-{% endif %}

@@ -641,7 +641,27 @@ msgid "belongsTo"
 msgstr "Gehört zu"
 
 msgid "noValueProvided"
-msgstr "Kein Wert angegeben"
+msgstr "Nicht angegeben"
 
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
+
+# add German translation
+msgid "methodNotProvided"
+msgstr "Method not provided"
+
+# add German translation
+msgid "methodDescriptionNotProvided"
+msgstr "Method description not provided"
+
+# add German translation
+msgid "noTheme"
+msgstr "No theme provided"
+
+# add German translation
+msgid "noKeywords"
+msgstr "No keywords provided"
+
+# add German translation
+msgid "NoVariablesAssociatedWithThisDataset"
+msgstr "There are no variables associated with this dataset"
