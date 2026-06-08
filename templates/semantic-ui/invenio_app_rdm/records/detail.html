@@ -50,7 +50,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {%- block page_body %}
 {% set resource_types = ['resource', 'activity' , 'bibliographicresource'] %}
-<div class="record landing_page{% if resource_type in resource_types %} resource {% endif %}">
+<div class="record landing_page" id="landing_page">
     <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
         {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
         <div class="ui warning flashed bottom attached manage message">

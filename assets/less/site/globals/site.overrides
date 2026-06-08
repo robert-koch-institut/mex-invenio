@@ -444,8 +444,20 @@ aside {
     }
 }
 
-.landing_page.resource,
-.landing_page.activity {
+.landing_page .card.hidden_when_missing,
+.landing_page .card .card-props .card-props-p.hidden_when_missing {
+    display: none;
+}
+
+.landing_page.show-missing-data .card .card-props .card-props-p.hidden_when_missing {
+    display: grid;
+}
+
+.landing_page.show-missing-data .card.hidden_when_missing {
+    display: block;
+}
+
+.landing_page {
     margin-top: -0.5rem;
 
     .edit-btn {
@@ -508,7 +520,7 @@ aside {
 }
 
 .id-tags {
-    margin: 2rem 1rem;
+    margin: 2rem 0;
 
     .id-tag {
         display: inline-flex;
@@ -849,29 +861,6 @@ aside {
         gap: 1rem;
     }
 
-    .checkbox {
-        display: flex;
-        min-height: 2rem;
-        gap: 1rem;
-        cursor: pointer;
-
-        label {
-            color: @blackTextColor;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            cursor: pointer;
-        }
-
-        input[type="checkbox"] {
-            cursor: pointer;
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 1.5rem !important;
-        }
-    }
-
     .resource-card {
         display: flex;
         padding: 0.9375rem 0.625rem 0.625rem 0.625rem;
@@ -1039,6 +1028,28 @@ aside {
     gap: .5rem;
 }
 
+.checkbox {
+    display: flex;
+    min-height: 2rem;
+    gap: 1rem;
+    cursor: pointer;
+
+    label {
+        color: @blackTextColor;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+        cursor: pointer;
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 1.5rem !important;
+    }
+}
 
 .dropdown-with-checkbox {
     flex-direction: column;

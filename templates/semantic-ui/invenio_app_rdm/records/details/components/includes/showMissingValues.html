@@ -1,0 +1,29 @@
+<div>
+<label for="show_missing_values" class="checkbox">
+    <input type="checkbox" class="ui checkbox" id="show_missing_values"></input>
+    {{ _("showMissingValues") }}</label>
+</div>
+<script>
+    const checkbox = document.getElementById("show_missing_values");
+    const record = document.getElementById("landing_page");
+
+    // Restore preference
+    const showMissing = localStorage.getItem("showMissingData") === "true";
+
+    if (showMissing) {
+        record.classList.add("show-missing-data");
+        checkbox.checked = true;
+    }
+
+    checkbox.addEventListener("change", () => {
+        record.classList.toggle(
+            "show-missing-data",
+            checkbox.checked
+        );
+
+        localStorage.setItem(
+            "showMissingData",
+            checkbox.checked
+        );
+    });
+</script>
