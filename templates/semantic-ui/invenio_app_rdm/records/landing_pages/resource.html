@@ -25,27 +25,36 @@
         <section id="record-description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;">
             <p>{{ display_values(data[special_field("DESCRIPTION")], max_str_length=600) }}</p>
         </section>
+    {% else %}
+        <section id="record-no_description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;" class="hidden_when_missing">
+            <p><i class="muted">{{ _("noDescription") }}</i></p>
+        </section>
     {% endif %}
 {%- endblock -%}
 
 {%- block lang_and_date -%}
-        {% if special_field("LANGUAGE") in data or
-        special_field("CREATED") in data or
-        special_field("MODIFIED") in data %}
         <section class="detail">
             {% if special_field("LANGUAGE") in data %}
             <p class="muted" ><b>{{ _('Language') }}:</b> {{
                 display_values(data[special_field("LANGUAGE")]) }}</p>
+            {% else %}
+            <p class="muted hidden_when_missing" ><b>{{ _('Language') }}:</b>
+            <i class="muted">{{ _("noData") }}</i></p>
             {% endif %}
             {% if special_field("CREATED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b>{{
                 display_values(data[special_field("CREATED")]) }}</p>
+            {% else %}
+            <p class="muted hidden_when_missing" ><b>{{ _('Created') }}:</b>
+                <i class="muted">{{ _("noData") }}</i></p>
             {% endif %}
             {% if special_field("MODIFIED") in data %}
             <p class="muted"><b>{{ _('Modified') }}:</b>{{ display_values(data[special_field("MODIFIED")]) }}</p>
+            {% else %}
+            <p class="muted hidden_when_missing" ><b>{{ _('Modified') }}:</b>
+                <i class="muted">{{ _("noData") }}</i></p>
             {% endif %}
         </section>
-    {% endif %}
 {%- endblock -%}
 
 
@@ -54,37 +63,45 @@
     {% set loincval_exists = data["mex:loincId"] | length > 0 %}
     {% set meshval_exists = data["mex:meshId"] | length > 0 %}
 
-    {% if icd10val_exists or loincval_exists or meshval_exists %}
-        <section id="record-ids" aria-label="{{ _('Record IDs') }}">
+        <section id="record-ids" aria-label="{{ _('Record IDs') }}"
+                 class="{% if not icd10val_exists and not loincval_exists and not meshval_exists %} hidden_when_missing{% endif %}">
             <div class="id-tags">
-                {% if icd10val_exists %}
-                    <div class="id-tag icd10">
+                    <div class="id-tag icd10 {% if not icd10val_exists %}hidden_when_missing{% endif %}">
                         <div class="label">
                             <div class="circle"></div>
                             <p class="text">ICD-10</p>
                         </div>
+                        {% if icd10val_exists %}
                         <span >{{ display_values(data["mex:icd10code"]) }}</span>
+                        {% else %}
+                        <i class="muted">{{ _("noData") }}</i></p>
+                        {% endif %}
                     </div>
-                {% endif %}
-                {% if meshval_exists %}
-                    <div class="id-tag mesh">
+
+
+                    <div class="id-tag mesh {% if not meshval_exists %} hidden_when_missing {% endif %}">
                         <div class="label">
                             <div class="circle"></div>
                             <p class="text">MESH ID</p>
                         </div>
+                        {% if meshval_exists %}
                         <span >{{ display_extids(data["mex:meshId"]) }}</span>
+                        {% else %}
+                        <i class="muted">{{ _("noData") }}</i></p>
+                        {% endif %}
                     </div>
-                {% endif %}
-                {% if loincval_exists %}
-                    <div class="id-tag loinc">
+
+                    <div class="id-tag loinc {% if not loincval_exists %}hidden_when_missing{% endif %}">
                         <div class="label">
                             <div class="circle"></div>
                             <p class="text">LOINC</p>
                         </div>
+                        {% if loincval_exists %}
                         <span >{{ display_extids(data["mex:loincId"]) }}</span>
+                        {% else %}
+                        <i class="muted hidden_when_missing">{{ _("noData") }}</i></p>
+                        {% endif %}
                     </div>
-                {% endif %}
             </div>
         </section>
-    {% endif %}
 {%- endblock -%}

@@ -18,5 +18,9 @@
             <section id="record-abstract" aria-label="{{ _('Record Abstract') }}" style="margin-top: 1rem;">
                 <p>{{ display_values(data[special_field("ABSTRACT")], max_str_length=600) }}</p>
             </section>
+        {% else %}
+        <section id="record-no_description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;" class="hidden_when_missing">
+            <p><i class="muted">{{ _("noAbstract") }}</i></p>
+        </section>
         {% endif %}
     {%- endblock -%}

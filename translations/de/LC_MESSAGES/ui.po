@@ -665,3 +665,15 @@ msgstr "No keywords provided"
 # add German translation
 msgid "NoVariablesAssociatedWithThisDataset"
 msgstr "There are no variables associated with this dataset"
+
+# add German translation
+msgid "noDescription"
+msgstr "No description"
+
+# add German translation
+msgid "noData"
+msgstr "No data"
+
+# add German translation
+msgid "noAbstract"
+msgstr "No abstract provided"

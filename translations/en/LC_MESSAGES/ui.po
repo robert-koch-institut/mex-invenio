@@ -551,3 +551,12 @@ msgstr "No keywords provided"
 
 msgid "NoVariablesAssociatedWithThisDataset"
 msgstr "There are no variables associated with this dataset"
+
+msgid "noDescription"
+msgstr "No description"
+
+msgid "noData"
+msgstr "No data"
+
+msgid "noAbstract"
+msgstr "No abstract provided"

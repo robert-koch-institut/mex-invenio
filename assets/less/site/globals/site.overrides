@@ -445,11 +445,14 @@ aside {
 }
 
 .landing_page .hidden_when_missing,
+.landing_page .id-tag.hidden_when_missing,
 .landing_page .card.hidden_when_missing,
 .landing_page .card .card-props .card-props-p.hidden_when_missing {
     display: none;
 }
-
+.landing_page.show-missing-data .id-tag.hidden_when_missing {
+    display: inline-flex;
+}
 .landing_page.show-missing-data .card .card-props .card-props-p.hidden_when_missing {
     display: grid;
 }
