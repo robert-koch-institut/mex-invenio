@@ -1,9 +1,43 @@
-<div>
-<label for="show_missing_values" class="checkbox">
-    <input type="checkbox" class="ui checkbox" id="show_missing_values"></input>
-    {{ _("showMissingValues") }}</label>
+<style>
+    details p {
+        cursor: auto;
+        padding: 0 15px;
+        position: absolute;
+        left: 0;
+        top: 2.5rem;
+        right: 0;
+        border-left: 1px solid #404565;
+    }
+    details[open] summary {
+        font-weight: bold;
+    }
+    .lower {
+        margin-top: 5rem;
+    }
+</style>
+<div style="display: flex; gap: 1rem; align-items: center; position: relative;">
+    <label for="show_missing_values" class="checkbox" style="flex-shrink: 0; align-items: center;">
+        <input type="checkbox" class="ui checkbox" id="show_missing_values">
+        {{ _("showMissingValues") }}</label>
+    </label>
+    <details class="muted" style="cursor: pointer; max-width: 75%;" id="details-trigger">
+        <summary> What does it mean?</summary>
+        <p>Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from
+            unavailable fields. </p></details>
 </div>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const detailsTrigger = document.getElementById("details-trigger");
+        const ids = document.getElementById("record-ids")
+        if (detailsTrigger.hasAttribute("open")) {
+            ids.classList.add("open");
+        }
+
+        detailsTrigger.addEventListener("click", () => {
+            ids.classList.toggle("lower")
+        })
+    });
+
     const checkbox = document.getElementById("show_missing_values");
     const record = document.getElementById("landing_page");
 
