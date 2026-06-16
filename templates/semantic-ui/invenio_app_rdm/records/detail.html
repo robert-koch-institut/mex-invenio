@@ -52,6 +52,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 {% set resource_types = ['resource', 'activity' , 'bibliographicresource'] %}
 <div class="record landing_page" id="landing_page">
     <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
+        {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
         <div class="ui warning flashed bottom attached manage message">
             <div class="ui container">
                 <div class="ui relaxed grid">
@@ -67,6 +68,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
                 </div>
             </div>
         </div>
+        {% endif %}
     </section>
     {% if resource_type == "resource" %}
         {% include "invenio_app_rdm/records/landing_pages/resource.html" %}
