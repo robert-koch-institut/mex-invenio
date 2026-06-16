@@ -430,6 +430,15 @@ msgstr "Close menu"
 msgid "Information banner"
 msgstr "Information banner"
 
+msgid "newerVersionBannerStart"
+msgstr "There is a"
+
+msgid "newerVersion"
+msgstr "newer version"
+
+msgid "newerVersionBannerEnd"
+msgstr "of the record available"
+
 msgid ""
 "There is a %(link_start)snewer version%(link_end)s of the record\n"
 "available."
@@ -560,3 +569,9 @@ msgstr "No data"
 
 msgid "noAbstract"
 msgstr "No abstract provided"
+
+msgid "missingValuesHelpTrigger"
+msgstr "What does it mean?"
+
+msgid "missingValuesHelp"
+msgstr "Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from unavailable fields."

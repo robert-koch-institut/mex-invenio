@@ -469,7 +469,7 @@ aside {
         background-color: @mutedBackground;
         color: @mutedTextColor;
         position: absolute;
-        top: 17rem;
+        top: 25rem;
         left: -3rem;
         display: flex;
         transform: rotate(-90deg);
@@ -1081,4 +1081,36 @@ aside {
     align-self: stretch;
     background: #fff;
     margin: 10px 0px;
+}
+#landing_page {
+    #missing_values_checkbox_wrapper {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        position: relative;
+        details {
+            cursor: pointer;
+            p {
+                cursor: auto;
+                padding: 0 15px;
+                position: absolute;
+                left: 0;
+                top: 2.5rem;
+                right: 0;
+                border-left: 1px solid #404565;
+            }
+        }
+
+        details[open] summary {
+            font-weight: bold;
+        }
+        .checkbox.checkbox--missing-value {
+            flex-shrink: 0;
+            align-items: center;
+        }
+    }
+
+    #record-ids.lower {
+        margin-top: 5rem;
+    }
 }

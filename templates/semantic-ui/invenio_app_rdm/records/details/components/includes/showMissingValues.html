@@ -1,29 +1,11 @@
-<style>
-    details p {
-        cursor: auto;
-        padding: 0 15px;
-        position: absolute;
-        left: 0;
-        top: 2.5rem;
-        right: 0;
-        border-left: 1px solid #404565;
-    }
-    details[open] summary {
-        font-weight: bold;
-    }
-    .lower {
-        margin-top: 5rem;
-    }
-</style>
-<div style="display: flex; gap: 1rem; align-items: center; position: relative;">
-    <label for="show_missing_values" class="checkbox" style="flex-shrink: 0; align-items: center;">
+<div id="missing_values_checkbox_wrapper">
+    <label for="show_missing_values" class="checkbox checkbox--missing-value" style="">
         <input type="checkbox" class="ui checkbox" id="show_missing_values">
         {{ _("showMissingValues") }}</label>
     </label>
-    <details class="muted" style="cursor: pointer; max-width: 75%;" id="details-trigger">
-        <summary> What does it mean?</summary>
-        <p>Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from
-            unavailable fields. </p></details>
+    <details class="muted" id="details-trigger">
+        <summary>{{ _("missingValuesHelpTrigger") }}</summary>
+        <p>{{ _("missingValuesHelp") }}</p></details>
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {

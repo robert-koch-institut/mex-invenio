@@ -437,11 +437,14 @@ msgstr "Menü schließen"
 msgid "Information banner"
 msgstr "Informationsbanner"
 
-msgid ""
-"There is a %(link_start)snewer version%(link_end)s of the record\n"
-"available."
-msgstr ""
-"Es ist eine neuere Version des Eintrags vorhanden."
+msgid "newerVersionBannerStart"
+msgstr "Es ist eine"
+
+msgid "newerVersion"
+msgstr "neuere Version"
+
+msgid "newerVersionBannerEnd"
+msgstr "des Eintrags vorhanden"
 
 msgid "Reason"
 msgstr "Autor*in"
@@ -677,3 +680,9 @@ msgstr "No data"
 # add German translation
 msgid "noAbstract"
 msgstr "No abstract provided"
+
+msgid "missingValuesHelpTrigger"
+msgstr "What does it mean?"
+
+msgid "missingValuesHelp"
+msgstr "Shows empty fields and displays 'not provided' when no value exists, helping distinguish missing data from unavailable fields."
