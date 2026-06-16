@@ -654,6 +654,7 @@ mex.resourceDisplay = function (params) {
         renderer: new mex.renderers.ResourcesResults({
             noResultsText: params.noResultsText || i18n.t("No data sources & datasets found."),
             onSelectToggle: params.onSelectToggle || false,
+            debug: params.debug || false,
         }),
     });
 };
@@ -1853,10 +1854,9 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             let vgCount = variableGroups.length;
             let vgFrag = vgCount > 1 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${vgCount} ${i18n.t("Variable Group")}`;
             let vCount = 0;
-            if ("backwards_linked" in record["display_data"]["linked_records"]) {
-                if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
-                    vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
-                }
+            let _usedIn = edges.util.pathValue("display_data.linked_records.backwards_linked.mex:usedIn", record, []);
+            if (_usedIn) {
+                vCount = _usedIn.length;
             }
 
             let varFrag = `<p class="variables-count muted" style="margin-bottom: 0">`
@@ -4004,6 +4004,8 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         // callback to trigger when resource is selected or unselected
         this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
 
+        this.debug = edges.util.getParam(params, "debug", false);
+
         this.selector = null; // will be set in init()
 
         this.namespace = "mex-resources-results";
@@ -4036,6 +4038,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             frag = "";
             for (var i = 0; i < results.length; i++) {
                 var rec = this._renderResult(results[i], highlights);
+                if (this.debug) {
+                    let debugInfo = this._renderDebug(results[i]);
+                    rec += `<pre class="debug">${JSON.stringify(debugInfo, null, 2)}</pre>`;
+                }
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -4092,6 +4098,73 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
     }
 
+    _renderDebug(res) {
+
+        function formatExplainTree(expl, opts = {}) {
+            const maxDepth = typeof opts.maxDepth === "number" ? opts.maxDepth : 6;
+            const maxChildren = typeof opts.maxChildren === "number" ? opts.maxChildren : 20;
+            const showZero = !!opts.showZero;
+
+            if (!expl || typeof expl !== "object") {
+                return "No explanation available.";
+            }
+
+            function fmtValue(v) {
+                if (typeof v !== "number" || Number.isNaN(v)) return "?";
+                return v.toFixed(4);
+            }
+
+            function walk(node, depth) {
+                if (!node || typeof node !== "object") return [];
+                if (depth > maxDepth) return [`${"  ".repeat(depth)}... depth limit reached`];
+
+                const value = node.value;
+                const desc = node.description || "(no description)";
+                if (!showZero && typeof value === "number" && value === 0 && !node.details?.length) {
+                    return [];
+                }
+
+                const indent = "  ".repeat(depth);
+                const lines = [`${indent}- ${fmtValue(value)} :: ${desc}`];
+
+                const details = Array.isArray(node.details) ? node.details : [];
+                const slice = details.slice(0, maxChildren);
+                for (const child of slice) {
+                    lines.push(...walk(child, depth + 1));
+                }
+                if (details.length > maxChildren) {
+                    lines.push(`${indent}  ... ${details.length - maxChildren} more detail nodes`);
+                }
+
+                return lines;
+            }
+
+            return walk(expl, 0).join("<br>");
+        }
+
+        try {
+            let debug = {};
+            for (let hit of this.component.edge.result.data.hits.hits) {
+                if (hit._id === res.uuid) {
+                    debug["id"] = res.uuid;
+                    debug["score"] = hit._score;
+
+                    if (hit._explanation) {
+                        const prettyTree = formatExplainTree(hit._explanation, {
+                            maxDepth: 6,
+                            maxChildren: 25,
+                            showZero: false
+                        });
+                        debug["explain"] = prettyTree
+                    }
+                }
+            }
+            return debug;
+        } catch (e) {
+            console.log("DEBUG unavailable")
+        }
+    }
+
     _renderResult(res, highlights) {
 
         let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
@@ -4111,9 +4184,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             alt = "";
         }
 
-        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
+        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.ABSTRACT);
         if (!desc) {
-            desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
+            desc = this._getLangVal(mex.constants.ABSTRACT_CONTAINER, res, "");
             if (desc.length > 300) {
                 desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
             }
@@ -4149,11 +4222,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         frag += `<span class="tags">${accessRestrictionFrag}</span>`;
 
         let vCount = 0;
-            if ("backwards_linked" in res["display_data"]["linked_records"]) {
-                if ("mex:usedIn" in res["display_data"]["linked_records"]["backwards_linked"]) {
-                    vCount = res["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
-                }
-            }
+        let _usedIn = edges.util.pathValue("display_data.linked_records.backwards_linked.mex:usedIn", res, []);
+        if (_usedIn) {
+            vCount = _usedIn.length;
+        }
 
         frag += `
         <button type="button" class="ui icon button ${selectState} ${selectClass}"
@@ -4625,8 +4697,8 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     }
 
-    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
-    let responsibleUnit = getCreatorsNames(res["display_data"]["linked_records"]["mex:responsibleUnit"] ?? '')
+    let creators = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:creator", res) ?? '')
+    let responsibleUnit = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:responsibleUnit", res) ?? '')
 
     // let pubYear = edges.util.pathValue(
     //     "custom_fields.mex:publicationYear.date",
