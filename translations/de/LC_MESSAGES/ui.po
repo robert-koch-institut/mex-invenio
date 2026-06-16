@@ -640,12 +640,15 @@ msgstr "Aufrufe"
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
-msgid "belongsTo"
-msgstr "Gehört zu"
-
+# add German translation
 msgid "noValueProvided"
-msgstr "Nicht angegeben"
+msgstr "Not provided"
 
+# add German translation
+msgid "showMissingValues"
+msgstr "Show missing values"
+
+# add German translation
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
 
