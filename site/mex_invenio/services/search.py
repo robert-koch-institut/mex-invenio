@@ -61,6 +61,41 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         # Add other interpreters as needed
     ]
 
+
+# These are the fields that we would lump into a single bucket if we needed
+# to optimise the free-text search.  For now these are also reflected in the record
+# mapping, and the free-text bucket is not implemented.
+FREE_TEXT_SEARCH_FIELDS = [
+    "custom_fields.mex:title.value",
+    "custom_fields.mex:method.value",
+    "custom_fields.mex:keyword.value",
+    "custom_fields.mex:description.value",
+    "custom_fields.mex:instrumentToolOrApparatus.value",
+    "custom_fields.mex:website.url",
+    "custom_fields.mex:website.title",
+    "custom_fields.mex:abstract.value",
+    "custom_fields.mex:shortName.value",
+    "custom_fields.mex:documentation.title",
+    "custom_fields.mex:alternativeTitle.value",
+    "custom_fields.mex:label.value",
+    "custom_fields.mex:valueSet",
+    "index_data.belongsToLabel",
+    "index_data.contributors",
+    "index_data.creators",
+    "index_data.deFunderOrCommissioners",
+    "index_data.enFunderOrCommissioners",
+    "index_data.deUsedInResource",
+    "index_data.enUsedInResource",
+    "index_data.deVariableGroups.value",
+    "index_data.enVariableGroups.value",
+    "index_data.externalAssociates",
+    "index_data.externalPartners",
+    "index_data.involvedPersons",
+    "index_data.enContributingUnits",
+    "index_data.deContributingUnits"
+]
+
+
 class MexDumper(SearchDumper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

@@ -883,6 +883,15 @@
                         },
                         "type": "text"
                     },
+					"deContributingUnits": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    },
                     "deUsedInResource": {
                         "fields": {
                             "keyword": {
@@ -917,6 +926,15 @@
                         "type": "object"
                     },
                     "enFunderOrCommissioners": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    },
+					"enContributingUnits": {
                         "fields": {
                             "keyword": {
                                 "ignore_above": 256,
@@ -2474,7 +2492,9 @@
             "index_data.enVariableGroups.value",
             "index_data.externalAssociates",
             "index_data.externalPartners",
-            "index_data.involvedPersons"
+            "index_data.involvedPersons",
+			"index_data.enContributingUnits",
+			"index_data.deContributingUnits"
         ]
     }
 }
