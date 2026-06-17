@@ -141,6 +141,17 @@ def manage_s3_files():
     logger.addHandler(file_handler)
     logger.info("Starting S3 sync.")
 
+    # Process any diffs left pending from a previous failed run before attempting
+    # a new download. This ensures leftover diffs are imported even when the S3
+    # dump is unchanged (which would otherwise cause an early return below).
+    user_email = os.getenv(envvar_prefix + "EMAIL")
+    if user_email:
+        if not import_pending_diffs(s3_download_folder, user_email):
+            logger.error("Failed to import pending diffs from previous run. Stopping.")
+            return
+    else:
+        logger.warning("MEX_IMPORT_EMAIL not set; skipping pending diff import.")
+
     # Load s3_client and config
     try:
         s3_client, user_email, s3_bucket = get_s3_client_and_config()
