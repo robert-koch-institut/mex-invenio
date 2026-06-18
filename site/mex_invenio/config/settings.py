@@ -371,6 +371,7 @@ UI_SETTINGS = {
                 "properties": [
                     # overwritten in the template
                     {"field": "mex:theme"},
+                    {"field": "mex:healthCategory"}
                     {"field": "mex:keyword"},
                 ],
             },
@@ -390,6 +391,14 @@ UI_SETTINGS = {
                         "field": "mex:sizeOfDataBasis",
                         "label": _("sizeOfDataBasis.singular"),
                     },
+                    {
+                        "field": "mex:numberOfRecords",
+                        "label": _("numberOfRecords.singular"),
+                    },
+                    {
+                        "field": "mex:numberOfUniqueIndividuals",
+                        "label": _("numberOfUniqueIndividuals.singular"),
+                    }
                 ],
             },
             "legal": {
