@@ -381,6 +381,8 @@ UI_SETTINGS = {
                 "template": "coverage.html",
                 "properties": [
                     {"field": "mex:temporal", "label": _("temporal.singular")},
+                    {"field": "mex:start", "label": _("start.singular")},
+                    {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
                     {"field": "fn", "label": _("Typical age")},
                     {
