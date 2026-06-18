@@ -533,6 +533,8 @@ UI_SETTINGS = {
                 "icon": "distribution.svg",
                 "properties": [
                     {"field": "mex:distribution"},
+                    {"field": "mex:analytics"},
+                    {"field": "mex:sample"}
                 ],
             },
             "variables": {
