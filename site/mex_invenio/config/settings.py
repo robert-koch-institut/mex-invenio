@@ -654,6 +654,12 @@ UI_SETTINGS = {
                         ],
                     },
                     {
+                        "title": _("Related Activity"),
+                        "properties": [
+                            {"field": "mex:relatedActivity"},
+                        ],
+                    },
+                    {
                         "title": _("Related data sources & datasets"),
                         "properties": [
                             {
