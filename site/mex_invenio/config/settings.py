@@ -503,6 +503,13 @@ UI_SETTINGS = {
                             {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
                     },
+                    {
+                        "type": "component",
+                        "title": _("Related Resource"),
+                        "properties": [
+                            {"field": "mex:relatedResource"},
+                        ],
+                    }
                 ],
             },
         },
