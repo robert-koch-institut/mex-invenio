@@ -511,6 +511,13 @@ UI_SETTINGS = {
                         "properties": [
                             {"field": "mex:relatedResource"},
                         ],
+                    },
+                    {
+                        "type": "component",
+                        "title": _("Source"),
+                        "properties": [
+                            {"field": "mex:source"},
+                        ],
                     }
                 ],
             },
