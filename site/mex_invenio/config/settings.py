@@ -343,6 +343,7 @@ UI_SETTINGS = {
             },
             "LOINC": {"field": "mex:loincId", "prefixes": ["https://loinc.org/"]},
             "ICD10": {"field": "mex:icd10code"},
+            "HAS_CODE_VALUES": {"field": "mex:hasCodeValues"}
             "TITLE": {"field": "mex:title"},
         },
         "main": {
