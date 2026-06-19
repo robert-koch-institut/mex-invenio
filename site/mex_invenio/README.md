@@ -108,7 +108,7 @@ npm install
 
 ### Step 3: Convert .po to JSON
 ```bash
-npm run convert-po
+INVENIO_INSTANCE_PATH=${INVENIO_INSTANCE_PATH} npm run convert-po
 ```
 - Converts `translations/de/LC_MESSAGES/messages.po` → `assets/semantic-ui/js/mex_invenio/locales/de/translations.json`
 - Converts `translations/en/LC_MESSAGES/messages.po` → `assets/semantic-ui/js/mex_invenio/locales/en/translations.json`

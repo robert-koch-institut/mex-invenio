@@ -70,6 +70,8 @@ mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
 mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
 mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
 mex.constants.ACCESS_RESTRICTION = "custom_fields.mex:accessRestriction"
+mex.constants.POPULATION_COVERAGE_CONTAINER = "custom_fields.mex:populationCoverage"
+mex.constants.SPATIAL_CONTAINER = "custom_fields.mex:spatial"
 
 // data fields for content, where content is available as literal (or as a list of literals)
 // for display and free-text searching
@@ -100,6 +102,9 @@ mex.constants.INVOLVED_PERSON = "index_data.involvedPersons"
 mex.constants.SUBTITLE = "custom_fields.mex:subtitle.value"
 mex.constants.CREATOR = "index_data.creators"
 mex.constants.KEYWORD = "custom_fields.mex:keyword.value"
+mex.constants.MEX_ID = "custom_fields.mex:identifier"
+mex.constants.TEMPORAL = "custom_fields.mex:temporal"
+
 
 ///////////////////////////////////////////////////
 // General Functions
@@ -110,6 +115,9 @@ mex.countFormat = edges.util.numFormat({
 
 mex.fullDateFormatter = function (datestr) {
     let date = new Date(datestr);
+    if (Number.isNaN(date.getTime())) {
+        return date;
+    }
     return date.toLocaleString(mex.state.lang, {
         day: "numeric",
         month: "long",
@@ -201,6 +209,14 @@ mex._jinja_babel = function () {
     return temp;
 };
 
+/**
+ * Returns the first value which matches the user's selected language
+ *
+ * @param path
+ * @param res
+ * @param def
+ * @returns {*}
+ */
 mex.getLangVal = function (path, res, def) {
     let preferred = "";
     let field = edges.util.pathValue(path, res, []);
@@ -219,6 +235,12 @@ mex.getLangVal = function (path, res, def) {
     return field[0].value;
 };
 
+/**
+ * Returns all values in a field for the user's selected language
+ * @param path
+ * @param res
+ * @returns {*[]}
+ */
 mex.getAllLangVals = function (path, res) {
     let fields = edges.util.pathValue(path, res, []);
     let selected = [];
@@ -4093,18 +4115,17 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-
-        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
-        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+        let accessRestrictionRaw = edges.util.pathValue(mex.constants.ACCESS_RESTRICTION, res)
+        let accessRestriction = mex.vocabularyLookup(accessRestrictionRaw)
 
         let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
         if (!title) {
             title = edges.util.escapeHtml(
-                this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
+                mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
             );
         }
 
-        let alt = this._getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
@@ -4113,22 +4134,13 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
         if (!desc) {
-            desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
+            desc = mex.getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
             if (desc.length > 300) {
                 desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
             }
         }
 
-        let created = res["custom_fields"]["mex:created"];
-        let created_ui = "";
-        if (created && created.date) {
-            created_ui = mex.fullDateFormatter(created.date);
-            if (created_ui === "Invalid Date") {
-                created_ui = created.date;
-            }
-        }
-
-        let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
+        let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
@@ -4145,70 +4157,122 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card results-card"><div class="card-header">`
-        frag += `<span class="tags">${accessRestrictionFrag}</span>`;
-
         let vCount = 0;
-            if ("backwards_linked" in res["display_data"]["linked_records"]) {
-                if ("mex:usedIn" in res["display_data"]["linked_records"]["backwards_linked"]) {
-                    vCount = res["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
-                }
+        let usedIn = edges.util.pathValue(mex.constants.USED_IN_DISPLAY_BACKLINK, res);
+        if (usedIn) {
+            vCount = usedIn.length;
+        }
+
+        let mex_id = edges.util.pathValue(mex.constants.MEX_ID, res);
+
+        let popCov = mex.getAllLangVals(mex.constants.POPULATION_COVERAGE_CONTAINER, res);
+        let spatial = mex.getAllLangVals(mex.constants.SPATIAL_CONTAINER, res);
+        let temporal = edges.util.pathValue(mex.constants.TEMPORAL, res);
+
+        function createdDate(res) {
+            let created = edges.util.pathValue(mex.constants.CREATED, res);
+            let created_ui = "";
+            if (created) {
+                created_ui = mex.fullDateFormatter(created); // returns `created` if it can't be parsed
             }
+            return `<p class="date muted">${created_ui}</p>`;
+        }
 
-        frag += `
-        <button type="button" class="ui icon button ${selectState} ${selectClass}"
-                data-id="${res.id}"
-                data-state="${selectState}"
-                    title="${vCount ? selectState : i18n.t("This resource has no variables")}"
-                    aria-label="${selectState}"
-                    ${vCount ? "" : "disabled"}>
-            ${vCount ? "" : "⊘"}</button></div>
-        `
-
-            let mex_id = res["custom_fields"]["mex:identifier"]
-            if (created_ui) {
-                frag += `
-                    <p class="date muted">${created_ui}</p>
-                `
-            }
-            frag += `<h3 class="title">
-                <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-            </h3>`
-
+        function altTitle(alt) {
             if (alt) {
-                frag += `<p class="subtitle">${alt}</strong>`
+                return `<p class="subtitle">${alt}</strong>`;
             }
+            return "";
+        }
 
+        function description(desc) {
             if (desc) {
                 frag += `<p class="description">
                     ${desc.slice(0,600)}
                     ${desc.length > 600 ? "..." : ""}
                 </p>`
             }
+            return "";
+        }
 
-            if (keywords.length > 0) {
-                frag += `<div class="tags">`
-                for (let key of keywords)
-                {
-                    frag += `
-                        <span class="tag">${key}</span>
-                    `
+        function keywordTags(keywords) {
+            function tags() {
+                frag = "";
+                for (let key of keywords) {
+                    frag += `<span class="tag">${key}</span>`;
                 }
-                frag += `</div>`
+                return frag;
             }
+            if (keywords.length > 0) {
+                return `
+                    <div class="tags">
+                        ${tags()}
+                    </div>
+                `;
+            }
+            return "";
+        }
 
-            frag += `</div>`
-        ;
+        function _iconAndText(icon, label, values) {
+            let frag = "";
+            for (let entry of values) {
+                frag += `
+                <p>
+                    <i class="${icon} icon" aria-hidden="true" title="${label}"></i>
+                    <span class="sr-only">${label}</span>
+                    ${entry}
+                </p>`;
+            }
+            return frag;
+        }
+
+        function populationCoverage(cov) {
+            const label = i18n.t("mex:populationCoverage")
+            return _iconAndText("globe", label, cov);
+        }
+
+        function spatialCoverage(spatial) {
+            const label = i18n.t("mex:spatial")
+            return _iconAndText("users", label, spatial);
+        }
+
+        function temporalCoverage(temporal) {
+            if (temporal === null) {
+                return "";
+            }
+            const label = i18n.t("mex:temporal")
+            return _iconAndText("calendar", label, [temporal]);
+        }
+
+        let frag = `
+            <div class="card results-card">
+                <div class="card-header">
+                    <span class="tags">
+                        <span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[accessRestrictionRaw]}">${accessRestriction}</span>
+                        <span class="tag">${vCount} ${i18n.t("Variables")}</span>
+                    </span>
+                    
+                    <button type="button" class="ui icon button ${selectState} ${selectClass}"
+                            data-id="${res.id}"
+                            data-state="${selectState}"
+                                title="${vCount ? selectState : i18n.t("This resource has no variables")}"
+                                aria-label="${selectState}"
+                                ${vCount ? "" : "disabled"}>
+                        ${vCount ? "" : "⊘"}</button>
+                </div>
+                ${createdDate(res)}
+                <h3 class="title">
+                    <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+                </h3>
+                ${altTitle(alt)}
+                ${description(desc)}
+                ${populationCoverage(popCov)}
+                ${spatialCoverage(spatial)}
+                ${temporalCoverage(temporal)}
+                ${keywordTags(keywords)}
+            </div>`;
 
         return frag;
-    }
-
-    _getLangVal(path, res, def) {
-        return mex.getLangVal(path, res, def);
-    }
-
-    _rankedByLang(path, res) {
-        return mex.rankedByLang(path, res);
     }
 };
 
