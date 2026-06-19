@@ -44,6 +44,7 @@ mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
 mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
+mex.constants.DATA_TYPE_SORT_KW = "index_data.data_type_sort.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -5000,7 +5001,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${sortButtonMacro(mex.constants.BELONGS_TO_LABEL_KW)}
                     ${i18n.t("Variable Group")}
                 </th>
-                <th>${i18n.t("Data Type")}</th>
+                <th aria-sort="${currentDir(mex.constants.DATA_TYPE_KW, false)}">
+                    ${sortButtonMacro(mex.constants.DATA_TYPE_KW)}
+                    ${i18n.t("Data Type")}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -5052,11 +5056,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let resultHighlights = highlights && res.uuid in highlights ? highlights[res.uuid] : {};
-
-        // let langPrefix = edges.mex.state.lang;
-        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
         let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
-        // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
+
         let resourceFrag = "";
         if (resources) {
             // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
@@ -5137,16 +5138,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${codingFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Coding system")}:</span> ${codingFrag}</div>`}
                     ${valueSetFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Value set")}:</span> ${valueSetFrag}</div>`}
                 `;
-
-            //   detailFrag = `<div class="details-extra">
-            //                 ${descFrag}
-            //                 ${codingFrag}
-            //               </div>`;
         }
-
-
-        // removed from now.
-
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">

@@ -554,6 +554,9 @@ class MexDumper(SearchDumper):
         ]
         dump_data["index_data"]["label_sort"] = values
 
+        data_type = record.get("custom_fields", {}).get("mex:dataType")
+        dump_data["index_data"]["data_type_sort"] = data_type
+
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""
         record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
