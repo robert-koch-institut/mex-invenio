@@ -343,7 +343,6 @@ UI_SETTINGS = {
             },
             "LOINC": {"field": "mex:loincId", "prefixes": ["https://loinc.org/"]},
             "ICD10": {"field": "mex:icd10code"},
-            "HAS_CODE_VALUES": {"field": "mex:hasCodeValues"}
             "TITLE": {"field": "mex:title"},
         },
         "main": {
@@ -444,11 +443,19 @@ UI_SETTINGS = {
                 "title": _("Standards & Quality"),
                 "icon": "quality.svg",
                 "properties": [
-                    {"field": "mex:conformsTo", "label": _("conformsTo.singular")},
+                    {
+                        "field": "mex:conformsTo",
+                        "label": _("conformsTo.singular")
+                    },
                     {
                         "field": "mex:qualityInformation",
                         "label": _("qualityInformation.singular"),
                     },
+                    {
+                        "field": "mex:hasCodeValues",
+                        "label": _("hasCodeValues.singular")
+                    },
+
                 ],
             },
             "methodology": {
