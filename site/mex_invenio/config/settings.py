@@ -410,11 +410,18 @@ UI_SETTINGS = {
                         "field": "mex:hasLegalBasis",
                         "label": _("hasLegalBasis.singular"),
                     },
-                    {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
+                    {
+                        "field": "mex:hasPurpose",
+                        "label": _("hasPurpose.singular")
+                    },
                     {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
                     },
+                    {
+                        "field": "mex:source",
+                        "label": _("source.singular")
+                    }
                 ],
             },
             "processing": {
@@ -525,13 +532,6 @@ UI_SETTINGS = {
                         "title": _("Related Resource"),
                         "properties": [
                             {"field": "mex:relatedResource"},
-                        ],
-                    },
-                    {
-                        "type": "component",
-                        "title": _("Source"),
-                        "properties": [
-                            {"field": "mex:source"},
                         ],
                     }
                 ],
