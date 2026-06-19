@@ -455,6 +455,14 @@ UI_SETTINGS = {
                         "field": "mex:hasCodeValues",
                         "label": _("hasCodeValues.singular")
                     },
+                    {
+                        "field": "mex:analytics",
+                        "label": _("analytics.singular")
+                    },
+                    {
+                        "field": "mex:sample",
+                        "label": _("sample.singular")
+                    },
 
                 ],
             },
@@ -564,9 +572,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution"},
-                    {"field": "mex:analytics"},
-                    {"field": "mex:sample"}
+                    {"field": "mex:distribution"}
                 ],
             },
             "variables": {
