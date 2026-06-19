@@ -370,8 +370,8 @@ UI_SETTINGS = {
                 "properties": [
                     # overwritten in the template
                     {"field": "mex:theme"},
-                    {"field": "mex:healthCategory"}
-                    {"field": "mex:keyword"},
+                    {"field": "mex:healthCategory"},
+                    {"field": "mex:keyword"}
                 ],
             },
             "coverage": {
@@ -379,11 +379,25 @@ UI_SETTINGS = {
                 "icon": "coverage.svg",
                 "template": "coverage.html",
                 "properties": [
-                    {"field": "mex:temporal", "label": _("temporal.singular")},
-                    {"field": "mex:start", "label": _("start.singular")},
-                    {"field": "mex:end", "label": _("end.singular")},
-                    {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {
+                        "field": "mex:temporal",
+                        "label": _("temporal.singular")},
+                    {
+                        "field": "mex:start",
+                        "label": _("start.singular")
+                    },
+                    {
+                        "field": "mex:end",
+                        "label": _("end.singular")
+                    },
+                    {
+                        "field": "mex:spatial",
+                        "label": _("spatial.singular")
+                    },
+                    {
+                        "field": "fn",
+                        "label": _("Typical age")
+                    },
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -479,7 +493,10 @@ UI_SETTINGS = {
                 "template": "methodology.html",
                 "properties": [
                     # overwritten in the template
-                    {"field": "mex:method", "label": _("method.singular")},
+                    {
+                        "field": "mex:method",
+                        "label": _("method.singular")
+                    },
                     {
                         "field": "mex:methodDescription",
                         "label": _("methodDescription.singular"),
