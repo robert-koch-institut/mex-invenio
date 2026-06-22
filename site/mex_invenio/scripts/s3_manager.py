@@ -278,5 +278,5 @@ def manage_s3_files(initial: bool = False):
         cleanup_files(log_dir, "s3_manager")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     manage_s3_files()

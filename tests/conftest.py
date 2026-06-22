@@ -71,9 +71,7 @@ try:
         """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
 
         def rollback(self) -> None:
-            if self._transaction is None:
-                pass
-            else:
+            if self._transaction is not None:
                 self._transaction.rollback(_to_root=False)
 except (TypeError, AttributeError):
     # Fallback for older Flask-SQLAlchemy versions - use standard session
