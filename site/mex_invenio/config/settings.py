@@ -319,10 +319,7 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {
-    "restricted": "#cde0c1",
-    "open": "#ecb9bd"
-}
+ACCESS_COLOR_MAP = {"restricted": "#cde0c1", "open": "#ecb9bd"}
 
 UI_SETTINGS = {
     "resource": {
@@ -334,8 +331,12 @@ UI_SETTINGS = {
             "ACCESS_RESTRICTION": {
                 "field": "mex:accessRestriction",
                 "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP["restricted"],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP["open"],
+                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
+                        "restricted"
+                    ],
+                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
+                        "open"
+                    ],
                 },
             },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
@@ -659,8 +660,12 @@ UI_SETTINGS = {
             "ACCESS_RESTRICTION": {
                 "field": "mex:accessRestriction",
                 "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP["restricted"],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP["open"],
+                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
+                        "restricted"
+                    ],
+                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
+                        "open"
+                    ],
                 },
             },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
