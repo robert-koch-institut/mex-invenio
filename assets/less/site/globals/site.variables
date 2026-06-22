@@ -40,7 +40,7 @@
 @successBackgroundColor: @green-60;
 @errorBackgroundColor: @red-60;
 
-@lightBackground: @rki-blue-40;
+@lightBackground: rgba(224,244,252,.2);
 @highlightBackground: @highlightColor;
 @whiteBackground: @white;
 @mutedBackground: @anthracite-60;
@@ -51,10 +51,9 @@
 
 @mutedTextColor: #404565;
 
-@frontendHeaderBackgroundColor: @core-color-white-default;
+@frontendHeaderBackgroundColor: @white;
 
-@searchButtonColor: @core-color-white-default;
-@searchButtonColorTextColor: @primaryColor;
+@searchButtonColorTextColor: @white;
 
 @navbarBackgroundColor: transparent;
 @navbarGradient: linear-gradient(90deg, #03284C 23%, rgba(224, 244, 252, 0.20) 79.46%);
@@ -86,4 +85,8 @@
 @fontSize: 1rem;
 
 @borderColor: @primaryColor;
-@lightBorderColor: @rki-blue-60
+@lightBorderColor: @rki-blue-60;
+@inputBorder: @rki-blue;
+@selectBorder: @inputBorder;
+@selectionBorder: @inputBorder;
+@versionActiveColor: @highlightBackground;

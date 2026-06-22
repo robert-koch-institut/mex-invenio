@@ -1,5 +1,5 @@
 @import "../globals/definitions.less";
 
-@searchButtonColor: @rki-blue;
-@searchButtonColorTextColor: @rki-blue;
+@searchButtonColor: @primaryColor;
+@searchButtonColorTextColor: @white;
 @basicBoxShadow: none;

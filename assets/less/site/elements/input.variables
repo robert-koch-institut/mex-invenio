@@ -1,4 +1,3 @@
-@borderColor: @borderColor;
 @focusBorderColor: @rki-blue;
 @borderWidth: 1px;
 @border: @borderWidth solid @borderColor;

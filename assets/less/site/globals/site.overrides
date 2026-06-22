@@ -447,7 +447,7 @@ aside {
     margin-top: -0.5rem;
 
     .edit-btn {
-        background-color: @mutedBackground;
+        background-color: @highlightBackground;
         color: @mutedTextColor;
         position: absolute;
         top: 17rem;
@@ -1063,4 +1063,8 @@ aside {
     align-self: stretch;
     background: @white;
     margin: 10px 0px;
+}
+
+select.ui.dropdown {
+    border-color: @inputBorder !important;
 }
