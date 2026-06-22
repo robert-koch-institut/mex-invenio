@@ -57,10 +57,10 @@ mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
-mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
-mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
-mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
-mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
+mex.constants.CREATED_RANGE = "custom_fields.mex:created.date"
+mex.constants.END_RANGE = "custom_fields.mex:end.date"
+mex.constants.START_RANGE = "custom_fields.mex:start.date"
+mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date"
 
 // field containers, for those with language/value sub fields
 mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
@@ -114,8 +114,24 @@ mex.countFormat = edges.util.numFormat({
     thousandsSeparator: ",",
 });
 
-mex.fullDateFormatter = function (datestr) {
+mex.str2date = function(datestr) {
+    // try parsing as string
     let date = new Date(datestr);
+    if (!Number.isNaN(date.getTime())) {
+        return date;
+    }
+    // try parsing as int
+    date = new Date(parseInt(datestr))
+    if (!Number.isNaN(date.getTime())) {
+        return date;
+    }
+
+    // just return whatever you get when you wrap the datestr
+    return new Date(datestr);
+}
+
+mex.fullDateFormatter = function (datestr) {
+    let date = mex.str2date(datestr)
     if (Number.isNaN(date.getTime())) {
         return date;
     }
@@ -147,7 +163,8 @@ mex.displayYearMonthPeriod = function (params) {
 
     let frdisplay = false;
     if (from) {
-        frdisplay = new Date(parseInt(from)).toLocaleString(mex.state.lang, {
+        from = mex.str2date(from);
+        frdisplay = from.toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -156,7 +173,8 @@ mex.displayYearMonthPeriod = function (params) {
 
     let todisplay = false;
     if (to) {
-        todisplay = new Date(parseInt(to - 1)).toLocaleString(mex.state.lang, {
+        to = mex.str2date(to);
+        todisplay = to.toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -497,26 +515,35 @@ mex.dateHistogram = function (params) {
         displayFormatter = mex.monthFormatter;
     }
 
-    return new edges.components.DateHistogram({
+    // return new edges.components.DateHistogram({
+    //     id: params.id,
+    //     category: params.category || "left",
+    //     field: params.field,
+    //     interval: interval,
+    //     displayFormatter: displayFormatter,
+    //     sortFunction: function (values) {
+    //         values.reverse();
+    //         return values;
+    //     },
+    //     renderer: new mex.renderers.DateHistogramSelector({
+    //         title: params.title || i18n.t("Date Histogram"),
+    //         open: true,
+    //         togglable: false,
+    //         useCheckboxes: params.useCheckboxes ?? false,
+    //         showSelected: params.showSelected ?? true,
+    //         countFormat: mex.countFormat,
+    //         shortDisplay: 10
+    //     }),
+    // });
+    return new edges.components.MultiDateRangeEntry({
         id: params.id,
         category: params.category || "left",
-        field: params.field,
-        interval: interval,
-        displayFormatter: displayFormatter,
-        sortFunction: function (values) {
-            values.reverse();
-            return values;
-        },
-        renderer: new mex.renderers.DateHistogramSelector({
-            title: params.title || i18n.t("Date Histogram"),
-            open: true,
-            togglable: false,
-            useCheckboxes: params.useCheckboxes ?? false,
-            showSelected: params.showSelected ?? true,
-            countFormat: mex.countFormat,
-            shortDisplay: 10
-        }),
-    });
+        fields: [{field: params.field, display: "Date Field"}],
+        autoLookupRange: true,
+        renderer: new mex.renderers.DualEntryDateRangeSelector({
+            displayName: params.title || i18n.t("Date Range"),
+        })
+    })
 };
 
 mex.fullSearchController = function (params) {
