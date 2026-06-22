@@ -1,8 +1,15 @@
 <div id="missing_values_checkbox_wrapper">
-    <label for="show_missing_values" class="checkbox checkbox--missing-value" style="">
-        <input type="checkbox" class="ui checkbox" id="show_missing_values">
-        {{ _("showMissingValues") }}</label>
-    </label>
+    <div class="toggle-row">
+        <label class="toggle">
+            <input type="checkbox" id="show_missing_values"/>
+            <span class="track">
+                <span class="state on muted">ON</span>
+                <span class="thumb"></span>
+                <span class="state off muted">OFF</span>
+            </span>
+            <span class="label muted">Show missing metadata</span>
+        </label>
+    </div>
     <details class="muted" id="details-trigger">
         <summary>{{ _("missingValuesHelpTrigger") }}</summary>
         <p>{{ _("missingValuesHelp") }}</p></details>

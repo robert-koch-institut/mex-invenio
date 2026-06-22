@@ -444,6 +444,95 @@ aside {
     }
 }
 
+#missing_values_checkbox_wrapper {
+    #details-trigger {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Whole clickable area */
+    .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        user-select: none;
+        input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            &:checked + .track {
+                background: #B3CFEA;
+                .thumb {
+                    transform: translateX(2rem);
+                }
+                .on {
+                    opacity: 1;
+                }
+                .off {
+                    opacity: 0;
+                }
+            }
+            &:focus-visible + .track {
+                outline: 3px solid #2185d0 !important;
+                outline-offset: 2px;
+            }
+        }
+        label {
+            font-size: 1rem;
+            font-family: FiraSans, sans-serif;
+        }
+    }
+
+    .track {
+        position: relative;
+        width: 4rem;
+        height: 2rem;
+        border-radius: 999px;
+        background: white;
+        border: 1px solid #B3CFEA;
+        transition: background 200ms ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 6px;
+        box-sizing: border-box;
+    }
+
+    .thumb {
+        position: absolute;
+        width: calc(2rem - 5px);
+        height: calc(2rem - 5px);
+        border-radius: 50%;
+        border: 1px solid #B3CFEA;
+        background: white;
+        top: 2px;
+        left: 2px;
+        transition: transform 200ms ease;
+    }
+
+    .state {
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: opacity 200ms ease;
+        &.on {
+            padding-left: 2px;
+            opacity: 0;
+        }
+        &.off {
+            padding-right: 2px;
+            opacity: 1;
+        }
+    }
+
+    .label {
+        font-size: 1rem;
+        font-weight: normal;
+        color: #2b2b2b;
+    }
+}
+
 .landing_page .hidden_when_missing,
 .landing_page .id-tag.hidden_when_missing,
 .landing_page .card.hidden_when_missing,
