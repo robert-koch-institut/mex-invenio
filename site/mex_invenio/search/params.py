@@ -279,6 +279,7 @@ class GenericQueryParamsInterpreter(ParamInterpreter):
     def apply(self, identity, search, params):
         """Apply generic query parameters to the search."""
         # print("#########raw###############")
+        # import json
         # print(json.dumps(params["raw"]))
         self._validate(params["raw"])
         q = search.from_dict(params["raw"])
@@ -295,15 +296,16 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         if resource_type:
             if isinstance(resource_type, list):
                 search = search.filter(
-                    "terms", metadata__resource_type__id=resource_type
+                    "terms", metadata__resource_type__id__keyword=resource_type
                 )
             else:
                 search = search.filter(
-                    "term", metadata__resource_type__id=resource_type
+                    "term", metadata__resource_type__id__keyword=resource_type
                 )
         # Uncomment this to get a view on the query in development
-        # print("#####################################")
-        # print(json.dumps(search.to_dict()))
+        print("##############TypeLimiter###################")
+        import json
+        print(json.dumps(search.to_dict()))
         return search
 
 
@@ -573,7 +575,6 @@ class BoostingParamsInterpreter(ParamInterpreter):
         return norm, broad_query, words
 
     def apply(self, identity, search, params):
-        """Specify the highlighter fields."""
         raw = search.to_dict()
 
         # import json
@@ -584,10 +585,15 @@ class BoostingParamsInterpreter(ParamInterpreter):
         base_query = raw.get("query", {})
         musts = base_query.get("bool", {}).get("must", [])
         qs = None
-        for m in musts:
+        idx = None
+        for i, m in enumerate(musts):
             if "query_string" in m:
                 qs = m["query_string"].get("query")
+                idx = i
                 break
+
+        if idx is not None:
+            del musts[idx]
 
         if qs is not None:
             norm, broad_qs, words = self._generalise_query_string(qs)
@@ -602,10 +608,8 @@ class BoostingParamsInterpreter(ParamInterpreter):
             if len(functions) == 0:
                 return search
 
-            if broad_qs == "*":
-                base_query = {"match_all": {}}
-            else:
-                base_query = {"query_string": {"query": broad_qs, "default_operator": "OR", "fields": self.FREE_TEXT_SEARCH_FIELDS}}
+            if broad_qs != "*":
+                musts.append({"query_string": {"query": broad_qs, "default_operator": "OR", "fields": self.FREE_TEXT_SEARCH_FIELDS}})
 
             raw["query"] = {
                 "function_score": {

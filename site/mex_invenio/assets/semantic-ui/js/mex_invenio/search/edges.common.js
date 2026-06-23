@@ -4040,7 +4040,12 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 var rec = this._renderResult(results[i], highlights);
                 if (this.debug) {
                     let debugInfo = this._renderDebug(results[i]);
-                    rec += `<pre class="debug">${JSON.stringify(debugInfo, null, 2)}</pre>`;
+                    rec += `
+                        <details class="debug">
+                            <summary>Debug info</summary>
+                            <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
+                        </details>
+                    `;
                 }
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
