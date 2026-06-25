@@ -12,6 +12,14 @@ freezegun = "*"
 docker-services-cli = "*"
 mypy = ">=1"
 ruff = ">=0.15"
+lxml-stubs = "*"
+types-pymysql = "*"
+types-pygments = "*"
+types-colorama = "*"
+types-pexpect = "*"
+types-polib = "*"
+types-python-dateutil = "*"
+types-setuptools = "*"
 
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}

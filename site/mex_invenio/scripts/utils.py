@@ -100,7 +100,7 @@ def mex_to_invenio_schema(config, mex_data: dict) -> dict:
     }
 
     for k in mex_data:
-        data["custom_fields"][f"mex:{k}"] = mex_data[k]
+        data["custom_fields"][f"mex:{k}"] = mex_data[k]  # type: ignore[index]
 
     return data
 

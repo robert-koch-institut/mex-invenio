@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "dc3b501e4df1448997ec181f7c25f113286df0f0b866c199974036f95f0a7457"
+            "sha256": "0411d8e0967f88e77ed43cbbdd23f0532b7886eadb0e747b2cdd55954519bf55"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -4170,6 +4170,14 @@
             "markers": "python_version >= '3.9'",
             "version": "==0.11.0"
         },
+        "lxml-stubs": {
+            "hashes": [
+                "sha256:1f689e5dbc4b9247cb09ae820c7d34daeb1fdbd1db06123814b856dae7787272",
+                "sha256:e0ec2aa1ce92d91278b719091ce4515c12adc1d564359dfaf81efa7d4feab79d"
+            ],
+            "index": "pypi",
+            "version": "==0.5.1"
+        },
         "markupsafe": {
             "hashes": [
                 "sha256:0303439a41979d9e74d18ff5e2dd8c43ed6c6001fd40e5bf2e43f7bd9bbc523f",
@@ -4561,6 +4569,77 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==2.4.0"
+        },
+        "types-colorama": {
+            "hashes": [
+                "sha256:3a8916039e57452bd21f57e674e1f221ca9e4f319893c5e3bbd37b845c27d8e6",
+                "sha256:b0c39908a3e5171ef1f8bf3d59fae082e9eaff3a19ca49b6d640b83f78cff61c"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==0.4.15.20260508"
+        },
+        "types-docutils": {
+            "hashes": [
+                "sha256:2c45ba63a9ac64246335359b68fe9c27602926499c9b67caec3780745f6aadee",
+                "sha256:9c4cbc37d9e37f47dfe971ac09e9880380dc948ff1f23956892e810d0bf08676"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==0.22.3.20260518"
+        },
+        "types-pexpect": {
+            "hashes": [
+                "sha256:38c373798209428dd90988b6fd4b8839c68c7e3ed79215f1ab11fa42d7ff9427",
+                "sha256:bf2422e825e4efe29cc4a1b7bdc3c375ae97d9c3046ce6b2018c100fb049c262"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==4.9.0.20260518"
+        },
+        "types-polib": {
+            "hashes": [
+                "sha256:1a6b9bd7eab3672a1c2e54c939b3fb720241e2b671e34a60cb82d2f791eba025",
+                "sha256:2b593a1c6eceb1c4d2ef41054d24ec17c5ee3ec4f2a29a26ece75d8f5715420f"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==1.2.0.20260518"
+        },
+        "types-pygments": {
+            "hashes": [
+                "sha256:bcab233d0389cb0a91146eb860e7bdcbceaa0f30bee73cefc7b367129cc4a330",
+                "sha256:e40728efd00c9da5936366648d5b3c55e72ed52bdd80495a96577b4d717c4fcb"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==2.20.0.20260518"
+        },
+        "types-pymysql": {
+            "hashes": [
+                "sha256:39a2448c4267dc4551e0824d2bfaecf7dfd171e89e6dbba90f4d4d45d55e4342",
+                "sha256:cf697ce4e44124fc859e8e8a7f047c1dc864745c3c628b85a51b3ee01502ef98"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==1.1.0.20260518"
+        },
+        "types-python-dateutil": {
+            "hashes": [
+                "sha256:51f02dc03b61c7f6a07df45797d4dfe8a1aa47f0b7db9ad89f6fd3a1a70e1b51",
+                "sha256:d6a9c5bd0de61460c8fdef8ab2b400f956a1a1075cce08d4e2b4434e478c50b8"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==2.9.0.20260518"
+        },
+        "types-setuptools": {
+            "hashes": [
+                "sha256:31c04a62b57a653a5021caf191be0f10f70df890f813b51f02bab3969d300f20",
+                "sha256:3b743cfe63d0981ea4c15b90710fc1ed41e3464a537d51e705be514e891c1d07"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==82.0.0.20260518"
         },
         "typing-extensions": {
             "hashes": [

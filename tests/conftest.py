@@ -75,7 +75,7 @@ try:
                 self._transaction.rollback(_to_root=False)
 except (TypeError, AttributeError):
     # Fallback for older Flask-SQLAlchemy versions - use standard session
-    PytestInvenioSession = None
+    PytestInvenioSession = None  # type: ignore[misc, assignment]
 
 
 @pytest.fixture
