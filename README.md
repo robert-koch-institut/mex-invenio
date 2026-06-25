@@ -2,10 +2,8 @@
 
 Invenio-based institutional repository and metadata platform.
 
-[![cookiecutter](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cookiecutter.yml/badge.svg)](https://github.com/robert-koch-institut/mex-template)
 [![cve-scan](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml)
 [![linting](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml)
-[![open-code](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/open-code.yml/badge.svg)](https://gitlab.opencode.de/robert-koch-institut/mex/mex-invenio)
 [![testing](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml)
 
 ## Project
@@ -60,7 +58,7 @@ components of the MEx project are open-sourced under the same license as well.
 
 ### Installation
 
-- install python3.11 on your system
+- install python on your system
 - on unix, run `make install`
 - on windows, run `.\mex.bat install`
 

@@ -1,5 +1,6 @@
 [tool.cruft]
 template = "https://github.com/robert-koch-institut/mex-template"
+skip = ["CHANGELOG.md", "mex", "tests"]
 
 [tool.ipdb]
 context = 5

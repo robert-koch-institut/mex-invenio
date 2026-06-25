@@ -1,15 +1,15 @@
 fail_fast: false
-default_language_version:
-  python: python3.11
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.13
+    rev: v0.15.16
     hooks:
       - id: ruff-check
+        name: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
+        name: ruff-format
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: pretty-format-json
         name: json
@@ -32,3 +32,12 @@ repos:
       files: ^Pipfile[\.lock]?$
       language: system
       pass_filenames: false
+  - repo: local
+    hooks:
+    - id: mypy
+      name: mypy
+      entry: pipenv run dmypy run --timeout 7200 -- site tests
+      files: ^(site|tests)/|pyproject\.toml$
+      language: system
+      pass_filenames: false
+      types: [python]
