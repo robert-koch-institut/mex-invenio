@@ -640,52 +640,35 @@ msgstr "Aufrufe"
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
-# add German translation
 msgid "noValueProvided"
-msgstr "Not provided"
+msgstr "Nicht angegeben"
 
-# add German translation
-msgid "showMissingValues"
-msgstr "Show missing values"
-
-# add German translation
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
 
-# add German translation
 msgid "methodNotProvided"
-msgstr "Method not provided"
+msgstr "Methode nicht angegeben"
 
-# add German translation
 msgid "methodDescriptionNotProvided"
-msgstr "Method description not provided"
+msgstr "Methodenbeschreibung nicht angegeben"
 
-# add German translation
-msgid "noTheme"
-msgstr "No theme provided"
-
-# add German translation
 msgid "noKeywords"
-msgstr "No keywords provided"
+msgstr "Stichwort nicht angegeben"
 
-# add German translation
 msgid "NoVariablesAssociatedWithThisDataset"
-msgstr "There are no variables associated with this dataset"
+msgstr "Es sind keine Variablen mit diesem Datensatz/Datenbestand verknüpft"
 
-# add German translation
 msgid "noDescription"
-msgstr "No description"
+msgstr "Beschreibung nicht angegeben"
 
-# add German translation
 msgid "noData"
-msgstr "No data"
+msgstr "Keine Daten"
 
-# add German translation
 msgid "noAbstract"
-msgstr "No abstract provided"
+msgstr "Kurzbeschreibung nicht angegeben"
 
 msgid "missingValuesHelpTrigger"
-msgstr "What does it mean?"
+msgstr "Was bewirkt das?"
 
 msgid "missingValuesHelp"
-msgstr "Shows empty fields and displays 'not provided' when no value exists, helping distinguish missing data from unavailable fields."
+msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Nicht angegeben“ dargestellt."
