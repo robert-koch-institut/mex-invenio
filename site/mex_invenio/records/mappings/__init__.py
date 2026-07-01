@@ -8,7 +8,7 @@
 
 This package contains the search engine mappings for MEX records.
 The directory structure follows the pattern:
-    - os_v2/mexrecords/records/record-v8.0.0.json
+    - os-v2/mexrecords/records/record-v8.0.0.json
 The mappings are automatically discovered and registered by Invenio
 through the entry point: mexrecords = mex_invenio.records.mappings.
 """

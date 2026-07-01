@@ -9,6 +9,10 @@ context = 5
 show_error_codes = true
 strict = false
 disable_error_code = ["import-untyped"]
+# The OpenSearch mappings folder must be named `os-v2` (with a hyphen) so that
+# invenio-search can discover it at runtime; that is not a valid Python package
+# name, so exclude it from mypy's package discovery.
+exclude = ["site/mex_invenio/records/mappings/os-v2/"]
 
 [tool.pytest.ini_options]
 addopts = [
