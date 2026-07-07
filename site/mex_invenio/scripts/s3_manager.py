@@ -36,6 +36,7 @@ from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import (
     get_subdir_by_order,
     get_timestamp,
+    prune_dated_subdirs,
     read_json_file,
     setup_file_logging,
 )
@@ -140,6 +141,26 @@ def manage_s3_files():
     file_handler = setup_file_logging(log_dir, name="s3_manager")
     logger.addHandler(file_handler)
     logger.info("Starting S3 sync.")
+
+    # Prune old processed dumps unconditionally, before anything else that
+    # could fail/exit early -- this is routine disk housekeeping and
+    # shouldn't depend on whether this run finds new data to sync.
+    try:
+        processed_keep = int(os.getenv(envvar_prefix + "PROCESSED_DUMPS_KEEP", "20"))
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid {envvar_prefix}PROCESSED_DUMPS_KEEP value; defaulting to 20."
+        )
+        processed_keep = 20
+
+    removed = prune_dated_subdirs(
+        os.path.join(s3_download_folder, "processed"), processed_keep
+    )
+    if removed:
+        logger.info(
+            f"Pruned {len(removed)} old processed dump(s), "
+            f"keeping the {processed_keep} most recent."
+        )
 
     # Load s3_client and config
     try:

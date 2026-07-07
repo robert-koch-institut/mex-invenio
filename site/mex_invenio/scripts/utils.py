@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import time
 from collections.abc import Callable
 from datetime import datetime, timezone
@@ -288,6 +289,48 @@ def _read_state(state_file: str) -> dict | None:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return None
+
+
+def list_dated_subdirs(root: str) -> list:
+    """Return all timestamp-named subdirectory paths under root, oldest first.
+
+    Matches the same numeric-directory-name convention as get_subdir_by_order,
+    but returns every match instead of just the newest/oldest.
+    """
+    found = []
+    for dirpath, dirnames, _ in os.walk(root):
+        for name in dirnames:
+            if re.match(r"^\d+$", name):
+                found.append(os.path.join(dirpath, name))
+    found.sort(key=os.path.basename)
+    return found
+
+
+def prune_dated_subdirs(root: str, keep: int) -> list:
+    """Remove all but the `keep` most recent timestamp-named subdirectories under root.
+
+    `keep` must be >= 1; anything else is treated as a misconfiguration and
+    skipped entirely (rather than risk deleting everything, including the
+    most recent dump that generate_diff() still needs).
+
+    Returns the list of removed directory paths.
+    """
+    if keep < 1:
+        logger.warning(f"prune_dated_subdirs: ignoring invalid keep={keep} (must be >= 1).")
+        return []
+
+    dirs = list_dated_subdirs(root)
+    to_remove = dirs[:-keep] if keep < len(dirs) else []
+
+    removed = []
+    for d in to_remove:
+        try:
+            shutil.rmtree(d)
+            removed.append(d)
+        except OSError as e:
+            logger.warning(f"Could not remove old dump directory {d}: {e}")
+
+    return removed
 
 
 def get_subdir_by_order(root: str, most_recent: bool = True) -> str | None:
