@@ -392,6 +392,12 @@ def import_data(
             f" (installed: {installed_model_version}). Import did not proceed."
             " Mex-model might need to be updated."
         )
+        # Record this as a failure so it's visible via .import_state (and to
+        # any monitoring built on it) rather than silently leaving whatever
+        # state was there before -- this failure otherwise repeats invisibly
+        # on every subsequent run until mex-model is upgraded.
+        now = datetime.now(timezone.utc).isoformat()
+        _write_state(state_file, "failed", started_at=now, finished_at=now)
         return False
 
     if not os.path.isfile(import_file):

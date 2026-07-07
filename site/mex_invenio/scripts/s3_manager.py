@@ -267,7 +267,14 @@ def manage_s3_files():
     successful_import = import_pending_diffs(s3_download_folder, user_email)
 
     if not successful_import:
-        logger.error("Failed to import pending diffs.")
+        # Do NOT log "S3 sync complete." here -- that line is relied on
+        # (by monitoring, e.g. check_import_status.py) as a positive signal
+        # that this run genuinely succeeded. Exiting non-zero also makes the
+        # failure visible via the Job's own status.
+        logger.error(
+            "S3 sync did NOT complete successfully: failed to import pending diffs."
+        )
+        sys.exit(1)
 
     logger.info("S3 sync complete.")
     return
