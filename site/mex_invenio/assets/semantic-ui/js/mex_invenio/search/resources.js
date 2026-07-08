@@ -54,7 +54,7 @@ edges.instances.resources.init = function() {
             mex.pager({showRecordCount: false}),
 
             // The results
-            mex.resourceDisplay({debug: true}),
+            mex.resourceDisplay({debug: false}),
 
             // right side resource selector
             mex.resourceSelector(),
