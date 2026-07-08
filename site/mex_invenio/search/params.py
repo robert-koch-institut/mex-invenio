@@ -453,7 +453,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
     def _make_functions(self, norm, base, words) -> list:
         functions = []
 
-        # 1. Exact unpunctuated, ascii-folded string appears in the field "title" -> boost 10
+        # 1. Exact unpunctuated, ascii-folded string appears in the field "title"
         if norm:
             functions.append({
                 "filter": _match_phrase_any_field(self.TITLE_AGG, norm),
@@ -461,17 +461,20 @@ class BoostingParamsInterpreter(ParamInterpreter):
                 "weight": 50,
             })
 
-        # 2. Any variation of any word in the query string appears in "title" -> boost 9
+        # 2. Any variation of all words in the query string appears in "title"
         if words:
-            # functions.append({
-            #     "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.TITLE_AGG],
-            #                         "minimum_should_match": 1}},
-            #     "weight": 9,
-            # })
             functions.append({
                 "filter": {"bool": {"should": [_wildcard_must(f, words) for f in self.TITLE_AGG],
                                     "minimum_should_match": 1}},
                 "weight": 45,
+            })
+
+        # 2a. Any variation of any words in the query string in "title"
+        if words:
+            functions.append({
+                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.TITLE_AGG],
+                                    "minimum_should_match": 1}},
+                "weight": 40,
             })
 
         # 3. Exact query string appears in "description" or "abstract" -> boost 8
