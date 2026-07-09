@@ -165,3 +165,95 @@ def test_generate_diff_success(
     assert "20240301000001" in result
     mock_compute.assert_called_once()
     mock_move.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# generate_diff — model-version scoping and upgrade-transition fallback
+# ---------------------------------------------------------------------------
+
+
+def test_generate_diff_oldest_download_scoped_to_model_version(app_ctx, app_config):
+    """The pending-download lookup is scoped to this model version only."""
+    seen_roots = []
+
+    def subdir(root, most_recent=True):  # noqa: FBT002
+        seen_roots.append((root, most_recent))
+
+    with patch(f"{_MODULE}.get_subdir_by_order", side_effect=subdir):
+        assert generate_diff("5.0") is None
+
+    base = str(app_config["S3_DOWNLOAD_FOLDER"])
+    # The pending-download lookup (always the first call) must be scoped to
+    # this model version; unrelated to whether a fallback happens afterwards
+    # for the processed-dump lookup.
+    assert seen_roots[0] == (os.path.join(base, "downloaded", "5.0"), False)
+
+
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20260201000001")
+@patch(f"{_MODULE}.shutil.move")
+@patch(
+    f"{_MODULE}.compute_diff",
+    return_value={"new_or_changed_count": 3, "processed_count": 3},
+)
+def test_generate_diff_falls_back_to_other_version_when_first_run(
+    mock_compute, mock_move, app_ctx, app_config
+):
+    """A brand-new model version diffs against the most recent processed dump of any version when it has no processed history of its own (upgrade transition, e.g. 4.10 -> 5.0)."""
+    base = str(app_config["S3_DOWNLOAD_FOLDER"])
+    dl_sub = os.path.join(base, "downloaded", "5.0", "20260201000000")
+    pr_sub_410 = os.path.join(base, "processed", "4.10", "20260101000000")
+    os.makedirs(dl_sub, exist_ok=True)
+    os.makedirs(pr_sub_410, exist_ok=True)
+
+    def subdir(root, most_recent=True):  # noqa: FBT002
+        if root == os.path.join(base, "downloaded", "5.0"):
+            return dl_sub
+        if root == os.path.join(base, "processed", "5.0"):
+            return None  # no processed history yet for the new version
+        if root == os.path.join(base, "processed"):
+            return pr_sub_410  # global fallback finds the old version's dump
+        return None
+
+    with patch(f"{_MODULE}.get_subdir_by_order", side_effect=subdir):
+        result = generate_diff("5.0")
+
+    assert result is not None
+    downloaded_file, processed_file, _diff_file = mock_compute.call_args[0]
+    assert downloaded_file == os.path.join(dl_sub, "items.ndjson")
+    assert processed_file == os.path.join(pr_sub_410, "items.ndjson")
+
+
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20260301000001")
+@patch(f"{_MODULE}.shutil.move")
+@patch(
+    f"{_MODULE}.compute_diff",
+    return_value={"new_or_changed_count": 1, "processed_count": 1},
+)
+def test_generate_diff_prefers_own_version_processed_over_other_versions(
+    mock_compute, mock_move, app_ctx, app_config
+):
+    """A model version's own processed history is used as the diff baseline, never another version's, even if that other version's dump sorts as more recent."""
+    base = str(app_config["S3_DOWNLOAD_FOLDER"])
+    dl_sub = os.path.join(base, "downloaded", "5.0", "20260301000000")
+    pr_sub_50 = os.path.join(base, "processed", "5.0", "20260201000000")
+    pr_sub_410 = os.path.join(base, "processed", "4.10", "20260225000000")
+    os.makedirs(dl_sub, exist_ok=True)
+    os.makedirs(pr_sub_50, exist_ok=True)
+    os.makedirs(pr_sub_410, exist_ok=True)
+
+    def subdir(root, most_recent=True):  # noqa: FBT002
+        if root == os.path.join(base, "downloaded", "5.0"):
+            return dl_sub
+        if root == os.path.join(base, "processed", "5.0"):
+            return pr_sub_50
+        if root == os.path.join(base, "processed"):
+            # Would be picked up if scoping were broken -- must not be used.
+            return pr_sub_410
+        return None
+
+    with patch(f"{_MODULE}.get_subdir_by_order", side_effect=subdir):
+        result = generate_diff("5.0")
+
+    assert result is not None
+    _downloaded_file, processed_file, _diff_file = mock_compute.call_args[0]
+    assert processed_file == os.path.join(pr_sub_50, "items.ndjson")

@@ -355,3 +355,121 @@ def test_diff_failure_skips_import(
 
     assert result.exit_code == 0
     mock_import_pending.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# manage_s3_files — multiple model versions in the same bucket/run
+# ---------------------------------------------------------------------------
+
+
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20260401000001")
+@patch(f"{_MODULE}.import_pending_diffs")
+@patch(f"{_MODULE}.generate_diff")
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_unchanged_version_does_not_block_other_versions_in_same_run(
+    mock_get_subdir,
+    mock_read_json,
+    mock_generate_diff,
+    mock_import_pending,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """One model version being unchanged must not stop other versions in the same bucket listing from being downloaded and diffed in the same run."""
+    download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
+    processed_path = os.path.join(download_folder, "processed")
+    last_processed_410 = os.path.join(processed_path, "4.10", "20260101000000")
+
+    def fake_subdir(root, most_recent=True):  # noqa: FBT002
+        if root == os.path.join(processed_path, "4.10"):
+            return last_processed_410
+        if root == os.path.join(processed_path, "5.0"):
+            return None  # 5.0 has no processed history yet
+        if root == processed_path:
+            return last_processed_410  # global fallback for 5.0's first run
+        return None
+
+    mock_get_subdir.side_effect = fake_subdir
+    mock_read_json.side_effect = [
+        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # 4.10 new metadata
+        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # 4.10 last processed
+        ("5.0", "new_checksum", "2026-04-01T00:00:00Z"),  # 5.0 new metadata
+        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # fallback baseline
+    ]
+    mock_generate_diff.return_value = os.path.join(
+        download_folder, "diffs", "20260401000001", "diff.ndjson"
+    )
+    mock_import_pending.return_value = True
+
+    def fake_download(bucket, key, dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write("{}")
+
+    s3_client.download_file.side_effect = fake_download
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [
+            {"Key": "4.10/metadata.json", "LastModified": "2026-01-01"},
+            {"Key": "5.0/metadata.json", "LastModified": "2026-04-01"},
+        ]
+    }
+
+    result = cli_runner(manage_s3_files)
+
+    assert result.exit_code == 0
+    mock_generate_diff.assert_called_once_with("5.0")
+    mock_import_pending.assert_called_once()
+
+
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20260501000001")
+@patch(f"{_MODULE}.import_pending_diffs")
+@patch(f"{_MODULE}.generate_diff")
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_new_model_version_falls_back_to_other_version_baseline(
+    mock_get_subdir,
+    mock_read_json,
+    mock_generate_diff,
+    mock_import_pending,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """The first dump of a new model version compares against the last processed dump of whatever version came before it, instead of being skipped as 'no processed dump found'."""
+    download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
+    processed_path = os.path.join(download_folder, "processed")
+    fallback_path = os.path.join(processed_path, "4.10", "20260101000000")
+
+    def fake_subdir(root, most_recent=True):  # noqa: FBT002
+        if root == os.path.join(processed_path, "5.0"):
+            return None  # no 5.0 history yet
+        if root == processed_path:
+            return fallback_path
+        return None
+
+    mock_get_subdir.side_effect = fake_subdir
+    mock_read_json.side_effect = [
+        ("5.0", "new_checksum", "2026-04-01T00:00:00Z"),
+        ("4.10", "old_checksum", "2026-01-01T00:00:00Z"),
+    ]
+    mock_generate_diff.return_value = os.path.join(
+        download_folder, "diffs", "20260501000001", "diff.ndjson"
+    )
+    mock_import_pending.return_value = True
+
+    def fake_download(bucket, key, dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write("{}")
+
+    s3_client.download_file.side_effect = fake_download
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [{"Key": "5.0/metadata.json", "LastModified": "2026-04-01"}]
+    }
+
+    result = cli_runner(manage_s3_files)
+
+    assert result.exit_code == 0
+    mock_generate_diff.assert_called_once_with("5.0")
+    mock_import_pending.assert_called_once()

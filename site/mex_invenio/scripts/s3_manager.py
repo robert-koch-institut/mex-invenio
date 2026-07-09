@@ -173,101 +173,103 @@ def manage_s3_files():
     if len(metadata_files) == 0:
         logger.info("No metadata files found in the bucket.")
         return
-    if len(metadata_files) > 1:
-        logger.info("Multiple metadata files found in the bucket.")
-        return
 
-    metadata_file = metadata_files[0]
+    for metadata_file in metadata_files:
+        # Create tmp draft downloaded location for dump
+        dump_folder = f"draft-{get_timestamp()}"
+        # e.g. s3_downloads/downloaded/tmp/draft-20260430104905
+        tmp_dump_path = os.path.join(download_path, "tmp", dump_folder)
+        os.makedirs(tmp_dump_path, exist_ok=True)
+        logger.info(f"Fetching metadata: {metadata_file['Key']}")
 
-    # Create tmp draft downloaded location for dump
-    dump_folder = f"draft-{get_timestamp()}"
-    # e.g. s3_downloads/downloaded/tmp/draft-20260430104905
-    tmp_dump_path = os.path.join(download_path, "tmp", dump_folder)
-    os.makedirs(tmp_dump_path, exist_ok=True)
-    logger.info(f"Fetching metadata: {metadata_file['Key']}")
+        # Download metadata file
+        new_metadata_file = os.path.join(tmp_dump_path, "metadata.json")
 
-    # Download metadata file
-    new_metadata_file = os.path.join(tmp_dump_path, "metadata.json")
+        try:
+            s3_client.download_file(s3_bucket, metadata_file["Key"], new_metadata_file)
+        except Exception as e:
+            logger.error(f"Failed to download file {new_metadata_file}: {e}")
+            shutil.rmtree(tmp_dump_path)
+            sys.exit(1)
 
-    try:
-        s3_client.download_file(s3_bucket, metadata_file["Key"], new_metadata_file)
-    except Exception as e:
-        logger.error(f"Failed to download file {new_metadata_file}: {e}")
-        shutil.rmtree(tmp_dump_path)
-        sys.exit(1)
+        try:
+            new_model_version, new_checksum, new_timestamp = read_json_file(
+                new_metadata_file
+            )
+        except Exception as e:
+            logger.error(f"Failed to read file {new_metadata_file}: {e}")
+            shutil.rmtree(tmp_dump_path)
+            continue
 
-    try:
-        new_model_version, new_checksum, new_timestamp = read_json_file(
-            new_metadata_file
-        )
-    except Exception as e:
-        logger.error(f"Failed to read file {new_metadata_file}: {e}")
-        shutil.rmtree(tmp_dump_path)
-        return
+        # Prefer the last processed dump for this model version; fall back to the
+        # globally most recent processed dump (of any version) so that the first
+        # dump of a newly-introduced model version diffs against the last known
+        # good state during a version upgrade.
+        last_processed_path = get_subdir_by_order(
+            os.path.join(processed_path, new_model_version)
+        ) or get_subdir_by_order(processed_path)
 
-    last_processed_path = get_subdir_by_order(processed_path)
+        if not last_processed_path:
+            logger.warning(
+                "No processed dump found; cannot determine if new data is available."
+            )
+            shutil.rmtree(tmp_dump_path)
+            continue
 
-    if not last_processed_path:
-        logger.warning(
-            "No processed dump found; cannot determine if new data is available."
-        )
-        shutil.rmtree(tmp_dump_path)
-        return
+        most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
 
-    most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
+        try:
+            _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
+        except Exception as e:
+            logger.error(f"Failed to read file {most_recent_metadata_file}: {e}")
+            shutil.rmtree(tmp_dump_path)
+            continue
 
-    try:
-        _, last_checksum, last_timestamp = read_json_file(most_recent_metadata_file)
-    except Exception as e:
-        logger.error(f"Failed to read file {most_recent_metadata_file}: {e}")
-        shutil.rmtree(tmp_dump_path)
-        return
+        # Only download if there is a new dump
+        if new_checksum == last_checksum and new_timestamp == last_timestamp:
+            logger.info(
+                "Dump is unchanged (checksum and timestamp match); nothing to import."
+            )
+            shutil.rmtree(tmp_dump_path)
+            continue
 
-    # Only download if there is a new dump
-    if new_checksum == last_checksum and new_timestamp == last_timestamp:
         logger.info(
-            "Dump is unchanged (checksum and timestamp match); nothing to import."
+            f"New dump detected (model={new_model_version}, timestamp={new_timestamp}, "
+            f"checksum={new_checksum}). Previous: timestamp={last_timestamp}, checksum={last_checksum}."
         )
-        shutil.rmtree(tmp_dump_path)
-        return
 
-    logger.info(
-        f"New dump detected (model={new_model_version}, timestamp={new_timestamp}, "
-        f"checksum={new_checksum}). Previous: timestamp={last_timestamp}, checksum={last_checksum}."
-    )
+        # Move from tmp path to download folder, download items file and remove draft- prefix
+        perm_download_path = os.path.join(download_path, new_model_version, dump_folder)
+        os.makedirs(os.path.dirname(perm_download_path), exist_ok=True)
+        shutil.move(tmp_dump_path, perm_download_path)
+        new_items_file = os.path.join(perm_download_path, "items.ndjson")
+        new_items_key = metadata_file["Key"].replace("metadata.json", "items.ndjson")
 
-    # Move from tmp path to download folder, download items file and remove draft- prefix
-    perm_download_path = os.path.join(download_path, new_model_version, dump_folder)
-    os.makedirs(os.path.dirname(perm_download_path), exist_ok=True)
-    shutil.move(tmp_dump_path, perm_download_path)
-    new_items_file = os.path.join(perm_download_path, "items.ndjson")
-    new_items_key = metadata_file["Key"].replace("metadata.json", "items.ndjson")
+        try:
+            s3_client.download_file(s3_bucket, new_items_key, new_items_file)
+        except Exception as e:
+            logger.error(f"Failed to download file {new_items_file}: {e}")
+            shutil.rmtree(perm_download_path)
+            sys.exit(1)
 
-    try:
-        s3_client.download_file(s3_bucket, new_items_key, new_items_file)
-    except Exception as e:
-        logger.error(f"Failed to download file {new_items_file}: {e}")
-        shutil.rmtree(perm_download_path)
-        sys.exit(1)
-
-    perm_download_folder_name = os.path.join(
-        download_path, new_model_version, dump_folder.removeprefix("draft-")
-    )
-    os.rename(perm_download_path, perm_download_folder_name)
-
-    # Compute diff file
-    diff_file = generate_diff(new_model_version)
-
-    if not diff_file:
-        logger.error(
-            f"Error creating diff file for model version: {new_model_version}."
+        perm_download_folder_name = os.path.join(
+            download_path, new_model_version, dump_folder.removeprefix("draft-")
         )
-        return
+        os.rename(perm_download_path, perm_download_folder_name)
 
-    successful_import = import_pending_diffs(s3_download_folder, user_email)
+        # Compute diff file
+        diff_file = generate_diff(new_model_version)
 
-    if not successful_import:
-        logger.error("Failed to import pending diffs.")
+        if not diff_file:
+            logger.error(
+                f"Error creating diff file for model version: {new_model_version}."
+            )
+            continue
+
+        successful_import = import_pending_diffs(s3_download_folder, user_email)
+
+        if not successful_import:
+            logger.error("Failed to import pending diffs.")
 
     logger.info("S3 sync complete.")
     return
