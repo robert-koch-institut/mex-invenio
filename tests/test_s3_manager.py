@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from mex_invenio.scripts.s3_manager import (
+    get_model_metadata_files,
     get_s3_client_and_config,
     import_pending_diffs,
     manage_s3_files,
@@ -131,6 +132,31 @@ def test_import_pending_diffs_skips_corrupt_metadata(mock_import, tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# get_model_metadata_files
+# ---------------------------------------------------------------------------
+
+
+def test_get_model_metadata_files_matches_publisher_prefix():
+    """Only 'publisher-<version>/metadata.json' keys are matched."""
+    contents = [
+        {"Key": "publisher-4.10/metadata.json"},
+        {"Key": "publisher-5.0/metadata.json"},
+        {"Key": "publisher-4.10/items.ndjson"},
+        {"Key": "publisher.ndjson"},
+        {"Key": "DatenkompassActivity.xlsx"},
+        {"Key": "some/other/metadata.json"},
+    ]
+    matched = [f["Key"] for f in get_model_metadata_files(contents)]
+    assert matched == ["publisher-4.10/metadata.json", "publisher-5.0/metadata.json"]
+
+
+def test_get_model_metadata_files_empty_when_no_match():
+    """Returns an empty list when nothing in the bucket matches."""
+    contents = [{"Key": "publisher.ndjson"}, {"Key": "DatenkompassActivity.xlsx"}]
+    assert get_model_metadata_files(contents) == []
+
+
+# ---------------------------------------------------------------------------
 # manage_s3_files
 # ---------------------------------------------------------------------------
 
@@ -150,11 +176,11 @@ def test_no_metadata_file(cli_runner, app_config, s3_client):
 
 
 def test_multiple_metadata_files(cli_runner, app_config, s3_client):
-    """Script exits cleanly when S3 bucket has multiple metadata.json files."""
+    """Script exits cleanly when S3 bucket has multiple matching metadata.json files."""
     s3_client.list_objects_v2.return_value = {
         "Contents": [
-            {"Key": "v1/metadata.json", "LastModified": "2024-01-01"},
-            {"Key": "v2/metadata.json", "LastModified": "2024-01-02"},
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"},
+            {"Key": "publisher-5.0/metadata.json", "LastModified": "2024-01-02"},
         ]
     }
     assert cli_runner(manage_s3_files).exit_code == 0
@@ -178,7 +204,9 @@ def test_s3_client_config_failure(cli_runner, app_config, base_app):
 def test_metadata_download_failure(cli_runner, app_config, s3_client):
     """Script exits with code 1 (retry) when the S3 metadata download fails."""
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
     }
     s3_client.download_file.side_effect = Exception("network error")
     assert cli_runner(manage_s3_files).exit_code == 1
@@ -188,27 +216,35 @@ def test_metadata_download_failure(cli_runner, app_config, s3_client):
 def test_read_new_metadata_failure(mock_read, cli_runner, app_config, s3_client):
     """Script exits cleanly when reading the downloaded metadata.json fails."""
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
     }
     assert cli_runner(manage_s3_files).exit_code == 0
 
 
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
 @patch(
     f"{_MODULE}.read_json_file", return_value=("4.10", "abc", "2024-01-01T00:00:00Z")
 )
-def test_no_processed_dump(mock_read, mock_subdir, cli_runner, app_config, s3_client):
+def test_no_processed_dump(
+    mock_read, mock_subdir, mock_installed_version, cli_runner, app_config, s3_client
+):
     """Script exits cleanly when no processed dump exists to compare the checksum against."""
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
     }
     assert cli_runner(manage_s3_files).exit_code == 0
 
 
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
 def test_read_last_metadata_failure(
-    mock_subdir, mock_read, cli_runner, app_config, s3_client
+    mock_subdir, mock_read, mock_installed_version, cli_runner, app_config, s3_client
 ):
     """Script exits cleanly when reading the existing local metadata.json fails."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
@@ -218,22 +254,32 @@ def test_read_last_metadata_failure(
         Exception("read error"),
     ]
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-05"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-05"}
+        ]
     }
     assert cli_runner(manage_s3_files).exit_code == 0
 
 
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
 def test_identical_checksums_skips_download(
-    mock_get_subdir, mock_read_json, cli_runner, app_config, s3_client
+    mock_get_subdir,
+    mock_read_json,
+    mock_installed_version,
+    cli_runner,
+    app_config,
+    s3_client,
 ):
     """Script skips download when new metadata matches existing checksum and timestamp."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
     mock_get_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
     mock_read_json.return_value = ("4.10", "abc123checksum", "2024-01-01T00:00:00Z")
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-01"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
     }
 
     result = cli_runner(manage_s3_files)
@@ -243,10 +289,11 @@ def test_identical_checksums_skips_download(
 
 
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20240105000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.read_json_file")
 @patch(f"{_MODULE}.get_subdir_by_order")
 def test_items_download_failure(
-    mock_subdir, mock_read, cli_runner, app_config, s3_client
+    mock_subdir, mock_read, mock_installed_version, cli_runner, app_config, s3_client
 ):
     """Script exits with code 1 (retry) when the S3 items file download fails."""
     dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
@@ -256,7 +303,9 @@ def test_items_download_failure(
         ("4.10", "ck_old", "2024-01-01T00:00:00Z"),
     ]
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-05"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-05"}
+        ]
     }
     call_count = [0]
 
@@ -274,6 +323,7 @@ def test_items_download_failure(
 
 
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20240102000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.generate_diff")
 @patch(f"{_MODULE}.read_json_file")
@@ -283,6 +333,7 @@ def test_new_checksum_triggers_download_and_import(
     mock_read_json,
     mock_generate_diff,
     mock_import_pending,
+    mock_installed_version,
     cli_runner,
     app_config,
     s3_client,
@@ -307,7 +358,9 @@ def test_new_checksum_triggers_download_and_import(
 
     s3_client.download_file.side_effect = fake_download
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-02"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-02"}
+        ]
     }
 
     result = cli_runner(manage_s3_files)
@@ -318,6 +371,7 @@ def test_new_checksum_triggers_download_and_import(
 
 
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20240103000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.generate_diff")
 @patch(f"{_MODULE}.read_json_file")
@@ -327,6 +381,7 @@ def test_diff_failure_skips_import(
     mock_read_json,
     mock_generate_diff,
     mock_import_pending,
+    mock_installed_version,
     cli_runner,
     app_config,
     s3_client,
@@ -348,7 +403,9 @@ def test_diff_failure_skips_import(
 
     s3_client.download_file.side_effect = fake_download
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "4.10/metadata.json", "LastModified": "2024-01-02"}]
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-02"}
+        ]
     }
 
     result = cli_runner(manage_s3_files)
@@ -363,6 +420,7 @@ def test_diff_failure_skips_import(
 
 
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20260401000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="5.0")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.generate_diff")
 @patch(f"{_MODULE}.read_json_file")
@@ -372,30 +430,40 @@ def test_unchanged_version_does_not_block_other_versions_in_same_run(
     mock_read_json,
     mock_generate_diff,
     mock_import_pending,
+    mock_installed_version,
     cli_runner,
     app_config,
     s3_client,
 ):
-    """One model version being unchanged must not stop other versions in the same bucket listing from being downloaded and diffed in the same run."""
+    """A non-installed-version dump (download-only) must not stop the installed version's dump from being reached and diffed in the same run."""
     download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
     processed_path = os.path.join(download_folder, "processed")
     last_processed_410 = os.path.join(processed_path, "4.10", "20260101000000")
 
     def fake_subdir(root, most_recent=True):  # noqa: FBT002
-        if root == os.path.join(processed_path, "4.10"):
-            return last_processed_410
         if root == os.path.join(processed_path, "5.0"):
-            return None  # 5.0 has no processed history yet
+            return None  # 5.0 (installed) has no processed history yet
         if root == processed_path:
             return last_processed_410  # global fallback for 5.0's first run
         return None
 
     mock_get_subdir.side_effect = fake_subdir
     mock_read_json.side_effect = [
-        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # 4.10 new metadata
-        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # 4.10 last processed
-        ("5.0", "new_checksum", "2026-04-01T00:00:00Z"),  # 5.0 new metadata
-        ("4.10", "same_checksum", "2026-01-01T00:00:00Z"),  # fallback baseline
+        (
+            "4.10",
+            "unused_checksum",
+            "2026-01-01T00:00:00Z",
+        ),  # 4.10 new metadata (not installed)
+        (
+            "5.0",
+            "new_checksum",
+            "2026-04-01T00:00:00Z",
+        ),  # 5.0 new metadata (installed version)
+        (
+            "4.10",
+            "old_checksum",
+            "2026-01-01T00:00:00Z",
+        ),  # fallback baseline (4.10's last processed)
     ]
     mock_generate_diff.return_value = os.path.join(
         download_folder, "diffs", "20260401000001", "diff.ndjson"
@@ -410,8 +478,8 @@ def test_unchanged_version_does_not_block_other_versions_in_same_run(
     s3_client.download_file.side_effect = fake_download
     s3_client.list_objects_v2.return_value = {
         "Contents": [
-            {"Key": "4.10/metadata.json", "LastModified": "2026-01-01"},
-            {"Key": "5.0/metadata.json", "LastModified": "2026-04-01"},
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2026-01-01"},
+            {"Key": "publisher-5.0/metadata.json", "LastModified": "2026-04-01"},
         ]
     }
 
@@ -423,6 +491,7 @@ def test_unchanged_version_does_not_block_other_versions_in_same_run(
 
 
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20260501000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="5.0")
 @patch(f"{_MODULE}.import_pending_diffs")
 @patch(f"{_MODULE}.generate_diff")
 @patch(f"{_MODULE}.read_json_file")
@@ -432,6 +501,7 @@ def test_new_model_version_falls_back_to_other_version_baseline(
     mock_read_json,
     mock_generate_diff,
     mock_import_pending,
+    mock_installed_version,
     cli_runner,
     app_config,
     s3_client,
@@ -465,7 +535,9 @@ def test_new_model_version_falls_back_to_other_version_baseline(
 
     s3_client.download_file.side_effect = fake_download
     s3_client.list_objects_v2.return_value = {
-        "Contents": [{"Key": "5.0/metadata.json", "LastModified": "2026-04-01"}]
+        "Contents": [
+            {"Key": "publisher-5.0/metadata.json", "LastModified": "2026-04-01"}
+        ]
     }
 
     result = cli_runner(manage_s3_files)
@@ -473,3 +545,47 @@ def test_new_model_version_falls_back_to_other_version_baseline(
     assert result.exit_code == 0
     mock_generate_diff.assert_called_once_with("5.0")
     mock_import_pending.assert_called_once()
+
+
+@patch(f"{_MODULE}.get_timestamp", new=lambda: "20260601000001")
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
+@patch(f"{_MODULE}.read_json_file", return_value=("5.0", "ck", "2026-06-01T00:00:00Z"))
+@patch(f"{_MODULE}.import_pending_diffs")
+@patch(f"{_MODULE}.generate_diff")
+def test_non_installed_version_downloads_but_never_diffs(
+    mock_generate_diff,
+    mock_import_pending,
+    mock_read_json,
+    mock_installed_version,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """A dump whose model version doesn't match the installed one is downloaded (metadata + items) but never diffed or imported."""
+    download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
+    download_path = os.path.join(download_folder, "downloaded")
+
+    def fake_download(bucket, key, dest):
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write("{}")
+
+    s3_client.download_file.side_effect = fake_download
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [
+            {"Key": "publisher-5.0/metadata.json", "LastModified": "2026-06-01"}
+        ]
+    }
+
+    result = cli_runner(manage_s3_files)
+
+    assert result.exit_code == 0
+    # Both metadata.json and items.ndjson were fetched...
+    assert s3_client.download_file.call_count == 2
+    # ...but the dump was never diffed or imported, since 5.0 != installed 4.10.
+    mock_generate_diff.assert_not_called()
+    mock_import_pending.assert_not_called()
+    # And it's cached on disk under its own version, ready for a future upgrade.
+    cached_dir = os.path.join(download_path, "5.0", "20260601000001")
+    assert os.path.exists(os.path.join(cached_dir, "metadata.json"))
+    assert os.path.exists(os.path.join(cached_dir, "items.ndjson"))
