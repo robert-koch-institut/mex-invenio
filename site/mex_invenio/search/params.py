@@ -3,7 +3,6 @@ import re
 import unicodedata
 
 from invenio_records_resources.services.records.params import ParamInterpreter
-from typing import List
 
 ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
 ABSTRACT = "custom_fields.mex:abstract.value"
@@ -305,6 +304,7 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
         # Uncomment this to get a view on the query in development
         print("##############TypeLimiter###################")
         import json
+
         print(json.dumps(search.to_dict()))
         return search
 
@@ -351,7 +351,16 @@ class HighlightParamsInterpreter(ParamInterpreter):
 class BoostingParamsInterpreter(ParamInterpreter):
     TITLE_AGG = [TITLE, LABEL]
     DESC_AGG = [ALT_TITLE, DESCRIPTION, ABSTRACT]
-    DISPLAYED_AGG = [KEYWORD, USED_IN_DE, USED_IN_EN, BELONGS_TO_LABEL, DATA_TYPE, CODING_SYSTEM, SUBTITLE, CREATOR]
+    DISPLAYED_AGG = [
+        KEYWORD,
+        USED_IN_DE,
+        USED_IN_EN,
+        BELONGS_TO_LABEL,
+        DATA_TYPE,
+        CODING_SYSTEM,
+        SUBTITLE,
+        CREATOR,
+    ]
 
     # These are the fields that we would lump into a single bucket if we needed
     # to optimise the free-text search.  For now these are also reflected in the record
@@ -383,12 +392,32 @@ class BoostingParamsInterpreter(ParamInterpreter):
         "index_data.externalPartners",
         "index_data.involvedPersons",
         "index_data.enContributingUnits",
-        "index_data.deContributingUnits"
+        "index_data.deContributingUnits",
     ]
 
     STOP_WORDS = {
-        "a", "an", "and", "the", "of", "in", "on", "for", "to", "is", "are", "with", # english
-        "und", "der", "die", "das", "ein", "eine", "in", "auf", "zu", "von", "ist" # german
+        "a",
+        "an",
+        "and",
+        "the",
+        "of",
+        "in",
+        "on",
+        "for",
+        "to",
+        "is",
+        "are",
+        "with",  # english
+        "und",
+        "der",
+        "die",
+        "das",
+        "ein",
+        "eine",
+        "auf",
+        "zu",
+        "von",
+        "ist",  # german
     }
 
     MIN_TOKEN = 4
@@ -455,85 +484,139 @@ class BoostingParamsInterpreter(ParamInterpreter):
 
         # 1. Exact unpunctuated, ascii-folded string appears in the field "title"
         if norm:
-            functions.append({
-                "filter": _match_phrase_any_field(self.TITLE_AGG, norm),
-                # "filter": {"match_phrase": {TITLE: {"query": norm}}},
-                "weight": 50,
-            })
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.TITLE_AGG, norm),
+                    # "filter": {"match_phrase": {TITLE: {"query": norm}}},
+                    "weight": 50,
+                }
+            )
 
         # 2. Any variation of all words in the query string appears in "title"
         if words:
-            functions.append({
-                "filter": {"bool": {"should": [_wildcard_must(f, words) for f in self.TITLE_AGG],
-                                    "minimum_should_match": 1}},
-                "weight": 45,
-            })
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_must(f, words) for f in self.TITLE_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 45,
+                }
+            )
 
         # 2a. Any variation of any words in the query string in "title"
         if words:
-            functions.append({
-                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.TITLE_AGG],
-                                    "minimum_should_match": 1}},
-                "weight": 40,
-            })
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.TITLE_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 40,
+                }
+            )
 
         # 3. Exact query string appears in "description" or "abstract" -> boost 8
         if norm:
-            functions.append({
-                "filter": _match_phrase_any_field(self.DESC_AGG, norm),
-                "weight": 8,
-            })
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.DESC_AGG, norm),
+                    "weight": 8,
+                }
+            )
 
         # 4. Exact query string appears in "keyword" or "coding_system" -> boost 7
         if norm:
-            functions.append({
-                "filter": _match_phrase_any_field(self.DISPLAYED_AGG, norm),
-                "weight": 7,
-            })
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.DISPLAYED_AGG, norm),
+                    "weight": 7,
+                }
+            )
 
         # 5. Any variation of any word in "description" or "abstract" -> boost 6
         if words:
-            functions.append({
-                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.DESC_AGG], "minimum_should_match": 1}},
-                "weight": 6,
-            })
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.DESC_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 6,
+                }
+            )
 
         # 6. Any variation of any word in "keyword" or "coding_system" -> boost 5
         if words:
-            functions.append({
-                "filter": {"bool": {"should": [_wildcard_should(f, words) for f in self.DISPLAYED_AGG], "minimum_should_match": 1}},
-                "weight": 5,
-            })
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.DISPLAYED_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 5,
+                }
+            )
 
         # 7. Any combination of the exact words in "title" -> boost 4
         if norm:
-            functions.append({
-                "filter": _match_and_any_field(self.TITLE_AGG, norm),
-                # "filter": {"match": {TITLE: {"query": norm, "operator": "and"}}},
-                "weight": 4,
-            })
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.TITLE_AGG, norm),
+                    # "filter": {"match": {TITLE: {"query": norm, "operator": "and"}}},
+                    "weight": 4,
+                }
+            )
 
         # 8. Any combination of the exact words in "description" or "abstract" -> boost 3
         if norm:
-            functions.append({
-                "filter": _match_and_any_field(self.DESC_AGG, norm),
-                "weight": 3,
-            })
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.DESC_AGG, norm),
+                    "weight": 3,
+                }
+            )
 
         # 9. Any combination of the exact words in "keyword" or "coding_system" -> boost 2
         if norm:
-            functions.append({
-                "filter": _match_and_any_field(self.DISPLAYED_AGG, norm),
-                "weight": 2,
-            })
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.DISPLAYED_AGG, norm),
+                    "weight": 2,
+                }
+            )
 
         # 10. Any combination of the exact words in any other field -> boost 1.5
         # Use a multi_match across all fields (best-effort) with operator 'and'.
         if norm:
-            functions.append({
-                "filter": {"multi_match": {"query": norm, "operator": "and", "fields": self.FREE_TEXT_SEARCH_FIELDS}},
-                "weight": 1.5,
-            })
+            functions.append(
+                {
+                    "filter": {
+                        "multi_match": {
+                            "query": norm,
+                            "operator": "and",
+                            "fields": self.FREE_TEXT_SEARCH_FIELDS,
+                        }
+                    },
+                    "weight": 1.5,
+                }
+            )
 
         return functions
 
@@ -570,7 +653,9 @@ class BoostingParamsInterpreter(ParamInterpreter):
 
         # Broad query_string that searches for any variation of any word: *w1* OR *w2*
         if words:
-            broad_query = " OR ".join([f"*{w}*" if len(w) >= self.MIN_TOKEN else w for w in words])
+            broad_query = " OR ".join(
+                [f"*{w}*" if len(w) >= self.MIN_TOKEN else w for w in words]
+            )
         else:
             # If no words after normalization, fall back to match_all
             broad_query = "*"
@@ -612,14 +697,22 @@ class BoostingParamsInterpreter(ParamInterpreter):
                 return search
 
             if broad_qs != "*":
-                musts.append({"query_string": {"query": broad_qs, "default_operator": "OR", "fields": self.FREE_TEXT_SEARCH_FIELDS}})
+                musts.append(
+                    {
+                        "query_string": {
+                            "query": broad_qs,
+                            "default_operator": "OR",
+                            "fields": self.FREE_TEXT_SEARCH_FIELDS,
+                        }
+                    }
+                )
 
             raw["query"] = {
                 "function_score": {
                     "query": base_query,
                     "functions": functions,
                     "score_mode": "sum",
-                    "boost_mode": "sum", # could also try `multiply`
+                    "boost_mode": "sum",  # could also try `multiply`
                 }
             }
 
@@ -632,6 +725,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
             # Uncomment this to get a view on the query in development
             print("#########boosting - with query###############")
             import json
+
             print(json.dumps(search.to_dict()))
 
             return search
@@ -639,27 +733,29 @@ class BoostingParamsInterpreter(ParamInterpreter):
         # Uncomment this to get a view on the query in development
         print("#########boosting - no query###############")
         import json
+
         print(json.dumps(search.to_dict()))
 
         return search
 
 
-def _wildcard_must(field: str, words: List[str]) -> dict:
+def _wildcard_must(field: str, words: list[str]) -> dict:
     """Build a 'bool should' wildcard filter for any of the words in a field.
 
-	Each word becomes a wildcard '*word*' on `field`.
-	"""
+    Each word becomes a wildcard '*word*' on `field`.
+    """
     must = [{"wildcard": {field: f"*{w}*"}} for w in words if w]
     if not must:
         # Match nothing if no words
         return {"bool": {"must_not": {"match_all": {}}}}
     return {"bool": {"must": must}}
 
-def _wildcard_should(field: str, words: List[str]) -> dict:
+
+def _wildcard_should(field: str, words: list[str]) -> dict:
     """Build a 'bool should' wildcard filter for any of the words in a field.
 
-	Each word becomes a wildcard '*word*' on `field`.
-	"""
+    Each word becomes a wildcard '*word*' on `field`.
+    """
     should = [{"wildcard": {field: f"*{w}*"}} for w in words if w]
     if not should:
         # Match nothing if no words
@@ -667,13 +763,13 @@ def _wildcard_should(field: str, words: List[str]) -> dict:
     return {"bool": {"should": should, "minimum_should_match": 1}}
 
 
-def _match_phrase_any_field(fields: List[str], phrase: str) -> dict:
+def _match_phrase_any_field(fields: list[str], phrase: str) -> dict:
     """Return a bool should of match_phrase queries for the phrase across fields."""
     should = [{"match_phrase": {f: {"query": phrase}}} for f in fields]
     return {"bool": {"should": should, "minimum_should_match": 1}}
 
 
-def _match_and_any_field(fields: List[str], phrase: str) -> dict:
+def _match_and_any_field(fields: list[str], phrase: str) -> dict:
     """Return a bool should of match (operator: and) queries across fields."""
     should = [{"match": {f: {"query": phrase, "operator": "and"}}} for f in fields]
     return {"bool": {"should": should, "minimum_should_match": 1}}
