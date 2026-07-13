@@ -19,7 +19,7 @@ button {
     }
     &.secondary {
         background-color: @highlightBackground;
-        border: 1px solid #8caaf0;
+        border: 1px solid @rki-blue-80;
         color: @black;
         &:hover {
             background-color: @primaryColor;
@@ -38,7 +38,7 @@ button {
     &.link-like {
         height: fit-content !important;
         background-color: transparent;
-        color: #32008c;
+        color: @primaryColor;
         font-weight: 400;
         padding: .5rem 0;
         border-radius: 0;
@@ -47,7 +47,7 @@ button {
         text-align: start;
         &:hover {
             background-color: transparent;
-            color: #32008c;
+            color: @primaryColor;
             font-weight: 400;
             padding: .5rem 0;
             border-radius: 0;

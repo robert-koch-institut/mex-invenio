@@ -86,8 +86,8 @@ h5.tiny {
 }
 
 code {
-    background-color: #8caaf069;
-    color: #32008c;
+    background-color: @highlightBackground;
+    color: @primaryColor;
     padding: 3px;
     font-family: FiraSans, sans-serif;
 }
@@ -173,8 +173,6 @@ code {
             display: grid;
             grid-template-columns: 30% 1fr;
             gap: 1rem;
-            //align-items: baseline; // only works in newer Firefox
-            // workaround for older Firefox
             align-items: flex-start;
 
             button.ui.button.link-like:first-child {
@@ -449,7 +447,7 @@ aside {
     margin-top: -0.5rem;
 
     .edit-btn {
-        background-color: @mutedBackground;
+        background-color: @highlightBackground;
         color: @mutedTextColor;
         position: absolute;
         top: 17rem;
@@ -498,7 +496,7 @@ aside {
         }
 
         h2.alttitle {
-            color: #5170C1;
+            color: @secondaryColor;
             font-size: 1.125rem;
             margin-top: 1rem;
             font-weight: 600;
@@ -593,7 +591,7 @@ aside {
             background-image: url('../images/search_bg/publication.svg');
         }
 
-        background-color: #e9ecf3;
+        background-color: @highlightColor;
         padding: 1.25rem 3.12rem;
         display: flex;
         flex-direction: column;
@@ -607,7 +605,7 @@ aside {
         small {
             text-transform: uppercase;
             font-size: 0.75rem;
-            color: #333;
+            color: @mutedTextColor;
             opacity: 0.7;
             letter-spacing: 0.05em;
         }
@@ -672,7 +670,7 @@ aside {
 
     .pagination-bar {
         justify-content: center;
-        background-color: #f9fcfd;
+        background-color: @highlightBackground;
         padding: 1em 0;
         border: none;
         box-shadow: none;
@@ -704,7 +702,7 @@ aside {
     w
     .result-counter {
         .value {
-            background-color: #e6f4fa;
+            background-color: @rki-blue-60;
             border-radius: 999px;
             padding: 0.75rem;
             display: inline-block;
@@ -732,7 +730,7 @@ aside {
     }
 
     .divider {
-        border: 0.06rem solid #a5aac3;
+        border: 0.06rem solid @mutedTextColor;
         width: 100%;
         opacity: 0.5;
     }
@@ -792,7 +790,7 @@ aside {
         justify-content: center;
         align-items: center;
         gap: 0.63rem;
-        border: 0.06rem solid var(--layout-border, #a5aac3);
+        border: 0.06rem solid var(--layout-border, @lightBorderColor);
         background: @highlightColor;
         cursor: pointer;
 
@@ -911,7 +909,7 @@ aside {
 
     .filters {
         display: flex;
-        border: 1px solid #A5AAC3;
+        border: 1px solid @lightBorderColor;
         border-radius: 1.5rem;
         padding: 0.30rem 0.65rem;
         background-color: @highlightColor;
@@ -951,7 +949,7 @@ aside {
 
     .copied-msg {
         margin-left: 5px;
-        color: #32008C;
+        color: @primaryColor;
     }
 }
 
@@ -1063,6 +1061,10 @@ aside {
     align-items: flex-start;
     gap: 15px;
     align-self: stretch;
-    background: #fff;
+    background: @white;
     margin: 10px 0px;
+}
+
+select.ui.dropdown {
+    border-color: @inputBorder !important;
 }
