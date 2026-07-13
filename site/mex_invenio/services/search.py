@@ -61,6 +61,7 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
         # Add other interpreters as needed
     ]
 
+
 class MexDumper(SearchDumper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -446,9 +447,7 @@ class MexDumper(SearchDumper):
 
         units = []
         for unit in results:
-            official_names = self._get_custom_field_list(
-                unit.json, "mex:name"
-            )
+            official_names = self._get_custom_field_list(unit.json, "mex:name")
             lang_names = self._split_by_language(official_names)
             units.append(lang_names)
 

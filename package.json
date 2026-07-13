@@ -1,5 +1,5 @@
 {
-  "dependencies": {
-    "elasticdump": "^6.124.2"
-  }
+    "dependencies": {
+        "elasticdump": "^6.124.2"
+    }
 }
