@@ -430,6 +430,15 @@ msgstr "Close menu"
 msgid "Information banner"
 msgstr "Information banner"
 
+msgid "newerVersionBannerStart"
+msgstr "There is a"
+
+msgid "newerVersion"
+msgstr "newer version"
+
+msgid "newerVersionBannerEnd"
+msgstr "of the record available"
+
 msgid ""
 "There is a %(link_start)snewer version%(link_end)s of the record\n"
 "available."
@@ -530,3 +539,39 @@ msgstr "versions"
 
 msgid "belongsTo"
 msgstr "Belongs to"
+
+msgid "noValueProvided"
+msgstr "Not provided"
+
+msgid "showMissingValues"
+msgstr "Show missing values"
+
+msgid "methodNotProvided"
+msgstr "Method not provided"
+
+msgid "methodDescriptionNotProvided"
+msgstr "Method description not provided"
+
+msgid "noTheme"
+msgstr "No theme provided"
+
+msgid "noKeywords"
+msgstr "No keywords provided"
+
+msgid "NoVariablesAssociatedWithThisDataset"
+msgstr "There are no variables associated with this dataset"
+
+msgid "noDescription"
+msgstr "No description"
+
+msgid "noData"
+msgstr "No data"
+
+msgid "noAbstract"
+msgstr "No abstract provided"
+
+msgid "missingValuesHelpTrigger"
+msgstr "What does it mean?"
+
+msgid "missingValuesHelp"
+msgstr "Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from unavailable fields."

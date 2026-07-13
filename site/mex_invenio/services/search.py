@@ -62,38 +62,6 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
     ]
 
 
-# These are the fields that we would lump into a single bucket if we needed
-# to optimise the free-text search.  For now these are also reflected in the record
-# mapping, and the free-text bucket is not implemented.
-FREE_TEXT_SEARCH_FIELDS = [
-    "custom_fields.mex:title.value",
-    "custom_fields.mex:method.value",
-    "custom_fields.mex:keyword.value",
-    "custom_fields.mex:description.value",
-    "custom_fields.mex:instrumentToolOrApparatus.value",
-    "custom_fields.mex:website.url",
-    "custom_fields.mex:website.title",
-    "custom_fields.mex:abstract.value",
-    "custom_fields.mex:shortName.value",
-    "custom_fields.mex:documentation.title",
-    "custom_fields.mex:alternativeTitle.value",
-    "custom_fields.mex:label.value",
-    "custom_fields.mex:valueSet",
-    "index_data.belongsToLabel",
-    "index_data.contributors",
-    "index_data.creators",
-    "index_data.deFunderOrCommissioners",
-    "index_data.enFunderOrCommissioners",
-    "index_data.deUsedInResource",
-    "index_data.enUsedInResource",
-    "index_data.deVariableGroups.value",
-    "index_data.enVariableGroups.value",
-    "index_data.externalAssociates",
-    "index_data.externalPartners",
-    "index_data.involvedPersons",
-]
-
-
 class MexDumper(SearchDumper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -137,6 +105,7 @@ class MexDumper(SearchDumper):
         self._involved_persons(record, dump_data, log)
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
+        self._contributing_unit(record, dump_data, log)
 
         # log.append("**************************************")
         # log.append("Display data:")
@@ -174,7 +143,8 @@ class MexDumper(SearchDumper):
             record.json, "mex:alternativeName"
         )
         short_names = self._get_custom_field_list(record.json, "mex:shortName")
-        return official_names + alternative_names + short_names
+        general_name = self._get_custom_field_list(record.json, "mex:name")
+        return official_names + alternative_names + short_names + general_name
 
     def _get_all_possible_names(self, record):
         person = self._get_person_names(record)
@@ -463,6 +433,40 @@ class MexDumper(SearchDumper):
 
         if len(used_in_de) > 0:
             dump_data["index_data"]["deUsedInResource"] = used_in_de
+
+    def _contributing_unit(self, record, dump_data, log):
+        unit_ids = self._get_custom_field_list(record, "mex:contributingUnit")
+
+        if len(unit_ids) == 0:
+            return
+
+        log.append("Contributing Unit IDs:" + str(unit_ids))
+
+        results = self._records_by_mex_identifiers(record, unit_ids, log)
+        log.append("Contributing Unit results:" + str(len(results)))
+
+        units = []
+        for unit in results:
+            official_names = self._get_custom_field_list(unit.json, "mex:name")
+            lang_names = self._split_by_language(official_names)
+            units.append(lang_names)
+
+        units_en = [fc["en"] for fc in units]
+        units_de = [fc["de"] for fc in units]
+
+        log.append("Contributing Units EN:" + str(units_en))
+        log.append("Contributing Units DE:" + str(units_de))
+
+        if len(units_en) == 0:
+            units_en = units_de
+        if len(units_de) == 0:
+            units_de = units_en
+
+        if len(units_de) > 0:
+            dump_data["index_data"]["deContributingUnits"] = units_de
+
+        if len(units_en) > 0:
+            dump_data["index_data"]["enContributingUnits"] = units_en
 
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []

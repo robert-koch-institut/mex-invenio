@@ -704,6 +704,7 @@ mex.resourceDisplay = function (params) {
         renderer: new mex.renderers.ResourcesResults({
             noResultsText: params.noResultsText || i18n.t("No data sources & datasets found."),
             onSelectToggle: params.onSelectToggle || false,
+            debug: params.debug || false,
         }),
     });
 };
@@ -1046,9 +1047,10 @@ mex.vocabularyLookup = function (value) {
 // access restriction colour map
 
 mex.ACCESS_RESTRICTION_COLOUR_MAP = {
-    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
-    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+    "https://mex.rki.de/item/access-restriction-1": "#ecb9bd",
+    "https://mex.rki.de/item/access-restriction-2": "#cde0c1",
 };
+
 
 /////////////////////////////////////////
 // Template(s)
@@ -1903,10 +1905,9 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
             let vgCount = variableGroups.length;
             let vgFrag = vgCount > 1 ? `${vgCount} ${i18n.t("Variable Groups")}` : `${vgCount} ${i18n.t("Variable Group")}`;
             let vCount = 0;
-            if ("backwards_linked" in record["display_data"]["linked_records"]) {
-                if ("mex:usedIn" in record["display_data"]["linked_records"]["backwards_linked"]) {
-                    vCount = record["display_data"]["linked_records"]["backwards_linked"]["mex:usedIn"].length
-                }
+            let _usedIn = edges.util.pathValue("display_data.linked_records.backwards_linked.mex:usedIn", record, []);
+            if (_usedIn) {
+                vCount = _usedIn.length;
             }
 
             let varFrag = `<p class="variables-count muted" style="margin-bottom: 0">`
@@ -4054,6 +4055,8 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         // callback to trigger when resource is selected or unselected
         this.onSelectToggle = edges.util.getParam(params, "onSelectToggle", null);
 
+        this.debug = edges.util.getParam(params, "debug", false);
+
         this.selector = null; // will be set in init()
 
         this.namespace = "mex-resources-results";
@@ -4086,6 +4089,15 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             frag = "";
             for (var i = 0; i < results.length; i++) {
                 var rec = this._renderResult(results[i], highlights);
+                if (this.debug) {
+                    let debugInfo = this._renderDebug(results[i]);
+                    rec += `
+                        <details class="debug">
+                            <summary>Debug info</summary>
+                            <pre>${JSON.stringify(debugInfo, null, 2)}</pre>
+                        </details>
+                    `;
+                }
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -4142,6 +4154,73 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
     }
 
+    _renderDebug(res) {
+
+        function formatExplainTree(expl, opts = {}) {
+            const maxDepth = typeof opts.maxDepth === "number" ? opts.maxDepth : 6;
+            const maxChildren = typeof opts.maxChildren === "number" ? opts.maxChildren : 20;
+            const showZero = !!opts.showZero;
+
+            if (!expl || typeof expl !== "object") {
+                return "No explanation available.";
+            }
+
+            function fmtValue(v) {
+                if (typeof v !== "number" || Number.isNaN(v)) return "?";
+                return v.toFixed(4);
+            }
+
+            function walk(node, depth) {
+                if (!node || typeof node !== "object") return [];
+                if (depth > maxDepth) return [`${"  ".repeat(depth)}... depth limit reached`];
+
+                const value = node.value;
+                const desc = node.description || "(no description)";
+                if (!showZero && typeof value === "number" && value === 0 && !node.details?.length) {
+                    return [];
+                }
+
+                const indent = "  ".repeat(depth);
+                const lines = [`${indent}- ${fmtValue(value)} :: ${desc}`];
+
+                const details = Array.isArray(node.details) ? node.details : [];
+                const slice = details.slice(0, maxChildren);
+                for (const child of slice) {
+                    lines.push(...walk(child, depth + 1));
+                }
+                if (details.length > maxChildren) {
+                    lines.push(`${indent}  ... ${details.length - maxChildren} more detail nodes`);
+                }
+
+                return lines;
+            }
+
+            return walk(expl, 0).join("<br>");
+        }
+
+        try {
+            let debug = {};
+            for (let hit of this.component.edge.result.data.hits.hits) {
+                if (hit._id === res.uuid) {
+                    debug["id"] = res.uuid;
+                    debug["score"] = hit._score;
+
+                    if (hit._explanation) {
+                        const prettyTree = formatExplainTree(hit._explanation, {
+                            maxDepth: 6,
+                            maxChildren: 25,
+                            showZero: false
+                        });
+                        debug["explain"] = prettyTree
+                    }
+                }
+            }
+            return debug;
+        } catch (e) {
+            console.log("DEBUG unavailable")
+        }
+    }
+
     _renderResult(res, highlights) {
         let accessRestrictionRaw = edges.util.pathValue(mex.constants.ACCESS_RESTRICTION, res)
         let accessRestriction = mex.vocabularyLookup(accessRestrictionRaw)
@@ -4160,9 +4239,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             alt = "";
         }
 
-        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
+        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.ABSTRACT);
         if (!desc) {
-            desc = mex.getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
+            desc = this._getLangVal(mex.constants.ABSTRACT_CONTAINER, res, "");
             if (desc.length > 300) {
                 desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
             }
@@ -4302,6 +4381,11 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         return frag;
     }
+
+    _getLangVal(path, res, def) {
+        return mex.getLangVal(path, res, def);
+    }
+
 };
 
 mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesResults {
@@ -4473,36 +4557,38 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
 
         // Variable groups
         let lang = mex.state.lang;
-        let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
-        let vgs = edges.util.pathValue(vgField, record, []);
+        // let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
+        let varsField = mex.constants.USED_IN_DISPLAY_BACKLINK;
+        let vars = edges.util.pathValue(varsField, record, []);
+        // let vgs = edges.util.pathValue(vgField, record, []);
 
-        let vgFrag = "";
-        let variableToggleClass = edges.util.jsClasses(
-            this.namespace,
-            "variable-toggle",
-            this.component.id
-        );
+        // let vgFrag = "";
+        // let variableToggleClass = edges.util.jsClasses(
+        //     this.namespace,
+        //     "variable-toggle",
+        //     this.component.id
+        // );
 
-        let vgSelectClass = edges.util.jsClasses(
-            this.namespace,
-            "group-select",
-            this.component.id
-        );
-        let variableGroupsId = edges.util.htmlID(
-            this.namespace,
-            "vgs-" + edges.util.safeId(record.id),
-            this.component.id
-        );
-        if (vgs.length > 0) {
-            vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
-                            <span class="dir">▾</span></button>
-                      <div id="${variableGroupsId}" style="display:none;">
-                        <ul>`;
-            for (let vg of vgs) {
-                vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
-            }
-            vgFrag += `</ul></div>`;
-        }
+        // let vgSelectClass = edges.util.jsClasses(
+        //     this.namespace,
+        //     "group-select",
+        //     this.component.id
+        // );
+        // let variableGroupsId = edges.util.htmlID(
+        //     this.namespace,
+        //     "vgs-" + edges.util.safeId(record.id),
+        //     this.component.id
+        // );
+        // if (vgs.length > 0) {
+        //     vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
+        //                     <span class="dir">▾</span></button>
+        //               <div id="${variableGroupsId}" style="display:none;">
+        //                 <ul>`;
+        //     for (let vg of vgs) {
+        //         vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
+        //     }
+        //     vgFrag += `</ul></div>`;
+        // }
 
         let selectClass = edges.util.jsClasses(
             this.namespace,
@@ -4519,6 +4605,12 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             return ariaLabel
         }
 
+        let titleFrag = title.substring(0,80);
+        if (title.length > 80) {
+            titleFrag += `...`
+        }
+        titleFrag += `<span class="muted">&nbsp;(${vars.length})</span>`
+
         let frag = `
             <div class="selected-list">
                 <div class="card">
@@ -4533,13 +4625,10 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                                 aria-selected="${i18n.t(selectState)}"
                                 aria-live="polite"
                                 ></button>
-                            <span title="${edges.util.escapeHtml(title)}" class="max-line-2">
-                                ${title}
+                            <span class="max-line-2">
+                                ${titleFrag}
                             </span>
                         </div>
-                    </div>
-                    <div class="selected-list-sub-item">
-                        ${vgFrag}
                     </div>
                 </div>
             </div>
@@ -4717,8 +4806,8 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
 
     }
 
-    let creators = getCreatorsNames(res["display_data"]["linked_records"]["mex:creator"] ?? '')
-    let responsibleUnit = getCreatorsNames(res["display_data"]["linked_records"]["mex:responsibleUnit"] ?? '')
+    let creators = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:creator", res) ?? '')
+    let responsibleUnit = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:responsibleUnit", res) ?? '')
 
     // let pubYear = edges.util.pathValue(
     //     "custom_fields.mex:publicationYear.date",
@@ -5062,7 +5151,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let label = mex.getHighlight(highlights, res.uuid, mex.constants.LABEL);
         if (!label) {
             label = edges.util.escapeHtml(
-                this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
+                mex.getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
             );
         }
 
@@ -5505,7 +5594,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let label = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
+            this._getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
         if (myHighlights[mex.constants.LABEL]) {
             label = myHighlights[mex.constants.LABEL]
