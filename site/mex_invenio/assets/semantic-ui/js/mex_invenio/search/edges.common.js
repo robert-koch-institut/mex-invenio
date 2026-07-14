@@ -5028,8 +5028,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${sortButtonMacro(mex.constants.BELONGS_TO_LABEL_KW)}
                     ${i18n.t("Variable Group")}
                 </th>
-                <th aria-sort="${currentDir(mex.constants.DATA_TYPE_KW, false)}">
-                    ${sortButtonMacro(mex.constants.DATA_TYPE_KW)}
+                <th aria-sort="${currentDir(mex.constants.DATA_TYPE_SORT_KW, false)}">
+                    ${sortButtonMacro(mex.constants.DATA_TYPE_SORT_KW)}
                     ${i18n.t("Data Type")}
                 </th>
             </tr>
