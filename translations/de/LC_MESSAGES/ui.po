@@ -437,11 +437,14 @@ msgstr "Menü schließen"
 msgid "Information banner"
 msgstr "Informationsbanner"
 
-msgid ""
-"There is a %(link_start)snewer version%(link_end)s of the record\n"
-"available."
-msgstr ""
-"Es ist eine neuere Version des Eintrags vorhanden."
+msgid "newerVersionBannerStart"
+msgstr "Es ist eine"
+
+msgid "newerVersion"
+msgstr "neuere Version"
+
+msgid "newerVersionBannerEnd"
+msgstr "des Eintrags vorhanden"
 
 msgid "Reason"
 msgstr "Autor*in"
@@ -637,5 +640,35 @@ msgstr "Aufrufe"
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
-msgid "belongsTo"
-msgstr "Gehört zu"
+msgid "noValueProvided"
+msgstr "Nicht angegeben"
+
+msgid "showMissingValues"
+msgstr "Fehlende Werte anzeigen"
+
+msgid "methodNotProvided"
+msgstr "Methode nicht angegeben"
+
+msgid "methodDescriptionNotProvided"
+msgstr "Methodenbeschreibung nicht angegeben"
+
+msgid "noKeywords"
+msgstr "Stichwort nicht angegeben"
+
+msgid "NoVariablesAssociatedWithThisDataset"
+msgstr "Es sind keine Variablen mit diesem Datensatz/Datenbestand verknüpft"
+
+msgid "noDescription"
+msgstr "Beschreibung nicht angegeben"
+
+msgid "noData"
+msgstr "Keine Daten"
+
+msgid "noAbstract"
+msgstr "Kurzbeschreibung nicht angegeben"
+
+msgid "missingValuesHelpTrigger"
+msgstr "Was bewirkt das?"
+
+msgid "missingValuesHelp"
+msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Nicht angegeben“ dargestellt."

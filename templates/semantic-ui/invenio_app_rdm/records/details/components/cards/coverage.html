@@ -14,8 +14,7 @@
     {% endif %}
 {% endfor %}
 
-{% if ns.prop_exist %}
-    <div class="card">
+    <div class="card {% if not ns.prop_exist %} hidden_when_missing {% endif %}">
         <h3>
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
@@ -51,10 +50,16 @@
                                 {{ display_values(record_data["mex:maxTypicalAge"]) }}
                             </div>
                         </div>
+                    {% else %}
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%} {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
+                            <p class="card-prop-label" title="{{ _('Max. typical age') }}">{{ _('Typical age') }}</p>
+                            <div class="card-prop-value">
+                                <i class="muted">{{ _("noValueProvided") }}</i>
+                            </div>
+                        </div>
                     {% endif %}
                 {% else %}
-                    {% if prop.field in record_data %}
-                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                        <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%} {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
                             {%- if 'label' in prop %}
                                 {% if "context" in prop %}
                                     {% set context = prop.context %}
@@ -65,12 +70,14 @@
                                 <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
                             {%- endif -%}
                             <div class="card-prop-value">
-                                {{ display_values(record_data[prop.field]) }}
+                                {% if prop.field in record_data %}
+                                    {{ display_values(record_data[prop.field]) }}
+                                {% else %}
+                                    <i class="muted">{{ _("noValueProvided") }}</i>
+                                {% endif %}
                             </div>
                         </div>
-                    {% endif %}
                 {% endif %}
             {% endfor %}
         </div>
     </div>
-{% endif %}
