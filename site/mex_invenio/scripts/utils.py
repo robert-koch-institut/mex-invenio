@@ -1,6 +1,7 @@
 """Utility functions for the MEx-Invenio data import and handling."""
 
 import html
+import importlib.metadata
 import json
 import logging
 import os
@@ -9,6 +10,7 @@ import time
 from collections.abc import Callable
 from datetime import datetime, timezone
 
+import packaging.version
 from invenio_db import db
 from invenio_rdm_records.records.api import RDMRecord
 from marshmallow_utils.html import sanitize_unicode
@@ -25,6 +27,12 @@ logger = logging.getLogger(__name__)
 
 def get_timestamp():
     return datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+
+
+def get_installed_model_version() -> str:
+    """Return the installed mex-model version as '<major>.<minor>'."""
+    v = packaging.version.Version(importlib.metadata.version("mex-model"))
+    return f"{v.major}.{v.minor}"
 
 
 def read_json_file(file_path):

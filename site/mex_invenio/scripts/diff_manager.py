@@ -135,8 +135,19 @@ def generate_diff(model_version: str) -> str | None:
     processed_path = os.path.join(s3_download_folder, "processed")
     diff_path = os.path.join(s3_download_folder, "diffs")
 
-    oldest_download_path = get_subdir_by_order(downloaded_path, False)
-    most_recent_processed_path = get_subdir_by_order(processed_path)
+    # The pending download for this model version was just placed here by the
+    # caller, so it must be scoped to model_version rather than picked from
+    # across all versions' pending downloads.
+    oldest_download_path = get_subdir_by_order(
+        os.path.join(downloaded_path, model_version), False
+    )
+    # Prefer the most recent processed dump for this model version; fall back to
+    # the globally most recent processed dump (of any version) so that the first
+    # dump of a newly-introduced model version diffs against the last known good
+    # state during a version upgrade.
+    most_recent_processed_path = get_subdir_by_order(
+        os.path.join(processed_path, model_version)
+    ) or get_subdir_by_order(processed_path)
 
     if not oldest_download_path:
         logger.warning(f"No pending download found in {downloaded_path}.")

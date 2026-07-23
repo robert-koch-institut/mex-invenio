@@ -16,7 +16,6 @@ To run the script, go to the repository root directory and use the following com
 """
 
 import copy
-import importlib.metadata
 import json
 import logging
 import os.path
@@ -26,7 +25,6 @@ import traceback
 from datetime import datetime, timezone
 
 import click
-import packaging.version
 from dictdiffer import diff
 from flask import current_app
 from invenio_db import db
@@ -40,6 +38,7 @@ from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexi
 from mex_invenio.scripts.utils import (
     _read_state,
     _write_state,
+    get_installed_model_version,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
@@ -381,8 +380,7 @@ def import_data(
                 )
                 return False
 
-    v = packaging.version.Version(importlib.metadata.version("mex-model"))
-    installed_model_version = f"{v.major}.{v.minor}"
+    installed_model_version = get_installed_model_version()
 
     if model_version != installed_model_version:
         # No interest in attempting to import incompatible data
