@@ -47,5 +47,5 @@ jobs:
         run: |
           docker build . \
           --tag ${IMAGE}:latest \
-          --tag ${IMAGE}:${{ github.sha }} \
+          --tag ${IMAGE}:${{ github.sha }}
           docker push --all-tags ${IMAGE}
