@@ -455,5 +455,5 @@ def import_data(
     return True
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     _import_data()

@@ -273,5 +273,5 @@ def manage_s3_files():
     return
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     manage_s3_files()

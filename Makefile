@@ -2,6 +2,11 @@
 all: install lint test
 
 setup:
+	# sync and update git submodules
+	@ echo syncing git submodules; \
+	git submodule sync; \
+	git submodule update --init --recursive; \
+
 	# install meta requirements system-wide
 	@ echo installing requirements; \
 	pip --disable-pip-version-check install --force-reinstall -r requirements.txt; \

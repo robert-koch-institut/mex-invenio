@@ -46,7 +46,7 @@ class MexRecord(MethodView):
                 record = _get_record_by_mex_id(mex_id)
             except PIDDoesNotExistError:
                 abort(404)
-            except Exception:
+            except Exception:  # pragma: no cover
                 abort(500)
 
             pid = record["id"]  # type: ignore

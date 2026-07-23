@@ -5,13 +5,14 @@ Revises:
 Create Date: 2025-12-18 21:47:00.000000
 
 ATTENTION !!!
-This migration should create database indices on rdm_records_metadata.json->'custom_fields'
-to dramatically improve query performance for MexDumper operations.
+This migration should create database indices on
+rdm_records_metadata.json->'custom_fields' to dramatically improve query performance
+for MexDumper operations.
 
-However, invenio-db create, which sets up the tables, only stamps/marks migrations, but does
-not actually run them. This migration file is therefore provided for reference, but the actual
-index creation must be done in a separate step after the database is live by running
-invenio mex setup-db.
+However, invenio-db create, which sets up the tables, only stamps/marks migrations, but
+does not actually run them. This migration file is therefore provided for reference, but
+the actual index creation must be done in a separate step after the database is live by
+running invenio mex setup-db.
 
 """
 
@@ -36,7 +37,8 @@ def upgrade():
     use the manual SQL statements with CONCURRENTLY option.
     """
     # Create GIN index on custom_fields for general JSON queries
-    # This supports queries with @> operator: json->'custom_fields' @> '{"mex:isPartOf": "value"}'
+    # This supports queries with
+    # @> operator: json->'custom_fields' @> '{"mex:isPartOf": "value"}'
     # Standard GIN (not jsonb_path_ops) supports ?, @>, and other JSONB operators
     op.execute("""
         CREATE INDEX IF NOT EXISTS idx_rdm_records_custom_fields_gin_std
