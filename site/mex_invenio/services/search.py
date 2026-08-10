@@ -92,7 +92,7 @@ FREE_TEXT_SEARCH_FIELDS = [
     "index_data.externalPartners",
     "index_data.involvedPersons",
     "index_data.enContributingUnits",
-    "index_data.deContributingUnits"
+    "index_data.deContributingUnits",
 ]
 
 

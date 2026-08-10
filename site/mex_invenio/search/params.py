@@ -723,18 +723,18 @@ class BoostingParamsInterpreter(ParamInterpreter):
             search = search.extra(explain=True)
 
             # Uncomment this to get a view on the query in development
-            print("#########boosting - with query###############")
-            import json
+            #print("#########boosting - with query###############")
+            #import json
 
-            print(json.dumps(search.to_dict()))
+            #print(json.dumps(search.to_dict()))
 
             return search
 
         # Uncomment this to get a view on the query in development
-        print("#########boosting - no query###############")
-        import json
+        #print("#########boosting - no query###############")
+        #import json
 
-        print(json.dumps(search.to_dict()))
+        #print(json.dumps(search.to_dict()))
 
         return search
 
