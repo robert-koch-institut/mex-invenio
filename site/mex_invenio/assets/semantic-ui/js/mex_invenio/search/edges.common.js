@@ -47,6 +47,9 @@ mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+mex.constants.CONTRIBUTING_UNIT_DE_KW = "index_data.deContributingUnits.keyword"
+mex.constants.CONTRIBUTING_UNIT_EN_KW = "index_data.enContributingUnits.keyword"
+
 // FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
 // isn't indexed to be used this way, so this will sort by whatever the first value is
 mex.constants.LABEL = "custom_fields.mex:label.value"
@@ -816,6 +819,19 @@ mex.publicationYearFacet = function () {
         interval: "year",
         useCheckboxes: true,
         showSelected: false,
+    });
+};
+
+mex.contributingUnitFacet = function () {
+    let field = mex.constants.CONTRIBUTING_UNIT_DE_KW;
+    if (mex.state.lang === "en") {
+        field = mex.constants.CONTRIBUTING_UNIT_EN_KW;
+    }
+    return mex.refiningAndFacet({
+        id: "contributing_unit",
+        field: field,
+        title: i18n.t("contributingUnit.singular"),
+        category: "left",
     });
 };
 
