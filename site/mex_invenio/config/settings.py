@@ -319,6 +319,8 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
+ACCESS_COLOR_MAP = {"restricted": "#cde0c1", "open": "#ecb9bd"}
+
 UI_SETTINGS = {
     "resource": {
         "label": _("Data Source/Dataset"),
@@ -329,8 +331,12 @@ UI_SETTINGS = {
             "ACCESS_RESTRICTION": {
                 "field": "mex:accessRestriction",
                 "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
-                    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
+                        "restricted"
+                    ],
+                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
+                        "open"
+                    ],
                 },
             },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
@@ -370,7 +376,8 @@ UI_SETTINGS = {
                 "properties": [
                     # overwritten in the template
                     {"field": "mex:theme"},
-                    {"field": "mex:keyword"},
+                    {"field": "mex:healthCategory"},
+                    {"field": "mex:keyword"}
                 ],
             },
             "coverage": {
@@ -378,9 +385,25 @@ UI_SETTINGS = {
                 "icon": "coverage.svg",
                 "template": "coverage.html",
                 "properties": [
-                    {"field": "mex:temporal", "label": _("temporal.singular")},
-                    {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {
+                        "field": "mex:temporal",
+                        "label": _("temporal.singular")},
+                    {
+                        "field": "mex:start",
+                        "label": _("start.singular")
+                    },
+                    {
+                        "field": "mex:end",
+                        "label": _("end.singular")
+                    },
+                    {
+                        "field": "mex:spatial",
+                        "label": _("spatial.singular")
+                    },
+                    {
+                        "field": "fn",
+                        "label": _("Typical age")
+                    },
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -389,6 +412,14 @@ UI_SETTINGS = {
                         "field": "mex:sizeOfDataBasis",
                         "label": _("sizeOfDataBasis.singular"),
                     },
+                    {
+                        "field": "mex:numberOfRecords",
+                        "label": _("numberOfRecords.singular"),
+                    },
+                    {
+                        "field": "mex:numberOfUniqueIndividuals",
+                        "label": _("numberOfUniqueIndividuals.singular"),
+                    }
                 ],
             },
             "legal": {
@@ -399,11 +430,18 @@ UI_SETTINGS = {
                         "field": "mex:hasLegalBasis",
                         "label": _("hasLegalBasis.singular"),
                     },
-                    {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
+                    {
+                        "field": "mex:hasPurpose",
+                        "label": _("hasPurpose.singular")
+                    },
                     {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
                     },
+                    {
+                        "field": "mex:source",
+                        "label": _("source.singular")
+                    }
                 ],
             },
             "processing": {
@@ -432,11 +470,27 @@ UI_SETTINGS = {
                 "title": _("Standards & Quality"),
                 "icon": "quality.svg",
                 "properties": [
-                    {"field": "mex:conformsTo", "label": _("conformsTo.singular")},
+                    {
+                        "field": "mex:conformsTo",
+                        "label": _("conformsTo.singular")
+                    },
                     {
                         "field": "mex:qualityInformation",
                         "label": _("qualityInformation.singular"),
                     },
+                    {
+                        "field": "mex:hasCodeValues",
+                        "label": _("hasCodeValues.singular")
+                    },
+                    {
+                        "field": "mex:analytics",
+                        "label": _("analytics.singular")
+                    },
+                    {
+                        "field": "mex:sample",
+                        "label": _("sample.singular")
+                    },
+
                 ],
             },
             "methodology": {
@@ -445,7 +499,10 @@ UI_SETTINGS = {
                 "template": "methodology.html",
                 "properties": [
                     # overwritten in the template
-                    {"field": "mex:method", "label": _("method.singular")},
+                    {
+                        "field": "mex:method",
+                        "label": _("method.singular")
+                    },
                     {
                         "field": "mex:methodDescription",
                         "label": _("methodDescription.singular"),
@@ -459,7 +516,6 @@ UI_SETTINGS = {
                     {
                         "field": "mex:publication",
                         "label": _("publication.singular"),
-                        "is_backwards_linked": True,
                     },
                     {
                         "field": "mex:documentation",
@@ -493,6 +549,13 @@ UI_SETTINGS = {
                             {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
                     },
+                    {
+                        "type": "component",
+                        "title": _("Related Resource"),
+                        "properties": [
+                            {"field": "mex:relatedResource"},
+                        ],
+                    }
                 ],
             },
         },
@@ -531,7 +594,7 @@ UI_SETTINGS = {
                 "title": _("Files"),
                 "icon": "distribution.svg",
                 "properties": [
-                    {"field": "mex:distribution"},
+                    {"field": "mex:distribution"}
                 ],
             },
             "variables": {
@@ -626,6 +689,12 @@ UI_SETTINGS = {
                         ],
                     },
                     {
+                        "title": _("Related Activity"),
+                        "properties": [
+                            {"field": "mex:relatedActivity"},
+                        ],
+                    },
+                    {
                         "title": _("Related data sources & datasets"),
                         "properties": [
                             {
@@ -655,8 +724,12 @@ UI_SETTINGS = {
             "ACCESS_RESTRICTION": {
                 "field": "mex:accessRestriction",
                 "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": "#d2ebd3",
-                    "https://mex.rki.de/item/access-restriction-2": "#fcd0cd",
+                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
+                        "restricted"
+                    ],
+                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
+                        "open"
+                    ],
                 },
             },
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
@@ -829,7 +902,22 @@ APP_RDM_RECORD_EXPORTERS = {
         "params": {"options": {"indent": 2, "sort_keys": True}},
         "content-type": "application/json",
         "filename": "{id}.json",
-    }
+    },
+    "bibtex": {
+        "name": _("BibTeX"),
+        "serializer": ("mex_invenio.resources.serializers:MExBibTexSerializer"),
+        "content-type": "application/x-bibtex",
+        "filename": "{id}.bib",
+    },
+}
+
+EXPORTERS_PER_RECORD_TYPE = {
+    "resource": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
+    "bibliographicresource": {
+        "bibtex": APP_RDM_RECORD_EXPORTERS["bibtex"],
+        "json": APP_RDM_RECORD_EXPORTERS["json"],
+    },
+    "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
 
 # List of entities available in mex model

@@ -1,45 +1,78 @@
-@primaryColor: @core-color-brand-default;
-@secondaryColor: @core-color-accent-2-default;
-@highlightColor: #E0F4FC;
+// Theme Colors
+@rki-dark-blue: #03284C;
+@rki-blue: #005eb7;
+@rki-blue-80: #669ed4;
+@rki-blue-60: #b3cfea;
+@rki-blue-40: #ebf2f9;
+@anthracite: #575756;
+@anthracite-80: #999a9a;
+@anthracite-60: #cccdcc;
+@anthracite-40: #f1f2f1;
+@green: #579931;
+@green-80: #9ac283;
+@green-60: #cde0c1;
+@green-40: #eef5ea;
+@yellow: #ebbd00;
+@yellow-80: #f3d766;
+@yellow-60: #f9ebb3;
+@yellow-40: #fcf5d9;
+@orange: #eb9117;
+@orange-80: #f3bd74;
+@orange-60: #f9deb9;
+@orange-40: #fcf1e1;
+@red: #be1622;
+@red-80: #d8737a;
+@red-60: #ecb9bd;
+@red-40: #f9e8e9;
+@purple: #7c518f;
+@purple-80: #b097bc;
+@purple-60: #d8cbdd;
+@purple-40: #f5f1f6;
+@white: #ffffff;
+@black: #000000;
+
+
+@primaryColor: @rki-dark-blue;
+@secondaryColor: @rki-blue;
+@highlightColor: @rki-blue-40;
 @navbarBackgroundImage: none;
 
-@successBackgroundColor: #D2EBD3;
-@errorBackgroundColor: #FCD0CD;
+@successBackgroundColor: @green-60;
+@errorBackgroundColor: @red-60;
 
-@lightBackground: rgba(224, 244, 252, 0.2);
+@lightBackground: rgba(224,244,252,.2);
 @highlightBackground: @highlightColor;
-@whiteBackground: @core-color-white-default;
-@mutedBackground: #F7F7F9;
+@whiteBackground: @white;
+@mutedBackground: @anthracite-60;
 
-@lightGrey: #a5aac3;
+@lightGrey: @anthracite-60;
 
 @pageFont: "FiraSans", sans-serif;
 
 @mutedTextColor: #404565;
 
-@frontendHeaderBackgroundColor: @core-color-white-default;
+@frontendHeaderBackgroundColor: @white;
 
-@searchButtonColor: @core-color-white-default;
-@searchButtonColorTextColor: @primaryColor;
+@searchButtonColorTextColor: @white;
 
 @navbarBackgroundColor: transparent;
-@navbarGradient: linear-gradient(90deg, #32008C 23%, rgba(224, 244, 252, 0.20) 79.46%);
+@navbarGradient: linear-gradient(90deg, #03284C 23%, rgba(224, 244, 252, 0.20) 79.46%);
 
-@footerLightColor: @core-color-accent-2-default;
+@footerLightColor: @secondaryColor;
 @footerDarkColor: @primaryColor;
 
-@accessRightOpen: @core-color-green-default;
-@accessRightRestricted: @core-color-red-default;
-@accessRightEmbargoed: @core-color-yellow-default;
-@accessRightMetadataOnly: @core-color-blue-default;
+@accessRightOpen: @green-80;
+@accessRightRestricted: @red-80;
+@accessRightEmbargoed: @orange-80;
+@accessRightMetadataOnly: @purple-80;
 
-@neutralLabelColor: @core-color-neutral-default;
-@signupColor: @core-color-green-default;
+@neutralLabelColor: @rki-blue-40;
+@signupColor: @green-80;
 @darkLinkColor: @primaryColor;
-@lightLinkColor: @core-color-white-default;
+@lightLinkColor:@white;
 
-@whiteTextColor: @core-color-white-default;
-@blackTextColor: #000000;
+@whiteTextColor: @white;
+@blackTextColor: @black;
 
 @font-face {
   font-family: 'FiraSans';
@@ -51,4 +84,9 @@
 @fontFamily: "FiraSans";
 @fontSize: 1rem;
 
-@borderColor: @core-color-blue-default;
+@borderColor: @primaryColor;
+@lightBorderColor: @rki-blue-60;
+@inputBorder: @rki-blue;
+@selectBorder: @inputBorder;
+@selectionBorder: @inputBorder;
+@versionActiveColor: @highlightBackground;

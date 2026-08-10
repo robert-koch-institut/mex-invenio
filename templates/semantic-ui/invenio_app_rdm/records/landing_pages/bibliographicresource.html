@@ -23,21 +23,28 @@
             <section id="record-description" aria-label="{{ _('Record abstract') }}" style="margin-top: 1rem;">
                 <p>{{ display_values(data[special_field("ABSTRACT")], max_str_length=600) }}</p>
             </section>
-        {% endif %}
+            {% else %}
+            <section id="record-no_description" aria-label="{{ _('Record Description') }}" style="margin-top: 1rem;" class="hidden_when_missing">
+                <p><i class="muted">{{ _("noAbstract") }}</i></p>
+            </section>
+            {% endif %}
     {%- endblock -%}
 
 {%- block lang_and_date -%}
-        {% if special_field("LANGUAGE") in data or
-        special_field("ISSUED") in data %}
-        <section class="detail">
+        <section class="detail {% if not special_field('LANGUAGE') in data and not special_field('ISSUED') in data %} hidden_when_missing{% endif %}">
             {% if special_field("LANGUAGE") in data %}
             <p class="muted" ><b>{{ _('Language') }}:</b> {{
                 display_values(data[special_field("LANGUAGE")]) }}</p>
+            {% else %}
+            <p class="muted hidden_when_missing" ><b>{{ _('Language') }}:</b>
+                <i class="muted">{{ _("noData") }}</i></p>
             {% endif %}
             {% if special_field("ISSUED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b> {{
                 display_values(data[special_field("ISSUED")]) }}</p>
+            {% else %}
+            <p class="muted hidden_when_missing" ><b>{{ _('Created') }}:</b>
+                <i class="muted">{{ _("noData") }}</i></p>
             {% endif %}
         </section>
-    {% endif %}
 {%- endblock -%}

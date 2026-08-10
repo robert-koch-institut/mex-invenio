@@ -42,3 +42,11 @@ test:
 	EXIT_CODE=$$?; \
 	pipenv run docker-services-cli down; \
 	exit $$EXIT_CODE; \
+
+# test one test file or one test: `make test_one TEST=<test_file_path>` or `make test_one TEST=<test_file_path>::<test_name>`
+test_one:
+	@echo "running single test: $(TEST)"; \
+	PYTEST_ADDOPTS="-p no:coverage" \
+	eval "$$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"; \
+	trap 'pipenv run docker-services-cli down' EXIT; \
+	pipenv run python -m pytest -W ignore -s $(TEST)
