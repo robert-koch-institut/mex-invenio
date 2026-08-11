@@ -319,7 +319,7 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#cde0c1", "open": "#ecb9bd"}
+ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
 
 UI_SETTINGS = {
     "resource": {
