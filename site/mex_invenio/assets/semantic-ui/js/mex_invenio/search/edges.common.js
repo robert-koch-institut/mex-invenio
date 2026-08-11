@@ -1112,7 +1112,10 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 "verticalTab",
                 ""
             );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
+            verticalTabFrag = `
+                <button id="vertical-tab" role="status" class="vertical-tab ${verticalTabClass}"></button>
+                <p id="vertical-tab-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+            `;
         }
 
         let facetSidebar = "";
@@ -1159,9 +1162,17 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
     }
 
     showTabContent() {
-        const doc = document.getElementById("right-col");
-        if (doc) {
-            doc.style.display = (doc.style.display === "none") ? "" : "none";
+        const $doc = $("#right-col");
+        if ($doc.length) {
+            $doc.toggle();
+
+            const $btn = $("#vertical-tab");
+            if ($btn.length) {
+                $btn.attr(
+                    "aria-expanded",
+                    $btn.attr("aria-expanded") !== "true"
+                );
+            }
         }
     }
 };
@@ -1920,12 +1931,23 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
         frag += `</div>`
 
-        let verticalBar = document.getElementById("vertical-tab");
-        if (verticalBar) {
-            const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${i18n.t(
-                "Variables Filter"
-            )} ${length > 0 ? `(${length})` : ""} </span>`;
+
+        const $btn = $("#vertical-tab");
+        const $announcer = $("#vertical-tab-announcer");
+
+        const length = this.component?.length || 0;
+
+        const label = `${i18n.t("Variables Filter")}` + (length > 0 ? ` (${length})` : "");
+
+        // Screen reader announcement
+        const announcement =  `${length} ${i18n.t("records added to variable filters")}`;
+
+        if($btn) {
+            $btn.text(label)
+        }
+
+        if($announcer) {
+            $announcer.text(announcement)
         }
 
         this.component.context.html(frag);
@@ -4082,13 +4104,21 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
     checkSidebarStatus() {
         // PATCH: to hide the right section on resources, since edges don't have template sync function
-        let doc = document.getElementById("right-col");
-        if (doc) {
+        let ariaExpanded = "false";
+
+        const $doc = $("#right-col");
+        if ($doc.length) {
             if (this.selector && this.selector.length > 0) {
-                doc.style.display = "";
+                $doc.css("display", "");
+                ariaExpanded = "true";
             } else {
-                doc.style.display = "none";
+                $doc.css("display", "none");
             }
+        }
+
+        const $btn = $("#vertical-tab");
+        if ($btn.length) {
+            $btn.attr("aria-expanded", ariaExpanded);
         }
     }
 
