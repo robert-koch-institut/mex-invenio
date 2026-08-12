@@ -1013,8 +1013,8 @@ mex.vocabularyLookup = function (value) {
 // access restriction colour map
 
 mex.ACCESS_RESTRICTION_COLOUR_MAP = {
-    "https://mex.rki.de/item/access-restriction-1": "#ecb9bd",
-    "https://mex.rki.de/item/access-restriction-2": "#cde0c1",
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",
 };
 
 

@@ -332,10 +332,10 @@ UI_SETTINGS = {
                 "field": "mex:accessRestriction",
                 "color_map": {
                     "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "restricted"
+                        "open"
                     ],
                     "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "open"
+                        "restricted"
                     ],
                 },
             },
@@ -690,10 +690,10 @@ UI_SETTINGS = {
                 "field": "mex:accessRestriction",
                 "color_map": {
                     "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "restricted"
+                        "open"
                     ],
                     "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "open"
+                        "restricted"
                     ],
                 },
             },
