@@ -2,8 +2,10 @@
 
 Invenio-based institutional repository and metadata platform.
 
+[![cookiecutter](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cookiecutter.yml/badge.svg)](https://github.com/robert-koch-institut/mex-template)
 [![cve-scan](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/cve-scan.yml)
 [![linting](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/linting.yml)
+[![open-code](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/open-code.yml/badge.svg)](https://gitlab.opencode.de/robert-koch-institut/mex/mex-invenio)
 [![testing](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml/badge.svg)](https://github.com/robert-koch-institut/mex-invenio/actions/workflows/testing.yml)
 
 ## Project
@@ -73,7 +75,7 @@ After deploying a new image or making schema changes, you may need to rebuild th
 
 ```bash
 # Get a worker pod name
-kubectl get pods -n mex -l app=worker
+kubectl get pods -n mex -l app.kubernetes.io/component=worker
 
 # Destroy and recreate search indices
 kubectl -n mex exec <worker-pod> -- invenio index destroy --yes-i-know
