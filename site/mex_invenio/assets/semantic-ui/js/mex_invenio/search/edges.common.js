@@ -4374,7 +4374,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                         <span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[accessRestrictionRaw]}">${accessRestriction}</span>
                         <span class="tag">${vCount} ${i18n.t("Variables")}</span>
                     </span>
-                    
+
                     <button type="button" class="ui icon button ${selectState} ${selectClass}"
                             data-id="${res.id}"
                             data-state="${selectState}"

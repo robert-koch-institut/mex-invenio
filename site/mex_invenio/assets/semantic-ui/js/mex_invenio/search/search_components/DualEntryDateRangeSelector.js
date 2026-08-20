@@ -61,7 +61,7 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
             function fieldOptions() {
                 let options = "";
                 for (let field of dre.fields) {
-                    options += `<option value="${field.field}"' 
+                    options += `<option value="${field.field}"'
                                         ${dre.currentField === field.field ? ' selected="selected" ' : ""}>
                                     ${field.display}
                                 </option>`;

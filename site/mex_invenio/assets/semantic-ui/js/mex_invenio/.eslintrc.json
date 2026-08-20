@@ -1,10 +1,9 @@
 {
-  "globals": {
-    "$": "readonly",
-    "jQuery": "readonly",
-    "edges": "readonly",
-    "es": "readonly",
-    "mex": "readonly"
-  }
+    "globals": {
+        "$": "readonly",
+        "edges": "readonly",
+        "es": "readonly",
+        "jQuery": "readonly",
+        "mex": "readonly"
+    }
 }
-

@@ -874,6 +874,10 @@
                         },
                         "type": "text"
                     },
+                    "data_type_sort": {
+                        "normalizer": "lowercase_asciifolder",
+                        "type": "keyword"
+                    },
                     "deContributingUnits": {
                         "fields": {
                             "keyword": {
@@ -1013,11 +1017,7 @@
                     "title_sort": {
                         "normalizer": "lowercase_asciifolder",
                         "type": "keyword"
-                    },
-					"data_type_sort": {
-						"normalizer": "lowercase_asciifolder",
-						"type": "keyword"
-					}
+                    }
                 },
                 "type": "object"
             },
