@@ -319,7 +319,7 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#cde0c1", "open": "#ecb9bd"}
+ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
 
 UI_SETTINGS = {
     "resource": {
@@ -332,10 +332,10 @@ UI_SETTINGS = {
                 "field": "mex:accessRestriction",
                 "color_map": {
                     "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "restricted"
+                        "open"
                     ],
                     "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "open"
+                        "restricted"
                     ],
                 },
             },
@@ -376,6 +376,7 @@ UI_SETTINGS = {
                 "properties": [
                     # overwritten in the template
                     {"field": "mex:theme"},
+                    {"field": "mex:healthCategory"},
                     {"field": "mex:keyword"},
                 ],
             },
@@ -385,6 +386,8 @@ UI_SETTINGS = {
                 "template": "coverage.html",
                 "properties": [
                     {"field": "mex:temporal", "label": _("temporal.singular")},
+                    {"field": "mex:start", "label": _("start.singular")},
+                    {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
                     {"field": "fn", "label": _("Typical age")},
                     {
@@ -394,6 +397,14 @@ UI_SETTINGS = {
                     {
                         "field": "mex:sizeOfDataBasis",
                         "label": _("sizeOfDataBasis.singular"),
+                    },
+                    {
+                        "field": "mex:numberOfRecords",
+                        "label": _("numberOfRecords.singular"),
+                    },
+                    {
+                        "field": "mex:numberOfUniqueIndividuals",
+                        "label": _("numberOfUniqueIndividuals.singular"),
                     },
                 ],
             },
@@ -410,6 +421,7 @@ UI_SETTINGS = {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
                     },
+                    {"field": "mex:source", "label": _("source.singular")},
                 ],
             },
             "processing": {
@@ -443,6 +455,12 @@ UI_SETTINGS = {
                         "field": "mex:qualityInformation",
                         "label": _("qualityInformation.singular"),
                     },
+                    {
+                        "field": "mex:hasCodeValues",
+                        "label": _("hasCodeValues.singular"),
+                    },
+                    {"field": "mex:analytics", "label": _("analytics.singular")},
+                    {"field": "mex:sample", "label": _("sample.singular")},
                 ],
             },
             "methodology": {
@@ -498,6 +516,13 @@ UI_SETTINGS = {
                             {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
                     },
+                    {
+                        "type": "component",
+                        "title": _("Related Resource"),
+                        "properties": [
+                            {"field": "mex:relatedResource"},
+                        ],
+                    },
                 ],
             },
         },
@@ -535,9 +560,7 @@ UI_SETTINGS = {
             "files": {
                 "title": _("Files"),
                 "icon": "distribution.svg",
-                "properties": [
-                    {"field": "mex:distribution"},
-                ],
+                "properties": [{"field": "mex:distribution"}],
             },
             "variables": {
                 "title": _("Variables"),
@@ -631,6 +654,12 @@ UI_SETTINGS = {
                         ],
                     },
                     {
+                        "title": _("Related Activity"),
+                        "properties": [
+                            {"field": "mex:relatedActivity"},
+                        ],
+                    },
+                    {
                         "title": _("Related data sources & datasets"),
                         "properties": [
                             {
@@ -661,10 +690,10 @@ UI_SETTINGS = {
                 "field": "mex:accessRestriction",
                 "color_map": {
                     "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "restricted"
+                        "open"
                     ],
                     "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "open"
+                        "restricted"
                     ],
                 },
             },

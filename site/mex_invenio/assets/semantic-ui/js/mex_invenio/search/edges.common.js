@@ -48,6 +48,9 @@ mex.constants.DATA_TYPE_SORT_KW = "index_data.data_type_sort.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
+mex.constants.CONTRIBUTING_UNIT_DE_KW = "index_data.deContributingUnits.keyword"
+mex.constants.CONTRIBUTING_UNIT_EN_KW = "index_data.enContributingUnits.keyword"
+
 // FIXME: labels are multi-lingual, so which KW you use depends on the language, but this currently
 // isn't indexed to be used this way, so this will sort by whatever the first value is
 mex.constants.LABEL = "custom_fields.mex:label.value"
@@ -869,6 +872,19 @@ mex.publicationYearFacet = function () {
     });
 };
 
+mex.contributingUnitFacet = function () {
+    let field = mex.constants.CONTRIBUTING_UNIT_DE_KW;
+    if (mex.state.lang === "en") {
+        field = mex.constants.CONTRIBUTING_UNIT_EN_KW;
+    }
+    return mex.refiningAndFacet({
+        id: "contributing_unit",
+        field: field,
+        title: i18n.t("contributingUnit.singular"),
+        category: "left",
+    });
+};
+
 mex.journalFacet = function () {
     return mex.refiningAndFacet({
         id: "journal",
@@ -1047,8 +1063,8 @@ mex.vocabularyLookup = function (value) {
 // access restriction colour map
 
 mex.ACCESS_RESTRICTION_COLOUR_MAP = {
-    "https://mex.rki.de/item/access-restriction-1": "#ecb9bd",
-    "https://mex.rki.de/item/access-restriction-2": "#cde0c1",
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",
 };
 
 

@@ -1,4 +1,3 @@
-import importlib.metadata
 import json
 import logging
 import os
@@ -6,7 +5,6 @@ import re
 from contextlib import suppress
 from unittest.mock import MagicMock, patch
 
-import packaging.version
 import pytest
 import sqlalchemy as sa
 
@@ -52,6 +50,7 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.scripts.import_data import _import_data
 from mex_invenio.scripts.initial_import import _initial_import
+from mex_invenio.scripts.utils import get_installed_model_version
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -73,9 +72,7 @@ try:
         """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
 
         def rollback(self) -> None:
-            if self._transaction is None:
-                pass
-            else:
+            if self._transaction is not None:
                 self._transaction.rollback(_to_root=False)
 except (TypeError, AttributeError):
     # Fallback for older Flask-SQLAlchemy versions - use standard session
@@ -156,8 +153,7 @@ def load_env():
 
 @pytest.fixture(scope="session")
 def model_version():
-    v = packaging.version.Version(importlib.metadata.version("mex-model"))
-    return f"{v.major}.{v.minor}"
+    return get_installed_model_version()
 
 
 @pytest.fixture(scope="module")
