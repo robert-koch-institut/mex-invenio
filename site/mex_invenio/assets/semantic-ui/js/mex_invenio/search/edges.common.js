@@ -4576,35 +4576,6 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         // let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
         let varsField = mex.constants.USED_IN_DISPLAY_BACKLINK;
         let vars = edges.util.pathValue(varsField, record, []);
-        // let vgs = edges.util.pathValue(vgField, record, []);
-
-        // let vgFrag = "";
-        // let variableToggleClass = edges.util.jsClasses(
-        //     this.namespace,
-        //     "variable-toggle",
-        //     this.component.id
-        // );
-
-        // let vgSelectClass = edges.util.jsClasses(
-        //     this.namespace,
-        //     "group-select",
-        //     this.component.id
-        // );
-        // let variableGroupsId = edges.util.htmlID(
-        //     this.namespace,
-        //     "vgs-" + edges.util.safeId(record.id),
-        //     this.component.id
-        // );
-        // if (vgs.length > 0) {
-        //     vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
-        //                     <span class="dir">▾</span></button>
-        //               <div id="${variableGroupsId}" style="display:none;">
-        //                 <ul>`;
-        //     for (let vg of vgs) {
-        //         vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
-        //     }
-        //     vgFrag += `</ul></div>`;
-        // }
 
         let selectClass = edges.util.jsClasses(
             this.namespace,

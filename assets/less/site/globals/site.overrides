@@ -612,7 +612,7 @@ aside {
 }
 
 .id-tags {
-    margin: 2rem 0;
+    margin: 1rem 0 1rem 0;
 
     .id-tag {
         display: inline-flex;
@@ -1171,26 +1171,38 @@ aside {
 }
 #landing_page {
     #missing_values_checkbox_wrapper {
+        --details-padding: 0px;
+
         display: flex;
         gap: 1rem;
         align-items: center;
         position: relative;
+        margin-bottom: 1.5rem;
+
+        &.details-open {
+            padding-bottom: var(--details-padding);
+        }
+
         details {
             cursor: pointer;
+
             p {
                 cursor: auto;
-                padding: 0 15px;
                 position: absolute;
-                left: 0;
                 top: 2.5rem;
                 right: 0;
+                left: 0;
+
+                margin: 0;
+                padding: 0 15px;
                 border-left: 1px solid #404565;
+            }
+
+            &[open] summary {
+                font-weight: bold;
             }
         }
 
-        details[open] summary {
-            font-weight: bold;
-        }
         .checkbox.checkbox--missing-value {
             flex-shrink: 0;
             align-items: center;

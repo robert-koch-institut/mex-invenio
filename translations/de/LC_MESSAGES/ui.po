@@ -641,7 +641,7 @@ msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
 msgid "noValueProvided"
-msgstr "Nicht angegeben"
+msgstr "Keine Daten"
 
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
@@ -671,4 +671,4 @@ msgid "missingValuesHelpTrigger"
 msgstr "Was bewirkt das?"
 
 msgid "missingValuesHelp"
-msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Nicht angegeben“ dargestellt."
+msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Keine Daten“ dargestellt."

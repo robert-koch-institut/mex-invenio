@@ -16,15 +16,49 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const detailsTrigger = document.getElementById("details-trigger");
-        const ids = document.getElementById("record-ids")
-        if (detailsTrigger.hasAttribute("open")) {
-            ids.classList.add("open");
+        const wrapper = document.getElementById(
+            "missing_values_checkbox_wrapper"
+        );
+        const details = document.getElementById("details-trigger");
+        const helpText = details.querySelector("p");
+
+        function updateDetailsSpacing() {
+            wrapper.classList.toggle("details-open", details.open);
+
+            if (!details.open) {
+                wrapper.style.setProperty("--details-padding", "0px");
+                return;
+            }
+
+            requestAnimationFrame(() => {
+                const currentPadding =
+                    parseFloat(getComputedStyle(wrapper).paddingBottom) || 0;
+
+                const rowHeight = wrapper.clientHeight - currentPadding;
+
+                const requiredPadding = Math.max(
+                    0,
+                    helpText.offsetTop + helpText.offsetHeight - rowHeight
+                );
+
+                wrapper.style.setProperty(
+                    "--details-padding",
+                    `${requiredPadding}px`
+                );
+            });
         }
 
-        detailsTrigger.addEventListener("click", () => {
-            ids.classList.toggle("lower")
-        })
+        details.addEventListener("toggle", updateDetailsSpacing);
+
+        const resizeObserver = new ResizeObserver(() => {
+            if (details.open) {
+                updateDetailsSpacing();
+            }
+        });
+
+        resizeObserver.observe(helpText);
+
+        updateDetailsSpacing();
     });
 
     const checkbox = document.getElementById("show_missing_values");
