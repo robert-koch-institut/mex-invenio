@@ -25,6 +25,8 @@ mex.components = mex.components || {};
 mex.VOCABULARY = mex.VOCABULARY || {};
 mex.babel = mex.babel || {};
 
+// languages supported
+mex.supported_languages = ["en", "de"]
 
 ///////////////////////////////////////////////////
 // State management
@@ -4459,38 +4461,15 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
 
         // Variable groups
         let lang = mex.state.lang;
-        // let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
         let varsField = mex.constants.USED_IN_DISPLAY_BACKLINK;
         let vars = edges.util.pathValue(varsField, record, []);
-        // let vgs = edges.util.pathValue(vgField, record, []);
 
-        // let vgFrag = "";
-        // let variableToggleClass = edges.util.jsClasses(
-        //     this.namespace,
-        //     "variable-toggle",
-        //     this.component.id
-        // );
-
-        // let vgSelectClass = edges.util.jsClasses(
-        //     this.namespace,
-        //     "group-select",
-        //     this.component.id
-        // );
-        // let variableGroupsId = edges.util.htmlID(
-        //     this.namespace,
-        //     "vgs-" + edges.util.safeId(record.id),
-        //     this.component.id
-        // );
-        // if (vgs.length > 0) {
-        //     vgFrag = `<button class="${variableToggleClass} ui button link-like" style="font-size: 1rem;">${i18n.t("Variable Groups")}
-        //                     <span class="dir">▾</span></button>
-        //               <div id="${variableGroupsId}" style="display:none;">
-        //                 <ul>`;
-        //     for (let vg of vgs) {
-        //         vgFrag += `<li class="ellipsis" style="line-height: 2.5rem; font-size: 1rem;">${vg.value}</li>`;
-        //     }
-        //     vgFrag += `</ul></div>`;
-        // }
+        const varsCount = vars.filter(item =>
+            item.display_value.some(({ language }) =>
+                language === undefined ||
+                langs.includes(language)
+            )
+        ).length;
 
         let selectClass = edges.util.jsClasses(
             this.namespace,
@@ -4511,7 +4490,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         if (title.length > 80) {
             titleFrag += `...`
         }
-        titleFrag += `<span class="muted">&nbsp;(${vars.length})</span>`
+        titleFrag += `<span class="muted">&nbsp;(${varsCount})</span>`
 
         let frag = `
             <div class="selected-list">
