@@ -25,8 +25,6 @@ mex.components = mex.components || {};
 mex.VOCABULARY = mex.VOCABULARY || {};
 mex.babel = mex.babel || {};
 
-// languages supported
-mex.supported_languages = ["en", "de"]
 
 ///////////////////////////////////////////////////
 // State management
@@ -4461,15 +4459,9 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
 
         // Variable groups
         let lang = mex.state.lang;
+        // let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
         let varsField = mex.constants.USED_IN_DISPLAY_BACKLINK;
         let vars = edges.util.pathValue(varsField, record, []);
-
-        const varsCount = vars.filter(item =>
-            item.display_value.some(({ language }) =>
-                language === undefined ||
-                langs.includes(language)
-            )
-        ).length;
 
         let selectClass = edges.util.jsClasses(
             this.namespace,
@@ -4490,7 +4482,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         if (title.length > 80) {
             titleFrag += `...`
         }
-        titleFrag += `<span class="muted">&nbsp;(${varsCount})</span>`
+        titleFrag += `<span class="muted">&nbsp;(${vars.length})</span>`
 
         let frag = `
             <div class="selected-list">
