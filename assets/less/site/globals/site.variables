@@ -44,6 +44,7 @@
 @highlightBackground: @highlightColor;
 @whiteBackground: @white;
 @mutedBackground: @anthracite-60;
+@highlightSnippetBG: @yellow-60;
 
 @lightGrey: @anthracite-60;
 
