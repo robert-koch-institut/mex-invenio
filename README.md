@@ -73,7 +73,7 @@ After deploying a new image or making schema changes, you may need to rebuild th
 
 ```bash
 # Get a worker pod name
-kubectl get pods -n mex -l app=worker
+kubectl get pods -n mex -l app.kubernetes.io/component=worker
 
 # Destroy and recreate search indices
 kubectl -n mex exec <worker-pod> -- invenio index destroy --yes-i-know
