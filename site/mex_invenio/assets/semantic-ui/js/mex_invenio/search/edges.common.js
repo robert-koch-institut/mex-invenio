@@ -44,6 +44,7 @@ mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
 mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
+mex.constants.DATA_TYPE_SORT_KW = "index_data.data_type_sort.keyword"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
@@ -59,10 +60,10 @@ mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
-mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
-mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
-mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
-mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
+mex.constants.CREATED_RANGE = "custom_fields.mex:created.date"
+mex.constants.END_RANGE = "custom_fields.mex:end.date"
+mex.constants.START_RANGE = "custom_fields.mex:start.date"
+mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date"
 
 // field containers, for those with language/value sub fields
 mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
@@ -73,6 +74,8 @@ mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
 mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
 mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
 mex.constants.ACCESS_RESTRICTION = "custom_fields.mex:accessRestriction"
+mex.constants.POPULATION_COVERAGE_CONTAINER = "custom_fields.mex:populationCoverage"
+mex.constants.SPATIAL_CONTAINER = "custom_fields.mex:spatial"
 
 // data fields for content, where content is available as literal (or as a list of literals)
 // for display and free-text searching
@@ -103,6 +106,9 @@ mex.constants.INVOLVED_PERSON = "index_data.involvedPersons"
 mex.constants.SUBTITLE = "custom_fields.mex:subtitle.value"
 mex.constants.CREATOR = "index_data.creators"
 mex.constants.KEYWORD = "custom_fields.mex:keyword.value"
+mex.constants.MEX_ID = "custom_fields.mex:identifier"
+mex.constants.TEMPORAL = "custom_fields.mex:temporal"
+
 
 ///////////////////////////////////////////////////
 // General Functions
@@ -111,8 +117,27 @@ mex.countFormat = edges.util.numFormat({
     thousandsSeparator: ",",
 });
 
-mex.fullDateFormatter = function (datestr) {
+mex.str2date = function(datestr) {
+    // try parsing as string
     let date = new Date(datestr);
+    if (!Number.isNaN(date.getTime())) {
+        return date;
+    }
+    // try parsing as int
+    date = new Date(parseInt(datestr))
+    if (!Number.isNaN(date.getTime())) {
+        return date;
+    }
+
+    // just return whatever you get when you wrap the datestr
+    return new Date(datestr);
+}
+
+mex.fullDateFormatter = function (datestr) {
+    let date = mex.str2date(datestr)
+    if (Number.isNaN(date.getTime())) {
+        return date;
+    }
     return date.toLocaleString(mex.state.lang, {
         day: "numeric",
         month: "long",
@@ -141,7 +166,8 @@ mex.displayYearMonthPeriod = function (params) {
 
     let frdisplay = false;
     if (from) {
-        frdisplay = new Date(parseInt(from)).toLocaleString(mex.state.lang, {
+        from = mex.str2date(from);
+        frdisplay = from.toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -150,7 +176,8 @@ mex.displayYearMonthPeriod = function (params) {
 
     let todisplay = false;
     if (to) {
-        todisplay = new Date(parseInt(to - 1)).toLocaleString(mex.state.lang, {
+        to = mex.str2date(to);
+        todisplay = to.toLocaleString(mex.state.lang, {
             month: 'long',
             year: 'numeric',
             timeZone: "UTC"
@@ -204,6 +231,14 @@ mex._jinja_babel = function () {
     return temp;
 };
 
+/**
+ * Returns the first value which matches the user's selected language
+ *
+ * @param path
+ * @param res
+ * @param def
+ * @returns {*}
+ */
 mex.getLangVal = function (path, res, def) {
     let preferred = "";
     let field = edges.util.pathValue(path, res, []);
@@ -222,6 +257,12 @@ mex.getLangVal = function (path, res, def) {
     return field[0].value;
 };
 
+/**
+ * Returns all values in a field for the user's selected language
+ * @param path
+ * @param res
+ * @returns {*[]}
+ */
 mex.getAllLangVals = function (path, res) {
     let fields = edges.util.pathValue(path, res, []);
     let selected = [];
@@ -477,26 +518,35 @@ mex.dateHistogram = function (params) {
         displayFormatter = mex.monthFormatter;
     }
 
-    return new edges.components.DateHistogram({
+    // return new edges.components.DateHistogram({
+    //     id: params.id,
+    //     category: params.category || "left",
+    //     field: params.field,
+    //     interval: interval,
+    //     displayFormatter: displayFormatter,
+    //     sortFunction: function (values) {
+    //         values.reverse();
+    //         return values;
+    //     },
+    //     renderer: new mex.renderers.DateHistogramSelector({
+    //         title: params.title || i18n.t("Date Histogram"),
+    //         open: true,
+    //         togglable: false,
+    //         useCheckboxes: params.useCheckboxes ?? false,
+    //         showSelected: params.showSelected ?? true,
+    //         countFormat: mex.countFormat,
+    //         shortDisplay: 10
+    //     }),
+    // });
+    return new edges.components.MultiDateRangeEntry({
         id: params.id,
         category: params.category || "left",
-        field: params.field,
-        interval: interval,
-        displayFormatter: displayFormatter,
-        sortFunction: function (values) {
-            values.reverse();
-            return values;
-        },
-        renderer: new mex.renderers.DateHistogramSelector({
-            title: params.title || i18n.t("Date Histogram"),
-            open: true,
-            togglable: false,
-            useCheckboxes: params.useCheckboxes ?? false,
-            showSelected: params.showSelected ?? true,
-            countFormat: mex.countFormat,
-            shortDisplay: 10
-        }),
-    });
+        fields: [{field: params.field, display: "Date Field"}],
+        autoLookupRange: true,
+        renderer: new mex.renderers.DualEntryDateRangeSelector({
+            displayName: params.title || i18n.t("Date Range"),
+        })
+    })
 };
 
 mex.fullSearchController = function (params) {
@@ -4188,18 +4238,17 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-
-        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
-        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+        let accessRestrictionRaw = edges.util.pathValue(mex.constants.ACCESS_RESTRICTION, res)
+        let accessRestriction = mex.vocabularyLookup(accessRestrictionRaw)
 
         let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
         if (!title) {
             title = edges.util.escapeHtml(
-                this._getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
+                mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
             );
         }
 
-        let alt = this._getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
@@ -4214,16 +4263,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             }
         }
 
-        let created = res["custom_fields"]["mex:created"];
-        let created_ui = "";
-        if (created && created.date) {
-            created_ui = mex.fullDateFormatter(created.date);
-            if (created_ui === "Invalid Date") {
-                created_ui = created.date;
-            }
-        }
-
-        let keywords = this._rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
+        let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {
             keywords = keywords.slice(0, 5);
         }
@@ -4240,59 +4280,120 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             this.component.id
         );
 
-        let frag = `<div class="card results-card"><div class="card-header">`
-        frag += `<span class="tags">${accessRestrictionFrag}</span>`;
-
         let vCount = 0;
-        let _usedIn = edges.util.pathValue("display_data.linked_records.backwards_linked.mex:usedIn", res, []);
-        if (_usedIn) {
-            vCount = _usedIn.length;
+        let usedIn = edges.util.pathValue(mex.constants.USED_IN_DISPLAY_BACKLINK, res);
+        if (usedIn) {
+            vCount = usedIn.length;
         }
 
-        frag += `
-        <button type="button" class="ui icon button ${selectState} ${selectClass}"
-                data-id="${res.id}"
-                data-state="${selectState}"
-                    title="${vCount ? selectState : i18n.t("This resource has no variables")}"
-                    aria-label="${selectState}"
-                    ${vCount ? "" : "disabled"}>
-            ${vCount ? "" : "⊘"}</button></div>
-        `
+        let mex_id = edges.util.pathValue(mex.constants.MEX_ID, res);
 
-            let mex_id = res["custom_fields"]["mex:identifier"]
-            if (created_ui) {
-                frag += `
-                    <p class="date muted">${created_ui}</p>
-                `
+        let popCov = mex.getAllLangVals(mex.constants.POPULATION_COVERAGE_CONTAINER, res);
+        let spatial = mex.getAllLangVals(mex.constants.SPATIAL_CONTAINER, res);
+        let temporal = edges.util.pathValue(mex.constants.TEMPORAL, res);
+
+        function createdDate(res) {
+            let created = edges.util.pathValue(mex.constants.CREATED, res);
+            let created_ui = "";
+            if (created) {
+                created_ui = mex.fullDateFormatter(created); // returns `created` if it can't be parsed
             }
-            frag += `<h3 class="title">
-                <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-            </h3>`
+            return `<p class="date muted">${created_ui}</p>`;
+        }
 
+        function altTitle(alt) {
             if (alt) {
-                frag += `<p class="subtitle">${alt}</strong>`
+                return `<p class="subtitle">${alt}</strong>`;
             }
+            return "";
+        }
 
+        function description(desc) {
             if (desc) {
                 frag += `<p class="description">
                     ${desc.slice(0,600)}
                     ${desc.length > 600 ? "..." : ""}
                 </p>`
             }
+            return "";
+        }
 
-            if (keywords.length > 0) {
-                frag += `<div class="tags">`
-                for (let key of keywords)
-                {
-                    frag += `
-                        <span class="tag">${key}</span>
-                    `
+        function keywordTags(keywords) {
+            function tags() {
+                frag = "";
+                for (let key of keywords) {
+                    frag += `<span class="tag">${key}</span>`;
                 }
-                frag += `</div>`
+                return frag;
             }
+            if (keywords.length > 0) {
+                return `
+                    <div class="tags">
+                        ${tags()}
+                    </div>
+                `;
+            }
+            return "";
+        }
 
-            frag += `</div>`
-        ;
+        function _iconAndText(icon, label, values) {
+            let frag = "";
+            for (let entry of values) {
+                frag += `
+                <p>
+                    <i class="${icon} icon" aria-hidden="true" title="${label}"></i>
+                    <span class="sr-only">${label}</span>
+                    ${entry}
+                </p>`;
+            }
+            return frag;
+        }
+
+        function populationCoverage(cov) {
+            const label = i18n.t("mex:populationCoverage")
+            return _iconAndText("globe", label, cov);
+        }
+
+        function spatialCoverage(spatial) {
+            const label = i18n.t("mex:spatial")
+            return _iconAndText("users", label, spatial);
+        }
+
+        function temporalCoverage(temporal) {
+            if (temporal === null) {
+                return "";
+            }
+            const label = i18n.t("mex:temporal")
+            return _iconAndText("calendar", label, [temporal]);
+        }
+
+        let frag = `
+            <div class="card results-card">
+                <div class="card-header">
+                    <span class="tags">
+                        <span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[accessRestrictionRaw]}">${accessRestriction}</span>
+                        <span class="tag">${vCount} ${i18n.t("Variables")}</span>
+                    </span>
+
+                    <button type="button" class="ui icon button ${selectState} ${selectClass}"
+                            data-id="${res.id}"
+                            data-state="${selectState}"
+                                title="${vCount ? selectState : i18n.t("This resource has no variables")}"
+                                aria-label="${selectState}"
+                                ${vCount ? "" : "disabled"}>
+                        ${vCount ? "" : "⊘"}</button>
+                </div>
+                ${createdDate(res)}
+                <h3 class="title">
+                    <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+                </h3>
+                ${altTitle(alt)}
+                ${description(desc)}
+                ${populationCoverage(popCov)}
+                ${spatialCoverage(spatial)}
+                ${temporalCoverage(temporal)}
+                ${keywordTags(keywords)}
+            </div>`;
 
         return frag;
     }
@@ -4301,9 +4402,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         return mex.getLangVal(path, res, def);
     }
 
-    _rankedByLang(path, res) {
-        return mex.rankedByLang(path, res);
-    }
 };
 
 mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesResults {
@@ -5035,7 +5133,10 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${sortButtonMacro(mex.constants.BELONGS_TO_LABEL_KW)}
                     ${i18n.t("Variable Group")}
                 </th>
-                <th>${i18n.t("Data Type")}</th>
+                <th aria-sort="${currentDir(mex.constants.DATA_TYPE_SORT_KW, false)}">
+                    ${sortButtonMacro(mex.constants.DATA_TYPE_SORT_KW)}
+                    ${i18n.t("Data Type")}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -5066,7 +5167,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         let label = mex.getHighlight(highlights, res.uuid, mex.constants.LABEL);
         if (!label) {
             label = edges.util.escapeHtml(
-                this._getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
+                mex.getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
             );
         }
 
@@ -5087,11 +5188,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let resultHighlights = highlights && res.uuid in highlights ? highlights[res.uuid] : {};
-
-        // let langPrefix = edges.mex.state.lang;
-        // let rpath = langPrefix === "en" ? edges.mex.constants.USED_IN_EN : edges.mex.constants.USED_IN_DE;
         let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
-        // let resources = edges.util.pathValue("display_data.linked_records.mex:usedIn", res, []);
+
         let resourceFrag = "";
         if (resources) {
             // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
@@ -5172,16 +5270,7 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${codingFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Coding system")}:</span> ${codingFrag}</div>`}
                     ${valueSetFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Value set")}:</span> ${valueSetFrag}</div>`}
                 `;
-
-            //   detailFrag = `<div class="details-extra">
-            //                 ${descFrag}
-            //                 ${codingFrag}
-            //               </div>`;
         }
-
-
-        // removed from now.
-
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
@@ -5521,7 +5610,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let label = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
+            this._getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
         if (myHighlights[mex.constants.LABEL]) {
             label = myHighlights[mex.constants.LABEL]

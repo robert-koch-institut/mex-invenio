@@ -302,10 +302,10 @@ class TypeLimiterParamsInterpreter(ParamInterpreter):
                     "term", metadata__resource_type__id=resource_type
                 )
         # Uncomment this to get a view on the query in development
-        print("##############TypeLimiter###################")
-        import json
+        # print("##############TypeLimiter###################")
+        # import json
 
-        print(json.dumps(search.to_dict()))
+        # print(json.dumps(search.to_dict()))
         return search
 
 
@@ -644,8 +644,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         ascii_only = folded.encode("ascii", "ignore").decode("ascii")
 
         # Normalize whitespace and lowercase
-        normalized = re.sub(r"\s+", " ", ascii_only).strip().lower()
-        return normalized
+        return re.sub(r"\s+", " ", ascii_only).strip().lower()
 
     def _generalise_query_string(self, qs):
         norm = self._normalize_text(qs)
@@ -663,6 +662,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         return norm, broad_query, words
 
     def apply(self, identity, search, params):
+        """Apply constraints and parameters to a search."""
         raw = search.to_dict()
 
         # import json
@@ -723,18 +723,16 @@ class BoostingParamsInterpreter(ParamInterpreter):
             search = search.extra(explain=True)
 
             # Uncomment this to get a view on the query in development
-            #print("#########boosting - with query###############")
-            #import json
+            # print("#########boosting - with query###############")
+            # import json
 
-            #print(json.dumps(search.to_dict()))
-
-            return search
+            # print(json.dumps(search.to_dict()))
 
         # Uncomment this to get a view on the query in development
-        #print("#########boosting - no query###############")
-        #import json
+        # print("#########boosting - no query###############")
+        # import json
 
-        #print(json.dumps(search.to_dict()))
+        # print(json.dumps(search.to_dict()))
 
         return search
 
