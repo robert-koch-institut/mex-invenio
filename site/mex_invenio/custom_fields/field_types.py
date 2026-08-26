@@ -1,5 +1,9 @@
 from mex.model import ENTITY_JSON_BY_NAME
 
+# Entity types that are never published to Invenio, so they are skipped when
+# deriving config from the mex-model package.
+UNPUBLISHED_ENTITIES = frozenset({"consent", "primary_source"})
+
 
 # Custom types definition
 class CUSTOM_TYPES:
@@ -106,6 +110,8 @@ def get_field_types() -> dict:
 
     # Use the pre-loaded entity data from mex-model package
     for entity_name, entity_data in ENTITY_JSON_BY_NAME.items():
+        if entity_name in UNPUBLISHED_ENTITIES:
+            continue
         try:
             properties = entity_data.get("properties", {})
             resource_type = entity_name.replace("_", "")

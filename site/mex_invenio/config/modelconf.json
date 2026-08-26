@@ -3,6 +3,7 @@
         "categories": [
             {
                 "icon": "activity",
+                "id": "general",
                 "properties": [
                     "alternativeTitle",
                     "activityType",
@@ -13,6 +14,7 @@
             },
             {
                 "icon": "creators",
+                "id": "creators",
                 "properties": [
                     "involvedPerson",
                     "responsibleUnit",
@@ -22,6 +24,7 @@
             },
             {
                 "icon": "description",
+                "id": "description",
                 "properties": [
                     "start",
                     "end",
@@ -31,6 +34,7 @@
             },
             {
                 "icon": "funding",
+                "id": "partners",
                 "properties": [
                     "externalAssociate",
                     "funderOrCommissioner",
@@ -40,6 +44,7 @@
             },
             {
                 "icon": "publication",
+                "id": "publication",
                 "properties": [
                     "publication",
                     "documentation",
@@ -49,6 +54,7 @@
             },
             {
                 "icon": "relatedResources",
+                "id": "relatedResources",
                 "properties": [
                     "isPartOfActivity",
                     "succeeds",
@@ -59,6 +65,7 @@
             },
             {
                 "icon": "contact",
+                "id": "contact",
                 "properties": [
                     "contact"
                 ],
@@ -70,6 +77,7 @@
         "categories": [
             {
                 "icon": "bibliographic-resource",
+                "id": "general",
                 "properties": [
                     "alternativeTitle",
                     "language",
@@ -82,6 +90,7 @@
             },
             {
                 "icon": "creators",
+                "id": "creators",
                 "properties": [
                     "creator",
                     "contributingUnit"
@@ -90,6 +99,7 @@
             },
             {
                 "icon": "theme",
+                "id": "keywords",
                 "properties": [
                     "keyword"
                 ],
@@ -97,6 +107,7 @@
             },
             {
                 "icon": "titleProper",
+                "id": "titleProper",
                 "properties": [
                     "journal",
                     "issue",
@@ -111,6 +122,7 @@
             },
             {
                 "icon": "imprint",
+                "id": "imprint",
                 "properties": [
                     "publisher",
                     "publicationPlace",
@@ -123,6 +135,7 @@
             },
             {
                 "icon": "editor",
+                "id": "editor",
                 "properties": [
                     "editor",
                     "editorOfSeries"
@@ -131,6 +144,7 @@
             },
             {
                 "icon": "relatedResources",
+                "id": "relatedResources",
                 "properties": [
                     "publication"
                 ],
@@ -138,6 +152,7 @@
             },
             {
                 "icon": "access",
+                "id": "access",
                 "properties": [
                     "accessRestriction",
                     "doi",
@@ -149,6 +164,7 @@
             },
             {
                 "icon": "distribution",
+                "id": "files",
                 "properties": [
                     "distribution"
                 ],
@@ -160,6 +176,7 @@
         "categories": [
             {
                 "icon": "resource",
+                "id": "general",
                 "properties": [
                     "resourceTypeSpecific",
                     "resourceTypeGeneral",
@@ -177,6 +194,7 @@
             },
             {
                 "icon": "creators",
+                "id": "creators",
                 "properties": [
                     "creator",
                     "unitInCharge",
@@ -188,6 +206,7 @@
             },
             {
                 "icon": "theme",
+                "id": "keywords",
                 "properties": [
                     "theme",
                     "healthCategory",
@@ -197,6 +216,7 @@
             },
             {
                 "icon": "coverage",
+                "id": "coverage",
                 "properties": [
                     "temporal",
                     "start",
@@ -213,6 +233,7 @@
             },
             {
                 "icon": "legal",
+                "id": "legal",
                 "properties": [
                     "hasLegalBasis",
                     "hasPurpose",
@@ -223,6 +244,7 @@
             },
             {
                 "icon": "processing",
+                "id": "processing",
                 "properties": [
                     "resourceCreationMethod",
                     "accrualPeriodicity",
@@ -233,6 +255,7 @@
             },
             {
                 "icon": "quality",
+                "id": "quality",
                 "properties": [
                     "conformsTo",
                     "qualityInformation",
@@ -244,6 +267,7 @@
             },
             {
                 "icon": "methodology",
+                "id": "methodology",
                 "properties": [
                     "method",
                     "methodDescription"
@@ -252,6 +276,7 @@
             },
             {
                 "icon": "publication",
+                "id": "publication",
                 "properties": [
                     "publication",
                     "documentation"
@@ -260,6 +285,7 @@
             },
             {
                 "icon": "relatedProjects",
+                "id": "generatedBy",
                 "properties": [
                     "wasGeneratedBy"
                 ],
@@ -267,6 +293,7 @@
             },
             {
                 "icon": "relatedResources",
+                "id": "relatedResources",
                 "properties": [
                     "isPartOf",
                     "relatedResource"
@@ -275,6 +302,7 @@
             },
             {
                 "icon": "contact",
+                "id": "contact",
                 "properties": [
                     "contact"
                 ],
@@ -282,6 +310,7 @@
             },
             {
                 "icon": "access",
+                "id": "access",
                 "properties": [
                     "accessRestriction",
                     "doi",
@@ -292,6 +321,7 @@
             },
             {
                 "icon": "distribution",
+                "id": "files",
                 "properties": [
                     "distribution"
                 ],
@@ -299,6 +329,7 @@
             },
             {
                 "icon": "variables",
+                "id": "variables",
                 "properties": [
                     "usedIn"
                 ],

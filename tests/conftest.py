@@ -28,9 +28,12 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.config import (
+    CORE_ENTITY_TYPES,
     DISCLAIMER,
     ENTITIES,
+    EXT_IDS,
     FIELD_TYPES,
+    FIELDS_LINKED_BACKWARDS,
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
     RECORD_METADATA_CREATOR,
@@ -38,9 +41,6 @@ from mex_invenio.config import (
     RECORD_METADATA_TITLE_PROPERTIES,
     TITLE_FIELDS,
     UI_SETTINGS,
-)
-from mex_invenio.custom_fields.backwards_linked_records import (
-    get_fields_linked_backwards,
 )
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
@@ -194,7 +194,9 @@ def app_config(app_config, module_tmp_path):
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
     app_config["ENTITIES"] = ENTITIES
     app_config["DISCLAIMER"] = DISCLAIMER
-    app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
+    app_config["FIELDS_LINKED_BACKWARDS"] = FIELDS_LINKED_BACKWARDS
+    app_config["EXT_IDS"] = EXT_IDS
+    app_config["CORE_ENTITY_TYPES"] = CORE_ENTITY_TYPES
 
     # add S3
     app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path

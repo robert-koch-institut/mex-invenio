@@ -697,7 +697,7 @@ class MexDumper(SearchDumper):
                         .get("id", None)
                     )
 
-                    core_records = ["activity", "resource", "bibliographicresource"]
+                    core_records = current_app.config["CORE_ENTITY_TYPES"]
                     if record_type and record_type in core_records:
                         # print(f"Found core record: {record_type}")
                         field_value["core"] = record_type
@@ -763,7 +763,7 @@ class MexDumper(SearchDumper):
                     .get("id", None)
                 )
 
-                core_records = ["activity", "resource", "bibliographicresource"]
+                core_records = current_app.config["CORE_ENTITY_TYPES"]
                 record_core = None
                 if record_type and record_type in core_records:
                     # print(f"Found core record: {record_type}")
