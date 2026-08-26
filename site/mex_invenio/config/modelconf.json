@@ -1,0 +1,309 @@
+{
+    "activity": {
+        "categories": [
+            {
+                "icon": "activity",
+                "properties": [
+                    "alternativeTitle",
+                    "activityType",
+                    "abstract",
+                    "title"
+                ],
+                "title": "General"
+            },
+            {
+                "icon": "creators",
+                "properties": [
+                    "involvedPerson",
+                    "responsibleUnit",
+                    "involvedUnit"
+                ],
+                "title": "Creators & Contributors"
+            },
+            {
+                "icon": "description",
+                "properties": [
+                    "start",
+                    "end",
+                    "theme"
+                ],
+                "title": "Description"
+            },
+            {
+                "icon": "funding",
+                "properties": [
+                    "externalAssociate",
+                    "funderOrCommissioner",
+                    "fundingProgram"
+                ],
+                "title": "Partners & Funding"
+            },
+            {
+                "icon": "publication",
+                "properties": [
+                    "publication",
+                    "documentation",
+                    "website"
+                ],
+                "title": "Related Publications & Further Documentation"
+            },
+            {
+                "icon": "relatedResources",
+                "properties": [
+                    "isPartOfActivity",
+                    "succeeds",
+                    "relatedActivity",
+                    "wasGeneratedBy"
+                ],
+                "title": "Related Resources"
+            },
+            {
+                "icon": "contact",
+                "properties": [
+                    "contact"
+                ],
+                "title": "Contact"
+            }
+        ]
+    },
+    "bibliographicResource": {
+        "categories": [
+            {
+                "icon": "bibliographic-resource",
+                "properties": [
+                    "alternativeTitle",
+                    "language",
+                    "abstract",
+                    "bibliographicResourceType",
+                    "issued",
+                    "title"
+                ],
+                "title": "General"
+            },
+            {
+                "icon": "creators",
+                "properties": [
+                    "creator",
+                    "contributingUnit"
+                ],
+                "title": "Creators"
+            },
+            {
+                "icon": "theme",
+                "properties": [
+                    "keyword"
+                ],
+                "title": "Keywords"
+            },
+            {
+                "icon": "titleProper",
+                "properties": [
+                    "journal",
+                    "issue",
+                    "volume",
+                    "titleOfBook",
+                    "subtitle",
+                    "titleOfSeries",
+                    "volumeOfSeries",
+                    "section"
+                ],
+                "title": "Title Proper"
+            },
+            {
+                "icon": "imprint",
+                "properties": [
+                    "publisher",
+                    "publicationPlace",
+                    "publicationYear",
+                    "edition",
+                    "pages",
+                    "isbnIssn"
+                ],
+                "title": "Imprint"
+            },
+            {
+                "icon": "editor",
+                "properties": [
+                    "editor",
+                    "editorOfSeries"
+                ],
+                "title": "Editor"
+            },
+            {
+                "icon": "relatedResources",
+                "properties": [
+                    "publication"
+                ],
+                "title": "Related Resources"
+            },
+            {
+                "icon": "access",
+                "properties": [
+                    "accessRestriction",
+                    "doi",
+                    "alternateIdentifier",
+                    "repositoryURL",
+                    "license"
+                ],
+                "title": "Access & Usage Rights"
+            },
+            {
+                "icon": "distribution",
+                "properties": [
+                    "distribution"
+                ],
+                "title": "Files"
+            }
+        ]
+    },
+    "resource": {
+        "categories": [
+            {
+                "icon": "resource",
+                "properties": [
+                    "resourceTypeSpecific",
+                    "resourceTypeGeneral",
+                    "created",
+                    "alternativeTitle",
+                    "description",
+                    "language",
+                    "modified",
+                    "meshId",
+                    "loincId",
+                    "icd10code",
+                    "title"
+                ],
+                "title": "General"
+            },
+            {
+                "icon": "creators",
+                "properties": [
+                    "creator",
+                    "unitInCharge",
+                    "contributor",
+                    "contributingUnit",
+                    "externalPartner"
+                ],
+                "title": "Creators & Contributors"
+            },
+            {
+                "icon": "theme",
+                "properties": [
+                    "theme",
+                    "healthCategory",
+                    "keyword"
+                ],
+                "title": "Theme & Keywords"
+            },
+            {
+                "icon": "coverage",
+                "properties": [
+                    "temporal",
+                    "start",
+                    "end",
+                    "spatial",
+                    "minTypicalAge",
+                    "maxTypicalAge",
+                    "populationCoverage",
+                    "sizeOfDataBasis",
+                    "numberOfRecords",
+                    "numberOfUniqueIndividuals"
+                ],
+                "title": "Data Representation & Coverage"
+            },
+            {
+                "icon": "legal",
+                "properties": [
+                    "hasLegalBasis",
+                    "hasPurpose",
+                    "hasPersonalData",
+                    "source"
+                ],
+                "title": "Legal Basis & Data Provenance"
+            },
+            {
+                "icon": "processing",
+                "properties": [
+                    "resourceCreationMethod",
+                    "accrualPeriodicity",
+                    "anonymizationPseudonymization",
+                    "instrumentToolOrApparatus"
+                ],
+                "title": "Data Collection & Processing"
+            },
+            {
+                "icon": "quality",
+                "properties": [
+                    "conformsTo",
+                    "qualityInformation",
+                    "hasCodeValues",
+                    "analytics",
+                    "sample"
+                ],
+                "title": "Standards & Quality"
+            },
+            {
+                "icon": "methodology",
+                "properties": [
+                    "method",
+                    "methodDescription"
+                ],
+                "title": "Methodology"
+            },
+            {
+                "icon": "publication",
+                "properties": [
+                    "publication",
+                    "documentation"
+                ],
+                "title": "Related Publications & Further Documentation"
+            },
+            {
+                "icon": "relatedProjects",
+                "properties": [
+                    "wasGeneratedBy"
+                ],
+                "title": "Related Projects"
+            },
+            {
+                "icon": "relatedResources",
+                "properties": [
+                    "isPartOf",
+                    "relatedResource"
+                ],
+                "title": "Related Resources"
+            },
+            {
+                "icon": "contact",
+                "properties": [
+                    "contact"
+                ],
+                "title": "Contact"
+            },
+            {
+                "icon": "access",
+                "properties": [
+                    "accessRestriction",
+                    "doi",
+                    "license",
+                    "rights"
+                ],
+                "title": "Access & Usage Rights"
+            },
+            {
+                "icon": "distribution",
+                "properties": [
+                    "distribution"
+                ],
+                "title": "Files"
+            },
+            {
+                "icon": "variables",
+                "properties": [
+                    "usedIn"
+                ],
+                "title": "Variables"
+            }
+        ]
+    }
+}

@@ -339,7 +339,7 @@ UI_SETTINGS = {
                     ],
                 },
             },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "DESCRIPTION": {"field": "mex:description"},
             "LANGUAGE": {"field": "mex:language"},
             "MODIFIED": {"field": "mex:modified"},
@@ -575,7 +575,7 @@ UI_SETTINGS = {
     "activity": {
         "label": _("Project"),
         "special_fields": {
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "ACTIVITY_TYPE": {"field": "mex:activityType"},
             "ABSTRACT": {"field": "mex:abstract"},
             "TITLE": {"field": "mex:title"},
@@ -685,7 +685,6 @@ UI_SETTINGS = {
     "bibliographicresource": {
         "label": _("Publication"),
         "special_fields": {
-            "CREATED": {"field": "mex:created"},
             "ACCESS_RESTRICTION": {
                 "field": "mex:accessRestriction",
                 "color_map": {
@@ -697,10 +696,10 @@ UI_SETTINGS = {
                     ],
                 },
             },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "LANGUAGE": {"field": "mex:language"},
             "ABSTRACT": {"field": "mex:abstract"},
-            "BIBLIOGRAPHICRESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
+            "BIBLIOGRAPHIC_RESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
             "ISSUED": {"field": "mex:issued"},
             "TITLE": {"field": "mex:title"},
         },
@@ -754,8 +753,9 @@ UI_SETTINGS = {
                         "field": "mex:publicationYear",
                         "label": _("publicationYear.singular"),
                     },
+                    {"field": "mex:edition", "label": _("edition.singular")},
                     {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
+                    {"field": "mex:isbnIssn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {
@@ -814,7 +814,6 @@ UI_SETTINGS = {
                         "label": _("repositoryURL.singular"),
                     },
                     {"field": "mex:license", "label": _("license.singular")},
-                    {"field": "mex:rights", "label": _("rights.singular")},
                 ],
             },
             "files": {
