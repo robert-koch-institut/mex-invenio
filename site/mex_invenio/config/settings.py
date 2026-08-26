@@ -325,7 +325,7 @@ ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
 
 # Structure -- which fields a record type shows, and how they are grouped -- lives in
 # modelconf.json. What follows are the rendering decisions that file does not carry;
-# ui_settings.validate() checks every one of them against it at import time.
+# tests/test_ui_settings.py checks every one of them against it.
 MODELCONF = load_modelconf()
 
 # Record-type tag shown on the landing page and on links to it.

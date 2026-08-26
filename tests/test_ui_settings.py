@@ -17,9 +17,87 @@ from mex_invenio.config.ui_settings import (
     build_ext_ids,
     build_fields_linked_backwards,
     build_ui_settings,
-    validate,
 )
 from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+
+
+def _validate_ids(known, used, rule):
+    """Raise if a rule names a category the model config does not have."""
+    if unknown := sorted(used - known):
+        message = f"{rule} names unknown categories: {', '.join(unknown)}"
+        raise ValueError(message)
+
+
+def _validate_containers(modelconf, rules):
+    """Raise if a container's sub-blocks do not cover its category exactly."""
+    for (entity_type, category_id), components in rules.container_components.items():
+        if entity_type not in modelconf:
+            message = f"container_components names unknown entity type: {entity_type}"
+            raise ValueError(message)
+        categories = [
+            category
+            for category in modelconf[entity_type]["categories"]
+            if category["id"] == category_id
+        ]
+        if not categories:
+            message = (
+                f"container_components names unknown category: "
+                f"{entity_type}.{category_id}"
+            )
+            raise ValueError(message)
+        declared = {component.name for component in components}
+        expected = set(categories[0]["properties"])
+        if declared != expected:
+            message = (
+                f"container {entity_type}.{category_id} covers {sorted(declared)}, "
+                f"but the model config lists {sorted(expected)}"
+            )
+            raise ValueError(message)
+
+
+def validate(modelconf, rules):
+    """Check that every rendering rule still matches the model config.
+
+    This lives here rather than in the package because nothing at runtime calls it:
+    build_ui_settings raises KeyError on its own for the rules it needs, and the rest
+    would only ever misrender a card, which is a thing for CI to catch, not a reason
+    to stop the instance from booting.
+    """
+    ids = {
+        category["id"]
+        for entity in modelconf.values()
+        for category in entity["categories"]
+    }
+    names = {
+        name
+        for entity in modelconf.values()
+        for category in entity["categories"]
+        for name in category["properties"]
+    }
+    if missing := sorted(set(modelconf) - set(rules.entity_labels)):
+        message = f"entity_labels is missing: {', '.join(missing)}"
+        raise ValueError(message)
+
+    _validate_ids(ids, {rules.header_category}, "header_category")
+    _validate_ids(ids, set(rules.sidebar_categories), "sidebar_categories")
+    _validate_ids(ids, set(rules.card_templates), "card_templates")
+    _validate_ids(ids, set(rules.no_label_categories), "no_label_categories")
+    _validate_ids(
+        ids,
+        {category_id for _, category_id in rules.container_components},
+        "container_components",
+    )
+
+    # ext_id_prefixes is not checked: it also covers identifiers of linked entity
+    # types (person, organization, ...) that have no landing page of their own.
+    declared = set(rules.label_overrides)
+    declared |= {name for group in rules.folded_properties for name in group}
+    declared |= {name for fields in rules.backwards_linked.values() for name in fields}
+    if unknown := sorted(declared - names):
+        message = f"rendering rules name unknown properties: {', '.join(unknown)}"
+        raise ValueError(message)
+
+    _validate_containers(modelconf, rules)
 
 
 @pytest.fixture

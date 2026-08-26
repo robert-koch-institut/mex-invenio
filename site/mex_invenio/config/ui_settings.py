@@ -6,8 +6,9 @@ Everything else the landing pages need -- which column a card sits in, which tem
 renders it, labels, external-id prefixes, backwards links -- is a rendering decision and
 is declared in :class:`RenderingRules` by ``settings.py``.
 
-Every rule is validated against the loaded model config at import time, so a category
-renamed in the JSON fails loudly instead of silently rendering an empty card.
+The rules the build needs -- a category's id, an entity's label -- raise KeyError here
+if they drift. The cosmetic ones would only misrender a card, so they are checked by
+tests/test_ui_settings.py rather than at import.
 """
 
 import json
@@ -222,7 +223,8 @@ def build_ui_settings(
         Invenio resource type -> ``{label, special_fields, main, side_bar}``.
 
     Note:
-        Rules are not checked here; :func:`validate` does that, driven by the tests.
+        Rules are not checked here. A rule the build needs raises KeyError; the rest
+        are covered by tests/test_ui_settings.py.
     """
     settings: dict[str, Entity] = {}
     for entity_type, entity in modelconf.items():
@@ -286,90 +288,3 @@ def build_fields_linked_backwards(
         if fields:
             linked[entity_type] = fields
     return linked
-
-
-def _validate_ids(known: set[str], used: set[str], rule: str) -> None:
-    """Raise if a rule names a category the model config does not have."""
-    if unknown := sorted(used - known):
-        message = f"{rule} names unknown categories: {', '.join(unknown)}"
-        raise ValueError(message)
-
-
-def validate(modelconf: dict[str, Any], rules: RenderingRules) -> None:
-    """Check that every rendering rule still matches the model config.
-
-    Not called at import: :func:`build_ui_settings` fails loudly on its own for the
-    rules it needs, and the rest are checked by the test suite, so a stale cosmetic
-    rule cannot keep the whole instance from booting.
-
-    Args:
-        modelconf: Parsed ``modelconf.json``.
-        rules: The rendering decisions to check.
-
-    Raises:
-        ValueError: If a rule names an entity type, category or property that the
-            model config does not have, or if a container's sub-blocks do not cover
-            exactly the properties of its category.
-    """
-    ids = {
-        category["id"]
-        for entity in modelconf.values()
-        for category in entity["categories"]
-    }
-    names = {
-        name
-        for entity in modelconf.values()
-        for category in entity["categories"]
-        for name in _property_names(category)
-    }
-    if missing := sorted(set(modelconf) - set(rules.entity_labels)):
-        message = f"entity_labels is missing: {', '.join(missing)}"
-        raise ValueError(message)
-
-    _validate_ids(ids, {rules.header_category}, "header_category")
-    _validate_ids(ids, set(rules.sidebar_categories), "sidebar_categories")
-    _validate_ids(ids, set(rules.card_templates), "card_templates")
-    _validate_ids(ids, set(rules.no_label_categories), "no_label_categories")
-    _validate_ids(
-        ids,
-        {category_id for _, category_id in rules.container_components},
-        "container_components",
-    )
-
-    # ext_id_prefixes is not checked: it also covers identifiers of linked entity
-    # types (person, organization, ...) that have no landing page of their own.
-    declared = set(rules.label_overrides)
-    declared |= {name for group in rules.folded_properties for name in group}
-    declared |= {name for fields in rules.backwards_linked.values() for name in fields}
-    if unknown := sorted(declared - names):
-        message = f"rendering rules name unknown properties: {', '.join(unknown)}"
-        raise ValueError(message)
-
-    _validate_containers(modelconf, rules)
-
-
-def _validate_containers(modelconf: dict[str, Any], rules: RenderingRules) -> None:
-    """Raise if a container's sub-blocks do not cover its category exactly."""
-    for (entity_type, category_id), components in rules.container_components.items():
-        if entity_type not in modelconf:
-            message = f"container_components names unknown entity type: {entity_type}"
-            raise ValueError(message)
-        categories = [
-            category
-            for category in modelconf[entity_type]["categories"]
-            if category["id"] == category_id
-        ]
-        if not categories:
-            message = (
-                f"container_components names unknown category: "
-                f"{entity_type}.{category_id}"
-            )
-            raise ValueError(message)
-        declared = {component.name for component in components}
-        expected = set(_property_names(categories[0]))
-        if declared != expected:
-            message = (
-                f"container {entity_type}.{category_id} covers {sorted(declared)}, "
-                f"but the model config lists {sorted(expected)}"
-            )
-            raise ValueError(message)
