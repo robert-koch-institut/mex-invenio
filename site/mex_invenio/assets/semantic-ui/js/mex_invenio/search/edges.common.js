@@ -4255,9 +4255,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             alt = "";
         }
 
-        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.ABSTRACT);
+        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
         if (!desc) {
-            desc = this._getLangVal(mex.constants.ABSTRACT_CONTAINER, res, "");
+            desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
             if (desc.length > 300) {
                 desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
             }
@@ -4310,9 +4310,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function description(desc) {
             if (desc) {
-                frag += `<p class="description">
-                    ${desc.slice(0,600)}
-                    ${desc.length > 600 ? "..." : ""}
+                return `<p class="description">
+                    ${desc.slice(0,300)}
+                    ${desc.length > 300 ? "..." : ""}
                 </p>`
             }
             return "";
@@ -4336,12 +4336,35 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             return "";
         }
 
-        function _iconAndText(icon, label, values) {
+        function date_ui(date) {
+            let date_ui = date;
+            if (date) {
+                if (Array.isArray(date)) {
+                    date = date[0]
+                }
+                try {
+                    date_ui = new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        timeZone: "UTC"
+                    }).format(new Date(date));
+                } catch (e) {
+                    return date;
+                }
+            }
+            return date_ui;
+        }
+
+        function _iconAndText(icon, label, values, muted=true) {
             let frag = "";
             for (let entry of values) {
                 frag += `
-                <p>
-                    <i class="${icon} icon" aria-hidden="true" title="${label}"></i>
+                <p class="${muted ? 'muted' : ''}">
+                <img class="ui image icon--text"
+                    src="/static/icons/${icon}.svg"
+                    aria-hidden="true"
+                    title="${label}"/>
                     <span class="sr-only">${label}</span>
                     ${entry}
                 </p>`;
@@ -4351,12 +4374,12 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function populationCoverage(cov) {
             const label = i18n.t("mex:populationCoverage")
-            return _iconAndText("globe", label, cov);
+            return _iconAndText("globe", label, cov, true);
         }
 
         function spatialCoverage(spatial) {
             const label = i18n.t("mex:spatial")
-            return _iconAndText("users", label, spatial);
+            return _iconAndText("users", label, spatial, true);
         }
 
         function temporalCoverage(temporal) {
@@ -4364,7 +4387,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 return "";
             }
             const label = i18n.t("mex:temporal")
-            return _iconAndText("calendar", label, [temporal]);
+            return _iconAndText("calendar", label, [date_ui(temporal)], true);
         }
 
         let frag = `
@@ -4384,14 +4407,18 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                         ${vCount ? "" : "⊘"}</button>
                 </div>
                 ${createdDate(res)}
-                <h3 class="title">
-                    <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-                </h3>
-                ${altTitle(alt)}
-                ${description(desc)}
-                ${populationCoverage(popCov)}
-                ${spatialCoverage(spatial)}
-                ${temporalCoverage(temporal)}
+                <div class="card-section">
+                    <h3 class="title">
+                        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+                    </h3>
+                    ${altTitle(alt)}
+                    ${description(desc)}
+                </div>
+                <div class="card-section">
+                    ${populationCoverage(popCov)}
+                    ${spatialCoverage(spatial)}
+                    ${temporalCoverage(temporal)}
+                </div>
                 ${keywordTags(keywords)}
             </div>`;
 
