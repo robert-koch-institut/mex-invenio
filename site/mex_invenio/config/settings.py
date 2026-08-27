@@ -18,11 +18,12 @@ from invenio_i18n import lazy_gettext as _
 from invenio_oauthclient.views.client import auto_redirect_login
 from invenio_rdm_records.config import RDM_FACETS, RDM_SEARCH
 from invenio_vocabularies.services.facets import VocabularyLabels
+from mex.model import ENTITY_JSON_BY_NAME
 
 # Local imports
 from mex_invenio.config.ui_settings import (
+    CategoryRule,
     Component,
-    RenderingRules,
     build_ext_ids,
     build_fields_linked_backwards,
     build_ui_settings,
@@ -35,7 +36,10 @@ from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
-from mex_invenio.custom_fields.field_types import get_field_types
+from mex_invenio.custom_fields.field_types import (
+    UNPUBLISHED_ENTITIES,
+    get_field_types,
+)
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
@@ -302,9 +306,11 @@ RDM_FACETS = {
             # Field to filter on
             label=_("Resource types"),
             value_labels=VocabularyLabels("resourcetypes"),
+            # Vocabulary ids from app_data/vocabularies/resource_types.yaml, minus
+            # the ones that get a landing page of their own. Hand-kept: this is the
+            # vocabulary, not the MEx entity list.
             excluded_values=[
                 "accessplatform",
-                "concept",
                 "contactpoint",
                 "distribution",
                 "organization",
@@ -321,7 +327,12 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
+# Background colour of the access-restriction tag on the landing page, keyed by the
+# mex-model vocabulary value the record carries.
+ACCESS_COLOR_MAP = {
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",  # open
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",  # restricted
+}
 
 # Structure -- which fields a record type shows, and how they are grouped -- lives in
 # modelconf.json. What follows are the rendering decisions that file does not carry;
@@ -335,64 +346,53 @@ ENTITY_LABELS = {
     "bibliographicResource": _("Publication"),
 }
 
-# Categories below are addressed by their modelconf.json "id", not by their title:
-# titles are display msgids and change for editorial reasons.
-
-# Rendered by the page chrome (title, tags, description) instead of as a card.
-HEADER_CATEGORY = "general"
-
-# Rendered in the sidebar column; everything else goes in the main column.
-SIDEBAR_CATEGORIES = frozenset({"contact", "access", "files", "variables"})
-
-# Cards that need more than the generic card.html.
-CARD_TEMPLATES = {
-    "keywords": "theme_keywords.html",
-    "coverage": "coverage.html",
-    "methodology": "methodology.html",
-    "contact": "contact.html",
-    "variables": "variables.html",
+# How each category of modelconf.json renders. Categories are addressed by their "id",
+# not by their title: titles are display msgids and change for editorial reasons. Only
+# the categories needing something other than a plain card in the main column are
+# listed -- everything else falls through to CategoryRule's defaults.
+CATEGORY_RULES = {
+    # Rendered by the page chrome (title, tags, description) instead of as a card.
+    "general": CategoryRule(column="header"),
+    "keywords": CategoryRule(template="theme_keywords.html"),
+    "coverage": CategoryRule(template="coverage.html"),
+    "methodology": CategoryRule(template="methodology.html"),
+    "contact": CategoryRule(column="side_bar", template="contact.html"),
+    "access": CategoryRule(column="side_bar"),
+    "files": CategoryRule(column="side_bar"),
+    "variables": CategoryRule(
+        column="side_bar",
+        template="variables.html",
+        backwards=frozenset({"usedIn"}),
+    ),
+    # A container of titled sub-blocks rather than a flat card, laid out per entity
+    # type because each links to a different set of records.
+    "relatedResources": CategoryRule(
+        components={
+            "resource": [
+                Component(name="isPartOf", title=_("Part Of")),
+                Component(name="isPartOf", title=_("Includes"), reverse=True),
+                Component(name="relatedResource", title=_("Related Resource")),
+            ],
+            "activity": [
+                Component(name="isPartOfActivity", title=_("Part Of")),
+                Component(name="succeeds", title=_("Succeeds")),
+                Component(name="relatedActivity", title=_("Related Activity")),
+                Component(
+                    name="wasGeneratedBy",
+                    title=_("Related data sources & datasets"),
+                    reverse=True,
+                ),
+            ],
+            "bibliographicResource": [
+                Component(name="publication", reverse=True),
+            ],
+        },
+    ),
 }
 
-# Labels are derived as "<property>.singular"; these cards render without them
-# because their template lays the values out itself.
-NO_LABEL_CATEGORIES = frozenset({"keywords"})
-
-# Properties whose derived msgid is missing from the catalogs.
-# TODO: add volumeOfSeries.singular to translations/{de,en} and drop this
-LABEL_OVERRIDES = {"volumeOfSeries": _("Volume of series")}
-
-# Property groups that their card template renders as a single row.
-FOLDED_PROPERTIES: dict[tuple[str, ...], dict[str, str]] = {
-    ("minTypicalAge", "maxTypicalAge"): {"field": "fn", "label": _("Typical age")},
-}
-
-# Categories rendered as a container of titled sub-blocks rather than a flat card.
-CONTAINER_COMPONENTS = {
-    ("resource", "relatedResources"): [
-        Component(name="isPartOf", title=_("Part Of")),
-        Component(name="isPartOf", title=_("Includes"), reverse=True),
-        Component(name="relatedResource", title=_("Related Resource")),
-    ],
-    ("activity", "relatedResources"): [
-        Component(name="isPartOfActivity", title=_("Part Of")),
-        Component(name="succeeds", title=_("Succeeds")),
-        Component(name="relatedActivity", title=_("Related Activity")),
-        Component(
-            name="wasGeneratedBy",
-            title=_("Related data sources & datasets"),
-            reverse=True,
-        ),
-    ],
-    ("bibliographicResource", "relatedResources"): [
-        Component(name="publication", reverse=True),
-    ],
-}
-
-# Properties that name records pointing at this one, outside of containers.
-BACKWARDS_LINKED = {"resource": ["usedIn"]}
-
-# URL prefixes stripped when an external identifier is displayed. Covers linked
-# entity types without a landing page of their own (person, organization) too.
+# URL prefixes stripped when an external identifier is displayed. Covers linked entity
+# types without a landing page of their own (person, organization) too, so it is keyed
+# by property name rather than by category.
 EXT_ID_PREFIXES = {
     "meshId": ["http://id.nlm.nih.gov/mesh/"],
     "loincId": ["https://loinc.org/"],
@@ -411,20 +411,9 @@ EXT_ID_PREFIXES = {
     "wikidataId": ["http://www.wikidata.org/entity/"],
 }
 
-RENDERING_RULES = RenderingRules(
-    entity_labels=ENTITY_LABELS,
-    header_category=HEADER_CATEGORY,
-    sidebar_categories=SIDEBAR_CATEGORIES,
-    card_templates=CARD_TEMPLATES,
-    no_label_categories=NO_LABEL_CATEGORIES,
-    label_overrides=LABEL_OVERRIDES,
-    folded_properties=FOLDED_PROPERTIES,
-    container_components=CONTAINER_COMPONENTS,
-    backwards_linked=BACKWARDS_LINKED,
-    ext_id_prefixes=EXT_ID_PREFIXES,
+UI_SETTINGS = build_ui_settings(
+    MODELCONF, entity_labels=ENTITY_LABELS, categories=CATEGORY_RULES
 )
-
-UI_SETTINGS = build_ui_settings(MODELCONF, RENDERING_RULES)
 
 # The record types that get a landing page of their own.
 CORE_ENTITY_TYPES = list(UI_SETTINGS)
@@ -461,23 +450,15 @@ EXPORTERS_PER_RECORD_TYPE = {
     "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
 
-# List of entities available in mex model, minus the ones never published to
-# Invenio (see custom_fields.field_types.UNPUBLISHED_ENTITIES)
-ENTITIES = [
-    "access-platform",
-    "activity",
-    "bibliographic-resource",
-    "concept-scheme",
-    "concept",
-    "contact-point",
-    "distribution",
-    "organization",
-    "organizational-unit",
-    "person",
-    "resource",
-    "variable-group",
-    "variable",
-]
+# Entity types of the MEx model, minus the ones never published to Invenio (see
+# custom_fields.field_types.UNPUBLISHED_ENTITIES). Derived rather than listed so it
+# cannot drift from mex-model, and so that vocabulary descriptors such as "concept"
+# and "concept-scheme" -- which are not entity types -- cannot creep back in.
+ENTITIES = sorted(
+    name.replace("_", "-")
+    for name in ENTITY_JSON_BY_NAME
+    if name not in UNPUBLISHED_ENTITIES
+)
 
 TITLE_FIELDS = [
     "mex:prefLabel",
@@ -532,8 +513,8 @@ FRONTPAGE_SEARCH_LINKS = {
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
-EXT_IDS = build_ext_ids(RENDERING_RULES)
-FIELDS_LINKED_BACKWARDS = build_fields_linked_backwards(UI_SETTINGS)
+EXT_IDS = build_ext_ids(EXT_ID_PREFIXES)
+FIELDS_LINKED_BACKWARDS = build_fields_linked_backwards(MODELCONF, CATEGORY_RULES)
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

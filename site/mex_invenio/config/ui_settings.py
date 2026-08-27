@@ -3,12 +3,13 @@
 ``modelconf.json`` is the single source of truth for *which* MEx fields a record type
 shows and *how they are grouped*: entity type -> categories -> ordered property names.
 Everything else the landing pages need -- which column a card sits in, which template
-renders it, labels, external-id prefixes, backwards links -- is a rendering decision and
-is declared in :class:`RenderingRules` by ``settings.py``.
+renders it, which of its properties link backwards -- is a rendering decision, declared
+per category as a :class:`CategoryRule` in ``settings.py``. Categories without a rule
+render as a plain card in the main column, which is most of them.
 
-The rules the build needs -- a category's id, an entity's label -- raise KeyError here
-if they drift. The cosmetic ones would only misrender a card, so they are checked by
-tests/test_ui_settings.py rather than at import.
+An entity label or a rule naming a column that does not exist raises here, because the
+build cannot go on without them. Everything else would only misrender a card, so it is
+checked by tests/test_ui_settings.py rather than at import.
 """
 
 import json
@@ -20,6 +21,8 @@ from mex_invenio.transform import dromedary_to_snake, ensure_prefix
 
 MEX_PREFIX = "mex:"
 ICON_SUFFIX = ".svg"
+HEADER_COLUMN = "header"
+COLUMNS = ("main", "side_bar")
 MODELCONF_PATH = Path(__file__).parent / "modelconf.json"
 
 Property = dict[str, Any]
@@ -44,42 +47,27 @@ class Component:
 
 
 @dataclass(frozen=True)
-class RenderingRules:
-    """Rendering decisions that ``modelconf.json`` deliberately does not carry.
+class CategoryRule:
+    """How one category of ``modelconf.json`` renders.
 
     Attributes:
-        entity_labels: Entity type -> msgid for the record-type tag.
-        header_category: Id of the category rendered by the page chrome instead of
-            as a card.
-        sidebar_categories: Ids of the categories rendered in the sidebar column.
-        card_templates: Category id -> template file rendering it.
-        no_label_categories: Ids of categories whose properties render unlabelled.
-        label_overrides: Property name -> msgid, where the derived one does not exist.
-        folded_properties: Property names collapsed into one synthetic property by
-            their card template, mapped to that property.
-        container_components: (entity type, category id) -> its sub-blocks.
-        backwards_linked: Entity type -> property names that link backwards, outside
-            of container categories.
-        ext_id_prefixes: Property name -> URL prefixes stripped for display.
+        column: ``"main"``, ``"side_bar"``, or ``"header"`` for the category the page
+            chrome renders itself instead of as a card.
+        template: Template rendering the card, when the generic ``card.html`` will not
+            do.
+        components: Entity type -> the sub-blocks of a container card. A category with
+            components for an entity type renders as a container for that type.
+        backwards: Names of properties in this category that link backwards, i.e. that
+            name records pointing at this one.
     """
 
-    entity_labels: dict[str, str] = field(default_factory=dict)
-    header_category: str = ""
-    sidebar_categories: frozenset[str] = frozenset()
-    card_templates: dict[str, str] = field(default_factory=dict)
-    no_label_categories: frozenset[str] = frozenset()
-    label_overrides: dict[str, str] = field(default_factory=dict)
-    folded_properties: dict[tuple[str, ...], Property] = field(default_factory=dict)
-    container_components: dict[tuple[str, str], list[Component]] = field(
-        default_factory=dict
-    )
-    backwards_linked: dict[str, list[str]] = field(default_factory=dict)
-    ext_id_prefixes: dict[str, list[str]] = field(default_factory=dict)
+    column: str = "main"
+    template: str | None = None
+    components: dict[str, list[Component]] = field(default_factory=dict)
+    backwards: frozenset[str] = frozenset()
 
-    @property
-    def synthetic_properties(self) -> dict[str, Property]:
-        """Synthetic field name -> the property replacing a folded group."""
-        return {prop["field"]: prop for prop in self.folded_properties.values()}
+
+DEFAULT_RULE = CategoryRule()
 
 
 def load_modelconf(path: Path = MODELCONF_PATH) -> dict[str, Any]:
@@ -96,56 +84,13 @@ def load_modelconf(path: Path = MODELCONF_PATH) -> dict[str, Any]:
     return modelconf
 
 
-def _property_names(category: dict[str, Any]) -> list[str]:
-    """Return the property names of one category, in render order."""
-    names: list[str] = category["properties"]
-    return names
-
-
-def _entity_properties(entity: dict[str, Any]) -> list[str]:
-    """Return every property name of one entity type, in render order."""
-    names: list[str] = []
-    for category in entity["categories"]:
-        names.extend(name for name in _property_names(category) if name not in names)
-    return names
-
-
-def _fold(names: list[str], rules: RenderingRules) -> list[str]:
-    """Collapse folded groups into their synthetic property name."""
-    present = set(names)
-    consumed: set[str] = set()
-    folded: list[str] = []
-    for name in names:
-        if name in consumed:
-            continue
-        for group, replacement in rules.folded_properties.items():
-            if name in group and set(group) <= present:
-                consumed.update(group)
-                folded.append(replacement["field"])
-                break
-        else:
-            folded.append(name)
-    return folded
-
-
-def _build_property(
-    name: str,
-    *,
-    entity_type: str,
-    labelled: bool,
-    rules: RenderingRules,
-) -> Property:
+def _build_property(name: str, *, labelled: bool, backwards: bool) -> Property:
     """Build one property entry of a card."""
-    synthetic = rules.synthetic_properties.get(name)
-    if synthetic is not None:
-        return dict(synthetic)
     prop: Property = {"field": ensure_prefix(name, MEX_PREFIX)}
     if labelled:
-        prop["label"] = rules.label_overrides.get(name, f"{name}.singular")
-    if name in rules.backwards_linked.get(entity_type, []):
+        prop["label"] = f"{name}.singular"
+    if backwards:
         prop["is_backwards_linked"] = True
-    if name in rules.ext_id_prefixes:
-        prop["prefixes"] = list(rules.ext_id_prefixes[name])
     return prop
 
 
@@ -168,123 +113,125 @@ def _build_card(
     category: dict[str, Any],
     *,
     entity_type: str,
-    rules: RenderingRules,
+    rule: CategoryRule,
 ) -> Card:
     """Build one card from one category of the model config."""
-    category_id = category["id"]
     card: Card = {
         "title": category["title"],
         "icon": f"{category['icon']}{ICON_SUFFIX}",
     }
-    if category_id in rules.card_templates:
-        card["template"] = rules.card_templates[category_id]
+    if rule.template is not None:
+        card["template"] = rule.template
 
-    components = rules.container_components.get((entity_type, category_id))
-    if components is not None:
+    if components := rule.components.get(entity_type):
         card["type"] = "container"
         card["components"] = _build_components(components)
         return card
 
-    names = _fold(_property_names(category), rules)
-    labelled = len(names) > 1 and category_id not in rules.no_label_categories
+    names: list[str] = category["properties"]
+    # A card with a single property needs no label -- its title already says what the
+    # value is.
+    labelled = len(names) > 1
     card["properties"] = [
-        _build_property(name, entity_type=entity_type, labelled=labelled, rules=rules)
+        _build_property(name, labelled=labelled, backwards=name in rule.backwards)
         for name in names
     ]
     return card
 
 
-def _build_special_fields(entity: dict[str, Any], rules: RenderingRules) -> Entity:
+def _build_special_fields(entity: dict[str, Any]) -> Entity:
     """Build the alias index templates address single fields by.
 
     Every field of the entity type gets an alias, so ``special_field("SOME_FIELD")``
     resolves regardless of which category the field is shown in.
     """
-    special: Entity = {}
-    for name in _entity_properties(entity):
-        alias = dromedary_to_snake(name).upper()
-        special[alias] = {"field": ensure_prefix(name, MEX_PREFIX)}
-        if name in rules.ext_id_prefixes:
-            special[alias]["prefixes"] = list(rules.ext_id_prefixes[name])
-    return special
+    return {
+        dromedary_to_snake(name).upper(): {"field": ensure_prefix(name, MEX_PREFIX)}
+        for category in entity["categories"]
+        for name in category["properties"]
+    }
 
 
 def build_ui_settings(
     modelconf: dict[str, Any],
-    rules: RenderingRules,
+    *,
+    entity_labels: dict[str, str],
+    categories: dict[str, CategoryRule],
 ) -> dict[str, Entity]:
     """Expand the model config into the settings the landing-page templates read.
 
     Args:
         modelconf: Parsed ``modelconf.json``, as returned by :func:`load_modelconf`.
-        rules: The rendering decisions to apply.
+        entity_labels: Entity type -> msgid for the record-type tag.
+        categories: Category id -> how it renders. Ids without an entry render as a
+            plain card in the main column.
 
     Returns:
         Invenio resource type -> ``{label, special_fields, main, side_bar}``.
-
-    Note:
-        Rules are not checked here. A rule the build needs raises KeyError; the rest
-        are covered by tests/test_ui_settings.py.
     """
     settings: dict[str, Entity] = {}
     for entity_type, entity in modelconf.items():
         built: Entity = {
-            "label": rules.entity_labels[entity_type],
-            "special_fields": _build_special_fields(entity, rules),
+            "label": entity_labels[entity_type],
+            "special_fields": _build_special_fields(entity),
             "main": {},
             "side_bar": {},
         }
         for category in entity["categories"]:
-            category_id = category["id"]
-            if category_id == rules.header_category:
+            rule = categories.get(category["id"], DEFAULT_RULE)
+            if rule.column == HEADER_COLUMN:
                 continue
-            column = "side_bar" if category_id in rules.sidebar_categories else "main"
-            built[column][category_id] = _build_card(
-                category, entity_type=entity_type, rules=rules
+            built[rule.column][category["id"]] = _build_card(
+                category, entity_type=entity_type, rule=rule
             )
         settings[entity_type.lower()] = built
     return settings
 
 
-def build_ext_ids(rules: RenderingRules) -> dict[str, dict[str, list[str]]]:
+def build_ext_ids(prefixes: dict[str, list[str]]) -> dict[str, dict[str, list[str]]]:
     """Build the external-id lookup used to shorten URLs for display.
 
     Args:
-        rules: The rendering decisions holding the prefixes.
+        prefixes: Property name -> URL prefixes stripped when the value is displayed.
 
     Returns:
         Custom field name -> ``{"prefixes": [...]}``.
     """
     return {
-        ensure_prefix(name, MEX_PREFIX): {"prefixes": list(prefixes)}
-        for name, prefixes in rules.ext_id_prefixes.items()
+        ensure_prefix(name, MEX_PREFIX): {"prefixes": list(values)}
+        for name, values in prefixes.items()
     }
 
 
 def build_fields_linked_backwards(
-    ui_settings: dict[str, Entity],
+    modelconf: dict[str, Any],
+    categories: dict[str, CategoryRule],
 ) -> dict[str, list[str]]:
     """Collect the backwards-linked fields per record type.
 
     Args:
-        ui_settings: The expanded settings, as returned by :func:`build_ui_settings`.
+        modelconf: Parsed ``modelconf.json``, as returned by :func:`load_modelconf`.
+        categories: Category id -> how it renders.
 
     Returns:
         Invenio resource type -> custom field names, for types that have any.
     """
     linked: dict[str, list[str]] = {}
-    for entity_type, entity in ui_settings.items():
+    for entity_type, entity in modelconf.items():
         fields: list[str] = []
-        for column in ("main", "side_bar"):
-            for card in entity[column].values():
-                properties = list(card.get("properties", []))
-                for component in card.get("components", []):
-                    properties.extend(component["properties"])
-                fields.extend(
-                    prop["field"]
-                    for prop in properties
-                    if prop.get("is_backwards_linked") and prop["field"] not in fields
-                )
+        for category in entity["categories"]:
+            rule = categories.get(category["id"], DEFAULT_RULE)
+            names = [
+                component.name
+                for component in rule.components.get(entity_type, [])
+                if component.reverse
+            ]
+            names += [name for name in category["properties"] if name in rule.backwards]
+            fields += [
+                prefixed
+                for name in names
+                if (prefixed := ensure_prefix(name, MEX_PREFIX)) not in fields
+            ]
         if fields:
-            linked[entity_type] = fields
+            linked[entity_type.lower()] = fields
     return linked

@@ -575,3 +575,8 @@ msgstr "What does it mean?"
 
 msgid "missingValuesHelp"
 msgstr "Shows empty fields and displays “no data” when no value exists, helping distinguish missing data from unavailable fields."
+
+# Missing from mex-model's own catalogs; supplied here so the derived
+# "<property>.singular" label resolves.
+msgid "volumeOfSeries.singular"
+msgstr "Volume of series"

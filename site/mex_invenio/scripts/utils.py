@@ -204,13 +204,12 @@ def get_related_mex_ids(record: dict) -> list:
     if not record_id:
         return []
 
+    # Invenio squashes the entity type into one word for resource_type.id, while
+    # mex-model spells it out. Derived so it cannot drift from the model.
     mapping = {
-        "organizationalunit": "organizational-unit",
-        "contactpoint": "contact-point",
-        "accessplatform": "access-platform",
-        "bibliographicresource": "bibliographic-resource",
-        "variablegroup": "variable-group",
-        "primarysource": "primary-source",
+        name.replace("_", ""): name.replace("_", "-")
+        for name in ENTITY_JSON_BY_NAME
+        if name not in UNPUBLISHED_ENTITIES
     }
 
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")

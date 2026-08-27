@@ -6,18 +6,39 @@ This document describes the configuration constants used for defining entity dis
 
 | Constant                           |	Type	        | Purpose
 |------------------------------------|------------------|-------------------------------------------------------------------------------------------------------------------------
-|`UI_SETTINGS`                       |	dict            |	Defines the configuration for the core landing pages (i.e. `resource`, `activity`, `bibliographicresource`) are displayed in the user interface — including labels, fields, icons, cards, and templates.
+|`MODELCONF`                         |	dict            |	Parsed `modelconf.json` — the source of truth for *which* `mex:` fields a record type shows and how they are grouped into categories.
+|`ENTITY_LABELS`                     |	dict[str, str]  |	Entity type → msgid for the record-type tag shown on the landing page.
+|`CATEGORY_RULES`                    |	dict[str, CategoryRule] |	Category id → how it renders (column, template, container components, backwards links). Only categories that need something other than a plain main-column card are listed.
+|`UI_SETTINGS`                       |	dict            |	**Generated** from `MODELCONF` + `ENTITY_LABELS` + `CATEGORY_RULES` by `build_ui_settings()`. This is what the landing-page templates read. Do not edit it directly.
+|`CORE_ENTITY_TYPES`                 |	list[str]       |	The record types that get a landing page of their own, derived from `UI_SETTINGS`.
+|`EXT_ID_PREFIXES`                   |	dict[str, list[str]] |	Property name → URL prefixes stripped when an external identifier is displayed. Expands into `EXT_IDS`.
+|`ACCESS_COLOR_MAP`                  |	dict[str, str]  |	`mex:accessRestriction` vocabulary value → background colour of the access tag on the landing page.
 |`APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` |	list[str]       |	Lists custom templates for invenio standard side bar cards. Only the standard Invenio side bar cards are included. Templates are placed in `/templates/semantic-ui/invenio_app_rdm/records/details/side_bar`
 |`APP_RDM_RECORD_EXPORTERS`          |	dict[str, dict] |	Configures available data export formats (e.g. JSON, CSV), including serializer, filename pattern, and MIME type.
-|`ENTITIES`                          |	list[str]       |	Lists all entity types recognized by the MEX data model. Used for validation and filtering.
+|`ENTITIES`                          |	list[str]       |	Entity types of the MEx model, derived from `mex.model.ENTITY_JSON_BY_NAME` minus `UNPUBLISHED_ENTITIES`. Note `concept` / `concept-scheme` are vocabulary descriptors, not entity types, and are absent by construction.
 |`TITLE_FIELDS`                      |	list[str]       |	Ordered list of field names used to derive a display title for a record (checked in sequence).
 |`DISCLAIMER`                        |	str             |	Generic disclaimer text displayed below metadata, stating that information is provided as-is.
 
 
 ## 🧱 UI_SETTINGS
 
-`UI_SETTINGS` defines the configuration for core the landing pages — including layout (the main section and the side bar), field mapping, icons, labels, and templates.
+`UI_SETTINGS` defines the configuration for the core landing pages — including layout (the main section and the side bar), field mapping, icons, labels, and templates.
 Each core record's landing page (i.e. "resource", "activity", "bibliographicresource") has its own configuration object.
+
+> ⚠️ **`UI_SETTINGS` is generated, not written.** `build_ui_settings()` in `ui_settings.py`
+> expands it from two inputs. The sections below document the *output* shape, which is what
+> the templates read; to change what a landing page shows, edit one of the inputs instead:
+>
+> | To change… | Edit |
+> |---|---|
+> | which fields a record type shows, their order, which category they sit in, a category's title or icon | `modelconf.json` |
+> | a category's column, its card template, its container sub-blocks, or which of its properties link backwards | `CATEGORY_RULES` in `settings.py` |
+> | the record-type tag | `ENTITY_LABELS` in `settings.py` |
+> | a property's label | nothing here — labels are derived as `"<property>.singular"` and resolved from the translation catalogs. A missing label means a missing msgid; add it to `translations/{de,en}/LC_MESSAGES/ui.po`. |
+>
+> A card with exactly one property renders it without a label, since the card title already
+> says what the value is. `tests/test_ui_settings.py` checks every rule against
+> `modelconf.json`.
 
 ### 🧩 Structure Overview
 
@@ -61,11 +82,15 @@ Key                  |  Required  |  Type       |  Description
 ---------------------|------------|-------------|----------------
 _key_                   |  ✓         |  str        |  Internal identifier for a special field (e.g. "TITLE", "LANGUAGE")
 field                |  ✓         |  str        |  Metadata field (e.g. "mex:title")
-prefixes             |  -         |  list[str]  |  List of recognised URI prefixes for external link values (used to extract the display value (e.g. `D000026`), from the link (e.g. `http://id.nlm.nih.gov/mesh/D000026`) )
+
+Every property of the entity type gets an alias, derived from its name in `modelconf.json`
+(`alternativeTitle` → `ALTERNATIVE_TITLE`), so `special_field("SOME_FIELD")` resolves
+regardless of which category the field is shown in.
 
 #### ✨ ACCESS RESTRICTION COLOUR MAP
 
-The special `ACCESS_RESTRICTION` field includes an additional property, `color_map`, which maps the values of the mex:accessRestriction field to colors used as the background for the access tag.
+The background colour of the access tag comes from the top-level `ACCESS_COLOR_MAP`, keyed by
+the `mex:accessRestriction` vocabulary value the record carries — not from `special_fields`.
 
 ### 🧩 Cards
 
@@ -108,12 +133,11 @@ Key                             |  required  |  Type                  |  Descrip
 --------------------------------|------------|------------------------|----------
 field                           |  ✓         |  str                   |  Metadata field (e.g. `mex:creator`)
 label                           |  -         |  str                   |  Custom UI label to display; if no label is provided, the values will be displayed without a label
-is_backwards_linked             |  -         |  bool                  |  Marks that the field represents a reverse relationship (e.g. record listed as `partOf` another record)
-prefixes                        |  -         |  list[str] (optional)  |  List of recognised URI prefixes for external link values
+is_backwards_linked             |  -         |  bool                  |  Marks that the field represents a reverse relationship (e.g. record listed as `partOf` another record). Set from a category's `backwards`, or from a container component's `reverse`.
 
-### 🧾 Example Configuration Snippet
+### 🧾 Example of the generated structure
 
-Below is a minimal valid entity configuration block, illustrating all supported keys and options:
+Below is a minimal entity block as `build_ui_settings()` would emit it, illustrating all supported keys and options:
 
 ```
 UI_SETTINGS = {

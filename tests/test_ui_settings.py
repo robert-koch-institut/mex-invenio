@@ -5,99 +5,94 @@ import pytest
 
 import mex_invenio
 from mex_invenio.config import (
+    ENTITIES,
     EXT_IDS,
     FIELD_TYPES,
     FIELDS_LINKED_BACKWARDS,
     UI_SETTINGS,
 )
-from mex_invenio.config.settings import MODELCONF, RENDERING_RULES
+from mex_invenio.config.settings import (
+    CATEGORY_RULES,
+    ENTITY_LABELS,
+    EXT_ID_PREFIXES,
+    MODELCONF,
+)
 from mex_invenio.config.ui_settings import (
+    CategoryRule,
     Component,
-    RenderingRules,
     build_ext_ids,
     build_fields_linked_backwards,
     build_ui_settings,
 )
 from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
 
-
-def _validate_ids(known, used, rule):
-    """Raise if a rule names a category the model config does not have."""
-    if unknown := sorted(used - known):
-        message = f"{rule} names unknown categories: {', '.join(unknown)}"
-        raise ValueError(message)
+COLUMNS = ("main", "side_bar")
 
 
-def _validate_containers(modelconf, rules):
-    """Raise if a container's sub-blocks do not cover its category exactly."""
-    for (entity_type, category_id), components in rules.container_components.items():
-        if entity_type not in modelconf:
-            message = f"container_components names unknown entity type: {entity_type}"
-            raise ValueError(message)
-        categories = [
-            category
-            for category in modelconf[entity_type]["categories"]
-            if category["id"] == category_id
-        ]
-        if not categories:
-            message = (
-                f"container_components names unknown category: "
-                f"{entity_type}.{category_id}"
-            )
-            raise ValueError(message)
-        declared = {component.name for component in components}
-        expected = set(categories[0]["properties"])
-        if declared != expected:
-            message = (
-                f"container {entity_type}.{category_id} covers {sorted(declared)}, "
-                f"but the model config lists {sorted(expected)}"
-            )
-            raise ValueError(message)
-
-
-def validate(modelconf, rules):
+def validate(modelconf, categories, entity_labels):
     """Check that every rendering rule still matches the model config.
 
     This lives here rather than in the package because nothing at runtime calls it:
-    build_ui_settings raises KeyError on its own for the rules it needs, and the rest
-    would only ever misrender a card, which is a thing for CI to catch, not a reason
-    to stop the instance from booting.
+    build_ui_settings raises on its own for the rules it cannot do without, and the
+    rest would only ever misrender a card, which is a thing for CI to catch, not a
+    reason to stop the instance from booting.
     """
     ids = {
         category["id"]
         for entity in modelconf.values()
         for category in entity["categories"]
     }
-    names = {
-        name
-        for entity in modelconf.values()
-        for category in entity["categories"]
-        for name in category["properties"]
-    }
-    if missing := sorted(set(modelconf) - set(rules.entity_labels)):
+    if missing := sorted(set(modelconf) - set(entity_labels)):
         message = f"entity_labels is missing: {', '.join(missing)}"
         raise ValueError(message)
-
-    _validate_ids(ids, {rules.header_category}, "header_category")
-    _validate_ids(ids, set(rules.sidebar_categories), "sidebar_categories")
-    _validate_ids(ids, set(rules.card_templates), "card_templates")
-    _validate_ids(ids, set(rules.no_label_categories), "no_label_categories")
-    _validate_ids(
-        ids,
-        {category_id for _, category_id in rules.container_components},
-        "container_components",
-    )
-
-    # ext_id_prefixes is not checked: it also covers identifiers of linked entity
-    # types (person, organization, ...) that have no landing page of their own.
-    declared = set(rules.label_overrides)
-    declared |= {name for group in rules.folded_properties for name in group}
-    declared |= {name for fields in rules.backwards_linked.values() for name in fields}
-    if unknown := sorted(declared - names):
-        message = f"rendering rules name unknown properties: {', '.join(unknown)}"
+    if unknown := sorted(set(categories) - ids):
+        message = f"category rules name unknown categories: {', '.join(unknown)}"
         raise ValueError(message)
 
-    _validate_containers(modelconf, rules)
+    for category_id, rule in categories.items():
+        if rule.column not in (*COLUMNS, "header"):
+            message = f"{category_id} names unknown column: {rule.column}"
+            raise ValueError(message)
+        _validate_properties(modelconf, category_id, rule)
+
+
+def _validate_properties(modelconf, category_id, rule):
+    """Raise if a rule names properties its category does not have."""
+    for entity_type, entity in modelconf.items():
+        categories = [
+            category
+            for category in entity["categories"]
+            if category["id"] == category_id
+        ]
+        components = rule.components.get(entity_type)
+        if not categories:
+            # Not every entity type has every category; only components pinned to
+            # this entity type make that a mistake.
+            if components is not None:
+                message = (
+                    f"components names a category {entity_type} does not have: "
+                    f"{category_id}"
+                )
+                raise ValueError(message)
+            continue
+
+        declared = set(categories[0]["properties"])
+        if unknown := sorted(rule.backwards - declared):
+            message = (
+                f"{entity_type}.{category_id} declares backwards {unknown}, "
+                f"which the model config does not list"
+            )
+            raise ValueError(message)
+
+        if components is None:
+            continue
+        covered = {component.name for component in components}
+        if covered != declared:
+            message = (
+                f"container {entity_type}.{category_id} covers {sorted(covered)}, "
+                f"but the model config lists {sorted(declared)}"
+            )
+            raise ValueError(message)
 
 
 @pytest.fixture
@@ -129,16 +124,24 @@ def modelconf():
 
 
 @pytest.fixture
+def labels():
+    return {"someEntity": "Some Entity"}
+
+
+@pytest.fixture
 def rules():
-    return RenderingRules(
-        entity_labels={"someEntity": "Some Entity"},
-        header_category="general",
-        sidebar_categories=frozenset({"aside"}),
-    )
+    return {
+        "general": CategoryRule(column="header"),
+        "aside": CategoryRule(column="side_bar"),
+    }
 
 
-def test_builds_expected_shape(modelconf, rules):
-    built = build_ui_settings(modelconf, rules)
+def build(modelconf, rules, labels):
+    return build_ui_settings(modelconf, entity_labels=labels, categories=rules)
+
+
+def test_builds_expected_shape(modelconf, rules, labels):
+    built = build(modelconf, rules, labels)
 
     assert list(built) == ["someentity"]
     assert built["someentity"]["label"] == "Some Entity"
@@ -146,15 +149,33 @@ def test_builds_expected_shape(modelconf, rules):
     assert list(built["someentity"]["side_bar"]) == ["aside"]
 
 
-def test_header_category_is_not_a_card(modelconf, rules):
-    built = build_ui_settings(modelconf, rules)["someentity"]
+def test_header_category_is_not_a_card(modelconf, rules, labels):
+    built = build(modelconf, rules, labels)["someentity"]
 
     titles = [card["title"] for card in {**built["main"], **built["side_bar"]}.values()]
     assert "General" not in titles
 
 
-def test_special_fields_index_every_property(modelconf, rules):
-    special = build_ui_settings(modelconf, rules)["someentity"]["special_fields"]
+def test_categories_without_a_rule_are_plain_main_cards(modelconf, labels):
+    built = build(modelconf, {}, labels)["someentity"]
+
+    assert list(built["main"]) == ["general", "cards", "aside"]
+    assert built["side_bar"] == {}
+    assert "template" not in built["main"]["cards"]
+
+
+def test_card_carries_title_icon_and_template(modelconf, rules, labels):
+    rules["cards"] = CategoryRule(template="custom.html")
+
+    card = build(modelconf, rules, labels)["someentity"]["main"]["cards"]
+
+    assert card["title"] == "Cards"
+    assert card["icon"] == "card.svg"
+    assert card["template"] == "custom.html"
+
+
+def test_special_fields_index_every_property(modelconf, rules, labels):
+    special = build(modelconf, rules, labels)["someentity"]["special_fields"]
 
     assert special == {
         "TITLE": {"field": "mex:title"},
@@ -164,8 +185,8 @@ def test_special_fields_index_every_property(modelconf, rules):
     }
 
 
-def test_labels_are_derived_and_suppressed(modelconf, rules):
-    built = build_ui_settings(modelconf, rules)["someentity"]
+def test_labels_are_derived_and_suppressed(modelconf, rules, labels):
+    built = build(modelconf, rules, labels)["someentity"]
 
     assert built["main"]["cards"]["properties"] == [
         {"field": "mex:one", "label": "one.singular"},
@@ -175,36 +196,28 @@ def test_labels_are_derived_and_suppressed(modelconf, rules):
     assert built["side_bar"]["aside"]["properties"] == [{"field": "mex:three"}]
 
 
-def test_folded_properties_replace_their_group(modelconf, rules):
-    modelconf["someEntity"]["categories"][1]["properties"] = ["one", "two", "three"]
-    folded = RenderingRules(
-        **{
-            **rules.__dict__,
-            "folded_properties": {("one", "two"): {"field": "fn", "label": "Folded"}},
-        }
-    )
+def test_backwards_marks_the_named_properties(modelconf, rules, labels):
+    rules["cards"] = CategoryRule(backwards=frozenset({"two"}))
 
-    props = build_ui_settings(modelconf, folded)["someentity"]["main"]["cards"]
-    assert props["properties"] == [
-        {"field": "fn", "label": "Folded"},
-        {"field": "mex:three", "label": "three.singular"},
+    assert build(modelconf, rules, labels)["someentity"]["main"]["cards"][
+        "properties"
+    ] == [
+        {"field": "mex:one", "label": "one.singular"},
+        {"field": "mex:two", "label": "two.singular", "is_backwards_linked": True},
     ]
 
 
-def test_container_components(modelconf, rules):
-    container = RenderingRules(
-        **{
-            **rules.__dict__,
-            "container_components": {
-                ("someEntity", "cards"): [
-                    Component(name="one", title="First"),
-                    Component(name="two", reverse=True),
-                ]
-            },
+def test_container_components(modelconf, rules, labels):
+    rules["cards"] = CategoryRule(
+        components={
+            "someEntity": [
+                Component(name="one", title="First"),
+                Component(name="two", reverse=True),
+            ]
         }
     )
 
-    card = build_ui_settings(modelconf, container)["someentity"]["main"]["cards"]
+    card = build(modelconf, rules, labels)["someentity"]["main"]["cards"]
     assert card["type"] == "container"
     assert "properties" not in card
     assert card["components"] == [
@@ -216,79 +229,74 @@ def test_container_components(modelconf, rules):
     ]
 
 
+def test_components_only_apply_to_their_entity_type(modelconf, rules, labels):
+    rules["cards"] = CategoryRule(components={"otherEntity": [Component(name="one")]})
+
+    card = build(modelconf, rules, labels)["someentity"]["main"]["cards"]
+    assert "components" not in card
+    assert [prop["field"] for prop in card["properties"]] == ["mex:one", "mex:two"]
+
+
 def test_build_ext_ids_prefixes_the_field_names():
-    rules = RenderingRules(ext_id_prefixes={"doi": ["https://doi.org/"]})
-
-    assert build_ext_ids(rules) == {"mex:doi": {"prefixes": ["https://doi.org/"]}}
-
-
-def test_build_fields_linked_backwards_collects_both_shapes():
-    ui_settings = {
-        "someentity": {
-            "main": {
-                "container": {
-                    "components": [
-                        {
-                            "properties": [
-                                {"field": "mex:one", "is_backwards_linked": True}
-                            ]
-                        }
-                    ]
-                }
-            },
-            "side_bar": {
-                "plain": {
-                    "properties": [{"field": "mex:two", "is_backwards_linked": True}]
-                },
-                "forward": {"properties": [{"field": "mex:three"}]},
-            },
-        }
+    assert build_ext_ids({"doi": ["https://doi.org/"]}) == {
+        "mex:doi": {"prefixes": ["https://doi.org/"]}
     }
 
-    assert build_fields_linked_backwards(ui_settings) == {
-        "someentity": ["mex:one", "mex:two"]
+
+def test_build_fields_linked_backwards_collects_both_shapes(modelconf):
+    rules = {
+        "cards": CategoryRule(
+            components={
+                "someEntity": [
+                    Component(name="one", reverse=True),
+                    Component(name="two"),
+                ]
+            }
+        ),
+        "aside": CategoryRule(backwards=frozenset({"three"})),
     }
+
+    assert build_fields_linked_backwards(modelconf, rules) == {
+        "someentity": ["mex:one", "mex:three"]
+    }
+
+
+def test_build_fields_linked_backwards_skips_types_without_any(modelconf):
+    assert build_fields_linked_backwards(modelconf, {}) == {}
 
 
 @pytest.mark.parametrize(
-    ("attribute", "value", "message"),
+    ("labels_override", "rules_override", "message"),
     [
-        ("entity_labels", {}, "entity_labels is missing"),
-        ("header_category", "nope", "header_category names unknown"),
-        ("sidebar_categories", frozenset({"nope"}), "sidebar_categories names unknown"),
-        ("card_templates", {"nope": "x.html"}, "card_templates names unknown"),
+        ({}, {}, "entity_labels is missing"),
+        (None, {"nope": CategoryRule()}, "unknown categories"),
+        (None, {"cards": CategoryRule(column="middle")}, "unknown column"),
         (
-            "no_label_categories",
-            frozenset({"nope"}),
-            "no_label_categories names unknown",
+            None,
+            {"cards": CategoryRule(backwards=frozenset({"nope"}))},
+            "which the model config does not list",
         ),
-        ("label_overrides", {"nope": "Nope"}, "unknown properties"),
+        (
+            None,
+            {"cards": CategoryRule(components={"someEntity": [Component("one")]})},
+            "but the model config lists",
+        ),
     ],
 )
-def test_validate_rejects_drift(modelconf, rules, attribute, value, message):
-    broken = RenderingRules(**{**rules.__dict__, attribute: value})
-
+def test_validate_rejects_drift(
+    modelconf, rules, labels, labels_override, rules_override, message
+):
     with pytest.raises(ValueError, match=message):
-        validate(modelconf, broken)
-
-
-def test_validate_rejects_partial_container(modelconf, rules):
-    broken = RenderingRules(
-        **{
-            **rules.__dict__,
-            "container_components": {
-                ("someEntity", "cards"): [Component(name="one")],
-            },
-        }
-    )
-
-    with pytest.raises(ValueError, match="but the model config lists"):
-        validate(modelconf, broken)
+        validate(
+            modelconf,
+            {**rules, **rules_override},
+            labels if labels_override is None else labels_override,
+        )
 
 
 def test_instance_config_matches_modelconf():
     """The shipped settings expand the shipped model config without drift."""
-    validate(MODELCONF, RENDERING_RULES)
+    validate(MODELCONF, CATEGORY_RULES, ENTITY_LABELS)
 
     assert set(UI_SETTINGS) == {name.lower() for name in MODELCONF}
     for entity_type, entity in MODELCONF.items():
@@ -297,9 +305,18 @@ def test_instance_config_matches_modelconf():
         expected = {
             category["id"]
             for category in entity["categories"]
-            if category["id"] != RENDERING_RULES.header_category
+            if CATEGORY_RULES.get(category["id"], CategoryRule()).column != "header"
         }
         assert set(cards) == expected
+
+
+def test_no_property_appears_in_two_categories():
+    """special_fields aliases every property once, so a repeat would be ambiguous."""
+    for entity_type, entity in MODELCONF.items():
+        names = [
+            name for category in entity["categories"] for name in category["properties"]
+        ]
+        assert len(names) == len(set(names)), f"{entity_type} repeats a property"
 
 
 def test_instance_special_fields_resolve_template_aliases():
@@ -313,8 +330,18 @@ def test_instance_special_fields_resolve_template_aliases():
 
 
 def test_instance_derived_config():
+    assert build_ext_ids(EXT_ID_PREFIXES) == EXT_IDS
     assert EXT_IDS["mex:doi"]["prefixes"][0].startswith("https://")
     assert FIELDS_LINKED_BACKWARDS["resource"] == ["mex:isPartOf", "mex:usedIn"]
+
+
+def test_entities_excludes_non_entity_types():
+    """The vocabulary descriptors are not entity types and must not be listed."""
+    assert "concept" not in ENTITIES
+    assert "concept-scheme" not in ENTITIES
+    assert "consent" not in ENTITIES
+    assert "primary-source" not in ENTITIES
+    assert {"resource", "activity", "bibliographic-resource"} <= set(ENTITIES)
 
 
 def test_every_rendered_property_has_a_custom_field():

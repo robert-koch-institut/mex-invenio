@@ -2,7 +2,9 @@ import json
 import logging
 import os
 import re
+import sys
 from contextlib import suppress
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -28,6 +30,7 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.config import (
+    ACCESS_COLOR_MAP,
     CORE_ENTITY_TYPES,
     DISCLAIMER,
     ENTITIES,
@@ -145,6 +148,26 @@ def db_session_transaction_restart(db):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
 
 
+@pytest.fixture(scope="module")
+def instance_path():
+    """Use the repo root as the instance path, overriding pytest-invenio's default.
+
+    pytest-invenio hands out a throwaway temp dir, which leaves this instance's
+    template overrides in ``templates/`` and its translations off the Jinja search
+    path -- so anything rendering a landing page would silently get stock Invenio
+    templates instead. Pointing at the repo root is what
+    ``INVENIO_INSTANCE_PATH: ${{ github.workspace }}`` in .github/workflows/testing.yml
+    intends; pytest-invenio only reads that value under the name ``INSTANCE_PATH``.
+    """
+    path = str(Path(__file__).parent.parent)
+    os.environ.update(
+        INVENIO_INSTANCE_PATH=path,
+        INVENIO_STATIC_FOLDER=os.path.join(sys.prefix, "var/instance/static"),
+    )
+    yield path
+    os.environ.pop("INVENIO_INSTANCE_PATH", None)
+
+
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     env_file = find_dotenv(".env.tests")
@@ -190,6 +213,7 @@ def app_config(app_config, module_tmp_path):
 
     # add linked records configurations
     app_config["FIELD_TYPES"] = FIELD_TYPES
+    app_config["ACCESS_COLOR_MAP"] = ACCESS_COLOR_MAP
     app_config["UI_SETTINGS"] = UI_SETTINGS
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
     app_config["ENTITIES"] = ENTITIES
