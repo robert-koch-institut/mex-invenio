@@ -18,20 +18,28 @@ from invenio_i18n import lazy_gettext as _
 from invenio_oauthclient.views.client import auto_redirect_login
 from invenio_rdm_records.config import RDM_FACETS, RDM_SEARCH
 from invenio_vocabularies.services.facets import VocabularyLabels
+from mex.model import ENTITY_JSON_BY_NAME
 
 # Local imports
+from mex_invenio.config.ui_settings import (
+    CategoryRule,
+    Component,
+    build_ext_ids,
+    build_fields_linked_backwards,
+    build_ui_settings,
+    load_modelconf,
+)
 from mex_invenio.custom_facets import RestrictedTermsFacet
 from mex_invenio.custom_fields import field_types
-from mex_invenio.custom_fields.backwards_linked_records import (
-    get_fields_linked_backwards,
-)
 from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS,
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
-from mex_invenio.custom_fields.ext_ids import get_ext_ids
-from mex_invenio.custom_fields.field_types import get_field_types
+from mex_invenio.custom_fields.field_types import (
+    UNPUBLISHED_ENTITIES,
+    get_field_types,
+)
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
@@ -298,16 +306,16 @@ RDM_FACETS = {
             # Field to filter on
             label=_("Resource types"),
             value_labels=VocabularyLabels("resourcetypes"),
+            # Vocabulary ids from app_data/vocabularies/resource_types.yaml, minus
+            # the ones that get a landing page of their own. Hand-kept: this is the
+            # vocabulary, not the MEx entity list.
             excluded_values=[
                 "accessplatform",
-                "concept",
-                "consent",
                 "contactpoint",
                 "distribution",
                 "organization",
                 "organizationalunit",
                 "person",
-                "primarysource",
                 "variablegroup",
             ],
         ),
@@ -319,539 +327,96 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
-
-UI_SETTINGS = {
-    "resource": {
-        "label": _("Data Source/Dataset"),
-        "special_fields": {
-            "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
-            "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
-            "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
-            "DESCRIPTION": {"field": "mex:description"},
-            "LANGUAGE": {"field": "mex:language"},
-            "MODIFIED": {"field": "mex:modified"},
-            "MESH_ID": {
-                "field": "mex:meshId",
-                "prefixes": ["http://id.nlm.nih.gov/mesh/"],
-            },
-            "LOINC": {"field": "mex:loincId", "prefixes": ["https://loinc.org/"]},
-            "ICD10": {"field": "mex:icd10code"},
-            "TITLE": {"field": "mex:title"},
-        },
-        "main": {
-            "creators": {
-                "title": _("Creators & Contributors"),
-                "icon": "creators.svg",
-                "properties": [
-                    {"field": "mex:creator", "label": _("creator.singular")},
-                    {"field": "mex:unitInCharge", "label": _("unitInCharge.singular")},
-                    {"field": "mex:contributor", "label": _("contributor.singular")},
-                    {
-                        "field": "mex:contributingUnit",
-                        "label": _("contributingUnit.singular"),
-                    },
-                    {
-                        "field": "mex:externalPartner",
-                        "label": _("externalPartner.singular"),
-                    },
-                ],
-            },
-            "keywords": {
-                "title": _("Theme & Keywords"),
-                "icon": "theme.svg",
-                "template": "theme_keywords.html",
-                "properties": [
-                    # overwritten in the template
-                    {"field": "mex:theme"},
-                    {"field": "mex:healthCategory"},
-                    {"field": "mex:keyword"},
-                ],
-            },
-            "coverage": {
-                "title": _("Data Representation & Coverage"),
-                "icon": "coverage.svg",
-                "template": "coverage.html",
-                "properties": [
-                    {"field": "mex:temporal", "label": _("temporal.singular")},
-                    {"field": "mex:start", "label": _("start.singular")},
-                    {"field": "mex:end", "label": _("end.singular")},
-                    {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
-                    {
-                        "field": "mex:populationCoverage",
-                        "label": _("populationCoverage.singular"),
-                    },
-                    {
-                        "field": "mex:sizeOfDataBasis",
-                        "label": _("sizeOfDataBasis.singular"),
-                    },
-                    {
-                        "field": "mex:numberOfRecords",
-                        "label": _("numberOfRecords.singular"),
-                    },
-                    {
-                        "field": "mex:numberOfUniqueIndividuals",
-                        "label": _("numberOfUniqueIndividuals.singular"),
-                    },
-                ],
-            },
-            "legal": {
-                "title": _("Legal Basis & Data Provenance"),
-                "icon": "legal.svg",
-                "properties": [
-                    {
-                        "field": "mex:hasLegalBasis",
-                        "label": _("hasLegalBasis.singular"),
-                    },
-                    {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
-                    {
-                        "field": "mex:hasPersonalData",
-                        "label": _("hasPersonalData.singular"),
-                    },
-                    {"field": "mex:source", "label": _("source.singular")},
-                ],
-            },
-            "processing": {
-                "title": _("Data Collection & Processing"),
-                "icon": "processing.svg",
-                "properties": [
-                    {
-                        "field": "mex:resourceCreationMethod",
-                        "label": _("resourceCreationMethod.singular"),
-                    },
-                    {
-                        "field": "mex:accrualPeriodicity",
-                        "label": _("accrualPeriodicity.singular"),
-                    },
-                    {
-                        "field": "mex:anonymizationPseudonymization",
-                        "label": _("anonymizationPseudonymization.singular"),
-                    },
-                    {
-                        "field": "mex:instrumentToolOrApparatus",
-                        "label": _("instrumentToolOrApparatus.singular"),
-                    },
-                ],
-            },
-            "quality": {
-                "title": _("Standards & Quality"),
-                "icon": "quality.svg",
-                "properties": [
-                    {"field": "mex:conformsTo", "label": _("conformsTo.singular")},
-                    {
-                        "field": "mex:qualityInformation",
-                        "label": _("qualityInformation.singular"),
-                    },
-                    {
-                        "field": "mex:hasCodeValues",
-                        "label": _("hasCodeValues.singular"),
-                    },
-                    {"field": "mex:analytics", "label": _("analytics.singular")},
-                    {"field": "mex:sample", "label": _("sample.singular")},
-                ],
-            },
-            "methodology": {
-                "title": _("Methodology"),
-                "icon": "methodology.svg",
-                "template": "methodology.html",
-                "properties": [
-                    # overwritten in the template
-                    {"field": "mex:method", "label": _("method.singular")},
-                    {
-                        "field": "mex:methodDescription",
-                        "label": _("methodDescription.singular"),
-                    },
-                ],
-            },
-            "publication": {
-                "title": _("Related Publications & Further Documentation"),
-                "icon": "publication.svg",
-                "properties": [
-                    {
-                        "field": "mex:publication",
-                        "label": _("publication.singular"),
-                    },
-                    {
-                        "field": "mex:documentation",
-                        "label": _("documentation.singular"),
-                    },
-                ],
-            },
-            "generatedBy": {
-                "title": _("Related Projects"),
-                "icon": "relatedProjects.svg",
-                "properties": [
-                    {"field": "mex:wasGeneratedBy"},
-                ],
-            },
-            "relatedResources": {
-                "type": "container",
-                "title": _("Related Resources"),
-                "icon": "relatedResources.svg",
-                "components": [
-                    {
-                        "type": "component",
-                        "title": _("Part Of"),
-                        "properties": [
-                            {"field": "mex:isPartOf"},
-                        ],
-                    },
-                    {
-                        "type": "component",
-                        "title": _("Includes"),
-                        "properties": [
-                            {"field": "mex:isPartOf", "is_backwards_linked": True},
-                        ],
-                    },
-                    {
-                        "type": "component",
-                        "title": _("Related Resource"),
-                        "properties": [
-                            {"field": "mex:relatedResource"},
-                        ],
-                    },
-                ],
-            },
-        },
-        "side_bar": {
-            "contact": {
-                "title": _("Contact"),
-                "template": "contact.html",
-                "icon": "contact.svg",
-                "properties": [
-                    {"field": "mex:contact"},
-                ],
-            },
-            "access": {
-                "title": _("Access & Usage Rights"),
-                "icon": "access.svg",
-                "properties": [
-                    {
-                        "field": "mex:accessRestriction",
-                        "label": _("accessRestriction.singular"),
-                    },
-                    {
-                        "field": "mex:doi",
-                        "label": _("doi.singular"),
-                        "prefixes": [
-                            "https://dx.doi.org/",
-                            "http://doi.org/",
-                            "https://doi.org/",
-                            "http://dx.doi.org/",
-                        ],
-                    },
-                    {"field": "mex:license", "label": _("license.singular")},
-                    {"field": "mex:rights", "label": _("rights.singular")},
-                ],
-            },
-            "files": {
-                "title": _("Files"),
-                "icon": "distribution.svg",
-                "properties": [{"field": "mex:distribution"}],
-            },
-            "variables": {
-                "title": _("Variables"),
-                "icon": "variables.svg",
-                "template": "variables.html",
-                "properties": [
-                    {"field": "mex:usedIn", "is_backwards_linked": True},
-                ],
-            },
-        },
-    },
-    "activity": {
-        "label": _("Project"),
-        "special_fields": {
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
-            "ACTIVITY_TYPE": {"field": "mex:activityType"},
-            "ABSTRACT": {"field": "mex:abstract"},
-            "TITLE": {"field": "mex:title"},
-        },
-        "main": {
-            "creators": {
-                "title": _("Creators & Contributors"),
-                "icon": "creators.svg",
-                "properties": [
-                    {
-                        "field": "mex:involvedPerson",
-                        "label": _("involvedPerson.singular"),
-                    },
-                    {
-                        "field": "mex:responsibleUnit",
-                        "label": _("responsibleUnit.singular"),
-                    },
-                    {"field": "mex:involvedUnit", "label": _("involvedUnit.singular")},
-                ],
-            },
-            "description": {
-                "title": _("description.singular"),
-                "icon": "description.svg",
-                "properties": [
-                    {"field": "mex:start", "label": _("start.singular")},
-                    {"field": "mex:end", "label": _("end.singular")},
-                    {"field": "mex:theme", "label": _("theme.singular")},
-                ],
-            },
-            "partners": {
-                "title": _("Partners & Funding"),
-                "icon": "funding.svg",
-                "properties": [
-                    {
-                        "field": "mex:externalAssociate",
-                        "label": _("externalAssociate.singular"),
-                    },
-                    {
-                        "field": "mex:funderOrCommissioner",
-                        "label": _("funderOrCommissioner.singular"),
-                    },
-                    {
-                        "field": "mex:fundingProgram",
-                        "label": _("fundingProgram.singular"),
-                    },
-                ],
-            },
-            "publication": {
-                "title": _("Related Publications & Further Documentation"),
-                "icon": "publication.svg",
-                "properties": [
-                    {"field": "mex:publication", "label": _("publication.singular")},
-                    {
-                        "field": "mex:documentation",
-                        "label": _("documentation.singular"),
-                    },
-                    {"field": "mex:website", "label": _("website.singular")},
-                ],
-            },
-            "relatedResources": {
-                "type": "container",
-                "title": _("Related Resources"),
-                "icon": "relatedResources.svg",
-                "components": [
-                    {
-                        "type": "component",
-                        "title": _("Part Of"),
-                        "properties": [
-                            {"field": "mex:isPartOfActivity"},
-                        ],
-                    },
-                    {
-                        "title": _("Succeeds"),
-                        "properties": [
-                            {"field": "mex:succeeds"},
-                        ],
-                    },
-                    {
-                        "title": _("Related Activity"),
-                        "properties": [
-                            {"field": "mex:relatedActivity"},
-                        ],
-                    },
-                    {
-                        "title": _("Related data sources & datasets"),
-                        "properties": [
-                            {
-                                "field": "mex:wasGeneratedBy",
-                                "is_backwards_linked": True,
-                            },
-                        ],
-                    },
-                ],
-            },
-        },
-        "side_bar": {
-            "contact": {
-                "title": _("contact.singular"),
-                "template": "contact.html",
-                "icon": "contact.svg",
-                "properties": [
-                    {"field": "mex:contact"},
-                ],
-            }
-        },
-    },
-    "bibliographicresource": {
-        "label": _("Publication"),
-        "special_fields": {
-            "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
-            "LANGUAGE": {"field": "mex:language"},
-            "ABSTRACT": {"field": "mex:abstract"},
-            "BIBLIOGRAPHICRESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
-            "ISSUED": {"field": "mex:issued"},
-            "TITLE": {"field": "mex:title"},
-        },
-        "main": {
-            "creators": {
-                "title": _("Creators"),
-                "icon": "creators.svg",
-                "properties": [
-                    {"field": "mex:creator", "label": _("creator.singular")},
-                    {
-                        "field": "mex:contributingUnit",
-                        "label": _("contributingUnit.singular"),
-                    },
-                ],
-            },
-            "keywords": {
-                "title": _("Keywords"),
-                "icon": "theme.svg",
-                "template": "theme_keywords.html",
-                "properties": [
-                    {"field": "mex:keyword"},
-                ],
-            },
-            "titleProper": {
-                "title": _("Title Proper"),
-                "icon": "titleProper.svg",
-                "properties": [
-                    {"field": "mex:journal", "label": _("journal.singular")},
-                    {"field": "mex:issue", "label": _("issue.singular")},
-                    {"field": "mex:volume", "label": _("volume.singular")},
-                    {"field": "mex:titleOfBook", "label": _("titleOfBook.singular")},
-                    {"field": "mex:subtitle", "label": _("subtitle.singular")},
-                    {
-                        "field": "mex:titleOfSeries",
-                        "label": _("titleOfSeries.singular"),
-                    },
-                    {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
-                    {"field": "mex:section", "label": _("section.singular")},
-                ],
-            },
-            "imprint": {
-                "title": _("Imprint"),
-                "icon": "imprint.svg",
-                "properties": [
-                    {"field": "mex:publisher", "label": _("publisher.singular")},
-                    {
-                        "field": "mex:publicationPlace",
-                        "label": _("publicationPlace.singular"),
-                    },
-                    {
-                        "field": "mex:publicationYear",
-                        "label": _("publicationYear.singular"),
-                    },
-                    {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
-                ],
-            },
-            "editor": {
-                "title": _("Editor"),
-                "icon": "editor.svg",
-                "properties": [
-                    {"field": "mex:editor", "label": _("editor.singular")},
-                    {
-                        "field": "mex:editorOfSeries",
-                        "label": _("editorOfSeries.singular"),
-                    },
-                ],
-            },
-            "relatedResources": {
-                "type": "container",
-                "title": _("Related Resources"),
-                "icon": "relatedResources.svg",
-                "components": [
-                    {
-                        "type": "component",
-                        "properties": [
-                            {
-                                "field": "mex:publication",
-                                "is_backwards_linked": True,
-                            },
-                        ],
-                    }
-                ],
-            },
-        },
-        "side_bar": {
-            "access": {
-                "title": _("Access & Usage Rights"),
-                "icon": "access.svg",
-                "properties": [
-                    {
-                        "field": "mex:accessRestriction",
-                        "label": _("accessRestriction.singular"),
-                    },
-                    {
-                        "field": "mex:doi",
-                        "label": _("doi.singular"),
-                        "prefixes": [
-                            "https://dx.doi.org/",
-                            "http://doi.org/",
-                            "https://doi.org/",
-                            "http://dx.doi.org/",
-                        ],
-                    },
-                    {
-                        "field": "mex:alternateIdentifier",
-                        "label": _("alternateIdentifier.singular"),
-                    },
-                    {
-                        "field": "mex:repositoryURL",
-                        "label": _("repositoryURL.singular"),
-                    },
-                    {"field": "mex:license", "label": _("license.singular")},
-                    {"field": "mex:rights", "label": _("rights.singular")},
-                ],
-            },
-            "files": {
-                "title": _("Files"),
-                "icon": "distribution.svg",
-                "properties": [
-                    {"field": "mex:distribution"},
-                ],
-            },
-        },
-    },
-    "contact": {
-        "fields": [{"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}]
-    },
-    "organization": {
-        "fields": [
-            {
-                "field": "mex:geprisId",
-                "prefixes": ["https://gepris.dfg.de/gepris/institution/"],
-            },
-            {"field": "mex:gndId", "prefixes": ["https://d-nb.info/gnd/"]},
-            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
-            {"field": "mex:rorId", "prefixes": ["https://ror.org/"]},
-            {"field": "mex:viafId", "prefixes": ["https://viaf.org/viaf/"]},
-            {
-                "field": "mex:wikidataId",
-                "prefixes": ["http://www.wikidata.org/entity/"],
-            },
-        ]
-    },
-    "person": {
-        "fields": [
-            {"field": "mex:isniId", "prefixes": ["https://isni.org/isni/"]},
-            {"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]},
-        ]
-    },
+# Background colour of the access-restriction tag on the landing page, keyed by the
+# mex-model vocabulary value the record carries.
+ACCESS_COLOR_MAP = {
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",  # open
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",  # restricted
 }
+
+# Structure -- which fields a record type shows, and how they are grouped -- lives in
+# modelconf.json. What follows are the rendering decisions that file does not carry;
+# tests/test_ui_settings.py checks every one of them against it.
+MODELCONF = load_modelconf()
+
+# Record-type tag shown on the landing page and on links to it.
+ENTITY_LABELS = {
+    "resource": _("Data Source/Dataset"),
+    "activity": _("Project"),
+    "bibliographicResource": _("Publication"),
+}
+
+# How each category of modelconf.json renders. Categories are addressed by their "id",
+# not by their title: titles are display msgids and change for editorial reasons. Only
+# the categories needing something other than a plain card in the main column are
+# listed -- everything else falls through to CategoryRule's defaults.
+CATEGORY_RULES = {
+    # Rendered by the page chrome (title, tags, description) instead of as a card.
+    "general": CategoryRule(column="header"),
+    "keywords": CategoryRule(template="theme_keywords.html"),
+    "coverage": CategoryRule(template="coverage.html"),
+    "methodology": CategoryRule(template="methodology.html"),
+    "contact": CategoryRule(column="side_bar", template="contact.html"),
+    "access": CategoryRule(column="side_bar"),
+    "files": CategoryRule(column="side_bar"),
+    "variables": CategoryRule(
+        column="side_bar",
+        template="variables.html",
+        backwards=frozenset({"usedIn"}),
+    ),
+    # A container of titled sub-blocks rather than a flat card, laid out per entity
+    # type because each links to a different set of records.
+    "relatedResources": CategoryRule(
+        components={
+            "resource": [
+                Component(name="isPartOf", title=_("Part Of")),
+                Component(name="isPartOf", title=_("Includes"), reverse=True),
+                Component(name="relatedResource", title=_("Related Resource")),
+            ],
+            "activity": [
+                Component(name="isPartOfActivity", title=_("Part Of")),
+                Component(name="succeeds", title=_("Succeeds")),
+                Component(name="relatedActivity", title=_("Related Activity")),
+                Component(
+                    name="wasGeneratedBy",
+                    title=_("Related data sources & datasets"),
+                    reverse=True,
+                ),
+            ],
+            "bibliographicResource": [
+                Component(name="publication", reverse=True),
+            ],
+        },
+    ),
+}
+
+# URL prefixes stripped when an external identifier is displayed. Covers linked entity
+# types without a landing page of their own (person, organization) too, so it is keyed
+# by property name rather than by category.
+EXT_ID_PREFIXES = {
+    "meshId": ["http://id.nlm.nih.gov/mesh/"],
+    "loincId": ["https://loinc.org/"],
+    "doi": [
+        "https://dx.doi.org/",
+        "http://doi.org/",
+        "https://doi.org/",
+        "http://dx.doi.org/",
+    ],
+    "orcidId": ["https://orcid.org/"],
+    "geprisId": ["https://gepris.dfg.de/gepris/institution/"],
+    "gndId": ["https://d-nb.info/gnd/"],
+    "isniId": ["https://isni.org/isni/"],
+    "rorId": ["https://ror.org/"],
+    "viafId": ["https://viaf.org/viaf/"],
+    "wikidataId": ["http://www.wikidata.org/entity/"],
+}
+
+UI_SETTINGS = build_ui_settings(
+    MODELCONF, entity_labels=ENTITY_LABELS, categories=CATEGORY_RULES
+)
+
+# The record types that get a landing page of their own.
+CORE_ENTITY_TYPES = list(UI_SETTINGS)
 
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
     "invenio_app_rdm/records/details/side_bar/metrics.html",
@@ -885,24 +450,15 @@ EXPORTERS_PER_RECORD_TYPE = {
     "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
 
-# List of entities available in mex model
-ENTITIES = [
-    "access-platform",
-    "activity",
-    "bibliographic-resource",
-    "concept-scheme",
-    "concept",
-    "consent",
-    "contact-point",
-    "distribution",
-    "organization",
-    "organizational-unit",
-    "person",
-    "primary-source",
-    "resource",
-    "variable-group",
-    "variable",
-]
+# Entity types of the MEx model, minus the ones never published to Invenio (see
+# custom_fields.field_types.UNPUBLISHED_ENTITIES). Derived rather than listed so it
+# cannot drift from mex-model, and so that vocabulary descriptors such as "concept"
+# and "concept-scheme" -- which are not entity types -- cannot creep back in.
+ENTITIES = sorted(
+    name.replace("_", "-")
+    for name in ENTITY_JSON_BY_NAME
+    if name not in UNPUBLISHED_ENTITIES
+)
 
 TITLE_FIELDS = [
     "mex:prefLabel",
@@ -957,8 +513,8 @@ FRONTPAGE_SEARCH_LINKS = {
 
 FIELD_TYPES = get_field_types()
 PREF_LABELS = get_pref_labels()
-EXT_IDS = get_ext_ids(UI_SETTINGS)
-FIELDS_LINKED_BACKWARDS = get_fields_linked_backwards(UI_SETTINGS)
+EXT_IDS = build_ext_ids(EXT_ID_PREFIXES)
+FIELDS_LINKED_BACKWARDS = build_fields_linked_backwards(MODELCONF, CATEGORY_RULES)
 
 CUSTOM_TYPES = field_types.CUSTOM_TYPES
 

@@ -11,8 +11,8 @@ ACCESS_RESTRICTION_KW = "custom_fields.mex:accessRestriction.keyword"
 
 ACTIVITY_TYPE_KW = "custom_fields.mex:activityType.keyword"
 
-ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
-ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
+ALTERNATIVE_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
+ALTERNATIVE_TITLE = "custom_fields.mex:alternativeTitle.value"
 
 BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
 BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
@@ -94,7 +94,7 @@ VARIABLE_GROUPS_DE = "index_data.deVariableGroups"
 
 DEFAULT_FIELDS = {
     TITLE,
-    ALT_TITLE,
+    ALTERNATIVE_TITLE,
     SHORT_NAME,
     ABSTRACT,
     EXTERNAL_ASSOCIATE,
@@ -350,7 +350,7 @@ class HighlightParamsInterpreter(ParamInterpreter):
 
 class BoostingParamsInterpreter(ParamInterpreter):
     TITLE_AGG = [TITLE, LABEL]
-    DESC_AGG = [ALT_TITLE, DESCRIPTION, ABSTRACT]
+    DESC_AGG = [ALTERNATIVE_TITLE, DESCRIPTION, ABSTRACT]
     DISPLAYED_AGG = [
         KEYWORD,
         USED_IN_DE,
@@ -426,13 +426,13 @@ class BoostingParamsInterpreter(ParamInterpreter):
     #     "global": {
     #         TITLE: 20,
     #         LABEL: 20,
-    #         ALT_TITLE: 10,
+    #         ALTERNATIVE_TITLE: 10,
     #         DESCRIPTION: 10,
     #         ABSTRACT: 10,
     #     },
     #     "resource": {
     #         TITLE: 20,
-    #         ALT_TITLE: 10,
+    #         ALTERNATIVE_TITLE: 10,
     #         DESCRIPTION: 10,
     #         KEYWORD: 10,
     #     },
@@ -446,14 +446,14 @@ class BoostingParamsInterpreter(ParamInterpreter):
     #     },
     #     "activity": {
     #         TITLE: 20,
-    #         ALT_TITLE: 10,
+    #         ALTERNATIVE_TITLE: 10,
     #         ABSTRACT: 10,
     #         # START: 10,
     #         # END: 10
     #     },
     #     "bibliographicresource": {
     #         TITLE: 20,
-    #         ALT_TITLE: 10,
+    #         ALTERNATIVE_TITLE: 10,
     #         SUBTITLE: 10,
     #         ABSTRACT: 10,
     #         CREATOR: 10,
@@ -479,7 +479,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
     #         )
     #     return functions
 
-    def _make_functions(self, norm, base, words) -> list:
+    def _make_functions(self, norm, base, words) -> list:  # noqa: C901
         functions = []
 
         # 1. Exact unpunctuated, ascii-folded string appears in the field "title"

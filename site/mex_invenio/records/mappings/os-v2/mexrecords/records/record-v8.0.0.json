@@ -182,6 +182,26 @@
                                     }
                                 }
                             },
+                            "mex:analytics": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
                             "mex:belongsTo": {
                                 "properties": {
                                     "core": {
@@ -425,46 +445,6 @@
                                     }
                                 }
                             },
-                            "mex:hadPrimarySource": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:hasDataSubject": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
                             "mex:inScheme": {
                                 "properties": {
                                     "core": {
@@ -645,7 +625,87 @@
                                     }
                                 }
                             },
+                            "mex:relatedActivity": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:relatedResource": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
                             "mex:responsibleUnit": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:sample": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:source": {
                                 "properties": {
                                     "core": {
                                         "type": "text"
