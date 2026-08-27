@@ -419,6 +419,10 @@ UI_SETTINGS = {
                     },
                     {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
                     {
+                        "field": "mex:provenance",
+                        "label": _("provenance.singular"),
+                    },
+                    {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
                     },
