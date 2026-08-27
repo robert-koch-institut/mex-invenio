@@ -672,3 +672,8 @@ msgstr "Was bewirkt das?"
 
 msgid "missingValuesHelp"
 msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Keine Daten“ dargestellt."
+
+# Missing from mex-model's own catalogs; supplied here so the derived
+# "<property>.singular" label resolves.
+msgid "volumeOfSeries.singular"
+msgstr "Serienband"

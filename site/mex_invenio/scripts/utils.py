@@ -17,6 +17,8 @@ from marshmallow_utils.html import sanitize_unicode
 from mex.model import ENTITY_JSON_BY_NAME
 from sqlalchemy import or_, text
 
+from mex_invenio.entities import PUBLISHED_ENTITIES, RESOURCE_TYPE_TO_ENTITY
+
 logging.basicConfig(
     level=logging.INFO,
     # format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
@@ -202,25 +204,18 @@ def get_related_mex_ids(record: dict) -> list:
     if not record_id:
         return []
 
-    mapping = {
-        "organizationalunit": "organizational-unit",
-        "contactpoint": "contact-point",
-        "accessplatform": "access-platform",
-        "bibliographicresource": "bibliographic-resource",
-        "variablegroup": "variable-group",
-        "primarysource": "primary-source",
-    }
-
-    record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
-
-    if record_type in mapping:
-        record_type = mapping[record_type]
+    # Invenio squashes the entity type into one word for resource_type.id,
+    # while the mex-model schema URL spells it out.
+    resource_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
+    record_type = RESOURCE_TYPE_TO_ENTITY.get(resource_type, resource_type)
 
     target_id = f"/mex/model/entities/merged-{record_type}#/identifier"
 
     # Find fields that reference this record type
     target_fields = []
-    for entity in ENTITY_JSON_BY_NAME.values():
+    for entity_name, entity in ENTITY_JSON_BY_NAME.items():
+        if entity_name not in PUBLISHED_ENTITIES:
+            continue
         for prop_name, prop in entity.get("properties", {}).items():
             if prop.get("$ref") == target_id:
                 target_fields.append(prop_name)

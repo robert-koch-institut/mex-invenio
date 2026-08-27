@@ -33,6 +33,15 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.custom_fields.ext_ids import get_ext_ids
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
+
+# Re-exported so they land in the Invenio config: CORE_ENTITY_TYPES is read via
+# current_app.config, ENTITIES is a documented config key. See entities.py for
+# how they are derived from mex-model.
+from mex_invenio.entities import (
+    CORE_ENTITY_TYPES,
+    ENTITIES,
+    FACET_EXCLUDED_RESOURCE_TYPES,
+)
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
@@ -298,18 +307,8 @@ RDM_FACETS = {
             # Field to filter on
             label=_("Resource types"),
             value_labels=VocabularyLabels("resourcetypes"),
-            excluded_values=[
-                "accessplatform",
-                "concept",
-                "consent",
-                "contactpoint",
-                "distribution",
-                "organization",
-                "organizationalunit",
-                "person",
-                "primarysource",
-                "variablegroup",
-            ],
+            # Hide the types with no search page to send the user to.
+            excluded_values=FACET_EXCLUDED_RESOURCE_TYPES,
         ),
         "ui": {"field": "resource_type.id"},
     },
@@ -319,7 +318,12 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
+# Background colour of the access-restriction tag on the landing page, keyed by the
+# mex-model vocabulary value the record carries.
+ACCESS_COLOR_MAP = {
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",  # open
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",  # restricted
+}
 
 UI_SETTINGS = {
     "resource": {
@@ -328,18 +332,8 @@ UI_SETTINGS = {
             "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
             "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "DESCRIPTION": {"field": "mex:description"},
             "LANGUAGE": {"field": "mex:language"},
             "MODIFIED": {"field": "mex:modified"},
@@ -389,7 +383,14 @@ UI_SETTINGS = {
                     {"field": "mex:start", "label": _("start.singular")},
                     {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {
+                        "field": "mex:minTypicalAge",
+                        "label": _("minTypicalAge.singular"),
+                    },
+                    {
+                        "field": "mex:maxTypicalAge",
+                        "label": _("maxTypicalAge.singular"),
+                    },
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -575,7 +576,7 @@ UI_SETTINGS = {
     "activity": {
         "label": _("Project"),
         "special_fields": {
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "ACTIVITY_TYPE": {"field": "mex:activityType"},
             "ABSTRACT": {"field": "mex:abstract"},
             "TITLE": {"field": "mex:title"},
@@ -686,21 +687,11 @@ UI_SETTINGS = {
         "label": _("Publication"),
         "special_fields": {
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
-            "ALT_TITLE": {"field": "mex:alternativeTitle"},
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
+            "ALTERNATIVE_TITLE": {"field": "mex:alternativeTitle"},
             "LANGUAGE": {"field": "mex:language"},
             "ABSTRACT": {"field": "mex:abstract"},
-            "BIBLIOGRAPHICRESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
+            "BIBLIOGRAPHIC_RESOURCE_TYPE": {"field": "mex:bibliographicResourceType"},
             "ISSUED": {"field": "mex:issued"},
             "TITLE": {"field": "mex:title"},
         },
@@ -737,7 +728,10 @@ UI_SETTINGS = {
                         "field": "mex:titleOfSeries",
                         "label": _("titleOfSeries.singular"),
                     },
-                    {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
+                    {
+                        "field": "mex:volumeOfSeries",
+                        "label": _("volumeOfSeries.singular"),
+                    },
                     {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
@@ -884,25 +878,6 @@ EXPORTERS_PER_RECORD_TYPE = {
     },
     "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
-
-# List of entities available in mex model
-ENTITIES = [
-    "access-platform",
-    "activity",
-    "bibliographic-resource",
-    "concept-scheme",
-    "concept",
-    "consent",
-    "contact-point",
-    "distribution",
-    "organization",
-    "organizational-unit",
-    "person",
-    "primary-source",
-    "resource",
-    "variable-group",
-    "variable",
-]
 
 TITLE_FIELDS = [
     "mex:prefLabel",

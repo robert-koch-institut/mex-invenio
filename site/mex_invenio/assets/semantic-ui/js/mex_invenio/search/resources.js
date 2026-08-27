@@ -23,7 +23,7 @@ edges.instances.resources.init = function() {
             mex.fullSearchController({
                 fieldOptions: [
                     {field: mex.constants.TITLE, "display": i18n.t("Title")},
-                    {field: mex.constants.ALT_TITLE, "display": i18n.t("Alternative Title")},
+                    {field: mex.constants.ALTERNATIVE_TITLE, "display": i18n.t("Alternative Title")},
                     {field: mex.constants.CONTRIBUTORS, "display": i18n.t("Contributor")},
                     {field: mex.constants.DESCRIPTION, "display": i18n.t("Description")},
                     {field: mex.constants.EXTERNAL_PARTNERS, "display": i18n.t("External Partner")},
