@@ -149,6 +149,21 @@ def db_session_transaction_restart(db):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
 
 
+def _find_static_folder(repo_root: Path) -> str:
+    """Locate the webpack bundle, which ``make install`` puts in either of two places.
+
+    Locally ``invenio webpack buildall`` runs without INVENIO_INSTANCE_PATH set and
+    builds into the virtualenv; in CI the job exports INVENIO_INSTANCE_PATH, so it
+    builds into the repo root instead. Anything rendering a page needs the manifest,
+    so probe for it rather than assuming one layout.
+    """
+    candidates = [repo_root / "static", Path(sys.prefix) / "var/instance/static"]
+    for candidate in candidates:
+        if (candidate / "dist/manifest.json").is_file():
+            return str(candidate)
+    return str(candidates[-1])
+
+
 @pytest.fixture(scope="module")
 def instance_path():
     """Use the repo root as the instance path, overriding pytest-invenio's default.
@@ -160,12 +175,12 @@ def instance_path():
     ``INVENIO_INSTANCE_PATH: ${{ github.workspace }}`` in .github/workflows/testing.yml
     intends; pytest-invenio only reads that value under the name ``INSTANCE_PATH``.
     """
-    path = str(Path(__file__).parent.parent)
+    path = Path(__file__).parent.parent
     os.environ.update(
-        INVENIO_INSTANCE_PATH=path,
-        INVENIO_STATIC_FOLDER=os.path.join(sys.prefix, "var/instance/static"),
+        INVENIO_INSTANCE_PATH=str(path),
+        INVENIO_STATIC_FOLDER=_find_static_folder(path),
     )
-    yield path
+    yield str(path)
     os.environ.pop("INVENIO_INSTANCE_PATH", None)
 
 

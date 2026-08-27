@@ -14,7 +14,7 @@ import packaging.version
 from invenio_db import db
 from invenio_rdm_records.records.api import RDMRecord
 from marshmallow_utils.html import sanitize_unicode
-from mex.model import ENTITY_JSON_BY_NAME
+from mex.model import MERGED_MODEL_JSON_BY_NAME
 from sqlalchemy import or_, text
 
 from mex_invenio.entities import PUBLISHED_ENTITIES, RESOURCE_TYPE_TO_ENTITY
@@ -213,7 +213,7 @@ def get_related_mex_ids(record: dict) -> list:
 
     # Find fields that reference this record type
     target_fields = []
-    for entity_name, entity in ENTITY_JSON_BY_NAME.items():
+    for entity_name, entity in MERGED_MODEL_JSON_BY_NAME.items():
         if entity_name not in PUBLISHED_ENTITIES:
             continue
         for prop_name, prop in entity.get("properties", {}).items():

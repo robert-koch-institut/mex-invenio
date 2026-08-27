@@ -1,4 +1,4 @@
-from mex.model import ENTITY_JSON_BY_NAME
+from mex.model import MERGED_MODEL_JSON_BY_NAME
 
 from mex_invenio.entities import UNPUBLISHED_ENTITIES
 
@@ -106,8 +106,9 @@ def get_field_types() -> dict:
     """Get field types from Mex model package entities."""
     field_types = {}
 
-    # Use the pre-loaded entity data from mex-model package
-    for entity_name, entity_data in ENTITY_JSON_BY_NAME.items():
+    # Use the pre-loaded entity data from mex-model package. Merged, not
+    # extracted: see entities.py for why that distinction matters.
+    for entity_name, entity_data in MERGED_MODEL_JSON_BY_NAME.items():
         if entity_name in UNPUBLISHED_ENTITIES:
             continue
         try:

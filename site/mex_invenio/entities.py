@@ -5,7 +5,7 @@ The same entity is spelled three ways depending on where it appears:
 ===================  ==========================  ===================================
 form                 example                     used by
 ===================  ==========================  ===================================
-snake_case           ``bibliographic_resource``  ``mex.model.ENTITY_JSON_BY_NAME``
+snake_case           ``bibliographic_resource``  ``MERGED_MODEL_JSON_BY_NAME``
 squashed             ``bibliographicresource``   Invenio ``resource_type.id``
 kebab-case           ``bibliographic-resource``  ``ENTITIES`` config, mex-model URLs
 ===================  ==========================  ===================================
@@ -13,9 +13,16 @@ kebab-case           ``bibliographic-resource``  ``ENTITIES`` config, mex-model 
 This module is the single place those forms and this instance's own entity
 policy are derived, so that they cannot drift from each other or from the
 mex-model package.
+
+Always derive from the **merged** model: Invenio only ever ingests merged items
+(their ``entityType`` reads ``MergedResource`` and so on), never extracted ones.
+``mex.model.ENTITY_JSON_BY_NAME`` is a deprecated alias for the *extracted*
+model, which carries ``hadPrimarySource``, ``identifierInPrimarySource`` and
+``stableTargetId`` -- fields this instance must never know about -- and lacks
+``supersededBy``, which it does need.
 """
 
-from mex.model import ENTITY_JSON_BY_NAME
+from mex.model import MERGED_MODEL_JSON_BY_NAME
 
 # Entity types that are never published to Invenio, so they are skipped
 # wherever config is derived from the mex-model package.
@@ -23,8 +30,8 @@ UNPUBLISHED_ENTITIES = frozenset({"consent", "primary_source"})
 
 # The mex-model entity names this instance publishes. Note that "concept" and
 # "concept_scheme" are vocabulary descriptors rather than entity types, so they
-# are absent from ENTITY_JSON_BY_NAME by construction and cannot creep back in.
-PUBLISHED_ENTITIES = frozenset(ENTITY_JSON_BY_NAME) - UNPUBLISHED_ENTITIES
+# are absent from the model by construction and cannot creep back in.
+PUBLISHED_ENTITIES = frozenset(MERGED_MODEL_JSON_BY_NAME) - UNPUBLISHED_ENTITIES
 
 # Kebab-case, as used by the ENTITIES config value.
 ENTITIES = sorted(name.replace("_", "-") for name in PUBLISHED_ENTITIES)
