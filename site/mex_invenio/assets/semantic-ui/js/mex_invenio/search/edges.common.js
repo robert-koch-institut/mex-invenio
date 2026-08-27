@@ -2546,7 +2546,7 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
             if (this.searchButtonText !== false) {
                 text = this.searchButtonText;
             }
-            searchBtn = `<button type="submit" class="ui button secondary ${searchClass} search-button">${text}</button>`;
+            searchBtn = `<button type="submit" class="ui button primary ${searchClass} search-button">${text}</button>`;
         }
 
         let inline = "";
@@ -2583,9 +2583,11 @@ mex.renderers.SidebarSearchController = class extends edges.Renderer {
         let frag = `
             <form class="ui form ${compactClass}">
                 ${searchBoxLabel}
-                ${searchBoxInput}
-                ${field_select}
-                ${searchBtn}
+                <div class="search-box-container">
+                    ${searchBoxInput}
+                    ${field_select}
+                    ${searchBtn}
+                </div>
             </form>
         `
 
@@ -4322,7 +4324,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             function tags() {
                 frag = "";
                 for (let key of keywords) {
-                    frag += `<span class="tag">${key}</span>`;
+                    frag += `<span class="tag keyword">${key}</span>`;
                 }
                 return frag;
             }
@@ -4356,38 +4358,39 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             return date_ui;
         }
 
-        function _iconAndText(icon, label, values, muted=true) {
+        function _iconAndText(icon, label, values, extra_classes) {
             let frag = "";
             for (let entry of values) {
                 frag += `
-                <p class="${muted ? 'muted' : ''}">
-                <img class="ui image icon--text"
-                    src="/static/icons/${icon}.svg"
-                    aria-hidden="true"
-                    title="${label}"/>
-                    <span class="sr-only">${label}</span>
-                    ${entry}
+                <p style="font-weight: bold" class="${extra_classes.join(' ')}">${label}</p>
+                <p class="${extra_classes.join(' ')}">
+                    <img class="ui image icon--text"
+                        src="/static/icons/${icon}.svg"
+                        aria-hidden="true"
+                        title="${label}"/>
+                        <span class="sr-only">${label}</span>
+                        ${entry}
                 </p>`;
             }
             return frag;
         }
 
         function populationCoverage(cov) {
-            const label = i18n.t("mex:populationCoverage")
-            return _iconAndText("globe", label, cov, true);
+            const label = i18n.t("populationCoverage.singular_resource")
+            return _iconAndText("users", label, cov, ["muted", "meta", "coverage-meta--population"]);
         }
 
         function spatialCoverage(spatial) {
-            const label = i18n.t("mex:spatial")
-            return _iconAndText("users", label, spatial, true);
+            const label = i18n.t("spatial.singular_resource")
+            return _iconAndText("globe", label, spatial, ["muted", "meta", "coverage-meta--spatial"]);
         }
 
         function temporalCoverage(temporal) {
             if (temporal === null) {
                 return "";
             }
-            const label = i18n.t("mex:temporal")
-            return _iconAndText("calendar", label, [date_ui(temporal)], true);
+            const label = i18n.t("temporal.singular_resource")
+            return _iconAndText("calendar", label, [date_ui(temporal)], ["muted", "meta", "coverage-meta--temporal"]);
         }
 
         let frag = `
@@ -4395,7 +4398,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 <div class="card-header">
                     <span class="tags">
                         <span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[accessRestrictionRaw]}">${accessRestriction}</span>
-                        <span class="tag">${vCount} ${i18n.t("Variables")}</span>
+                        <span class="tag variables">${vCount} ${i18n.t("Variables")}</span>
                     </span>
 
                     <button type="button" class="ui icon button ${selectState} ${selectClass}"
@@ -4407,19 +4410,29 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                         ${vCount ? "" : "⊘"}</button>
                 </div>
                 ${createdDate(res)}
-                <div class="card-section">
-                    <h3 class="title">
-                        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-                    </h3>
-                    ${altTitle(alt)}
-                    ${description(desc)}
+                <div class="grid-container">
+                    <div class="left">
+                        <div class="card-section">
+                            <h3 class="title">
+                                <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+                            </h3>
+                            ${altTitle(alt)}
+                        </div>
+                        <div class="card-section">
+                            ${description(desc)}
+                        </div>
+                        <div class="card-section">
+                            ${keywordTags(keywords)}
+                        </div>
+                    </div>
+                    <div class="right">
+                        <div class="card-section">
+                            ${populationCoverage(popCov)}
+                            ${spatialCoverage(spatial)}
+                            ${temporalCoverage(temporal)}
+                        </div>
+                    </div>
                 </div>
-                <div class="card-section">
-                    ${populationCoverage(popCov)}
-                    ${spatialCoverage(spatial)}
-                    ${temporalCoverage(temporal)}
-                </div>
-                ${keywordTags(keywords)}
             </div>`;
 
         return frag;

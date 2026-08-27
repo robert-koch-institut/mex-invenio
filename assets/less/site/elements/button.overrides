@@ -9,12 +9,12 @@ button {
     border-radius: 0;
     font-weight: normal;
     &.primary {
-        background-color: @primaryColor;
-        border: 1px solid @primaryColor;
+        background-color: @darkLinkColor;
+        border: 1px solid @darkLinkColor;
         color: @white;
         &:hover {
             background-color: @white;
-            color: @primaryColor;
+            color: @darkLinkColor;
         }
     }
     &.secondary {
@@ -62,15 +62,19 @@ button {
 .js-mex-resources-results_select {
     height: 25px;
     &[data-state="selected"] {
+        background-color: transparent;
         background-image: url('../images/add-resource-button-selected.svg');
         &:hover {
+            background-color: transparent;
             background-image: url('../images/add-resource-button-unselected.svg');
         }
     }
 
   &[data-state="unselected"] {
+      background-color: transparent;
     background-image: url('../images/add-resource-button-unselected.svg');
     &:hover {
+        background-color: transparent;
         background-image: url('../images/add-resource-button-selected.svg');
     }
   }
