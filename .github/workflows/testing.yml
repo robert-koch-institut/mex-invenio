@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 15
+    timeout-minutes: 10
     env:
       INVENIO_INSTANCE_PATH: ${{ github.workspace }}
       MEX_IMPORT_BUCKET: placeholder

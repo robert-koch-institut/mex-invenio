@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import sys
+import warnings
 from contextlib import suppress
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -33,7 +34,6 @@ from mex_invenio.config import (
     ACCESS_COLOR_MAP,
     CORE_ENTITY_TYPES,
     DISCLAIMER,
-    ENTITIES,
     FIELD_TYPES,
     OAISERVER_ID_PREFIX,
     OAISERVER_RELATIONS,
@@ -161,6 +161,13 @@ def _find_static_folder(repo_root: Path) -> str:
     for candidate in candidates:
         if (candidate / "dist/manifest.json").is_file():
             return str(candidate)
+    warnings.warn(
+        "No webpack manifest found in "
+        + " or ".join(str(c / "dist/manifest.json") for c in candidates)
+        + "; run `make install`. Tests that render a page will fail inside Jinja "
+        "rather than reporting the missing bundle.",
+        stacklevel=2,
+    )
     return str(candidates[-1])
 
 
@@ -232,7 +239,6 @@ def app_config(app_config, module_tmp_path):
     app_config["ACCESS_COLOR_MAP"] = ACCESS_COLOR_MAP
     app_config["UI_SETTINGS"] = UI_SETTINGS
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
-    app_config["ENTITIES"] = ENTITIES
     app_config["DISCLAIMER"] = DISCLAIMER
     app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
     app_config["CORE_ENTITY_TYPES"] = CORE_ENTITY_TYPES

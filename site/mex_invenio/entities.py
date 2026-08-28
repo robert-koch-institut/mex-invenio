@@ -7,7 +7,7 @@ form                 example                     used by
 ===================  ==========================  ===================================
 snake_case           ``bibliographic_resource``  ``MERGED_MODEL_JSON_BY_NAME``
 squashed             ``bibliographicresource``   Invenio ``resource_type.id``
-kebab-case           ``bibliographic-resource``  ``ENTITIES`` config, mex-model URLs
+kebab-case           ``bibliographic-resource``  mex-model schema URLs
 ===================  ==========================  ===================================
 
 This module is the single place those forms and this instance's own entity
@@ -32,9 +32,6 @@ UNPUBLISHED_ENTITIES = frozenset({"consent", "primary_source"})
 # "concept_scheme" are vocabulary descriptors rather than entity types, so they
 # are absent from the model by construction and cannot creep back in.
 PUBLISHED_ENTITIES = frozenset(MERGED_MODEL_JSON_BY_NAME) - UNPUBLISHED_ENTITIES
-
-# Kebab-case, as used by the ENTITIES config value.
-ENTITIES = sorted(name.replace("_", "-") for name in PUBLISHED_ENTITIES)
 
 # Squashed, as used by Invenio's metadata.resource_type.id. Equal to the ids in
 # app_data/vocabularies/resource_types.yaml -- asserted by

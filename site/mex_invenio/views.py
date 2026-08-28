@@ -129,7 +129,7 @@ URL_RESOURCE_TYPE_MAP = {
     "activities": "activity",
     "resources": "resource",
     "variables": "variable",
-    "global": SEARCHABLE_ENTITY_TYPES,
+    "global": list(SEARCHABLE_ENTITY_TYPES),
 }
 
 

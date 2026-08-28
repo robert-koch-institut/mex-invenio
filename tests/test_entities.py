@@ -10,7 +10,6 @@ from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.entities import (
     CORE_ENTITY_TYPES,
-    ENTITIES,
     FACET_EXCLUDED_RESOURCE_TYPES,
     PUBLISHED_ENTITIES,
     RESOURCE_TYPE_TO_ENTITY,
@@ -53,9 +52,11 @@ def test_resource_types_match_the_vocabulary():
 
 def test_name_forms_agree():
     """The snake, squashed and kebab spellings must describe the same set."""
-    assert len(ENTITIES) == len(RESOURCE_TYPES) == len(PUBLISHED_ENTITIES)
+    assert len(RESOURCE_TYPES) == len(PUBLISHED_ENTITIES)
     assert set(RESOURCE_TYPE_TO_ENTITY) == set(RESOURCE_TYPES)
-    assert set(RESOURCE_TYPE_TO_ENTITY.values()) == set(ENTITIES)
+    assert set(RESOURCE_TYPE_TO_ENTITY.values()) == {
+        name.replace("_", "-") for name in PUBLISHED_ENTITIES
+    }
 
 
 def test_core_types_are_searchable_and_published():

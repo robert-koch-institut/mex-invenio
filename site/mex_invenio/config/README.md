@@ -11,7 +11,6 @@ This document describes the configuration constants used for defining entity dis
 |`ACCESS_COLOR_MAP`                  |	dict[str, str]  |	`mex:accessRestriction` vocabulary value → background colour of the access tag on the landing page.
 |`APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` |	list[str]       |	Lists custom templates for invenio standard side bar cards. Only the standard Invenio side bar cards are included. Templates are placed in `/templates/semantic-ui/invenio_app_rdm/records/details/side_bar`
 |`APP_RDM_RECORD_EXPORTERS`          |	dict[str, dict] |	Configures available data export formats (e.g. JSON, CSV), including serializer, filename pattern, and MIME type.
-|`ENTITIES`                          |	list[str]       |	Entity types of the MEx model in kebab-case, derived in `entities.py`. Note `concept` / `concept-scheme` are vocabulary descriptors, not entity types, and are absent by construction.
 |`TITLE_FIELDS`                      |	list[str]       |	Ordered list of field names used to derive a display title for a record (checked in sequence).
 |`DISCLAIMER`                        |	str             |	Generic disclaimer text displayed below metadata, stating that information is provided as-is.
 

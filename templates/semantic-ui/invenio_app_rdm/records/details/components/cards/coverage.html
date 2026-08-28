@@ -54,7 +54,7 @@
                         </div>
                     {% else %}
                         <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%} {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
-                            <p class="card-prop-label" title="{{ _('Max. typical age') }}">{{ _('Typical age') }}</p>
+                            <p class="card-prop-label" title="{{ _('Typical age') }}">{{ _('Typical age') }}</p>
                             <div class="card-prop-value">
                                 <i class="muted">{{ _("noValueProvided") }}</i>
                             </div>

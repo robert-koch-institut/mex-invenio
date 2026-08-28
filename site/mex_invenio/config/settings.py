@@ -34,12 +34,11 @@ from mex_invenio.custom_fields.ext_ids import get_ext_ids
 from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
 
-# Re-exported so they land in the Invenio config: CORE_ENTITY_TYPES is read via
-# current_app.config, ENTITIES is a documented config key. See entities.py for
-# how they are derived from mex-model.
+# Re-exported so CORE_ENTITY_TYPES lands in the Invenio config, where record.py
+# and services/search.py read it via current_app.config. See entities.py for how
+# these are derived from mex-model.
 from mex_invenio.entities import (
     CORE_ENTITY_TYPES,
-    ENTITIES,
     FACET_EXCLUDED_RESOURCE_TYPES,
 )
 from mex_invenio.records.api import MexRDMRecord
