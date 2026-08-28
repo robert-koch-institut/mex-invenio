@@ -71,7 +71,7 @@ mex.constants.ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
 mex.constants.SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
 mex.constants.LABEL_CONTAINER = "custom_fields.mex:label"
 mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
-mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
+mex.constants.ALTERNATIVE_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
 mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
 mex.constants.ACCESS_RESTRICTION = "custom_fields.mex:accessRestriction"
 mex.constants.POPULATION_COVERAGE_CONTAINER = "custom_fields.mex:populationCoverage"
@@ -96,7 +96,7 @@ mex.constants.BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
 mex.constants.DATA_TYPE = "custom_fields.mex:dataType"
 mex.constants.CODING_SYSTEM = "custom_fields.mex:codingSystem"
 mex.constants.TITLE = "custom_fields.mex:title.value"
-mex.constants.ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
+mex.constants.ALTERNATIVE_TITLE = "custom_fields.mex:alternativeTitle.value"
 mex.constants.CONTRIBUTORS = "index_data.contributors"
 mex.constants.EXTERNAL_PARTNERS = "index_data.externalPartners"
 mex.constants.ICD10 = "custom_fields.mex:icd10code.value"
@@ -144,6 +144,29 @@ mex.fullDateFormatter = function (datestr) {
         year: "numeric",
         timeZone: "UTC",
     });
+};
+
+mex.edtfDateFormatter = function (value) {
+    // EDTF custom fields are indexed as {date, date_range} by FixedEDTFDateStringCF
+    // (a list of those when the field is multi-valued), so the raw _source value is
+    // never a plain date string. Falls back to the value itself for the plain-string
+    // case, and to the unformatted date when it will not parse.
+    if (!value) {
+        return "";
+    }
+    if (Array.isArray(value)) {
+        value = value[0];
+    }
+    let datestr = value && value.date ? value.date : value;
+    if (!datestr) {
+        return "";
+    }
+    let formatted = mex.fullDateFormatter(datestr);
+    // fullDateFormatter hands back the Date object itself when it cannot parse
+    if (String(formatted) === "Invalid Date") {
+        return datestr;
+    }
+    return formatted;
 };
 
 mex.yearFormatter = function (val) {
@@ -4248,7 +4271,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             );
         }
 
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
@@ -4667,7 +4690,7 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+    let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
     if (alt) {
         alt = edges.util.escapeHtml(alt);
     } else {
@@ -4723,25 +4746,10 @@ mex.renderers.activitiesResultView = function(res, highlights, include_resource_
         </p>`;
     }
 
-    function date_ui(date) {
-        let date_ui = ""
-        if (date) {
-            if (Array.isArray(date)) {
-                date = date[0]
-            }
-            date = date.date
-            date_ui = mex.fullDateFormatter(date);
-            if (date_ui === "Invalid Date") {
-                date_ui = date;
-            }
-        }
-        return date_ui
-    }
-
     let start = res["custom_fields"]["mex:start"];
-    let start_ui = date_ui(start)
+    let start_ui = mex.edtfDateFormatter(start)
     let end = res["custom_fields"]["mex:end"];
-    let end_ui = date_ui(end)
+    let end_ui = mex.edtfDateFormatter(end)
 
     let duration_label = "";
     if (start && end) {
@@ -4773,7 +4781,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+    let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
     if (alt) {
         alt = edges.util.escapeHtml(alt);
     } else {
@@ -4847,7 +4855,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         </h3>`;
     }
 
-    let pubYear = res["custom_fields"]["mex:issued"];
+    let pubYear = mex.edtfDateFormatter(res["custom_fields"]["mex:issued"]);
 
     let frag = `<div class="card results-card">`;
 
@@ -4872,7 +4880,7 @@ mex.renderers.bibliographicResourcesView = function(res, highlights, include_res
         frag += `<p class="description">${sub}</p>`;
     }
     if (pubYear) {
-        frag += `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
+        frag += `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${pubYear}`;
     }
 
     frag += `</div>`;
@@ -5502,7 +5510,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             );
         }
 
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
@@ -5517,15 +5525,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             }
         }
 
-        let created = res["custom_fields"]["mex:created"]
-        created = `<span class="tag">${created}</span>`;
-        let created_ui = "";
-        if (created && created.date) {
-            created_ui = mex.fullDateFormatter(created.date);
-            if (created_ui === "Invalid Date") {
-                created_ui = created.date;
-            }
-        }
+        let created_ui = mex.edtfDateFormatter(res["custom_fields"]["mex:created"]);
 
         let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
         if (keywords.length > 5) {

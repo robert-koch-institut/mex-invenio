@@ -575,3 +575,10 @@ msgstr "What does it mean?"
 
 msgid "missingValuesHelp"
 msgstr "Shows empty fields and displays “no data” when no value exists, helping distinguish missing data from unavailable fields."
+
+# Missing from mex-model's catalogs as of the pinned 5.0.3; supplied here so the
+# derived "<property>.singular" label resolves. Ships in mex-model 5.1.3 -- remove
+# this entry when the pin moves, since merge_translations.py gives ui.po precedence
+# and it would otherwise keep shadowing the upstream string.
+msgid "volumeOfSeries.singular"
+msgstr "Volume of series"
