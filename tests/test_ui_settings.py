@@ -5,7 +5,7 @@ import pytest
 
 import mex_invenio
 from mex_invenio.config import (
-    ENTITIES,
+    CORE_ENTITY_TYPES,
     EXT_IDS,
     FIELD_TYPES,
     FIELDS_LINKED_BACKWARDS,
@@ -299,6 +299,9 @@ def test_instance_config_matches_modelconf():
     validate(MODELCONF, CATEGORY_RULES, ENTITY_LABELS)
 
     assert set(UI_SETTINGS) == {name.lower() for name in MODELCONF}
+    # CORE_ENTITY_TYPES is hand-kept in entities.py, modelconf.json is hand-kept
+    # here; a landing page needs both, so neither may gain a type without the other.
+    assert set(CORE_ENTITY_TYPES) == set(UI_SETTINGS)
     for entity_type, entity in MODELCONF.items():
         built = UI_SETTINGS[entity_type.lower()]
         cards = {**built["main"], **built["side_bar"]}
@@ -333,15 +336,6 @@ def test_instance_derived_config():
     assert build_ext_ids(EXT_ID_PREFIXES) == EXT_IDS
     assert EXT_IDS["mex:doi"]["prefixes"][0].startswith("https://")
     assert FIELDS_LINKED_BACKWARDS["resource"] == ["mex:isPartOf", "mex:usedIn"]
-
-
-def test_entities_excludes_non_entity_types():
-    """The vocabulary descriptors are not entity types and must not be listed."""
-    assert "concept" not in ENTITIES
-    assert "concept-scheme" not in ENTITIES
-    assert "consent" not in ENTITIES
-    assert "primary-source" not in ENTITIES
-    assert {"resource", "activity", "bibliographic-resource"} <= set(ENTITIES)
 
 
 def test_every_rendered_property_has_a_custom_field():

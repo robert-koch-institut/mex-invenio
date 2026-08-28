@@ -18,7 +18,6 @@ from invenio_i18n import lazy_gettext as _
 from invenio_oauthclient.views.client import auto_redirect_login
 from invenio_rdm_records.config import RDM_FACETS, RDM_SEARCH
 from invenio_vocabularies.services.facets import VocabularyLabels
-from mex.model import ENTITY_JSON_BY_NAME
 
 # Local imports
 from mex_invenio.config.ui_settings import (
@@ -36,11 +35,16 @@ from mex_invenio.custom_fields.custom_fields import (
     RDM_CUSTOM_FIELDS_UI,
     RDM_NAMESPACES,
 )
-from mex_invenio.custom_fields.field_types import (
-    UNPUBLISHED_ENTITIES,
-    get_field_types,
-)
+from mex_invenio.custom_fields.field_types import get_field_types
 from mex_invenio.custom_fields.pref_labels import get_pref_labels
+
+# Re-exported so CORE_ENTITY_TYPES lands in the Invenio config, where record.py
+# and services/search.py read it via current_app.config. See entities.py for how
+# these are derived from mex-model.
+from mex_invenio.entities import (
+    CORE_ENTITY_TYPES,
+    FACET_EXCLUDED_RESOURCE_TYPES,
+)
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
@@ -306,18 +310,8 @@ RDM_FACETS = {
             # Field to filter on
             label=_("Resource types"),
             value_labels=VocabularyLabels("resourcetypes"),
-            # Vocabulary ids from app_data/vocabularies/resource_types.yaml, minus
-            # the ones that get a landing page of their own. Hand-kept: this is the
-            # vocabulary, not the MEx entity list.
-            excluded_values=[
-                "accessplatform",
-                "contactpoint",
-                "distribution",
-                "organization",
-                "organizationalunit",
-                "person",
-                "variablegroup",
-            ],
+            # Hide the types with no search page to send the user to.
+            excluded_values=FACET_EXCLUDED_RESOURCE_TYPES,
         ),
         "ui": {"field": "resource_type.id"},
     },
@@ -415,9 +409,6 @@ UI_SETTINGS = build_ui_settings(
     MODELCONF, entity_labels=ENTITY_LABELS, categories=CATEGORY_RULES
 )
 
-# The record types that get a landing page of their own.
-CORE_ENTITY_TYPES = list(UI_SETTINGS)
-
 APP_RDM_DETAIL_SIDE_BAR_TEMPLATES = [
     "invenio_app_rdm/records/details/side_bar/metrics.html",
     "invenio_app_rdm/records/details/side_bar/versions.html",
@@ -449,16 +440,6 @@ EXPORTERS_PER_RECORD_TYPE = {
     },
     "activity": {"json": APP_RDM_RECORD_EXPORTERS["json"]},
 }
-
-# Entity types of the MEx model, minus the ones never published to Invenio (see
-# custom_fields.field_types.UNPUBLISHED_ENTITIES). Derived rather than listed so it
-# cannot drift from mex-model, and so that vocabulary descriptors such as "concept"
-# and "concept-scheme" -- which are not entity types -- cannot creep back in.
-ENTITIES = sorted(
-    name.replace("_", "-")
-    for name in ENTITY_JSON_BY_NAME
-    if name not in UNPUBLISHED_ENTITIES
-)
 
 TITLE_FIELDS = [
     "mex:prefLabel",

@@ -10,12 +10,11 @@ This document describes the configuration constants used for defining entity dis
 |`ENTITY_LABELS`                     |	dict[str, str]  |	Entity type → msgid for the record-type tag shown on the landing page.
 |`CATEGORY_RULES`                    |	dict[str, CategoryRule] |	Category id → how it renders (column, template, container components, backwards links). Only categories that need something other than a plain main-column card are listed.
 |`UI_SETTINGS`                       |	dict            |	**Generated** from `MODELCONF` + `ENTITY_LABELS` + `CATEGORY_RULES` by `build_ui_settings()`. This is what the landing-page templates read. Do not edit it directly.
-|`CORE_ENTITY_TYPES`                 |	list[str]       |	The record types that get a landing page of their own, derived from `UI_SETTINGS`.
+|`CORE_ENTITY_TYPES`                 |	list[str]       |	The record types that get a landing page of their own. Defined in `entities.py` and re-exported here; `tests/test_ui_settings.py` pins it to the entity types `modelconf.json` declares.
 |`EXT_ID_PREFIXES`                   |	dict[str, list[str]] |	Property name → URL prefixes stripped when an external identifier is displayed. Expands into `EXT_IDS`.
 |`ACCESS_COLOR_MAP`                  |	dict[str, str]  |	`mex:accessRestriction` vocabulary value → background colour of the access tag on the landing page.
 |`APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` |	list[str]       |	Lists custom templates for invenio standard side bar cards. Only the standard Invenio side bar cards are included. Templates are placed in `/templates/semantic-ui/invenio_app_rdm/records/details/side_bar`
 |`APP_RDM_RECORD_EXPORTERS`          |	dict[str, dict] |	Configures available data export formats (e.g. JSON, CSV), including serializer, filename pattern, and MIME type.
-|`ENTITIES`                          |	list[str]       |	Entity types of the MEx model, derived from `mex.model.ENTITY_JSON_BY_NAME` minus `UNPUBLISHED_ENTITIES`. Note `concept` / `concept-scheme` are vocabulary descriptors, not entity types, and are absent by construction.
 |`TITLE_FIELDS`                      |	list[str]       |	Ordered list of field names used to derive a display title for a record (checked in sequence).
 |`DISCLAIMER`                        |	str             |	Generic disclaimer text displayed below metadata, stating that information is provided as-is.
 

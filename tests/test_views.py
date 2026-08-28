@@ -98,3 +98,6 @@ def test_mex_record_view_as_html(
 
     html = response.get_data(as_text=True)
     assert "#cde0c1" in html, "Access-restriction tag should carry its colour"
+    assert "529 - 5001" in html, (
+        "minTypicalAge and maxTypicalAge should fold into one 'Typical age' row"
+    )

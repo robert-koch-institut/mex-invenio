@@ -237,6 +237,7 @@
                 "properties": [
                     "hasLegalBasis",
                     "hasPurpose",
+                    "provenance",
                     "hasPersonalData",
                     "source"
                 ],

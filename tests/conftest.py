@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import sys
+import warnings
 from contextlib import suppress
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -33,7 +34,6 @@ from mex_invenio.config import (
     ACCESS_COLOR_MAP,
     CORE_ENTITY_TYPES,
     DISCLAIMER,
-    ENTITIES,
     EXT_IDS,
     FIELD_TYPES,
     FIELDS_LINKED_BACKWARDS,
@@ -148,6 +148,28 @@ def db_session_transaction_restart(db):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
 
 
+def _find_static_folder(repo_root: Path) -> str:
+    """Locate the webpack bundle, which ``make install`` puts in either of two places.
+
+    Locally ``invenio webpack buildall`` runs without INVENIO_INSTANCE_PATH set and
+    builds into the virtualenv; in CI the job exports INVENIO_INSTANCE_PATH, so it
+    builds into the repo root instead. Anything rendering a page needs the manifest,
+    so probe for it rather than assuming one layout.
+    """
+    candidates = [repo_root / "static", Path(sys.prefix) / "var/instance/static"]
+    for candidate in candidates:
+        if (candidate / "dist/manifest.json").is_file():
+            return str(candidate)
+    warnings.warn(
+        "No webpack manifest found in "
+        + " or ".join(str(c / "dist/manifest.json") for c in candidates)
+        + "; run `make install`. Tests that render a page will fail inside Jinja "
+        "rather than reporting the missing bundle.",
+        stacklevel=2,
+    )
+    return str(candidates[-1])
+
+
 @pytest.fixture(scope="module")
 def instance_path():
     """Use the repo root as the instance path, overriding pytest-invenio's default.
@@ -159,12 +181,12 @@ def instance_path():
     ``INVENIO_INSTANCE_PATH: ${{ github.workspace }}`` in .github/workflows/testing.yml
     intends; pytest-invenio only reads that value under the name ``INSTANCE_PATH``.
     """
-    path = str(Path(__file__).parent.parent)
+    path = Path(__file__).parent.parent
     os.environ.update(
-        INVENIO_INSTANCE_PATH=path,
-        INVENIO_STATIC_FOLDER=os.path.join(sys.prefix, "var/instance/static"),
+        INVENIO_INSTANCE_PATH=str(path),
+        INVENIO_STATIC_FOLDER=_find_static_folder(path),
     )
-    yield path
+    yield str(path)
     os.environ.pop("INVENIO_INSTANCE_PATH", None)
 
 
@@ -216,7 +238,6 @@ def app_config(app_config, module_tmp_path):
     app_config["ACCESS_COLOR_MAP"] = ACCESS_COLOR_MAP
     app_config["UI_SETTINGS"] = UI_SETTINGS
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
-    app_config["ENTITIES"] = ENTITIES
     app_config["DISCLAIMER"] = DISCLAIMER
     app_config["FIELDS_LINKED_BACKWARDS"] = FIELDS_LINKED_BACKWARDS
     app_config["EXT_IDS"] = EXT_IDS
