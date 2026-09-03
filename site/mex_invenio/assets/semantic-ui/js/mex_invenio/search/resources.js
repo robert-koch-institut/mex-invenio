@@ -17,7 +17,6 @@ edges.instances.resources.init = function() {
 
     edges.active["resources"] = mex.makeEdge({
         resourceType: "resources",
-        includeVerticalTab: true,
         openingQuery: openingQuery,
         components: [
             mex.fullSearchController({

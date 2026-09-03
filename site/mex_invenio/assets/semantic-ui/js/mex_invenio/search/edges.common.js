@@ -626,6 +626,7 @@ mex.recordSelector = function (params) {
     category: params.category || "right",
     renderer: new mex.renderers.SelectedRecords({
       title: i18n.t("Datasets for Variables Search"),
+      includeVerticalTab: true,
     }),
   });
 };
@@ -671,7 +672,6 @@ mex.makeEdge = function (params) {
         params.resourceType;
     let template =
         params.template || new mex.templates.MainSearchTemplate({
-            includeVerticalTab: params.includeVerticalTab || false,
         });
     let callbacks = params.callbacks || {};
 
@@ -1079,8 +1079,6 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
     constructor(params) {
         super(params);
 
-        this.includeVerticalTab = edges.util.getParam(params, "includeVerticalTab", false);
-
         this.namespace = "mex-main-search-template";
     }
 
@@ -1173,16 +1171,6 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
             }
         }
 
-        let verticalTabFrag = "";
-        if (this.includeVerticalTab) {
-            let verticalTabClass = edges.util.jsClasses(
-                this.namespace,
-                "verticalTab",
-                ""
-            );
-            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}"></button>`;
-        }
-
         let facetSidebar = "";
         if (facets.length > 0) {
             facetSidebar = `<div class="three wide column pl-0" style="margin-right: 2rem;">${facetContainers}</div>`;
@@ -1213,17 +1201,9 @@ mex.templates.MainSearchTemplate = class extends edges.Template {
                 <div id="right-col" class="five wide column" style="${rightContainerStyle} padding-right:0">
                     ${rightContainers}
                 </div>
-                ${verticalTabFrag}
             </div>
         `;
         edge.context.html(frag);
-
-        let verticalTabSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "verticalTab",
-            ""
-        );
-        edges.on(verticalTabSelector, "click", this, "showTabContent");
     }
 
     showTabContent() {
@@ -1849,6 +1829,7 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
     constructor(params) {
         super(params);
         this.title = edges.util.getParam(params, "title", "Selected Resources");
+        this.includeVerticalTab = edges.util.getParam(params, "includeVerticalTab", false);
         this.showIfEmpty = edges.util.getParam(params, "showIfEmpty", false);
         this.namespace = "select-records";
 
@@ -1959,7 +1940,8 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         let title = `go to the variables search page to list the variables of ${this.component.length} resources`;
 
-        let frag = `
+        let frag = this.includeVerticalTab ? `<div class="selected-variables-wrapper" style="position: relative">` : ``
+        frag += `
             <div class="card card-shadow">
                 <div id="control-section">
                     <button class="img-button">
@@ -1987,15 +1969,23 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
         }
         frag += `</div>`
 
-        let verticalBar = document.getElementById("vertical-tab");
-        if (verticalBar) {
-            const length = this.component.length;
-            verticalBar.innerHTML = `<span> ${i18n.t(
-                "Variables Filter"
-            )} ${length > 0 ? `(${length})` : ""} </span>`;
+        const length = this.component.length;
+        let verticalTabClass = edges.util.jsClasses(
+            this.namespace,
+            "verticalTab",
+            ""
+        );
+        let verticalTabFrag = "";
+        if (this.includeVerticalTab) {
+            verticalTabFrag = `<button id="vertical-tab" class="vertical-tab ${verticalTabClass}">
+                                <span> ${i18n.t("Variables Filter")} ${length > 0 ? `(${length})` : ""} </span>
+                                </button></div>`;
+            frag += `${verticalTabFrag}`
         }
 
         this.component.context.html(frag);
+
+        edges.on(verticalTabClass, "click", this, "showTabContent");
 
         let selectSelector = edges.util.jsClassSelector(
             this.namespace,

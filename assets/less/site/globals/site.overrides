@@ -888,21 +888,19 @@ aside {
         align-items: center;
         gap: 0.31rem;
         align-self: stretch;
-        background: @rki-dark-blue;
-        color: @whiteTextColor;
-        font-family: "FiraSans";
+        color: @rki-dark-blue;
+        background: @whiteTextColor;
+        font-family: FiraSans, sans-serif;;
         font-size: 1.12rem;
         font-style: normal;
         font-weight: 400;
         line-height: 1.5rem;
         cursor: pointer;
-
         &:focus,
         &:hover {
             color: @rki-dark-blue;
             background-color: @whiteTextColor;
-            text-decoration: none;
-            border: 1px solid @rki-dark-blue;
+            text-decoration: underline;
         }
     }
 
