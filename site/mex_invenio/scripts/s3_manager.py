@@ -25,6 +25,7 @@ import os
 import re
 import shutil
 import sys
+from datetime import datetime, timezone
 
 import boto3
 import click
@@ -34,11 +35,13 @@ from flask import current_app
 from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.utils import (
+    _read_state,
     get_installed_model_version,
     get_subdir_by_order,
     get_timestamp,
     read_json_file,
     setup_file_logging,
+    write_json_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -167,6 +170,49 @@ def _download_items_file(
     return True
 
 
+def _write_public_status(had_download_errors: bool) -> None:
+    """Write a small nginx-servable summary of this run's outcome.
+
+    Combines the download outcome (this run) with the last recorded import
+    outcome (from import_data.py's own .import_state file, which may be
+    older than this run if there was nothing new to import today). Written
+    atomically since nginx serves this file directly from the shared volume
+    it's mounted on (see helm-invenio's import-job.yaml / web-deployment.yaml).
+    Does nothing if INVENIO_IMPORT_STATUS_DIR isn't configured (e.g. local dev).
+    """
+    status_dir = current_app.config.get("IMPORT_STATUS_DIR")
+    if not status_dir:
+        return
+
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    import_state = _read_state(os.path.join(s3_download_folder, ".import_state")) or {}
+    import_status = import_state.get("status")
+
+    if had_download_errors or import_status in ("failed", "in_progress"):
+        overall_status = "failed"
+    else:
+        overall_status = "success"
+
+    payload = {
+        "last_run_at": datetime.now(timezone.utc).isoformat(),
+        "status": overall_status,
+        "download": {"status": "failed" if had_download_errors else "success"},
+        "import": {
+            "status": import_status,
+            "started_at": import_state.get("started_at"),
+            "finished_at": import_state.get("finished_at"),
+        },
+    }
+
+    try:
+        os.makedirs(status_dir, exist_ok=True)
+        tmp_path = os.path.join(status_dir, ".import-status.json.tmp")
+        write_json_file(tmp_path, payload)
+        os.replace(tmp_path, os.path.join(status_dir, "import-status.json"))
+    except OSError as e:
+        logger.error(f"Failed to write public status file: {e}")
+
+
 @click.command("manage_s3_files")
 def manage_s3_files():
     """Main function to download the latest file from S3, compare, and manage local storage."""
@@ -189,9 +235,11 @@ def manage_s3_files():
         s3_client, user_email, s3_bucket = get_s3_client_and_config()
     except ValueError:
         # Config mis-configured
+        _write_public_status(had_download_errors=True)
         return
     except Exception as e:
         logger.error(f"Failed to initialise S3 client: {e}")
+        _write_public_status(had_download_errors=True)
         sys.exit(1)
 
     try:
@@ -199,10 +247,12 @@ def manage_s3_files():
     except Exception as e:
         # Possible network issue, try again
         logger.error(f"Failed to list S3 bucket contents: {e}")
+        _write_public_status(had_download_errors=True)
         sys.exit(1)
 
     if "Contents" not in response:
         logger.info("No files found in the bucket.")
+        _write_public_status(had_download_errors=False)
         return
 
     download_path = os.path.join(s3_download_folder, "downloaded")
@@ -213,6 +263,7 @@ def manage_s3_files():
 
     if not metadata_files:
         logger.info("No metadata files found in the bucket.")
+        _write_public_status(had_download_errors=False)
         return
 
     installed_model_version = get_installed_model_version()
@@ -332,6 +383,8 @@ def manage_s3_files():
             logger.error("Failed to import pending diffs.")
 
     logger.info("S3 sync complete.")
+
+    _write_public_status(had_download_errors)
 
     if had_download_errors:
         sys.exit(1)

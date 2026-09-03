@@ -259,6 +259,13 @@ USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 
 S3_DOWNLOAD_FOLDER = os.environ.get("INVENIO_S3_DOWNLOAD_FOLDER", "s3_downloads")
 
+IMPORT_STATUS_DIR = os.environ.get("INVENIO_IMPORT_STATUS_DIR")
+"""Directory to write import-status.json to, for nginx to serve directly.
+
+Unset by default (status reporting off) - set only on the import-job's
+container in production (see helm-invenio's import-job.yaml).
+"""
+
 COMMUNITIES_GROUPS_ENABLED = False
 
 # The value for the Datacite creator property in imported records
