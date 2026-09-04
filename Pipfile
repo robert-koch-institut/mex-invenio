@@ -36,11 +36,11 @@ passlib = "==1.7.4"
 flask-admin = "==1.6.1"
 flask-security-invenio = "==3.8.3"
 limits = "==4.2"
-urllib3 = "==1.26.20"
+urllib3 = "~=2.6.3"
 boto3 = "*"
 dotenv = "*"
 # mex-model version has implications for rendering so breaking changes should be considered carefully
-mex-model = "==4.10.0"
+mex-model = "==5.0.3"
 polib = "*"
 
 [requires]
