@@ -51,8 +51,8 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
     search_cls = RecordsSearchV2
     query_parser_cls = QueryParser
     suggest_parser_cls = None
-    sort_options = {}
-    facets = {}
+    sort_options = {}  # type: ignore[var-annotated]
+    facets = {}  # type: ignore[var-annotated]
     params_interpreters_cls = [
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
@@ -99,7 +99,7 @@ FREE_TEXT_SEARCH_FIELDS = [
 class MexDumper(SearchDumper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._record_cache = {}
+        self._record_cache = {}  # type: ignore[var-annotated]
 
     def dump(self, record, data):
         dump_data = super().dump(record, data)

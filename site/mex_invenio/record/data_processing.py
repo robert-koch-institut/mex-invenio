@@ -31,7 +31,7 @@ def normalised_value(
 
 
 def group_values(normalised_values: list) -> list[NormalisedValue]:
-    grouped = {}
+    grouped: dict[str, dict[str, Any]] = {}
     for v in normalised_values:
         url = v["url"]
         if url not in grouped:
@@ -54,7 +54,7 @@ def group_values(normalised_values: list) -> list[NormalisedValue]:
 
 
 def normalise_record_data(record: dict) -> dict:
-    data = {}
+    data: dict[str, Any] = {}
     data["backwards_linked"] = {}
     custom_fields = record["custom_fields"]
     record_type = record["metadata"]["resource_type"]["id"]
@@ -103,7 +103,7 @@ def _normalise_value(field_name: str, field_raw_value: Any, resource_type: str) 
     print(f"{values=}")
 
     # Determine field type
-    field_types = current_app.config.get("FIELD_TYPES").get(resource_type, {})
+    field_types = current_app.config.get("FIELD_TYPES").get(resource_type, {})  # type: ignore[union-attr]
     ftype = field_types.get(field_name)
 
     if field_name == "mex:minTypicalAge":
@@ -238,7 +238,7 @@ def _normalise_extid(values: list, field_name: str) -> list[NormalisedValue]:
             displayed = val
             if val.startswith("http"):
                 for prefix in (
-                    current_app.config.get("EXT_IDS").get(field_name).get("prefixes")
+                    current_app.config.get("EXT_IDS").get(field_name).get("prefixes")  # type: ignore[union-attr]
                 ):
                     if val.startswith(prefix):
                         displayed = val.replace(prefix, "")
@@ -255,7 +255,7 @@ def _normalise_label(values: list) -> list[NormalisedValue]:
     normalised = []
     for v in values:
         if current_app.config.get("PREF_LABELS"):
-            label_map = current_app.config.get("PREF_LABELS").get(v, default)
+            label_map = current_app.config.get("PREF_LABELS").get(v, default)  # type: ignore[union-attr]
             for lang, text in label_map.items():
                 normalised.append(normalised_value(display_value=text, language=lang))
         else:
