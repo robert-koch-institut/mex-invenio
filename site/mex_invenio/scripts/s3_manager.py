@@ -34,8 +34,10 @@ from flask import current_app
 
 from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
+from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
     _read_state,
+    _write_state,
     get_installed_model_version,
     get_subdir_by_order,
     get_timestamp,
@@ -148,7 +150,8 @@ def _download_items_file(
 ):
     """Move the downloaded metadata out of tmp and fetch the matching items.ndjson.
 
-    Returns True on success. On failure the permanent download dir is cleaned up.
+    Returns the final dump directory path on success, or None on failure (in
+    which case the permanent download dir is cleaned up).
     """
     perm_download_path = os.path.join(download_path, model_version, dump_folder)
     os.makedirs(os.path.dirname(perm_download_path), exist_ok=True)
@@ -161,12 +164,86 @@ def _download_items_file(
     except Exception as e:
         logger.error(f"Failed to download file {new_items_file}: {e}")
         shutil.rmtree(perm_download_path)
-        return False
+        return None
 
     perm_download_folder_name = os.path.join(
         download_path, model_version, dump_folder.removeprefix("draft-")
     )
     os.rename(perm_download_path, perm_download_folder_name)
+    return perm_download_folder_name
+
+
+def _bootstrap_initial_import(
+    s3_client,
+    s3_bucket,
+    metadata_file,
+    download_path,
+    processed_path,
+    s3_download_folder,
+    model_version,
+    dump_folder,
+    tmp_dump_path,
+    user_email,
+) -> bool:
+    """First-ever import for a model version: no processed baseline exists yet.
+
+    generate_diff() can never produce a baseline on its own (it requires one
+    to already exist), so a vanilla environment would otherwise loop forever
+    on "No processed dump found" without this. Downloads the full dump and
+    imports it directly via initial_import.py (no per-record lookups needed -
+    nothing can already exist), then seeds processed/ with this same dump so
+    tomorrow's run has a baseline to diff against and the normal nightly flow
+    takes over from here on.
+
+    Not safely retriable mid-way: if the process dies between initial_import
+    succeeding and the processed/ move below, the next run would attempt this
+    again against the same (already-imported) file, creating duplicate
+    records - initial_import.py does no identifier lookups by design. The
+    window between those two steps is minimal (local state write + move).
+    """
+    downloaded_dir = _download_items_file(
+        s3_client,
+        s3_bucket,
+        metadata_file,
+        download_path,
+        model_version,
+        dump_folder,
+        tmp_dump_path,
+    )
+    if not downloaded_dir:
+        return False
+
+    items_file = os.path.join(downloaded_dir, "items.ndjson")
+    state_file = os.path.join(s3_download_folder, ".import_state")
+    started_at = datetime.now(timezone.utc).isoformat()
+    _write_state(state_file, "in_progress", started_at=started_at)
+
+    try:
+        success = initial_import(user_email, items_file)
+    except Exception:
+        logger.exception(f"Initial import failed for {items_file}.")
+        success = False
+
+    finished_at = datetime.now(timezone.utc).isoformat()
+    if not success:
+        _write_state(
+            state_file, "failed", started_at=started_at, finished_at=finished_at
+        )
+        logger.error(
+            f"Initial import failed for {items_file}; leaving it in downloaded/ "
+            "for the next run to retry."
+        )
+        return False
+
+    _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
+
+    rel = os.path.relpath(downloaded_dir, download_path)
+    destination = os.path.join(processed_path, rel)
+    os.makedirs(os.path.dirname(destination), exist_ok=True)
+    shutil.move(downloaded_dir, destination)
+    logger.info(
+        f"Initial import succeeded; seeded processed baseline at {destination}."
+    )
     return True
 
 
@@ -328,10 +405,23 @@ def manage_s3_files():
         ) or get_subdir_by_order(processed_path)
 
         if not last_processed_path:
-            logger.warning(
-                "No processed dump found; cannot determine if new data is available."
+            logger.info(
+                "No processed dump found anywhere - treating this as a "
+                "first-time bootstrap for a vanilla environment."
             )
-            shutil.rmtree(tmp_dump_path)
+            if not _bootstrap_initial_import(
+                s3_client,
+                s3_bucket,
+                metadata_file,
+                download_path,
+                processed_path,
+                s3_download_folder,
+                new_model_version,
+                dump_folder,
+                tmp_dump_path,
+                user_email,
+            ):
+                had_download_errors = True
             continue
 
         most_recent_metadata_file = os.path.join(last_processed_path, "metadata.json")
