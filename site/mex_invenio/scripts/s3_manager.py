@@ -139,6 +139,52 @@ def get_model_metadata_files(contents):
     return matches
 
 
+def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bool:
+    """Mirror the bucket's 'downloadable files-<model_version>/' prefix onto disk.
+
+    Downloads every file under that prefix (CSVs and their per-file
+    metadata_*.json) into a tmp directory, then atomically swaps it into
+    place so nginx and the /downloads page never see a half-written set.
+    Does nothing if DOWNLOADABLE_FILES_DIR isn't configured (e.g. local dev).
+    """
+    downloadable_files_dir = current_app.config.get("DOWNLOADABLE_FILES_DIR")
+    if not downloadable_files_dir:
+        return True
+
+    prefix = f"downloadable files-{model_version}/"
+    entries = [e for e in contents if e["Key"].startswith(prefix)]
+
+    if not entries:
+        logger.info(f"No downloadable files found for model version {model_version}.")
+        return True
+
+    tmp_dir = f"{downloadable_files_dir}.tmp-{get_timestamp()}"
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    try:
+        for entry in entries:
+            filename = entry["Key"].removeprefix(prefix)
+            if not filename or filename.endswith("/"):
+                continue
+            s3_client.download_file(
+                s3_bucket, entry["Key"], os.path.join(tmp_dir, filename)
+            )
+    except Exception as e:
+        logger.error(f"Failed to sync downloadable files: {e}")
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        return False
+
+    old_dir = f"{downloadable_files_dir}.old-{get_timestamp()}"
+    if os.path.isdir(downloadable_files_dir):
+        os.rename(downloadable_files_dir, old_dir)
+    os.rename(tmp_dir, downloadable_files_dir)
+    if os.path.isdir(old_dir):
+        shutil.rmtree(old_dir, ignore_errors=True)
+
+    logger.info(f"Synced {len(entries)} downloadable file(s) to {downloadable_files_dir}.")
+    return True
+
+
 def _download_items_file(
     s3_client,
     s3_bucket,
@@ -335,16 +381,21 @@ def manage_s3_files():
     download_path = os.path.join(s3_download_folder, "downloaded")
     processed_path = os.path.join(s3_download_folder, "processed")
 
+    installed_model_version = get_installed_model_version()
+    had_download_errors = False
+
+    if not sync_downloadable_files(
+        s3_client, s3_bucket, response["Contents"], installed_model_version
+    ):
+        had_download_errors = True
+
     # Get every model-version dump available in the bucket
     metadata_files = get_model_metadata_files(response["Contents"])
 
     if not metadata_files:
         logger.info("No metadata files found in the bucket.")
-        _write_public_status(had_download_errors=False)
+        _write_public_status(had_download_errors=had_download_errors)
         return
-
-    installed_model_version = get_installed_model_version()
-    had_download_errors = False
 
     for metadata_file in metadata_files:
         # Create tmp draft downloaded location for dump

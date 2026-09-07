@@ -1,0 +1,33 @@
+{%- extends config.BASE_TEMPLATE %}
+
+{% block page_body %}
+<div class="ui container">
+    <h1>{{ _("downloadableFilesTitle") }}</h1>
+    <p>
+        {{ _("downloadableFilesDescription") }}
+    </p>
+
+    {% if downloadable_files %}
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>{{ _("downloadableFilesFileColumn") }}</th>
+                <th>{{ _("downloadableFilesGeneratedColumn") }}</th>
+                <th>{{ _("downloadableFilesSizeColumn") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in downloadable_files %}
+            <tr>
+                <td><a href="{{ f.url }}">{{ f.filename }}</a></td>
+                <td>{% if f.generated_at %}{{ f.generated_at[:19]|replace("T", " ") }}{% endif %}</td>
+                <td>{{ f.size|filesizeformat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>{{ _("downloadableFilesEmpty") }}</p>
+    {% endif %}
+</div>
+{% endblock %}
