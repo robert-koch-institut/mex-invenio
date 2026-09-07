@@ -672,3 +672,27 @@ msgstr "Was bewirkt das?"
 
 msgid "missingValuesHelp"
 msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Keine Daten“ dargestellt."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:5
+msgid "downloadableFilesTitle"
+msgstr "Downloads"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:7
+msgid "downloadableFilesDescription"
+msgstr "CSV-Exporte aus dem MEx-Metadatenkatalog, die jede Nacht automatisch aktualisiert werden."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:14
+msgid "downloadableFilesFileColumn"
+msgstr "Datei"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:15
+msgid "downloadableFilesGeneratedColumn"
+msgstr "Erstellt"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:16
+msgid "downloadableFilesSizeColumn"
+msgstr "Größe"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:30
+msgid "downloadableFilesEmpty"
+msgstr "Derzeit sind keine Dateien zum Download verfügbar."

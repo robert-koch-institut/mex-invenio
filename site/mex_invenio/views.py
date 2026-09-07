@@ -14,6 +14,8 @@ from flask import (
     url_for,
 )
 from invenio_access.permissions import system_identity
+from invenio_i18n import force_locale
+from invenio_i18n.proxies import current_i18n
 from invenio_pidstore.errors import (
     PIDDoesNotExistError,
     PIDUnregistered,
@@ -21,6 +23,7 @@ from invenio_pidstore.errors import (
 from invenio_rdm_records.proxies import current_rdm_records_service
 
 from mex_invenio.record.record import MexRecord
+from mex_invenio.scripts.downloadable_files import list_downloadable_files
 from mex_invenio.services.search import MexSearchOptions
 
 
@@ -98,7 +101,31 @@ def create_blueprint(app):
 
     blueprint.add_url_rule("/query/api/<resource_type>", view_func=os_query_api)
 
+    blueprint.add_url_rule("/downloads", view_func=downloads_redirect)
+    blueprint.add_url_rule("/downloads/en", view_func=downloads_en)
+    blueprint.add_url_rule("/downloads/de", view_func=downloads_de)
+
     return blueprint
+
+
+def downloads_redirect():
+    endpoint = ".downloads_de" if current_i18n.language == "de" else ".downloads_en"
+    return redirect(url_for(endpoint))
+
+
+def _render_downloads(locale):
+    with force_locale(locale):
+        return render_template(
+            "mex_invenio/downloads.html", downloadable_files=list_downloadable_files()
+        )
+
+
+def downloads_en():
+    return _render_downloads("en")
+
+
+def downloads_de():
+    return _render_downloads("de")
 
 
 def search_activities():

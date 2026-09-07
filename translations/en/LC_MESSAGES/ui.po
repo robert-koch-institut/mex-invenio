@@ -575,3 +575,27 @@ msgstr "What does it mean?"
 
 msgid "missingValuesHelp"
 msgstr "Shows empty fields and displays “no data” when no value exists, helping distinguish missing data from unavailable fields."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:5
+msgid "downloadableFilesTitle"
+msgstr "Downloadable Files"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:7
+msgid "downloadableFilesDescription"
+msgstr "CSV exports generated from the MEx Metadata Catalogue, updated automatically each night."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:14
+msgid "downloadableFilesFileColumn"
+msgstr "File"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:15
+msgid "downloadableFilesGeneratedColumn"
+msgstr "Generated"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:16
+msgid "downloadableFilesSizeColumn"
+msgstr "Size"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:30
+msgid "downloadableFilesEmpty"
+msgstr "No downloadable files are currently available."
