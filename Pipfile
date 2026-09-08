@@ -40,7 +40,7 @@ mex-model = "==5.0.3"
 polib = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
 
 [pipenv]
 allow_prereleases = false
