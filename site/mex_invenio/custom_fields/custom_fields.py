@@ -152,6 +152,11 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:wikidataId", multiple=True),
 ]
 
+# O(1) lookup by field name, built once at import time, instead of a linear
+# scan of RDM_CUSTOM_FIELDS on every call (see MexDumper._records_by_custom_field,
+# which does this once per "resource"-type record during a reindex).
+RDM_CUSTOM_FIELDS_BY_NAME = {field.name: field for field in RDM_CUSTOM_FIELDS}
+
 RDM_CUSTOM_FIELDS_UI = [
     {
         "fields": [
