@@ -26,25 +26,21 @@ types-python-dateutil = "*"
 types-setuptools = "*"
 
 [packages]
-invenio-app-rdm = {extras = ["opensearch2"], version = "~=12.0.0"}
+invenio-app-rdm = {extras = ["opensearch2"], version = "~=13.1.0"}
 mex-invenio = {editable = true, path="./site"}
 uwsgi = ">=2.0"
 uwsgitop = ">=0.11"
 uwsgi-tools = ">=1.1.1"
 setuptools = "<82"
-passlib = "==1.7.4"
-flask-admin = "==1.6.1"
-flask-security-invenio = "==3.8.3"
-limits = "==4.2"
-urllib3 = "~=2.6.3"
 boto3 = "*"
 dotenv = "*"
+flask-caching = "<2.4.0" # can be removed when upgraded to 14
 # mex-model version has implications for rendering so breaking changes should be considered carefully
 mex-model = "==5.0.3"
 polib = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
 
 [pipenv]
 allow_prereleases = false
