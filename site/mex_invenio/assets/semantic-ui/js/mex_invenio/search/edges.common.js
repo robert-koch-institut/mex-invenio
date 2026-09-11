@@ -4320,7 +4320,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function keywordTags(keywords) {
             function tags() {
-                frag = "";
+                let frag = "";
                 for (let key of keywords) {
                     frag += `<span class="tag">${key}</span>`;
                 }
