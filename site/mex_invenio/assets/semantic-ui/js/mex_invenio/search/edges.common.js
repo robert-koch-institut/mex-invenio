@@ -5608,7 +5608,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let label = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
+            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
         if (myHighlights[mex.constants.LABEL]) {
             label = myHighlights[mex.constants.LABEL]
