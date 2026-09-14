@@ -1,11 +1,13 @@
 .ui.form {
-    display: grid;
-    gap: .25rem;
-    margin-top: 2rem;
-    grid-template-columns: max-content 1fr max-content;
-    &:has(select) {
-        grid-template-columns: max-content 1fr max-content max-content;
+    .search-box-container {
+        display: grid;
+        gap: .25rem;
+        grid-template-columns: 1fr max-content;
+        &:has(select) {
+            grid-template-columns: 1fr max-content max-content;
+        }
     }
+    margin-top: 2rem;
     &--compact {
         margin-top: 1.625rem;
         @media (max-width: 991px) {
@@ -29,6 +31,10 @@
         }
 
     }
+    input, select {
+        background: @white;
+        border: 1px solid @rki-blue-80 !important;
+    }
     &:last-child {
         margin-bottom: 1rem;
     }
@@ -37,13 +43,15 @@
         margin: 0 .5rem 0 0;
         padding: 0;
         font-size: 1.1rem;
-        font-weight: bold;
+        font-weight: normal;
+        line-height: 2rem;
         display: flex;
         align-content: center;
         flex-wrap: wrap;
     }
     button.search-button {
         margin-right: 0;
+        height: 100% !important;
     }
 
 }

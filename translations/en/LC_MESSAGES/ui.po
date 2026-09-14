@@ -541,7 +541,7 @@ msgid "belongsTo"
 msgstr "Belongs to"
 
 msgid "noValueProvided"
-msgstr "No data"
+msgstr "Not provided"
 
 msgid "showMissingValues"
 msgstr "Show missing values"
@@ -575,3 +575,6 @@ msgstr "What does it mean?"
 
 msgid "missingValuesHelp"
 msgstr "Shows empty fields and displays “no data” when no value exists, helping distinguish missing data from unavailable fields."
+
+msgid "and_x_more"
+msgstr "and {{count}} more"
