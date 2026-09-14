@@ -1024,6 +1024,9 @@ aside {
     color: @whiteTextColor;
     padding: 0.5rem 2rem;
     font-size: 0.8rem;
+    .sub-footer {
+        background-color: @rki-dark-blue;
+    }
 }
 
 .email-container {

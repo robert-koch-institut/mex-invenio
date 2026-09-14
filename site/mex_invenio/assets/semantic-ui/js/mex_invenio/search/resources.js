@@ -17,6 +17,7 @@ edges.instances.resources.init = function() {
 
     edges.active["resources"] = mex.makeEdge({
         resourceType: "resources",
+        includeVerticalTab: true,
         openingQuery: openingQuery,
         components: [
             mex.fullSearchController({
@@ -66,4 +67,6 @@ edges.instances.resources.init = function() {
 
 $(document).ready(function($) {
     edges.instances.resources.init();
+    const searchbarSectionHeight = $(".mex-main-search-template_full").parent().outerHeight();
+    $("#vertical-tab").css("top", `calc(${searchbarSectionHeight}px + 1rem)`);
 });
