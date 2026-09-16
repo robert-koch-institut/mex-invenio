@@ -2001,12 +2001,6 @@ mex.renderers.SelectedRecords = class extends edges.Renderer {
 
         this.component.context.html(frag);
 
-        this.verticalTabSelector = edges.util.jsClassSelector(
-            this.namespace,
-            "verticalTab",
-            ""
-        );
-
         let selectSelector = edges.util.jsClassSelector(
             this.namespace,
             "select",
