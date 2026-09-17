@@ -32,7 +32,7 @@
 @black: #000000;
 
 
-@primaryColor: @rki-dark-blue;
+@primaryColor: @rki-blue;
 @secondaryColor: @rki-blue;
 @highlightColor: @rki-blue-40;
 @navbarBackgroundImage: none;
@@ -69,7 +69,7 @@
 
 @neutralLabelColor: @rki-blue-40;
 @signupColor: @green-80;
-@darkLinkColor: @primaryColor;
+@darkLinkColor: @rki-dark-blue;
 @lightLinkColor:@white;
 
 @whiteTextColor: @white;
