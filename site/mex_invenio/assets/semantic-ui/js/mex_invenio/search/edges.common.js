@@ -4326,7 +4326,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function keywordTags(keywords) {
             function tags() {
-                frag = "";
+                let frag = "";
                 for (let key of keywords) {
                     frag += `<span class="tag keyword">${key}</span>`;
                 }
@@ -5648,7 +5648,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
         }
 
         let label = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
+            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
         );
         if (myHighlights[mex.constants.LABEL]) {
             label = myHighlights[mex.constants.LABEL]
