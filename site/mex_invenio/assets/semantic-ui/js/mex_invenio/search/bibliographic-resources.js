@@ -37,6 +37,7 @@ edges.instances.bibliographicResources.init = function () {
             mex.journalFacet(),
             mex.keywordFacet(),
             mex.publicationYearFacet(),
+            mex.contributingUnitFacet(),
 
             // Stuff above the results
             mex.resultCount(),

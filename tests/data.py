@@ -150,3 +150,89 @@ person_data = {
         "https://orcid.org/4826-2772-7133-640X",
     ],
 }
+
+bibliographic_resource_record_minimal = {
+    "id": "fj2eb-p6h18",
+    "metadata": {
+        "resource_type": {
+            "id": "bibliographicresource",
+            "title": {"en": "Bibliographic resource"},
+        },
+        "creators": [
+            {
+                "person_or_org": {
+                    "type": "organizational",
+                    "name": "Robert Koch Institute",
+                }
+            }
+        ],
+        "title": "Moonlight Contamination in Amateur Telescope Snack Selection",
+        "publication_date": "2026-01-12",
+    },
+    "custom_fields": {
+        "mex:abstract": [
+            {
+                "language": "en",
+                "value": "The influence of lunar illumination on astronomical observations has been extensively documented...",
+            }
+        ],
+        "mex:accessRestriction": "https://mex.rki.de/item/access-restriction-1",
+        "mex:bibliographicResourceType": [
+            "https://mex.rki.de/item/bibliographic-resource-type-1"
+        ],
+        "mex:creator": ["fJDRU2fULw1C9D08DILD8T", "f1Usydf8L04BSpcgXrIs0i"],
+        "mex:doi": "https://doi.org/10.1016/j.anaerobe.2016.04.006",
+        "mex:identifier": "gLXGQRPXcmvCRHLjA2f73y",
+        "mex:isbnIssn": ["1075-9964"],
+        "mex:issue": "Q3",
+        "mex:issued": "2016-04-07",
+        "mex:journal": [
+            {
+                "language": "en",
+                "value": "The Observer-Independent Astrophysical Review",
+            },
+            {
+                "language": "de",
+                "value": "Die beobachterunabhängige astrophysikalische Übersicht",
+            },
+        ],
+        "mex:keyword": [
+            {"value": "amateur astronomy", "language": "en"},
+            {"value": "Nachthimmel-Kultur", "language": "de"},
+        ],
+        "mex:language": ["https://mex.rki.de/item/language-2"],
+        "mex:pages": "10-12",
+        "mex:publicationYear": "2002",
+        "mex:publisher": ["eIYPMyfk2Si1WPSDxPRahT"],
+        "mex:repositoryURL": [
+            {"url": "https://www.sciencedirect.com/S1075996416300336"}
+        ],
+        "mex:title": [
+            {
+                "language": "en",
+                "value": "Moonlight Contamination in Amateur Telescope Snack Selection",
+            }
+        ],
+    },
+    "display_data": {
+        "linked_records": {
+            "mex:creator": [
+                {
+                    "link_id": "fJDRU2fULw1C9D08DILD8T",
+                    "display_value": [{"value": "Elias Morgenstern"}],
+                },
+                {
+                    "link_id": "f1Usydf8L04BSpcgXrIs0i",
+                    "display_value": [{"value": "Bruce Willis"}],
+                },
+            ],
+            "mex:publisher": [
+                {
+                    "link_id": "eIYPMyfk2Si1WPSDxPRahT",
+                    "display_value": [{"value": "Elsevier"}],
+                }
+            ],
+            "backwards_linked": {},
+        }
+    },
+}
