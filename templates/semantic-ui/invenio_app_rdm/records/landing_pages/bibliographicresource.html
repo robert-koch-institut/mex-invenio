@@ -37,14 +37,14 @@
                 display_values(data[special_field("LANGUAGE")]) }}</p>
             {% else %}
             <p class="muted hidden_when_missing" ><b>{{ _('Language') }}:</b>
-                <i class="muted">{{ _("noData") }}</i></p>
+                <i class="muted">{{ _("noValueProvided") }}</i></p>
             {% endif %}
             {% if special_field("ISSUED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b> {{
                 display_values(data[special_field("ISSUED")]) }}</p>
             {% else %}
             <p class="muted hidden_when_missing" ><b>{{ _('Created') }}:</b>
-                <i class="muted">{{ _("noData") }}</i></p>
+                <i class="muted">{{ _("noValueProvided") }}</i></p>
             {% endif %}
         </section>
 {%- endblock -%}
