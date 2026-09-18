@@ -1248,8 +1248,6 @@ select.ui.dropdown {
 }
 
 .grid-container {
-    display: grid;
-    grid-template-columns: 67% 33%;
     max-width: 100%;
     .right {
         display: flex;
@@ -1257,6 +1255,7 @@ select.ui.dropdown {
         gap: 1rem;
         border-left: 1px solid @rki-blue-60;
         padding-left: 1rem;
+        width: 66.6666%;
         .meta {
             font-size: 0.9rem;
         }
@@ -1266,5 +1265,6 @@ select.ui.dropdown {
         flex-direction: column;
         gap: 1rem;
         padding-right: 1rem;
+        height: 33.3333%;
     }
 }
