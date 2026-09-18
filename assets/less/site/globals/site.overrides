@@ -884,12 +884,9 @@ aside {
 
     .link-button {
         display: flex;
-        padding: 0.63rem 1.25rem;
         align-items: center;
-        gap: 0.31rem;
-        align-self: stretch;
+        padding: 1rem 0 2.5rem 0;
         color: @rki-dark-blue;
-        background: @whiteTextColor;
         font-family: FiraSans, sans-serif;;
         font-size: 1.12rem;
         font-style: normal;
@@ -899,7 +896,6 @@ aside {
         &:focus,
         &:hover {
             color: @rki-dark-blue;
-            background-color: @whiteTextColor;
             text-decoration: underline;
         }
     }
