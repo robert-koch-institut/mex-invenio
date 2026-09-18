@@ -4419,11 +4419,8 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
 
         function temporalCoverage(temporal) {
-            if (temporal === null) {
-                return "";
-            }
             const label = i18n.t("temporal.singular_resource")
-            return _iconAndText("calendar", label, [date_ui(temporal)], ["muted", "meta", "coverage-meta--temporal"]);
+            return _iconAndText("calendar", label, [date_ui(temporal)], ["muted", "meta", "coverage-meta--temporal"], false);
         }
 
         let frag = `
