@@ -81,19 +81,23 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         }
 
         let frag = `
-            <div class="ui ${containerClass}">
+            <div class="ui ${containerClass}" style="margin-bottom: 1rem;">
                 ${fieldSelector(dre)}
                 <div class="${headerClass}">
                     <div class="ui grid">
-                        <div class="sixteen wide column .search-facets-container">
+                        <div class="sixteen wide column search-facets-container">
                             <h4 class="facet-title">${this.displayName}</h4>
                         </div>
                     </div>
                 </div>
-                <div id="${this.rangeId}" class="${inputClass}">
+                <div class="ui grid ${inputClass}">
                     <div class="sixteen wide column">
-                        <label for="${startId}">From</label><input type="date" name="${startId}" id="${startId}"><br>
+                        <div class="range-selector-input-row">
+                            <label for="${startId}">From</label><input type="date" name="${startId}" id="${startId}">
+                        </div>
+                        <div class="range-selector-input-row">
                         <label for="${endId}">To</label><input type="date" name="${endId}" id="${endId}">
+                        </div>
                     </div>
                 </div>
             </div>

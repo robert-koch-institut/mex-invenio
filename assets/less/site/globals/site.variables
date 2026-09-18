@@ -60,7 +60,7 @@
 @navbarGradient: linear-gradient(90deg, @rki-blue 23%, rgba(224, 244, 252, 0.20) 79.46%);
 
 @footerLightColor: @secondaryColor;
-@footerDarkColor: @primaryColor;
+@footerDarkColor: @rki-dark-blue;
 
 @accessRightOpen: @green-80;
 @accessRightRestricted: @red-80;

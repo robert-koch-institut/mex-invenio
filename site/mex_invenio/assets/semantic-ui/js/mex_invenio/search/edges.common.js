@@ -4363,9 +4363,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             return date_ui;
         }
 
-        function _iconAndText(icon, label, values, extra_classes) {
+        function _iconAndText(icon, label, values, extra_classes, renderIfEmpty=true) {
             if (!values || !values.length) {
-                return `
+                if (renderIfEmpty) {
+                    return `
                     <p class="${extra_classes.join(" ")}" style="font-style: italic">
                         <img
                             class="ui image icon--text"
@@ -4377,6 +4378,10 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                         ${i18n.t("noValueProvided")}
                     </p>
                 `;
+                }
+                else {
+                    return "";
+                }
             }
 
             const result = values
@@ -4405,7 +4410,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function populationCoverage(cov) {
             const label = i18n.t("populationCoverage.singular_resource")
-            return _iconAndText("users", label, cov, ["muted", "meta", "coverage-meta--population"]);
+            return _iconAndText("users", label, cov, ["muted", "meta", "coverage-meta--population"], false);
         }
 
         function spatialCoverage(spatial) {
