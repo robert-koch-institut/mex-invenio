@@ -60,10 +60,10 @@ mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
-mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
-mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
-mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
-mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
+mex.constants.CREATED_RANGE = "custom_fields.mex:created.date"
+mex.constants.END_RANGE = "custom_fields.mex:end.date"
+mex.constants.START_RANGE = "custom_fields.mex:start.date"
+mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date"
 
 // field containers, for those with language/value sub fields
 mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
@@ -520,35 +520,35 @@ mex.dateHistogram = function (params) {
         displayFormatter = mex.monthFormatter;
     }
 
-    // return new edges.components.DateHistogram({
-    //     id: params.id,
-    //     category: params.category || "left",
-    //     field: params.field,
-    //     interval: interval,
-    //     displayFormatter: displayFormatter,
-    //     sortFunction: function (values) {
-    //         values.reverse();
-    //         return values;
-    //     },
-    //     renderer: new mex.renderers.DateHistogramSelector({
-    //         title: params.title || i18n.t("Date Histogram"),
-    //         open: true,
-    //         togglable: false,
-    //         useCheckboxes: params.useCheckboxes ?? false,
-    //         showSelected: params.showSelected ?? true,
-    //         countFormat: mex.countFormat,
-    //         shortDisplay: 10
-    //     }),
-    // });
-    return new edges.components.MultiDateRangeEntry({
+    return new edges.components.DateHistogram({
         id: params.id,
         category: params.category || "left",
-        fields: [{field: params.field, display: "Date Field"}],
-        autoLookupRange: true,
-        renderer: new mex.renderers.DualEntryDateRangeSelector({
-            displayName: params.title || i18n.t("Date Range"),
-        })
-    })
+        field: params.field,
+        interval: interval,
+        displayFormatter: displayFormatter,
+        sortFunction: function (values) {
+            values.reverse();
+            return values;
+        },
+        renderer: new mex.renderers.DateHistogramSelector({
+            title: params.title || i18n.t("Date Histogram"),
+            open: true,
+            togglable: false,
+            useCheckboxes: params.useCheckboxes ?? false,
+            showSelected: params.showSelected ?? true,
+            countFormat: mex.countFormat,
+            shortDisplay: 10
+        }),
+    });
+    // return new edges.components.MultiDateRangeEntry({
+    //     id: params.id,
+    //     category: params.category || "left",
+    //     fields: [{field: params.field, display: "Date Field"}],
+    //     autoLookupRange: true,
+    //     renderer: new mex.renderers.DualEntryDateRangeSelector({
+    //         displayName: params.title || i18n.t("Date Range"),
+    //     })
+    // })
 };
 
 mex.fullSearchController = function (params) {
