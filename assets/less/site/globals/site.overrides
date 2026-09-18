@@ -1248,7 +1248,8 @@ select.ui.dropdown {
 }
 
 .grid-container {
-    max-width: 100%;
+    display: flex;
+    width: 100%;
     .right {
         display: flex;
         flex-direction: column;
