@@ -60,10 +60,10 @@ mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
-mex.constants.CREATED_RANGE = "custom_fields.mex:created.date"
-mex.constants.END_RANGE = "custom_fields.mex:end.date"
-mex.constants.START_RANGE = "custom_fields.mex:start.date"
-mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date"
+mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
+mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
+mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
+mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
 
 // field containers, for those with language/value sub fields
 mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
