@@ -15,19 +15,6 @@
         }
         @media (min-width: 992px) {
             grid-template-columns: 1fr max-content;
-            grid-template-areas:
-                "label label"
-                "input button";
-
-            label.label--search {
-                grid-area: label;
-            }
-            input.input--search {
-                grid-area: input;
-            }
-            button.search-button {
-                grid-area: button;
-            }
         }
 
     }
