@@ -90,7 +90,7 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
                         </div>
                     </div>
                 </div>
-                <div class="${inputClass}">
+                <div class="ui grid ${inputClass}">
                     <div class="sixteen wide column">
                         <div class="range-selector-input-row">
                             <label for="${startId}">From</label><input type="date" name="${startId}" id="${startId}">
