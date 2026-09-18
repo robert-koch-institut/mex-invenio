@@ -44,7 +44,7 @@ mex.constants.BELONGS_TO_LABEL_KW = "index_data.belongsToLabel.keyword"
 mex.constants.MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 mex.constants.USED_IN_ID_KW = "custom_fields.mex:usedIn.keyword"
 mex.constants.BELONGS_TO_ID_KW = "custom_fields.mex:belongsTo.keyword"
-mex.constants.DATA_TYPE_SORT_KW = "index_data.data_type_sort.keyword"
+mex.constants.DATA_TYPE_SORT_KW = "index_data.data_type_sort"
 
 mex.constants.FUNDER_DE_KW = "index_data.deFunderOrCommissioners.keyword"
 mex.constants.FUNDER_EN_KW = "index_data.enFunderOrCommissioners.keyword"
