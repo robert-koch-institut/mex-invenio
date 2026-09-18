@@ -675,3 +675,9 @@ msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterle
 
 msgid "and_x_more"
 msgstr "und {{count}} weitere"
+
+msgid "partOf"
+msgstr "Teil von"
+
+msgid "includes"
+msgstr "Enthält"

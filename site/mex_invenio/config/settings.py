@@ -511,14 +511,14 @@ UI_SETTINGS = {
                 "components": [
                     {
                         "type": "component",
-                        "title": _("Part Of"),
+                        "title": _("partOf"),
                         "properties": [
                             {"field": "mex:isPartOf"},
                         ],
                     },
                     {
                         "type": "component",
-                        "title": _("Includes"),
+                        "title": _("includes"),
                         "properties": [
                             {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
@@ -649,7 +649,7 @@ UI_SETTINGS = {
                 "components": [
                     {
                         "type": "component",
-                        "title": _("Part Of"),
+                        "title": _("partOf"),
                         "properties": [
                             {"field": "mex:isPartOfActivity"},
                         ],
