@@ -60,10 +60,10 @@ mex.constants.USED_IN_EN_KW = "index_data.enUsedInResource.keyword"
 mex.constants.USED_IN_DE_KW = "index_data.deUsedInResource.keyword"
 
 // range fields for date histograms
-mex.constants.CREATED_RANGE = "custom_fields.mex:created.date"
-mex.constants.END_RANGE = "custom_fields.mex:end.date"
-mex.constants.START_RANGE = "custom_fields.mex:start.date"
-mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date"
+mex.constants.CREATED_RANGE = "custom_fields.mex:created.date_range"
+mex.constants.END_RANGE = "custom_fields.mex:end.date_range"
+mex.constants.START_RANGE = "custom_fields.mex:start.date_range"
+mex.constants.PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
 
 // field containers, for those with language/value sub fields
 mex.constants.DESCRIPTION_CONTAINER = "custom_fields.mex:description"
@@ -161,27 +161,37 @@ mex.monthFormatter = function (val) {
 };
 
 mex.displayYearMonthPeriod = function (params) {
+    // Date histogram filters are epoch-millisecond strings, and their "lt" upper bound is the
+    // start of the following bucket
+    const isEpoch = (val) => /^\d{10,}$/.test(String(val));
+    const format = (date) => date.toLocaleString(mex.state.lang, {
+        month: 'long',
+        year: 'numeric',
+        timeZone: "UTC"
+    });
+
     let from = params.from;
     let to = params.to;
 
     let frdisplay = false;
     if (from) {
-        from = mex.str2date(from);
-        frdisplay = from.toLocaleString(mex.state.lang, {
-            month: 'long',
-            year: 'numeric',
-            timeZone: "UTC"
-        });
+        frdisplay = format(mex.str2date(from));
+        // leave epoch strings as they are, so the remove button carries the value the filter was created with
+        if (!isEpoch(from)) {
+            from = mex.str2date(from);
+        }
     }
 
     let todisplay = false;
     if (to) {
-        to = mex.str2date(to);
-        todisplay = to.toLocaleString(mex.state.lang, {
-            month: 'long',
-            year: 'numeric',
-            timeZone: "UTC"
-        });
+        let last = mex.str2date(to);
+        if (isEpoch(to)) {
+            // "lt" is exclusive, so display the period the bucket actually ends in
+            last = new Date(last.getTime() - 1);
+        } else {
+            to = last;
+        }
+        todisplay = format(last);
     }
 
     let range = frdisplay;
