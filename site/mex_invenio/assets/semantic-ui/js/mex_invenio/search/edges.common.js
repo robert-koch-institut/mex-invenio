@@ -4374,26 +4374,29 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
         }
 
         function _iconAndText(icon, label, values, extra_classes, renderIfEmpty=true) {
-            if (!values || !values.length) {
+            if (!values || !values.length || (values.length && values[0] == null)) {
                 if (renderIfEmpty) {
                     return `
-                    <p class="${extra_classes.join(" ")}" style="font-style: italic">
-                        <img
-                            class="ui image icon--text"
-                            src="/static/icons/${icon}.svg"
-                            aria-hidden="true"
-                            alt=""
-                        />
-                        <span class="sr-only">${label}</span>
-                        ${i18n.t("noValueProvided")}
-                    </p>
-                `;
+                        <p style="font-weight: bold" class="${extra_classes.join(" ")}">
+                            ${label}
+                        </p>
+                        <p class="${extra_classes.join(" ")}">
+                            <img
+                                class="ui image icon--text"
+                                src="/static/icons/${icon}.svg"
+                                aria-hidden="true"
+                                alt=""
+                            />
+                            ${i18n.t("noValueProvided")}
+                        </p>
+                    `;
                 }
                 else {
                     return "";
                 }
             }
 
+            console.log("after if: ", {values, renderIfEmpty})
             const result = values
                     .slice(0, 5)
                     .map(value => i18n.t(value))
