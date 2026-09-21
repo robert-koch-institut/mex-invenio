@@ -4396,7 +4396,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                 }
             }
 
-            console.log("after if: ", {values, renderIfEmpty})
             const result = values
                     .slice(0, 5)
                     .map(value => i18n.t(value))
