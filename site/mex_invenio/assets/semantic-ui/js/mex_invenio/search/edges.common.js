@@ -4420,7 +4420,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         function temporalCoverage(temporal) {
             const label = i18n.t("temporal.singular_resource")
-            return _iconAndText("calendar", label, [date_ui(temporal)], ["muted", "meta", "coverage-meta--temporal"], false);
+            return _iconAndText("calendar", label, [date_ui(temporal)], ["muted", "meta", "coverage-meta--temporal"]);
         }
 
         let frag = `
@@ -4457,9 +4457,9 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
                     </div>
                     <div class="right">
                         <div class="card-section">
-                            ${populationCoverage(popCov)}
-                            ${spatialCoverage(spatial)}
                             ${temporalCoverage(temporal)}
+                            ${spatialCoverage(spatial)}
+                            ${populationCoverage(popCov)}
                         </div>
                     </div>
                 </div>

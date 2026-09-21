@@ -525,7 +525,7 @@ UI_SETTINGS = {
                     },
                     {
                         "type": "component",
-                        "title": _("Related Resource"),
+                        "title": _("Related Resources"),
                         "properties": [
                             {"field": "mex:relatedResource"},
                         ],
