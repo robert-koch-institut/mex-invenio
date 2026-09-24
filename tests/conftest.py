@@ -59,12 +59,6 @@ def search_messages(messages, pattern):
 
 
 @pytest.fixture
-def db_session_options():
-    """Session options to prevent SQLAlchemy Continuum session binding issues."""
-    return {"expire_on_commit": False}
-
-
-@pytest.fixture
 def db_session_transaction_restart(db):
     """Fixture to restart savepoints after transaction ends for SQLAlchemy Continuum compatibility."""
     session_obj = db.session()
@@ -346,7 +340,6 @@ def import_file(
     initialise_custom_fields,
     custom_field_exists,
     db,
-    db_session_options,
     db_session_transaction_restart,
     caplog,
     cli_runner,
