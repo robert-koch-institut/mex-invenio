@@ -479,89 +479,146 @@ class BoostingParamsInterpreter(ParamInterpreter):
     #         )
     #     return functions
 
-    def _make_functions(self, norm, base, words) -> list:
-        # Each entry: (required input, filter builder, weight). Skipped when its
-        # required input ("norm" or "words") is falsy.
-        specs = [
-            # 1. Exact unpunctuated, ascii-folded string appears in the field "title"
-            ("norm", lambda: _match_phrase_any_field(self.TITLE_AGG, norm), 50),
-            # 2. Any variation of all words in the query string appears in "title"
-            (
-                "words",
-                lambda: {
-                    "bool": {
-                        "should": [_wildcard_must(f, words) for f in self.TITLE_AGG],
-                        "minimum_should_match": 1,
-                    }
-                },
-                45,
-            ),
-            # 2a. Any variation of any words in the query string in "title"
-            (
-                "words",
-                lambda: {
-                    "bool": {
-                        "should": [_wildcard_should(f, words) for f in self.TITLE_AGG],
-                        "minimum_should_match": 1,
-                    }
-                },
-                40,
-            ),
-            # 3. Exact query string appears in "description" or "abstract" -> boost 8
-            ("norm", lambda: _match_phrase_any_field(self.DESC_AGG, norm), 8),
-            # 4. Exact query string appears in "keyword" or "coding_system" -> boost 7
-            ("norm", lambda: _match_phrase_any_field(self.DISPLAYED_AGG, norm), 7),
-            # 5. Any variation of any word in "description" or "abstract" -> boost 6
-            (
-                "words",
-                lambda: {
-                    "bool": {
-                        "should": [_wildcard_should(f, words) for f in self.DESC_AGG],
-                        "minimum_should_match": 1,
-                    }
-                },
-                6,
-            ),
-            # 6. Any variation of any word in "keyword" or "coding_system" -> boost 5
-            (
-                "words",
-                lambda: {
-                    "bool": {
-                        "should": [
-                            _wildcard_should(f, words) for f in self.DISPLAYED_AGG
-                        ],
-                        "minimum_should_match": 1,
-                    }
-                },
-                5,
-            ),
-            # 7. Any combination of the exact words in "title" -> boost 4
-            ("norm", lambda: _match_and_any_field(self.TITLE_AGG, norm), 4),
-            # 8. Any combination of the exact words in "description" or "abstract" -> boost 3
-            ("norm", lambda: _match_and_any_field(self.DESC_AGG, norm), 3),
-            # 9. Any combination of the exact words in "keyword" or "coding_system" -> boost 2
-            ("norm", lambda: _match_and_any_field(self.DISPLAYED_AGG, norm), 2),
-            # 10. Any combination of the exact words in any other field -> boost 1.5
-            # Use a multi_match across all fields (best-effort) with operator 'and'.
-            (
-                "norm",
-                lambda: {
-                    "multi_match": {
-                        "query": norm,
-                        "operator": "and",
-                        "fields": self.FREE_TEXT_SEARCH_FIELDS,
-                    }
-                },
-                1.5,
-            ),
-        ]
+    def _make_functions(self, norm, base, words) -> list:  # noqa: C901 (readability > complexity)
+        functions = []
 
-        available = {"norm": norm, "words": words}
-        return [
-            {"filter": builder(), "weight": weight}
-            for requires, builder, weight in specs
-            if available[requires]
-        ]
+        # 1. Exact unpunctuated, ascii-folded string appears in the field "title"
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.TITLE_AGG, norm),
+                    # "filter": {"match_phrase": {TITLE: {"query": norm}}},
+                    "weight": 50,
+                }
+            )
+
+        # 2. Any variation of all words in the query string appears in "title"
+        if words:
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_must(f, words) for f in self.TITLE_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 45,
+                }
+            )
+
+        # 2a. Any variation of any words in the query string in "title"
+        if words:
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.TITLE_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 40,
+                }
+            )
+
+        # 3. Exact query string appears in "description" or "abstract" -> boost 8
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.DESC_AGG, norm),
+                    "weight": 8,
+                }
+            )
+
+        # 4. Exact query string appears in "keyword" or "coding_system" -> boost 7
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_phrase_any_field(self.DISPLAYED_AGG, norm),
+                    "weight": 7,
+                }
+            )
+
+        # 5. Any variation of any word in "description" or "abstract" -> boost 6
+        if words:
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.DESC_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 6,
+                }
+            )
+
+        # 6. Any variation of any word in "keyword" or "coding_system" -> boost 5
+        if words:
+            functions.append(
+                {
+                    "filter": {
+                        "bool": {
+                            "should": [
+                                _wildcard_should(f, words) for f in self.DISPLAYED_AGG
+                            ],
+                            "minimum_should_match": 1,
+                        }
+                    },
+                    "weight": 5,
+                }
+            )
+
+        # 7. Any combination of the exact words in "title" -> boost 4
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.TITLE_AGG, norm),
+                    # "filter": {"match": {TITLE: {"query": norm, "operator": "and"}}},
+                    "weight": 4,
+                }
+            )
+
+        # 8. Any combination of the exact words in "description" or "abstract" -> boost 3
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.DESC_AGG, norm),
+                    "weight": 3,
+                }
+            )
+
+        # 9. Any combination of the exact words in "keyword" or "coding_system" -> boost 2
+        if norm:
+            functions.append(
+                {
+                    "filter": _match_and_any_field(self.DISPLAYED_AGG, norm),
+                    "weight": 2,
+                }
+            )
+
+        # 10. Any combination of the exact words in any other field -> boost 1.5
+        # Use a multi_match across all fields (best-effort) with operator 'and'.
+        if norm:
+            functions.append(
+                {
+                    "filter": {
+                        "multi_match": {
+                            "query": norm,
+                            "operator": "and",
+                            "fields": self.FREE_TEXT_SEARCH_FIELDS,
+                        }
+                    },
+                    "weight": 1.5,
+                }
+            )
+
+        return functions
 
     def _normalize_text(self, text: str) -> str:
         """Remove punctuation, ascii-fold (remove diacritics), normalize spacing.
