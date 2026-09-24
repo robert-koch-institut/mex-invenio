@@ -50,6 +50,7 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.scripts.import_data import _import_data
 from mex_invenio.scripts.initial_import import _initial_import
+from mex_invenio.scripts.utils import get_installed_model_version
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -148,6 +149,11 @@ def db_session_transaction_restart(db):
 def load_env():
     env_file = find_dotenv(".env.tests")
     load_dotenv(env_file)
+
+
+@pytest.fixture(scope="session")
+def model_version():
+    return get_installed_model_version()
 
 
 @pytest.fixture(scope="module")
@@ -408,6 +414,7 @@ def import_file(
     create_user,
     create_file,
     tmp_path,
+    model_version,
 ):
     email = "importer@address.com"
     create_user("importer", email)
@@ -419,7 +426,7 @@ def import_file(
             if initial:
                 result = cli_runner(_initial_import, email, file)
             else:
-                result = cli_runner(_import_data, email, file)
+                result = cli_runner(_import_data, model_version, email, file)
 
         assert result.exit_code == 0, (
             f"CLI command failed with exit code {result.exit_code}: {result.exception}"

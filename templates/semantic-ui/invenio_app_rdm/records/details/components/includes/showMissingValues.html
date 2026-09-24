@@ -1,0 +1,86 @@
+<div id="missing_values_checkbox_wrapper">
+    <div class="toggle-row">
+        <label class="toggle">
+            <input type="checkbox" id="show_missing_values"/>
+            <span class="track">
+                <span class="state on muted">ON</span>
+                <span class="thumb"></span>
+                <span class="state off muted">OFF</span>
+            </span>
+            <span class="label muted">{{ _("showMissingValues") }}</span>
+        </label>
+    </div>
+    <details class="muted" id="details-trigger">
+        <summary>{{ _("missingValuesHelpTrigger") }}</summary>
+        <p>{{ _("missingValuesHelp") }}</p></details>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const wrapper = document.getElementById(
+            "missing_values_checkbox_wrapper"
+        );
+        const details = document.getElementById("details-trigger");
+        const helpText = details.querySelector("p");
+
+        function updateDetailsSpacing() {
+            wrapper.classList.toggle("details-open", details.open);
+
+            if (!details.open) {
+                wrapper.style.setProperty("--details-padding", "0px");
+                return;
+            }
+
+            requestAnimationFrame(() => {
+                const currentPadding =
+                    parseFloat(getComputedStyle(wrapper).paddingBottom) || 0;
+
+                const rowHeight = wrapper.clientHeight - currentPadding;
+
+                const requiredPadding = Math.max(
+                    0,
+                    helpText.offsetTop + helpText.offsetHeight - rowHeight
+                );
+
+                wrapper.style.setProperty(
+                    "--details-padding",
+                    `${requiredPadding}px`
+                );
+            });
+        }
+
+        details.addEventListener("toggle", updateDetailsSpacing);
+
+        const resizeObserver = new ResizeObserver(() => {
+            if (details.open) {
+                updateDetailsSpacing();
+            }
+        });
+
+        resizeObserver.observe(helpText);
+
+        updateDetailsSpacing();
+    });
+
+    const checkbox = document.getElementById("show_missing_values");
+    const record = document.getElementById("landing_page");
+
+    // Restore preference
+    const showMissing = localStorage.getItem("showMissingData") === "true";
+
+    if (showMissing) {
+        record.classList.add("show-missing-data");
+        checkbox.checked = true;
+    }
+
+    checkbox.addEventListener("change", () => {
+        record.classList.toggle(
+            "show-missing-data",
+            checkbox.checked
+        );
+
+        localStorage.setItem(
+            "showMissingData",
+            checkbox.checked
+        );
+    });
+</script>

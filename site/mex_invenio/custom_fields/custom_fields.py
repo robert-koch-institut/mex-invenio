@@ -23,6 +23,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:alternateIdentifier", multiple=True),
     MultiLanguageTextCF(name="mex:alternativeName", multiple=True),
     MultiLanguageTextCF(name="mex:alternativeTitle", multiple=True),
+    TextCF(name="mex:analytics", multiple=True),  # introduced in 5
     TextCF(name="mex:anonymizationPseudonymization", multiple=True),
     TextCF(
         name="mex:belongsTo", multiple=True, use_as_filter=True
@@ -64,9 +65,11 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:geprisId", multiple=True),
     TextCF(name="mex:givenName", multiple=True),
     TextCF(name="mex:gndId", multiple=True),
+    MultiLanguageTextCF(name="mex:hasCodeValues", multiple=True),  # introduced in 5
     MultiLanguageTextCF(name="mex:hasLegalBasis", multiple=True),
     TextCF(name="mex:hasPersonalData", use_as_filter=True),
     MultiLanguageTextCF(name="mex:hasPurpose", multiple=True),
+    TextCF(name="mex:healthCategory", multiple=True),
     TextCF(name="mex:icd10code", multiple=True),
     TextCF(
         name="mex:identifier", field_args={"required": True}, use_as_filter=True
@@ -96,6 +99,8 @@ RDM_CUSTOM_FIELDS = [
     IntegerCF(name="mex:minTypicalAge"),
     TextCF(name="mex:modified"),
     MultiLanguageTextCF(name="mex:name", multiple=True),
+    IntegerCF(name="mex:numberOfRecords"),  # introduced in 5
+    IntegerCF(name="mex:numberOfUniqueIndividuals"),  # introduced in 5
     MultiLanguageTextCF(name="mex:officialName", multiple=True),
     TextCF(name="mex:orcidId", multiple=True),
     TextCF(name="mex:pages"),
@@ -107,6 +112,8 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
     MultiLanguageTextCF(name="mex:provenance", multiple=True),
+    TextCF(name="mex:relatedActivity", multiple=True),  # introduced in 5
+    TextCF(name="mex:relatedResource", multiple=True),  # introduced in 5
     LinkCF(name="mex:repositoryURL", multiple=True),
     TextCF(name="mex:resourceCreationMethod", multiple=True, use_as_filter=True),
     TextCF(name="mex:resourceTypeGeneral", multiple=True),
@@ -114,9 +121,11 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:responsibleUnit", multiple=True),
     MultiLanguageTextCF(name="mex:rights", multiple=True),
     TextCF(name="mex:rorId", multiple=True),
+    TextCF(name="mex:sample", multiple=True),  # introduced in 5
     TextCF(name="mex:section"),
     MultiLanguageTextCF(name="mex:shortName", multiple=True),
     TextCF(name="mex:sizeOfDataBasis"),
+    TextCF(name="mex:source", multiple=True),  # introduced in 5
     MultiLanguageTextCF(name="mex:spatial", multiple=True),
     FixedEDTFDateStringCF(name="mex:start", multiple=True),
     TextCF(name="mex:stateOfDataProcessing", multiple=True),
@@ -221,6 +230,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/fields/text",
                     "description": "Another title for the publication.",
+                },
+            },
+            {
+                "field": "mex:analytics",
+                "props": {
+                    "type": "/schema/entities/distribution#/identifier",
+                    "description": "An analytics distribution of the dataset.",
                 },
             },
             {
@@ -462,6 +478,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:hasCodeValues",
+                "props": {
+                    "type": "/schema/fields/text",
+                    "description": "The code values of the respective coding systems that are applied to the dataset, for example code value 'U07.1' as used in the coding system 'ICD-10'.",
+                },
+            },
+            {
                 "field": "mex:hasLegalBasis",
                 "props": {
                     "type": "/schema/fields/text",
@@ -473,6 +496,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/entities/concept#/identifier",
                     "description": "Indicates, if a resource contains data directly or indirectly associated or related to an individual.",
+                },
+            },
+            {
+                "field": "mex:healthCategory",
+                "props": {
+                    "type": "/schema/entities/concept#/identifier",
+                    "description": "The category of electronic data for secondary use to which this resource belongs, as described in Article 51 of the Commission Regulation on the European Health Data Space.",
                 },
             },
             {
@@ -650,6 +680,20 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:numberOfRecords",
+                "props": {
+                    "type": "string",
+                    "description": "The total number of records in the dataset. The number reflects the total data entries (e.g., consultations, prescriptions, lab results, hospital admissions) according to the dataset's content.",
+                },
+            },
+            {
+                "field": "mex:numberOfUniqueIndividuals",
+                "props": {
+                    "type": "string",
+                    "description": "The number of records for unique individuals represented in the dataset.",
+                },
+            },
+            {
                 "field": "mex:officialName",
                 "props": {
                     "type": "/schema/fields/text",
@@ -720,6 +764,20 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:relatedActivity",
+                "props": {
+                    "type": "/schema/entities/activity#/identifier",
+                    "description": "A related Activity.",
+                },
+            },
+            {
+                "field": "mex:relatedResource",
+                "props": {
+                    "type": "/schema/entities/resource#/identifier",
+                    "description": "A related Resource.",
+                },
+            },
+            {
                 "field": "mex:repositoryURL",
                 "props": {
                     "type": "/schema/fields/link",
@@ -769,6 +827,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:sample",
+                "props": {
+                    "type": "/schema/entities/distribution#/identifier",
+                    "description": "A sample distribution of the dataset, which can be anonymized or synthetic data, or the data dictionary.",
+                },
+            },
+            {
                 "field": "mex:section",
                 "props": {
                     "type": "string",
@@ -787,6 +852,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "string",
                     "description": "The size of the underlying data basis, e.g. for studies: the size of the sample.",
+                },
+            },
+            {
+                "field": "mex:source",
+                "props": {
+                    "type": "/schema/entities/resource#/identifier",
+                    "description": "A related Resource from which the described Resource is derived.",
                 },
             },
             {

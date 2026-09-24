@@ -15,7 +15,13 @@ RUN dnf -y install python3.11 python3.11-devel python3.11-libs python3.11-pip &&
     alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
     alternatives --set python3 /usr/bin/python3.11
 
-RUN pip install --upgrade pip pipenv
+# pipenv>=2026.7.0 vendors pip 26.2.1, which has a regression in its PEP 517
+# build-isolation sitecustomize injection: it breaks under --system installs
+# combined with a PEP 660 editable install (our own `site` package), causing
+# "ModuleNotFoundError: No module named 'json'" while building any sdist-only
+# dependency (e.g. flask-mail). pip 26.1 (vendored by pipenv 2026.6.0) does
+# not have this bug. Pin pipenv until upstream fixes it.
+RUN pip install --upgrade pip "pipenv==2026.6.0"
 
 # Update node to 22.21.1
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
