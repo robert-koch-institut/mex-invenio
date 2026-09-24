@@ -137,8 +137,8 @@ msgstr "Search our"
 msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
-msgid "Related projects/endeavors"
-msgstr "Related projects/endeavors"
+msgid "Related projects"
+msgstr "Related projects"
 
 msgid "Related data sources & datasets"
 msgstr "Related data sources & datasets"
