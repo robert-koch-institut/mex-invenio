@@ -68,7 +68,7 @@ class MExCustomBibTeXSchema(Schema):
         self.lang = lang
 
     @staticmethod
-    def _normalize_doi(value) -> str:
+    def _normalize_doi(value) -> str | None:
         DOI_PATTERN = re.compile(r"(10\.\d{4,9}/[-._;()/:A-Za-z0-9]+)")
         if not value:
             return None
@@ -80,9 +80,9 @@ class MExCustomBibTeXSchema(Schema):
         # fallback: keep original value
         return value
 
-    def _extract_by_lang(self, field_values) -> str:
+    def _extract_by_lang(self, field_values) -> list:
         """Returns array of values in users language if available, otherwise all values."""
-        by_lang = {}
+        by_lang: dict[str, list] = {}
 
         if not field_values:
             return []

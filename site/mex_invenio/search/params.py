@@ -479,7 +479,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
     #         )
     #     return functions
 
-    def _make_functions(self, norm, base, words) -> list:
+    def _make_functions(self, norm, base, words) -> list:  # noqa: C901 (readability > complexity)
         functions = []
 
         # 1. Exact unpunctuated, ascii-folded string appears in the field "title"
