@@ -7,14 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import sqlalchemy as sa
-
-try:
-    from flask_sqlalchemy.session import Session as FlaskSQLAlchemySession
-except ImportError:
-    # Fallback for older Flask-SQLAlchemy versions
-    from flask_sqlalchemy import SQLAlchemy
-
-    FlaskSQLAlchemySession = SQLAlchemy().session
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
@@ -66,63 +58,10 @@ def search_messages(messages, pattern):
     return None
 
 
-try:
-
-    class PytestInvenioSession(FlaskSQLAlchemySession):
-        """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
-
-        def rollback(self) -> None:
-            if self._transaction is not None:
-                self._transaction.rollback(_to_root=False)
-except (TypeError, AttributeError):
-    # Fallback for older Flask-SQLAlchemy versions - use standard session
-    PytestInvenioSession = None  # type: ignore[misc, assignment]
-
-
 @pytest.fixture
 def db_session_options():
     """Session options to prevent SQLAlchemy Continuum session binding issues."""
-    options = {"expire_on_commit": False}
-    if PytestInvenioSession is not None:
-        options["class_"] = PytestInvenioSession
-    return options
-
-
-@pytest.fixture
-def db(database, db_session_options):
-    """Creates a new database session for a test - compatible with Flask-SQLAlchemy 2.5.1.
-
-    Scope: function
-
-    You must use this fixture if your test connects to the database. The
-    fixture will set a save point and rollback all changes performed during
-    the test (this is much faster than recreating the entire database).
-    """
-    from invenio_db import db as invenio_db  # noqa: PLC0415
-
-    connection = database.engine.connect()
-    transaction = connection.begin()
-
-    # Create session with our custom options
-    options = dict(
-        bind=connection,
-        binds={},
-        **db_session_options,
-    )
-
-    session = database.create_scoped_session(options=options)
-
-    # Monkey patch the session
-    old_session = invenio_db.session
-    invenio_db.session = session
-
-    try:
-        yield invenio_db
-    finally:
-        session.remove()
-        transaction.rollback()
-        connection.close()
-        invenio_db.session = old_session
+    return {"expire_on_commit": False}
 
 
 @pytest.fixture
