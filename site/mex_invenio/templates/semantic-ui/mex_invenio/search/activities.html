@@ -20,6 +20,7 @@
 <script>
     window.APP_CONFIG = {current_lang: "{{current_i18n.language}}"}
 </script>
+    <script src="{{ url_for('static', filename='js/vendor/plotly-4.1.1.min.js') }}"></script>
 {{ webpack['search_activities.js'] }}
 
 <script>

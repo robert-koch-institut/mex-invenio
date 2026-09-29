@@ -881,9 +881,7 @@ mex.createdFacet = function () {
         field: mex.constants.CREATED_RANGE,
         //title: i18n.t("Created"),
         category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
+        interval: "year"
     });
 };
 
@@ -893,47 +891,108 @@ mex.createdChart = function () {
         field: mex.constants.CREATED_RANGE,
         title: i18n.t("Created"),
         category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
+        interval: "year"
+    });
+}
+
+// mex.endFacet = function () {
+//     return mex.dateHistogram({
+//         id: "end",
+//         field: mex.constants.END_RANGE,
+//         title: i18n.t("End"),
+//         category: "left",
+//         interval: "year",
+//         useCheckboxes: true,
+//         showSelected: false,
+//     });
+// };
+
+// mex.startFacet = function () {
+//     return mex.dateHistogram({
+//         id: "start",
+//         field: mex.constants.START_RANGE,
+//         title: i18n.t("Start"),
+//         category: "left",
+//         interval: "year"
+//     });
+// };
+
+mex.startFacet = function () {
+    return mex.dateRangeSelector({
+        id: "start",
+        field: mex.constants.START_RANGE,
+        category: "left",
+        interval: "year"
+    });
+};
+
+mex.startChart = function () {
+    return mex.dateChart({
+        id: "start_chart",
+        field: mex.constants.START_RANGE,
+        title: i18n.t("Start"),
+        category: "left",
+        interval: "year"
     });
 }
 
 mex.endFacet = function () {
-    return mex.dateHistogram({
+    return mex.dateRangeSelector({
         id: "end",
+        field: mex.constants.END_RANGE,
+        category: "left",
+        interval: "year"
+    });
+};
+
+mex.endChart = function () {
+    return mex.dateChart({
+        id: "end_chart",
         field: mex.constants.END_RANGE,
         title: i18n.t("End"),
         category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
+        interval: "year"
     });
-};
-
-mex.startFacet = function () {
-    return mex.dateHistogram({
-        id: "start",
-        field: mex.constants.START_RANGE,
-        title: i18n.t("Start"),
-        category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
-    });
-};
+}
 
 mex.publicationYearFacet = function () {
-    return mex.dateHistogram({
+    return mex.dateRangeSelector({
         id: "publication_year",
+        field: mex.constants.PUBLICATION_YEAR_RANGE,
+        category: "left",
+        interval: "year"
+    });
+};
+
+mex.publicationYearChart = function () {
+    return mex.dateChart({
+        id: "publication_year_chart",
         field: mex.constants.PUBLICATION_YEAR_RANGE,
         title: i18n.t("Publication Year"),
         category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
+        interval: "year"
     });
-};
+}
+
+// mex.publicationYearChart = function () {
+//     return mex.dateChart({
+//         id: "publication_year_chart",
+//         field: mex.constants.PUBLICATION_YEAR_RANGE,
+//         title: i18n.t("Publication Year"),
+//         category: "left",
+//         interval: "year"
+//     });
+// }
+//
+// mex.publicationYearFacet = function () {
+//     return mex.dateHistogram({
+//         id: "publication_year",
+//         field: mex.constants.PUBLICATION_YEAR_RANGE,
+//         // title: i18n.t("Publication Year"),
+//         category: "left",
+//         interval: "year"
+//     });
+// };
 
 mex.contributingUnitFacet = function () {
     let field = mex.constants.CONTRIBUTING_UNIT_DE_KW;
