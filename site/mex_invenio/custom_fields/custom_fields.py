@@ -1,9 +1,9 @@
 from invenio_records_resources.services.custom_fields import (
+    EDTFDateStringCF,
     IntegerCF,
     TextCF,
 )
 
-from mex_invenio.custom_fields.fixededtfdatestringcf import FixedEDTFDateStringCF
 from mex_invenio.custom_fields.link import LinkCF
 from mex_invenio.custom_fields.multilanguagetext import MultiLanguageTextCF
 
@@ -36,7 +36,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:contributingUnit", multiple=True),
     TextCF(name="mex:contributor", multiple=True),  # FIXME: index external document
     # TextCF(name="mex:created"),
-    FixedEDTFDateStringCF(name="mex:created"),
+    EDTFDateStringCF(name="mex:created"),
     TextCF(name="mex:creator", multiple=True),
     TextCF(name="mex:dataType"),
     MultiLanguageTextCF(name="mex:description", multiple=True),
@@ -48,7 +48,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:editor", multiple=True),
     TextCF(name="mex:editorOfSeries", multiple=True),
     TextCF(name="mex:email", multiple=True),
-    FixedEDTFDateStringCF(name="mex:end", multiple=True),
+    EDTFDateStringCF(name="mex:end", multiple=True),
     LinkCF(name="mex:endpointDescription"),
     TextCF(name="mex:endpointType"),
     LinkCF(name="mex:endpointURL"),
@@ -108,7 +108,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
-    FixedEDTFDateStringCF(name="mex:publicationYear"),
+    EDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
     MultiLanguageTextCF(name="mex:provenance", multiple=True),
@@ -127,7 +127,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:sizeOfDataBasis"),
     TextCF(name="mex:source", multiple=True),  # introduced in 5
     MultiLanguageTextCF(name="mex:spatial", multiple=True),
-    FixedEDTFDateStringCF(name="mex:start", multiple=True),
+    EDTFDateStringCF(name="mex:start", multiple=True),
     TextCF(name="mex:stateOfDataProcessing", multiple=True),
     MultiLanguageTextCF(name="mex:subtitle", multiple=True),
     TextCF(name="mex:succeeds", multiple=True),
