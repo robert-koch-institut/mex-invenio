@@ -540,13 +540,9 @@ class MexDumper(SearchDumper):
         from sqlalchemy import cast
         from sqlalchemy.dialects.postgresql import JSONB
 
-        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS_BY_NAME
 
-        field_config = None
-        for field in RDM_CUSTOM_FIELDS:
-            if field.name == name:
-                field_config = field
-                break
+        field_config = RDM_CUSTOM_FIELDS_BY_NAME.get(name)
 
         # Determine if field stores arrays or single values
         is_multiple = (
