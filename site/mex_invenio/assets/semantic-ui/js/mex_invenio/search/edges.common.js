@@ -4254,66 +4254,34 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-        let accessRestrictionRaw = edges.util.pathValue(mex.constants.ACCESS_RESTRICTION, res)
-        let accessRestriction = mex.vocabularyLookup(accessRestrictionRaw)
+        let wrap = new mex.MexRecord(res, highlights[res.uuid]);
 
-        let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
-        if (!title) {
-            title = edges.util.escapeHtml(
-                mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
-            );
-        }
-
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
-        if (alt) {
-            alt = edges.util.escapeHtml(alt);
-        } else {
-            alt = "";
-        }
-
-        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
-        if (!desc) {
-            desc = this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
-            if (desc.length > 300) {
-                desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
-            }
-        }
-
-        let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
-        if (keywords.length > 5) {
-            keywords = keywords.slice(0, 5);
-        }
+        let accessRestrictionRaw = wrap.accessRestriction;
+        let accessRestriction = wrap.accessRestrictionVocab;
+        let title = wrap.title;
+        let alt = wrap.alternativeTitle;
+        let desc = wrap.description;
+        let keywords = wrap.keywords;
+        let mex_id = wrap.mexId;
+        let popCov = wrap.populationCoverage;
+        let spatial = wrap.spatial;
+        let temporal = wrap.temporal;
 
         let selectState = "unselected";
-
         if (this.selector && this.selector.isSelected(res.id)) {
             selectState = "selected";
         }
 
-        let selectClass = edges.util.jsClasses(
-            this.namespace,
-            "select",
-            this.component.id
-        );
+        let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
 
         let vCount = 0;
-        let usedIn = edges.util.pathValue(mex.constants.USED_IN_DISPLAY_BACKLINK, res);
+        let usedIn = wrap.usedInDisplayBacklink;
         if (usedIn) {
             vCount = usedIn.length;
         }
 
-        let mex_id = edges.util.pathValue(mex.constants.MEX_ID, res);
-
-        let popCov = mex.getAllLangVals(mex.constants.POPULATION_COVERAGE_CONTAINER, res);
-        let spatial = mex.getAllLangVals(mex.constants.SPATIAL_CONTAINER, res);
-        let temporal = edges.util.pathValue(mex.constants.TEMPORAL, res);
-
         function createdDate(res) {
-            let created = edges.util.pathValue(mex.constants.CREATED, res);
-            let created_ui = "";
-            if (created) {
-                created_ui = mex.fullDateFormatter(created); // returns `created` if it can't be parsed
-            }
+            let created_ui = wrap.created;
             return `<p class="date muted">${created_ui}</p>`;
         }
 
@@ -4479,11 +4447,6 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
 
         return frag;
     }
-
-    _getLangVal(path, res, def) {
-        return mex.getLangVal(path, res, def);
-    }
-
 };
 
 mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesResults {
