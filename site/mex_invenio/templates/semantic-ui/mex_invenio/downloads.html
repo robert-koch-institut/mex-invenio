@@ -19,7 +19,10 @@
         <tbody>
             {% for f in downloadable_files %}
             <tr>
-                <td><a href="{{ f.url }}">{{ f.filename }}</a></td>
+                <td>
+                    <a href="{{ f.url }}">{{ f.title }}</a>
+                    {% if f.title != f.filename %}<br><small>{{ f.filename }}</small>{% endif %}
+                </td>
                 <td>{% if f.generated_at %}{{ f.generated_at[:19]|replace("T", " ") }}{% endif %}</td>
                 <td>{{ f.size|filesizeformat }}</td>
             </tr>
