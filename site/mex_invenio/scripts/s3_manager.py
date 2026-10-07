@@ -36,9 +36,11 @@ from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
+    DOWNLOADABLE_FILES_STATE_KEY,
     _duration_seconds,
     _error_details,
     _read_state,
+    _update_state,
     _write_state,
     get_installed_model_version,
     get_subdir_by_order,
@@ -147,6 +149,9 @@ def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bo
     Downloads every file under that prefix (CSVs and their per-file
     metadata_*.json) into a tmp directory, then atomically swaps it into
     place so nginx and the /downloads page never see a half-written set.
+    The outcome is recorded in the "downloadable_files" section of
+    .import_state, which has its own status so a failed download never
+    blocks imports.
     Does nothing if DOWNLOADABLE_FILES_DIR isn't configured (e.g. local dev).
     """
     downloadable_files_dir = current_app.config.get("DOWNLOADABLE_FILES_DIR")
@@ -154,15 +159,36 @@ def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bo
         return True
 
     prefix = f"downloadable files-{model_version}/"
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    os.makedirs(s3_download_folder, exist_ok=True)
+    state_file = os.path.join(s3_download_folder, ".import_state")
+    started_at = datetime.now(timezone.utc).isoformat()
+
+    def record_state(status: str, **details) -> None:
+        finished_at = datetime.now(timezone.utc).isoformat()
+        section = {
+            "status": status,
+            "started_at": started_at,
+            "finished_at": finished_at,
+            "duration_seconds": _duration_seconds(started_at, finished_at),
+            "model_version": model_version,
+            "prefix": prefix,
+            "directory": downloadable_files_dir,
+            **details,
+        }
+        _update_state(state_file, DOWNLOADABLE_FILES_STATE_KEY, section)
+
     entries = [e for e in contents if e["Key"].startswith(prefix)]
 
     if not entries:
         logger.info(f"No downloadable files found for model version {model_version}.")
+        record_state("no_files")
         return True
 
     tmp_dir = f"{downloadable_files_dir}.tmp-{get_timestamp()}"
     os.makedirs(tmp_dir, exist_ok=True)
 
+    filenames = []
     try:
         for entry in entries:
             filename = entry["Key"].removeprefix(prefix)
@@ -171,9 +197,11 @@ def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bo
             s3_client.download_file(
                 s3_bucket, entry["Key"], os.path.join(tmp_dir, filename)
             )
+            filenames.append(filename)
     except Exception as e:
         logger.error(f"Failed to sync downloadable files: {e}")
         shutil.rmtree(tmp_dir, ignore_errors=True)
+        record_state("failed", error=_error_details(e))
         return False
 
     old_dir = f"{downloadable_files_dir}.old-{get_timestamp()}"
@@ -183,8 +211,21 @@ def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bo
     if os.path.isdir(old_dir):
         shutil.rmtree(old_dir, ignore_errors=True)
 
+    files = [
+        {
+            "name": filename,
+            "size": os.path.getsize(os.path.join(downloadable_files_dir, filename)),
+        }
+        for filename in sorted(filenames)
+    ]
+    record_state(
+        "success",
+        counts={"files": len(files), "bytes": sum(f["size"] for f in files)},
+        files=files,
+    )
+
     logger.info(
-        f"Synced {len(entries)} downloadable file(s) to {downloadable_files_dir}."
+        f"Synced {len(files)} downloadable file(s) to {downloadable_files_dir}."
     )
     return True
 

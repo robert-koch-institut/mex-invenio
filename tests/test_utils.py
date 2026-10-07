@@ -5,6 +5,7 @@ from mex_invenio.scripts.utils import (
     _duration_seconds,
     _error_details,
     _read_state,
+    _update_state,
     _write_state,
     get_installed_model_version,
     get_title,
@@ -183,3 +184,32 @@ def test_duration_seconds():
         _duration_seconds("2026-10-07T10:00:00+00:00", "2026-10-07T10:01:02.34+00:00")
         == 62.3
     )
+
+
+def test_write_state_keeps_downloadable_files_section(tmp_path):
+    """Writing the import status keeps the downloadable-files section."""
+    state_file = str(tmp_path / ".import_state")
+    section = {"status": "success", "counts": {"files": 2, "bytes": 10}}
+    _update_state(state_file, "downloadable_files", section)
+
+    _write_state(state_file, "in_progress", started_at="2026-10-07T10:00:00+00:00")
+
+    assert _read_state(state_file) == {
+        "status": "in_progress",
+        "started_at": "2026-10-07T10:00:00+00:00",
+        "downloadable_files": section,
+    }
+
+
+def test_update_state_keeps_import_status(tmp_path):
+    """Updating a section leaves the import status and details alone."""
+    state_file = str(tmp_path / ".import_state")
+    _write_state(state_file, "failed", kind="diff")
+
+    _update_state(state_file, "downloadable_files", {"status": "success"})
+
+    assert _read_state(state_file) == {
+        "status": "failed",
+        "kind": "diff",
+        "downloadable_files": {"status": "success"},
+    }
