@@ -1,6 +1,11 @@
+import json
 from unittest.mock import patch
 
 from mex_invenio.scripts.utils import (
+    _duration_seconds,
+    _error_details,
+    _read_state,
+    _write_state,
     get_installed_model_version,
     get_title,
     normalize_record_data,
@@ -126,3 +131,55 @@ def test_get_installed_model_version_truncates_to_major_minor():
         "mex_invenio.scripts.utils.importlib.metadata.version", return_value="4.10.3"
     ):
         assert get_installed_model_version() == "4.10"
+
+
+def test_write_state_records_details(tmp_path):
+    """The state file holds the format version, status, timestamps and details."""
+    state_file = tmp_path / ".import_state"
+    counts = {"lines": 3, "created": 2, "failed": 1}
+
+    _write_state(
+        str(state_file),
+        "success",
+        started_at="2026-10-07T10:00:00+00:00",
+        finished_at="2026-10-07T10:00:05+00:00",
+        kind="diff",
+        counts=counts,
+    )
+
+    assert json.loads(state_file.read_text()) == {
+        "status": "success",
+        "started_at": "2026-10-07T10:00:00+00:00",
+        "finished_at": "2026-10-07T10:00:05+00:00",
+        "kind": "diff",
+        "counts": counts,
+    }
+    assert _read_state(str(state_file))["counts"] == counts
+    # Written via a temporary file that's moved into place
+    assert [p.name for p in tmp_path.iterdir()] == [".import_state"]
+
+
+def test_write_state_replaces_previous_state(tmp_path):
+    """Details from an earlier state don't linger in the next one."""
+    state_file = str(tmp_path / ".import_state")
+    _write_state(state_file, "failed", error={"type": "ValueError", "message": "x"})
+    _write_state(state_file, "in_progress", started_at="2026-10-07T10:00:00+00:00")
+
+    assert _read_state(state_file) == {
+        "status": "in_progress",
+        "started_at": "2026-10-07T10:00:00+00:00",
+    }
+
+
+def test_error_details():
+    assert _error_details(ValueError("bad line")) == {
+        "type": "ValueError",
+        "message": "bad line",
+    }
+
+
+def test_duration_seconds():
+    assert (
+        _duration_seconds("2026-10-07T10:00:00+00:00", "2026-10-07T10:01:02.34+00:00")
+        == 62.3
+    )

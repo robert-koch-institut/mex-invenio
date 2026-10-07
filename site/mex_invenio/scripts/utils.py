@@ -322,12 +322,34 @@ def _write_state(
     status: str,
     started_at: str | None = None,
     finished_at: str | None = None,
+    **details,
 ):
-    """Write the import state file with the given status and timestamps."""
+    """Write the import state file with the given status, timestamps and details.
+
+    Details (e.g. the import kind, file and counts) are stored alongside the
+    status. The file is written to a temporary path and then moved into place,
+    so a crash mid-write can't leave a truncated file, which _read_state would
+    treat as no state at all.
+    """
     data = {"status": status}
     if started_at:
         data["started_at"] = started_at
     if finished_at:
         data["finished_at"] = finished_at
-    with open(state_file, "w") as f:
+    data.update(details)
+
+    tmp_path = f"{state_file}.tmp"
+    with open(tmp_path, "w") as f:
         json.dump(data, f)
+    os.replace(tmp_path, state_file)
+
+
+def _error_details(exc: BaseException) -> dict[str, str]:
+    """Summarise an exception for the import state file."""
+    return {"type": type(exc).__name__, "message": str(exc)}
+
+
+def _duration_seconds(started_at: str, finished_at: str) -> float:
+    """Return the seconds between two ISO timestamps, to one decimal place."""
+    elapsed = datetime.fromisoformat(finished_at) - datetime.fromisoformat(started_at)
+    return round(elapsed.total_seconds(), 1)

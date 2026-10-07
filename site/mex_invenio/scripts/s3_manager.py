@@ -36,6 +36,8 @@ from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
+    _duration_seconds,
+    _error_details,
     _read_state,
     _write_state,
     get_installed_model_version,
@@ -181,7 +183,9 @@ def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bo
     if os.path.isdir(old_dir):
         shutil.rmtree(old_dir, ignore_errors=True)
 
-    logger.info(f"Synced {len(entries)} downloadable file(s) to {downloadable_files_dir}.")
+    logger.info(
+        f"Synced {len(entries)} downloadable file(s) to {downloadable_files_dir}."
+    )
     return True
 
 
@@ -262,18 +266,32 @@ def _bootstrap_initial_import(
     items_file = os.path.join(downloaded_dir, "items.ndjson")
     state_file = os.path.join(s3_download_folder, ".import_state")
     started_at = datetime.now(timezone.utc).isoformat()
-    _write_state(state_file, "in_progress", started_at=started_at)
+    details = {
+        "kind": "initial",
+        "model_version": model_version,
+        "import_file": items_file,
+    }
+    _write_state(state_file, "in_progress", started_at=started_at, **details)
 
+    counts = None
+    error = None
     try:
-        success = initial_import(user_email, items_file)
-    except Exception:
+        counts = initial_import(user_email, items_file)
+    except Exception as e:
         logger.exception(f"Initial import failed for {items_file}.")
-        success = False
+        error = _error_details(e)
 
     finished_at = datetime.now(timezone.utc).isoformat()
-    if not success:
+    details["duration_seconds"] = _duration_seconds(started_at, finished_at)
+    if not counts:
+        if error:
+            details["error"] = error
         _write_state(
-            state_file, "failed", started_at=started_at, finished_at=finished_at
+            state_file,
+            "failed",
+            started_at=started_at,
+            finished_at=finished_at,
+            **details,
         )
         logger.error(
             f"Initial import failed for {items_file}; leaving it in downloaded/ "
@@ -281,7 +299,14 @@ def _bootstrap_initial_import(
         )
         return False
 
-    _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
+    _write_state(
+        state_file,
+        "success",
+        started_at=started_at,
+        finished_at=finished_at,
+        counts=counts,
+        **details,
+    )
 
     rel = os.path.relpath(downloaded_dir, download_path)
     destination = os.path.join(processed_path, rel)
@@ -301,6 +326,8 @@ def _write_public_status(had_download_errors: bool) -> None:
     older than this run if there was nothing new to import today). Written
     atomically since nginx serves this file directly from the shared volume
     it's mounted on (see helm-invenio's import-job.yaml / web-deployment.yaml).
+    The file is public, so only non-sensitive import details (status, kind,
+    timestamps, counts) are copied across - not file paths or error messages.
     Does nothing if INVENIO_IMPORT_STATUS_DIR isn't configured (e.g. local dev).
     """
     status_dir = current_app.config.get("IMPORT_STATUS_DIR")
@@ -322,8 +349,10 @@ def _write_public_status(had_download_errors: bool) -> None:
         "download": {"status": "failed" if had_download_errors else "success"},
         "import": {
             "status": import_status,
+            "kind": import_state.get("kind"),
             "started_at": import_state.get("started_at"),
             "finished_at": import_state.get("finished_at"),
+            "counts": import_state.get("counts"),
         },
     }
 
