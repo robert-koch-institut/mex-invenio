@@ -179,13 +179,13 @@ def initial_import(
     elapsed_time = end_time - start_time
     minutes, seconds = divmod(elapsed_time, 60)
     record_count = len(report)
-    errors = len(errors)
+    errors_count = len(errors)
 
     if record_count > 0:
         logger.info(f"Created {record_count} records. Ids: {report}")
 
-    if errors:
-        logger.error(f"Errors: {errors}")
+    if errors_count:
+        logger.error(f"Errors: {errors_count}")
 
     if minutes:
         time_taken = (

@@ -67,4 +67,6 @@ edges.instances.resources.init = function() {
 
 $(document).ready(function($) {
     edges.instances.resources.init();
+    const searchbarSectionHeight = $(".mex-main-search-template_full").parent().outerHeight();
+    $("#vertical-tab").css("top", `calc(${searchbarSectionHeight}px + 1rem)`);
 });

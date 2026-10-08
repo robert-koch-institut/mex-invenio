@@ -39,20 +39,20 @@
                 display_values(data[special_field("LANGUAGE")]) }}</p>
             {% else %}
             <p class="muted hidden_when_missing" ><b>{{ _('Language') }}:</b>
-            <i class="muted">{{ _("noData") }}</i></p>
+            <i class="muted">{{ _("noValueProvided") }}</i></p>
             {% endif %}
             {% if special_field("CREATED") in data %}
             <p class="muted" ><b>{{ _('Created') }}:</b>{{
                 display_values(data[special_field("CREATED")]) }}</p>
             {% else %}
             <p class="muted hidden_when_missing" ><b>{{ _('Created') }}:</b>
-                <i class="muted">{{ _("noData") }}</i></p>
+                <i class="muted">{{ _("noValueProvided") }}</i></p>
             {% endif %}
             {% if special_field("MODIFIED") in data %}
             <p class="muted"><b>{{ _('Modified') }}:</b>{{ display_values(data[special_field("MODIFIED")]) }}</p>
             {% else %}
             <p class="muted hidden_when_missing" ><b>{{ _('Modified') }}:</b>
-                <i class="muted">{{ _("noData") }}</i></p>
+                <i class="muted">{{ _("noValueProvided") }}</i></p>
             {% endif %}
         </section>
 {%- endblock -%}
@@ -74,7 +74,7 @@
                         {% if icd10val_exists %}
                         <span >{{ display_values(data["mex:icd10code"]) }}</span>
                         {% else %}
-                        <i class="muted">{{ _("noData") }}</i></p>
+                        <i class="muted">{{ _("noValueProvided") }}</i></p>
                         {% endif %}
                     </div>
 
@@ -87,7 +87,7 @@
                         {% if meshval_exists %}
                         <span >{{ display_extids(data["mex:meshId"]) }}</span>
                         {% else %}
-                        <i class="muted">{{ _("noData") }}</i></p>
+                        <i class="muted">{{ _("noValueProvided") }}</i></p>
                         {% endif %}
                     </div>
 
@@ -99,7 +99,7 @@
                         {% if loincval_exists %}
                         <span >{{ display_extids(data["mex:loincId"]) }}</span>
                         {% else %}
-                        <i class="muted hidden_when_missing">{{ _("noData") }}</i></p>
+                        <i class="muted hidden_when_missing">{{ _("noValueProvided") }}</i></p>
                         {% endif %}
                     </div>
             </div>

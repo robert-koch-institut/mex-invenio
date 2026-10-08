@@ -45,7 +45,7 @@ from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
-def _(x):  # needed to avoid start time failure with lazy strings  # noqa: F811
+def _(x):  # type: ignore[no-redef]  # needed to avoid start time failure with lazy strings  # noqa: F811
     return x
 
 
@@ -216,7 +216,7 @@ SECURITY_LOGIN_WITHOUT_CONFIRMATION = (
 # -------------------
 # See https://github.com/inveniosoftware/invenio-oauthclient/blob/master/invenio_oauthclient/config.py
 
-OAUTHCLIENT_REMOTE_APPS = {}  # configure external login providers
+OAUTHCLIENT_REMOTE_APPS = {}  # type: ignore[var-annotated]  # configure external login providers
 
 ACCOUNTS_LOGIN_VIEW_FUNCTION = (
     auto_redirect_login  # autoredirect to external login if enabled
@@ -266,6 +266,13 @@ USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 # S3 config
 
 S3_DOWNLOAD_FOLDER = os.environ.get("INVENIO_S3_DOWNLOAD_FOLDER", "s3_downloads")
+
+IMPORT_STATUS_DIR = os.environ.get("INVENIO_IMPORT_STATUS_DIR")
+"""Directory to write import-status.json to, for nginx to serve directly.
+
+Unset by default (status reporting off) - set only on the import-job's
+container in production (see helm-invenio's import-job.yaml).
+"""
 
 COMMUNITIES_GROUPS_ENABLED = False
 
@@ -508,21 +515,21 @@ UI_SETTINGS = {
                 "components": [
                     {
                         "type": "component",
-                        "title": _("Part Of"),
+                        "title": _("partOf"),
                         "properties": [
                             {"field": "mex:isPartOf"},
                         ],
                     },
                     {
                         "type": "component",
-                        "title": _("Includes"),
+                        "title": _("includes"),
                         "properties": [
                             {"field": "mex:isPartOf", "is_backwards_linked": True},
                         ],
                     },
                     {
                         "type": "component",
-                        "title": _("Related Resource"),
+                        "title": _("Related Resources"),
                         "properties": [
                             {"field": "mex:relatedResource"},
                         ],
@@ -646,7 +653,7 @@ UI_SETTINGS = {
                 "components": [
                     {
                         "type": "component",
-                        "title": _("Part Of"),
+                        "title": _("partOf"),
                         "properties": [
                             {"field": "mex:isPartOfActivity"},
                         ],

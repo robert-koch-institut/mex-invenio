@@ -23,6 +23,9 @@ var/
 .installed.cfg
 *.egg
 
+# Mypy
+.dmypy.json
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -74,6 +77,7 @@ data/.minio.sys
 # Celery
 celerybeat-schedule.*
 
+# IDEs
 .idea/
 
 # Internal files

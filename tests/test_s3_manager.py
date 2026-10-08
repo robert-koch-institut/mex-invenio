@@ -223,13 +223,20 @@ def test_read_new_metadata_failure(mock_read, cli_runner, app_config, s3_client)
     assert cli_runner(manage_s3_files).exit_code == 0
 
 
+@patch(f"{_MODULE}.initial_import", return_value=True)
 @patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
 @patch(
     f"{_MODULE}.read_json_file", return_value=("4.10", "abc", "2024-01-01T00:00:00Z")
 )
 def test_no_processed_dump(
-    mock_read, mock_subdir, mock_installed_version, cli_runner, app_config, s3_client
+    mock_read,
+    mock_subdir,
+    mock_installed_version,
+    mock_initial_import,
+    cli_runner,
+    app_config,
+    s3_client,
 ):
     """Script exits cleanly when no processed dump exists to compare the checksum against."""
     s3_client.list_objects_v2.return_value = {
