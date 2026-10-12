@@ -1,4 +1,10 @@
-from mex_invenio.scripts.utils import get_title, normalize_record_data
+from unittest.mock import patch
+
+from mex_invenio.scripts.utils import (
+    get_installed_model_version,
+    get_title,
+    normalize_record_data,
+)
 
 
 def test_get_title_with_valid_data(app):
@@ -112,3 +118,11 @@ def test_normalize_record_data_html_entities():
     assert normalize_record_data("&lt;script&gt;") == "<script>"
     assert normalize_record_data("M&uuml;ller") == "Müller"
     assert normalize_record_data("caf&eacute;") == "café"
+
+
+def test_get_installed_model_version_truncates_to_major_minor():
+    """Returns '<major>.<minor>', dropping any patch component."""
+    with patch(
+        "mex_invenio.scripts.utils.importlib.metadata.version", return_value="4.10.3"
+    ):
+        assert get_installed_model_version() == "4.10"
