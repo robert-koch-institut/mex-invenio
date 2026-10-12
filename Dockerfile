@@ -10,10 +10,17 @@
 
 FROM registry.cern.ch/inveniosoftware/almalinux:1
 
-# Update python to 3.11
-RUN dnf -y install python3.11 python3.11-devel python3.11-libs python3.11-pip && \
-    alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
-    alternatives --set python3 /usr/bin/python3.11
+# Fail RUN pipelines if any stage errors, not just the last one (e.g. a
+# `curl ... | bash` where curl fails but bash still exits 0 on empty input).
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ENV PIP_NO_CACHE_DIR=1
+
+# Update python to 3.12
+RUN dnf -y install python3.12 python3.12-devel python3.12-libs python3.12-pip && \
+    alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    alternatives --set python3 /usr/bin/python3.12 && \
+    dnf clean all
 
 # pipenv>=2026.7.0 vendors pip 26.2.1, which has a regression in its PEP 517
 # build-isolation sitecustomize injection: it breaks under --system installs
@@ -49,7 +56,8 @@ RUN cd site/mex_invenio && \
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
     nvm use default && \
     npm install && \
-    npm run convert-po
+    npm run convert-po && \
+    npm cache clean --force
 
 # Compile Py translations
 RUN pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
