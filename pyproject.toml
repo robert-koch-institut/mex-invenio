@@ -72,6 +72,7 @@ select = ["ALL"]
     "S101",     # Allow use of `assert` in tests
     "SLF",      # Allow private member access
 ]
+"docker/**" = ["ANN", "D", "E501", "INP001", "PLR2004", "PTH", "S608", "SIM115", "T201"]
 # TODO: re-enable these rules one-by-one
 "site/mex_invenio/config/*" = ["DTZ005", "E501", "F401", "S104", "S105", "TD002"]
 "site/mex_invenio/custom*" = ["A002", "ANN001", "ANN003", "ANN201", "ANN202", "BLE001", "D101", "D103", "C901", "E501", "ERA001", "FBT002", "N801", "PERF203", "PLR0912", "T201", "TD"]
