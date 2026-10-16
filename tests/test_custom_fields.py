@@ -196,13 +196,13 @@ class TestMultiLanguageTextCF:
         assert "Testorganisation" in values
 
 
-class TestFixedEDTFDateStringCF:
-    """Tests for the FixedEDTFDateStringCF custom field type."""
+class TestEDTFDateStringCF:
+    """Tests for the EDTF date custom fields (EDTFDateStringCF)."""
 
     def test_edtf_date_full(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts full date format YYYY-MM-DD."""
+        """Test EDTFDateStringCF accepts full date format YYYY-MM-DD."""
         data = {
             **resource_data,
             "identifier": "test-edtf-full-1",
@@ -219,7 +219,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_year_month(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts year-month format YYYY-MM."""
+        """Test EDTFDateStringCF accepts year-month format YYYY-MM."""
         data = {
             **resource_data,
             "identifier": "test-edtf-ym-1",
@@ -236,7 +236,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_year_only(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts year-only format YYYY."""
+        """Test EDTFDateStringCF accepts year-only format YYYY."""
         data = {
             **resource_data,
             "identifier": "test-edtf-year-1",
@@ -253,7 +253,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_multiple(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF with multiple=True accepts list of dates."""
+        """Test EDTFDateStringCF with multiple=True accepts list of dates."""
         data = {
             **resource_data,
             "identifier": "test-edtf-multi-1",
