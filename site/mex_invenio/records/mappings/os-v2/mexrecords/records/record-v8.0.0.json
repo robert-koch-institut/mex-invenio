@@ -865,6 +865,26 @@
                                     }
                                 }
                             },
+                            "mex:supersededBy": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
                             "mex:unitInCharge": {
                                 "properties": {
                                     "core": {
