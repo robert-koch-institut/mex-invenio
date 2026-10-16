@@ -315,6 +315,7 @@ RDM_FACETS = {
                 "organizationalunit",
                 "person",
                 "primarysource",
+                "resourceseries",
                 "variablegroup",
             ],
         ),
@@ -425,6 +426,10 @@ UI_SETTINGS = {
                     },
                     {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
                     {
+                        "field": "mex:hasPurposeDescription",
+                        "label": _("hasPurposeDescription.singular"),
+                    },
+                    {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
                     },
@@ -465,6 +470,10 @@ UI_SETTINGS = {
                     {
                         "field": "mex:hasCodeValues",
                         "label": _("hasCodeValues.singular"),
+                    },
+                    {
+                        "field": "mex:hasCodingSystem",
+                        "label": _("hasCodingSystem.singular"),
                     },
                     {"field": "mex:analytics", "label": _("analytics.singular")},
                     {"field": "mex:sample", "label": _("sample.singular")},
@@ -532,6 +541,21 @@ UI_SETTINGS = {
                     },
                 ],
             },
+            "datasetSeries": {
+                "title": _("Dataset Series"),
+                "icon": "relatedResources.svg",
+                "properties": [
+                    {"field": "mex:inSeries", "label": _("inSeries.singular")},
+                    {
+                        "field": "mex:inSeriesFirstResource",
+                        "label": _("inSeriesFirstResource.singular"),
+                    },
+                    {
+                        "field": "mex:inSeriesLastResource",
+                        "label": _("inSeriesLastResource.singular"),
+                    },
+                ],
+            },
         },
         "side_bar": {
             "contact": {
@@ -560,6 +584,7 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
+                    {"field": "mex:landingPage", "label": _("landingPage.singular")},
                     {"field": "mex:license", "label": _("license.singular")},
                     {"field": "mex:rights", "label": _("rights.singular")},
                 ],
@@ -907,6 +932,7 @@ ENTITIES = [
     "person",
     "primary-source",
     "resource",
+    "resource-series",
     "variable-group",
     "variable",
 ]
