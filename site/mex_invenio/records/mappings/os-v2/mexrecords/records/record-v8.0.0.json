@@ -445,66 +445,6 @@
                                     }
                                 }
                             },
-                            "mex:hadPrimarySource": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:hasDataSubject": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:inScheme": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
                             "mex:involvedPerson": {
                                 "properties": {
                                     "core": {
@@ -765,7 +705,7 @@
                                     }
                                 }
                             },
-                            "mex:stableTargetId": {
+                            "mex:succeeds": {
                                 "properties": {
                                     "core": {
                                         "type": "text"
@@ -785,7 +725,7 @@
                                     }
                                 }
                             },
-                            "mex:succeeds": {
+                            "mex:supersededBy": {
                                 "properties": {
                                     "core": {
                                         "type": "text"
