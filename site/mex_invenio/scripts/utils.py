@@ -209,6 +209,7 @@ def get_related_mex_ids(record: dict) -> list:
         "bibliographicresource": "bibliographic-resource",
         "variablegroup": "variable-group",
         "primarysource": "primary-source",
+        "resourceseries": "resource-series",
     }
 
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")

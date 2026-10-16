@@ -568,6 +568,9 @@ msgstr "Veröffentlichungen & Dokumentation"
 msgid "Related Resources"
 msgstr "Verknüpfte Ressourcen"
 
+msgid "Dataset Series"
+msgstr "Datensatzkollektion"
+
 msgid "Views"
 msgstr "Aufrufe"
 
