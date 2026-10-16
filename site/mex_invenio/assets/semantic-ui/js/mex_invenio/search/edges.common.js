@@ -108,6 +108,10 @@ mex.constants.CREATOR = "index_data.creators"
 mex.constants.KEYWORD = "custom_fields.mex:keyword.value"
 mex.constants.MEX_ID = "custom_fields.mex:identifier"
 mex.constants.TEMPORAL = "custom_fields.mex:temporal"
+mex.constants.POPULATION_COVERAGE = "custom_fields.mex:populationCoverage.value"
+mex.constants.SPATIAL = "custom_fields.mex:spatial.value"
+mex.constants.ISSUED = "custom_fields.mex:issued"
+mex.constants.VALUE_SET = "custom_fields.mex:valueSet"
 
 
 ///////////////////////////////////////////////////
@@ -4115,12 +4119,12 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             );
 
             // extract the highlights from the results
-            let highlights = mex.extractHighlights(this.component.edge.result);
+            let highlights = mex.highlight.extractHighlights(this.component.edge.result);
 
             // now call the result renderer on each result to build the records
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i], highlights);
+                var rec = this._renderResult(results[i], highlights[results[i].uuid]);
                 if (this.debug) {
                     let debugInfo = this._renderDebug(results[i]);
                     rec += `
@@ -4254,7 +4258,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-        let wrap = new mex.MexRecord(res, highlights[res.uuid]);
+        let wrap = new mex.MexRecord(res, highlights);
 
         let accessRestrictionRaw = wrap.accessRestriction;
         let accessRestriction = wrap.accessRestrictionVocab;
@@ -4485,10 +4489,10 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         let results = this.component.results;
 
         // now call the result renderer on each result to build the records
-        let highlights = mex.extractHighlights(this.component.edge.result);
+        let highlights = mex.highlight.extractHighlights(this.component.edge.result);
         let resultsFrag = "";
         for (let i = 0; i < results.length; i++) {
-            let rec = this._renderResult(results[i], highlights);
+            let rec = this._renderResult(results[i], highlights[results[i].uuid]);
             resultsFrag += `${rec}`;
         }
 
@@ -4606,10 +4610,10 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
     }
 
     _renderResult(record, highlights) {
-        let title = mex.getHighlight(highlights, record.uuid, mex.constants.TITLE);
-        if (!title) {
-            title = mex.getLangVal(mex.constants.TITLE_CONTAINER, record, i18n.t("No title"));
-        }
+        let wrap = new mex.MexRecord(record, highlights);
+
+        let originalTitle = wrap.title;
+        let shortTitle = wrap.shortTitle(80);
 
         let selectState = "unselected";
         if (this.selector && this.selector.isSelected(record.id)) {
@@ -4617,16 +4621,9 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
         }
 
         // Variable groups
-        let lang = mex.state.lang;
-        // let vgField = lang === "en" ? mex.constants.VARIABLE_GROUPS_EN : mex.constants.VARIABLE_GROUPS_DE;
-        let varsField = mex.constants.USED_IN_DISPLAY_BACKLINK;
-        let vars = edges.util.pathValue(varsField, record, []);
+        let vars = wrap.usedInDisplayBacklink
 
-        let selectClass = edges.util.jsClasses(
-            this.namespace,
-            "select",
-            this.component.id
-        );
+        let selectClass = edges.util.jsClasses(this.namespace, "select", this.component.id);
 
         let id = edges.util.safeId(record.id);
         let buttonId = edges.util.htmlID(this.namespace, `resource-${id}`, this.component.id);
@@ -4637,8 +4634,8 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
             return ariaLabel
         }
 
-        let titleFrag = title.substring(0, 80);
-        if (title.length > 80) {
+        let titleFrag = originalTitle;
+        if (originalTitle.length > 80) {
             titleFrag += `...`
         }
         titleFrag += `<span class="muted">&nbsp;(${vars.length})</span>`
@@ -4653,7 +4650,7 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
                                 data-id="${record.id}"
                                 data-state="${selectState}"
                                 title="${i18n.t("Select")}
-                                aria-label="${_setupAriaLabel(title)}"
+                                aria-label="${_setupAriaLabel(originalTitle)}"
                                 aria-selected="${i18n.t(selectState)}"
                                 aria-live="polite"
                                 ></button>
@@ -4668,79 +4665,41 @@ mex.renderers.CompactResourcesResults = class extends mex.renderers.ResourcesRes
 
         return frag;
     }
-
-    _getLangVal(path, res, def) {
-        return mex.getLangVal(path, res, def);
-    }
-
-    _rankedByLang(path, res) {
-        return mex.rankedByLang(path, res);
-    }
 };
 
 mex.renderers.activitiesResultView = function (res, highlights, include_resource_type = false) {
-    if (!highlights) {
-        highlights = {}
-    }
+    let wrap = new mex.MexRecord(res, highlights);
 
-    let title = edges.util.escapeHtml(
-        mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
-    );
+    let title = wrap.title;
+    let alt = wrap.alternativeTitle;
+    let desc = wrap.abstract;
+    let mex_id = wrap.mexId;
+    let start = wrap.start;
+    let end = wrap.end;
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
-    if (alt) {
-        alt = edges.util.escapeHtml(alt);
-    } else {
-        alt = "";
-    }
-
-    let desc = mex.getLangVal(mex.constants.ABSTRACT_CONTAINER, res, "");
-    if (desc.length > 300) {
-        desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
-    }
-
-    if (highlights) {
-        if (highlights[mex.constants.ABSTRACT]) {
-            desc = highlights[mex.constants.ABSTRACT];
+    function resourceType() {
+        if (include_resource_type) {
+            return `<div class="card-header">
+                        <div class="tags">
+                            <span class="tag resource-type"><img class="ui image icon--text" src="/static/icons/activity-record.svg" role="presentation"/>&nbsp;${i18n.t('Project')}</span>
+                        </div>
+                   </div>`
         }
-        if (highlights[mex.constants.TITLE]) {
-            title = highlights[mex.constants.TITLE];
+        return "";
+    }
+
+    function subtitle(alt) {
+        if (alt) {
+            return `<span class="subtitle">&nbsp;${alt}</span>`
         }
+        return "";
     }
 
-    // let start = i18n.t("Unknown start date");
-    // start = mex.extractMultiDate(mex.constants.START, res, start);
-
-    // let end = i18n.t("Unknown end date");
-    // end = mex.extractMultiDate(mex.constants.END, res, end);
-
-    function resourceTypeMacro() {
-        return `<span class="tag resource-type"><img class="ui image icon--text"
-             src="/static/icons/activity-record.svg"
-             role="presentation"/>&nbsp;${i18n.t('Project')}</span>`
-    }
-
-    let mex_id = res["custom_fields"]["mex:identifier"]
-
-    let frag = `<div class="card results-card">`
-    if (include_resource_type) {
-        frag += `<div class="card-header"><div class="tags">
-                ${resourceTypeMacro()}
-                </div></div>`
-    }
-    frag += `<h3 class="title" style="display: unset;">
-        <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>`
-
-    if (alt) {
-        frag += `<span class="subtitle">&nbsp;${alt}</span>`
-    }
-    frag += `</h3>`
-
-    if (desc) {
-        frag += `<p class="description">
-            ${desc.slice(0, 600)}
-            ${desc.length > 600 ? "..." : ""}
-        </p>`;
+    function abstract(desc) {
+        if (desc) {
+            return `<p class="description">${desc}</p>`
+        }
+        return "";
     }
 
     function date_ui(date) {
@@ -4758,98 +4717,60 @@ mex.renderers.activitiesResultView = function (res, highlights, include_resource
         return date_ui
     }
 
-    let start = res["custom_fields"]["mex:start"];
-    let start_ui = date_ui(start)
-    let end = res["custom_fields"]["mex:end"];
-    let end_ui = date_ui(end)
+    function duration(start, end) {
+        let start_ui = date_ui(start);
+        let end_ui = date_ui(end)
 
-    let duration_label = "";
-    if (start && end) {
-        duration_label = i18n.t("Project's duration");
-    } else if (start) {
-        duration_label = i18n.t("Project's start");
-    } else if (end) {
-        duration_label = i18n.t("Project's end");
+        let duration_label = "";
+        if (start && end) {
+            duration_label = i18n.t("Project's duration");
+        } else if (start) {
+            duration_label = i18n.t("Project's start");
+        } else if (end) {
+            duration_label = i18n.t("Project's end");
+        }
+
+        if (start || end) {
+            return `<p class="date muted"><span class="label">${duration_label}: </span>
+                ${start_ui ?? ''}
+                ${start && end ? i18n.t('to') : ''}
+                ${end_ui ?? ''}
+            </p>`;
+        }
+        return "";
     }
 
-    if (start || end) {
-        frag += `<p class="date muted"><span class="label">${duration_label}: </span>
-        ${start_ui ?? ''}
-        ${start && end ? i18n.t('to') : ''}
-        ${end_ui ?? ''}
-    </p>`;
-    }
-
-    frag += `</div>`
+    let frag = `<div class="card results-card">
+        ${resourceType()}
+        <h3 class="title" style="display: unset;">
+            <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
+            ${subtitle(alt)}
+        </h3>
+        ${abstract(desc)}
+        ${duration(start, end)}
+    </div>`;
 
     return frag;
 }
 
 mex.renderers.bibliographicResourcesView = function (res, highlights, include_resource_type = false) {
-    let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
-    let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+    let wrap = new mex.MexRecord(res, highlights);
 
-    let title = edges.util.escapeHtml(
-        mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
-    );
+    let accessRestriction = wrap.accessRestrictionVocab;
+    let title = wrap.title;
+    let alt = wrap.alternativeTitle;
+    let sub = wrap.subtitle;
+    let desc = wrap.abstract;
+    let creators = wrap.creatorsNames;
+    let responsibleUnit = wrap.responsibleUnitNames;
+    let mex_id = wrap.mexId;
+    let pubYear = wrap.issued;
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
-    if (alt) {
-        alt = edges.util.escapeHtml(alt);
-    } else {
-        alt = "";
+    function access(ar) {
+        return `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`;
     }
 
-    let sub = mex.getLangVal(mex.constants.SUBTITLE_CONTAINER, res);
-    if (sub) {
-        sub = edges.util.escapeHtml(alt);
-    } else {
-        sub = "";
-    }
-
-    let desc = mex.getLangVal(mex.constants.ABSTRACT_CONTAINER, res, "");
-    if (desc.length > 300) {
-        desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
-    }
-
-    if (highlights) {
-        if (highlights[mex.constants.ABSTRACT]) {
-            desc = highlights[mex.constants.ABSTRACT]
-        }
-        if (highlights[mex.constants.TITLE]) {
-            title = highlights[mex.constants.TITLE]
-        }
-    }
-
-    // let creators = edges.util.pathValue(mex.constants.CREATOR, res, []);
-
-    function getCreatorsNames(field) {
-
-        const hasMore = field.length > 2;
-
-        if (field) {
-            const names = field
-                .slice(0, 2)
-                .map(item => item.display_value[0].value)
-                .join(", ");
-
-            return hasMore ? `${names}, et al.` : names;
-        }
-
-        return '';
-
-    }
-
-    let creators = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:creator", res) ?? '')
-    let responsibleUnit = getCreatorsNames(edges.util.pathValue("display_data.linked_records.mex:responsibleUnit", res) ?? '')
-
-    // let pubYear = edges.util.pathValue(
-    //     "custom_fields.mex:publicationYear.date",
-    //     res,
-    //     ""
-    // );
-
-    function resourceTypeMacro() {
+    function resourceType() {
         if (include_resource_type) {
             return `<div class="tag resource-type"><img class="ui image icon--text"
                  src=/static/icons/bibliographicresource-record.svg
@@ -4858,43 +4779,57 @@ mex.renderers.bibliographicResourcesView = function (res, highlights, include_re
         return "";
     }
 
-    function titleMacro(title, id) {
+    function creatorsMacro(creators, responsibleUnit) {
+        if (creators) {
+            return `<span class="date muted">${creators}</span>`
+        } else if (responsibleUnit) {
+            return `<span class="date muted">${responsibleUnit}</span>`
+        }
+        return "";
+    }
 
-        const mex_id = res["custom_fields"]["mex:identifier"];
+    function titleMacro(title, id) {
         return `
         <h3 class="title">
             <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
         </h3>`;
     }
 
-    let pubYear = res["custom_fields"]["mex:issued"];
+    function descriptionMacro(desc) {
+        if (desc) {
+            return `<p class="description">${desc}</p>`;
+        }
+        return "";
+    }
 
-    let frag = `<div class="card results-card">`;
+    function altTitle(alt) {
+        if (alt) {
+            return `<p class="subtitle">${alt}</strong>`;
+        }
+        return "";
+    }
 
-    frag += `<div class="card-header" style="justify-content: flex-start; gap: 1rem;"><div class="tags">
-    ${resourceTypeMacro()}
-    ${accessRestrictionFrag}
+    function pubYearMacro(pubYear) {
+        if (pubYear) {
+            return `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}</p>`;
+        }
+        return "";
+    }
+
+    let frag = `<div class="card results-card">
+        <div class="card-header" style="justify-content: flex-start; gap: 1rem;">
+            <div class="tags">
+                ${resourceType()}
+                ${access(accessRestriction)}
+            </div>
+            ${creatorsMacro(creators, responsibleUnit)}
+        </div>
+        ${titleMacro(title, res.id)}
+        ${altTitle(alt)}
+        ${descriptionMacro(desc)}
+        ${pubYearMacro(pubYear)}
     </div>`
-    if (creators) {
-        frag += `<span class="date muted">${creators}</span>`
-    } else if (responsibleUnit) {
-        frag += `<span class="date muted">${responsibleUnit}</span>`
-    }
 
-    frag += `</div>${titleMacro(title, res.id)}`;
-
-    if (alt) {
-        frag += `<p class="subtitle">${alt}</strong>`;
-    }
-
-    if (desc) {
-        frag += `<p class="description">${sub}</p>`;
-    }
-    if (pubYear) {
-        frag += `<p class="description"><span class="label muted">${i18n.t("issued")}:</span> ${mex.fullDateFormatter(pubYear)}`;
-    }
-
-    frag += `</div>`;
     return frag;
 }
 
@@ -4927,10 +4862,10 @@ mex.renderers.ActivitiesResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
-            let highlights = mex.extractHighlights(this.component.edge.result);
+            let highlights = mex.highlight.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i], highlights);
+                var rec = this._renderResult(results[i],  highlights[results[i].uuid]);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -4946,24 +4881,7 @@ mex.renderers.ActivitiesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        // let highlights = {};
-        // let hits = this.component.edge.result.data.hits.hits;
-        // for (let hit of hits) {
-        //     if (res.uuid === hit._id) {
-        //         if (hit.highlight) {
-        //             highlights = hit.highlight;
-        //         }
-        //     }
-        // }
-        let myHighlights = {};
-        if (highlights && res.uuid in highlights) {
-            myHighlights = highlights[res.uuid];
-        }
-
-        return mex.renderers.activitiesResultView(res, myHighlights);
+        return mex.renderers.activitiesResultView(res, highlights);
     }
 };
 
@@ -5000,10 +4918,10 @@ mex.renderers.BibliographicResourcesResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
-            let highlights = mex.extractHighlights(this.component.edge.result);
+            let highlights = mex.highlight.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                var rec = this._renderResult(results[i], highlights);
+                var rec = this._renderResult(results[i], highlights[results[i].uuid]);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -5019,23 +4937,7 @@ mex.renderers.BibliographicResourcesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-        // FIXME: getting highlights out is difficult with the existing component, and the es integration.  They will
-        // need reworking to do this properly.  For the moment this workaround will deal with it, but it is not
-        // great, and will slow down large result sets
-        // let highlights = {};
-        // let hits = this.component.edge.result.data.hits.hits;
-        // for (let hit of hits) {
-        //     if (res.uuid === hit._id) {
-        //         if (hit.highlight) {
-        //             highlights = hit.highlight;
-        //         }
-        //     }
-        // }
-        let myHighlights = {};
-        if (res.uuid in highlights) {
-            myHighlights = highlights[res.uuid];
-        }
-        return mex.renderers.bibliographicResourcesView(res, myHighlights);
+        return mex.renderers.bibliographicResourcesView(res, highlights);
     }
 };
 
@@ -5068,11 +4970,11 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
         }
 
         let results = this.component.results;
-        let highlights = mex.extractHighlights(this.component.edge.result);
+        let highlights = mex.highlight.extractHighlights(this.component.edge.result);
         if (results && results.length > 0) {
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                frag += this._renderResult(results[i], highlights);
+                frag += this._renderResult(results[i], highlights[results[i].uuid]);
             }
         }
 
@@ -5180,94 +5082,129 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
     }
 
     _renderResult(res, highlights) {
-        // get fields (escaped)
-        let label = mex.getHighlight(highlights, res.uuid, mex.constants.LABEL);
-        if (!label) {
-            label = edges.util.escapeHtml(
-                mex.getLangVal(mex.constants.LABEL_CONTAINER, res, "No label")
-            );
-        }
+        let wrap = new mex.MexRecord(res, highlights);
 
-        const getTitle = (v, resultHighlights) => {
-            let langPrefix = mex.state.lang;
-            const combineTitles = (items) => items.map(d => d.value).join(', ');
+        let label = wrap.label;
+        let desc = wrap.description;
+        let resources = wrap.getUsedInDisplay(mex.state.lang);
+        let groups = wrap.getGroups(mex.state.lang);
+        let dataType = wrap.dataType;
+        let codingSystem = wrap.codingSystem;
+        let valueSet = wrap.valueSet;
 
-            const dd = v.display_value || [];
-            const correctLang = dd.filter(d => d.language === langPrefix);
-            const emptyLang = dd.filter(d => d.language === '');
-
-            const selected =
-                correctLang.length > 0
-                    ? [...correctLang, ...emptyLang]
-                    : dd;
-
-            return combineTitles(selected);
-        }
-
-        let resultHighlights = highlights && res.uuid in highlights ? highlights[res.uuid] : {};
-        let resources = edges.util.pathValue(edges.mex.constants.USED_IN_DISPLAY, res, []);
-
-        let resourceFrag = "";
-        if (resources) {
-            // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
-            // highlighted fragment
-            if (mex.constants.USED_IN_DE in resultHighlights) {
-                resourceFrag = resultHighlights[mex.constants.USED_IN_DE];
-            } else if (mex.constants.USED_IN_EN in resultHighlights) {
-                resourceFrag = resultHighlights[mex.constants.USED_IN_EN];
-            } else {
-                for (let r of resources) {
-                    resourceFrag += `<p class="results-value">
-                        <a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${getTitle(r, resultHighlights)}</a>
-                    </p>`
-                }
+        function resourceMacro(resources) {
+            let resourceFrag = "";
+            for (let r of resources) {
+                resourceFrag += `<p class="results-value">
+                        <a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${r.value}</a>
+                </p>`
             }
+            return resourceFrag;
         }
 
-        let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
-        let groupFrag = "";
-        if (groups) {
-            // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
-            // highlighted fragment
-            if (mex.constants.BELONGS_TO_LABEL in resultHighlights) {
-                groupFrag = resultHighlights[mex.constants.BELONGS_TO_LABEL];
-            } else {
-                for (let g of groups) {
-                    groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
-                }
-            }
-        }
-
-        let dataType = mex.getHighlight(highlights, res.uuid, mex.constants.DATA_TYPE);
-        if (!dataType) {
-            dataType = edges.util.escapeHtml(
-                edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
-            );
-        }
-
-        let desc = edges.util.escapeHtml(
-            this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
-        );
-
-        let codingSystem = edges.util.pathValue(
-            mex.constants.CODING_SYSTEM,
-            res,
-            []
-        );
-        if (!Array.isArray(codingSystem)) {
-            codingSystem = [codingSystem];
-        }
-        let codingFrag = "";
-        if (codingSystem.length > 0) {
-            codingFrag = `
+        function codingMacro(codingSystem) {
+            let codingFrag = "";
+            if (codingSystem.length > 0) {
+                codingFrag = `
                     ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
+            }
+            return codingFrag;
         }
 
-        let valueSetFrag = "";
-        let valueSet = res["custom_fields"]["mex:valueSet"]
-        if (valueSet) {
-            valueSetFrag = valueSet.join(", ");
+        function groupMacro(groups) {
+            let groupFrag = "";
+            for (let g of groups) {
+                groupFrag += `<p class="results-value results-value--variable-group">${g.value}</p>`
+            }
+            return groupFrag;
         }
+
+        // const getTitle = (v, resultHighlights) => {
+        //     let langPrefix = mex.state.lang;
+        //     const combineTitles = (items) => items.map(d => d.value).join(', ');
+        //
+        //     const dd = v.display_value || [];
+        //     const correctLang = dd.filter(d => d.language === langPrefix);
+        //     const emptyLang = dd.filter(d => d.language === '');
+        //
+        //     const selected =
+        //         correctLang.length > 0
+        //             ? [...correctLang, ...emptyLang]
+        //             : dd;
+        //
+        //     return combineTitles(selected);
+        // }
+
+        // I have moved this into the wrapper, but the implementation is slightly different,
+        // and we need to check it is equivalent
+        //
+        // let resourceFrag = "";
+        // if (resources) {
+        //     // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
+        //     // highlighted fragment
+        //     if (mex.constants.USED_IN_DE in resultHighlights) {
+        //         resourceFrag = resultHighlights[mex.constants.USED_IN_DE];
+        //     } else if (mex.constants.USED_IN_EN in resultHighlights) {
+        //         resourceFrag = resultHighlights[mex.constants.USED_IN_EN];
+        //     } else {
+        //         for (let r of resources) {
+        //             resourceFrag += `<p class="results-value">
+        //                 <a href="/records/mex/${r.link_id}" target="_blank" class="results-value--resource-title">${getTitle(r, resultHighlights)}</a>
+        //             </p>`
+        //         }
+        //     }
+        // }
+
+        // let groups = edges.util.pathValue(edges.mex.constants.BELONGS_TO_DISPLAY, res, []);
+        // let groupFrag = "";
+        // if (groups) {
+        //     // FIXME: it's not clear how to resolve the usual behaviour of all the resources, each linked, with the
+        //     // highlighted fragment
+        //     if (mex.constants.BELONGS_TO_LABEL in resultHighlights) {
+        //         groupFrag = resultHighlights[mex.constants.BELONGS_TO_LABEL];
+        //     } else {
+        //         for (let g of groups) {
+        //             groupFrag += `<p class="results-value results-value--variable-group">${getTitle(g)}</p>`
+        //         }
+        //     }
+        // }
+
+        // let dataType = mex.getHighlight(highlights, res.uuid, mex.constants.DATA_TYPE);
+        // if (!dataType) {
+        //     dataType = edges.util.escapeHtml(
+        //         edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
+        //     );
+        // }
+
+        // let desc = edges.util.escapeHtml(
+        //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
+        // );
+
+        // let codingSystem = edges.util.pathValue(
+        //     mex.constants.CODING_SYSTEM,
+        //     res,
+        //     []
+        // );
+        // if (!Array.isArray(codingSystem)) {
+        //     codingSystem = [codingSystem];
+        // }
+
+        let resourceFrag = resourceMacro(resources);
+        let codingFrag = codingMacro(codingSystem);
+        let valueSetFrag = valueSet ? valueSet.join(", ") : "";
+        let groupFrag = groupMacro(groups);
+
+        // let codingFrag = "";
+        // if (codingSystem.length > 0) {
+        //     codingFrag = `
+        //             ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
+        // }
+
+        // let valueSetFrag = "";
+        // // let valueSet = res["custom_fields"]["mex:valueSet"]
+        // if (valueSet) {
+        //     valueSetFrag = valueSet.join(", ");
+        // }
 
         let collapsedClass = edges.util.jsClasses(this.namespace, "collapsed-view", this.component.id);
         let expandedClass = edges.util.jsClasses(this.namespace, "expanded-view", this.component.id);
@@ -5287,6 +5224,8 @@ mex.renderers.VariablesResults = class extends edges.Renderer {
                     ${valueSetFrag && `<div class="${expandedRowClass}--details ${expandedRowClass}--coding"><span class="attribute-label">${i18n.t("Value set")}:</span> ${valueSetFrag}</div>`}
                 `;
         }
+
+
 
         let frag = `
             <tr class="${collapsedRowIdClass} ${collapsedRowClass}" data-label="${label}" role="row" data-id="${res.id}">
@@ -5477,10 +5416,10 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             );
 
             // now call the result renderer on each result to build the records
-            let highlights = mex.extractHighlights(this.component.edge.result);
+            let highlights = mex.highlight.extractHighlights(this.component.edge.result);
             frag = "";
             for (var i = 0; i < results.length; i++) {
-                let rec = this._renderResult(results[i], highlights);
+                let rec = this._renderResult(results[i], highlights[results[i].uuid]);
                 frag += `<div class="${recordClasses}">${rec}</div>`;
             }
         }
@@ -5510,47 +5449,57 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
     }
 
     _renderResource(res, highlights) {
-        let accessRestriction = mex.vocabularyLookup(res.custom_fields["mex:accessRestriction"])
-        let accessRestrictionFrag = `<span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[res.custom_fields["mex:accessRestriction"]]}">${accessRestriction}</span>`
+        let wrap = new mex.MexRecord(res, highlights);
 
-        let title = mex.getHighlight(highlights, res.uuid, mex.constants.TITLE);
-        if (!title) {
-            title = edges.util.escapeHtml(
-                mex.getLangVal(mex.constants.TITLE_CONTAINER, res, i18n.t("No title"))
-            );
+        let accessRestrictionRaw = wrap.accessRestriction;
+        let accessRestriction = wrap.accessRestrictionVocab;
+        let title = wrap.title;
+        let alt = wrap.alternativeTitle;
+        let desc = wrap.description;
+        let keywords = wrap.keywords;
+        let mex_id = wrap.mexId;
+
+        function createdDate() {
+            let created_ui = wrap.created;
+            return `<p class="date muted"><span class="tag">${created_ui}</span></p>`;
         }
 
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
-        if (alt) {
-            alt = edges.util.escapeHtml(alt);
-        } else {
-            alt = "";
-        }
-
-        let desc = mex.getHighlight(highlights, res.uuid, mex.constants.DESCRIPTION);
-        if (!desc) {
-            desc = mex.getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "");
-            if (desc.length > 300) {
-                desc = edges.util.escapeHtml(desc.substring(0, 300)) + "...";
+        function altTitle(alt) {
+            if (alt) {
+                return `<p class="subtitle">${alt}</strong>`;
             }
+            return "";
         }
 
-        let created = res["custom_fields"]["mex:created"]
-        created = `<span class="tag">${created}</span>`;
-        let created_ui = "";
-        if (created && created.date) {
-            created_ui = mex.fullDateFormatter(created.date);
-            if (created_ui === "Invalid Date") {
-                created_ui = created.date;
+        function description(desc) {
+            if (desc) {
+                return `<p class="description">
+                    ${desc.slice(0, 300)}
+                    ${desc.length > 300 ? "..." : ""}
+                </p>`
             }
+            return "";
         }
 
-        let keywords = mex.rankedByLang(mex.constants.KEYWORD_CONTAINER, res);
-        if (keywords.length > 5) {
-            keywords = keywords.slice(0, 5);
+        function keywordTags(keywords) {
+            function tags() {
+                let frag = "";
+                for (let key of keywords) {
+                    frag += `<span class="tag keyword">${key}</span>`;
+                }
+                return frag;
+            }
+
+            if (keywords.length > 0) {
+                return `
+                    <div class="tags">
+                        ${tags()}
+                    </div>
+                `;
+            }
+            return "";
         }
 
-        let mex_id = res["custom_fields"]["mex:identifier"]
         let frag = `
             <div class="card results-card">
                 <div class="card-header">
@@ -5560,105 +5509,121 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
                                 role="presentation"/>
                             &nbsp;${i18n.t('Data source/dataset')}
                         </div>
-                        ${accessRestrictionFrag}
-                    </div>`
-
-        if (created_ui) {
-            frag += `
-                    <p class="date muted">${created_ui}</p>
-                `
-        }
-
-        frag += `
+                        <span class="tag" style="background-color: ${mex.ACCESS_RESTRICTION_COLOUR_MAP[accessRestrictionRaw]}">${accessRestriction}</span>
+                    </div>
+                    ${createdDate(wrap)}
                 </div>
                 <h3 class="title">
                     <a href="/records/mex/${mex_id}" target="_blank">${title ? title : mex_id}</a>
-                </h3>`
-        if (alt) {
-            frag += `<p class="subtitle">${alt}</strong>`
-        }
-
-        if (desc) {
-            frag += `<p class="description">
-                    ${desc.slice(0, 600)}
-                    ${desc.length > 600 ? "..." : ""}
-                </p>`
-        }
-
-        if (keywords.length > 0) {
-            frag += `<div class="tags">`
-            for (let key of keywords) {
-                frag += `
-                        <span class="tag">${key}</span>
-                    `
-            }
-            frag += `</div>`
-        }
-
-        frag += `</div>`;
+                </h3>
+                ${altTitle(alt)}
+                ${description(desc)}
+                ${keywordTags(keywords)}
+            </div>`;
 
         return frag;
     }
 
     _renderBibliographicResource(res, highlights) {
-        let myHighlights = {};
-        if (highlights && res.uuid in highlights) {
-            myHighlights = highlights[res.uuid];
-        }
-        return mex.renderers.bibliographicResourcesView(res, myHighlights, true);
+        return mex.renderers.bibliographicResourcesView(res, highlights, true);
     }
 
     _renderActivity(res, highlights) {
-        let myHighlights = {};
-        if (highlights && res.uuid in highlights) {
-            myHighlights = highlights[res.uuid];
-        }
-        return mex.renderers.activitiesResultView(res, myHighlights, true);
+        return mex.renderers.activitiesResultView(res, highlights, true);
     }
 
     _renderVariable(res, highlights) {
-        let mex_id = res["custom_fields"]["mex:identifier"]
+        let wrap = new mex.MexRecord(res, highlights);
 
-        let myHighlights = {};
-        if (highlights && res.uuid in highlights) {
-            myHighlights = highlights[res.uuid];
-        }
+        let mex_id = wrap.mexId;
+        let label = wrap.label;
+        // let resources = wrap.getUsedInDisplay(mex.state.lang);
+        let groups = wrap.getGroups(mex.state.lang);
+        let dataType = wrap.dataType;
+        let codingSystem = wrap.codingSystem;
+        let desc = wrap.description;
 
-        let label = edges.util.escapeHtml(
-            mex.getLangVal(mex.constants.LABEL_CONTAINER, res, mex_id)
-        );
-        if (myHighlights[mex.constants.LABEL]) {
-            label = myHighlights[mex.constants.LABEL]
-        }
+        // let langPrefix = mex.state.lang;
+        // let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
+        // let resources = edges.util.pathValue(
+        //     rpath,
+        //     res,
+        //     []
+        // );
 
-        let langPrefix = mex.state.lang;
-        let rpath = langPrefix === "en" ? mex.constants.USED_IN_EN : mex.constants.USED_IN_DE;
-        let resources = edges.util.pathValue(
-            rpath,
-            res,
-            []
-        );
+        // let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
+        // let groupFrag = "";
+        // if (groups.length > 1) {
+        //     groupFrag = `<div class="groups-list"><span class="label">${i18n.t("belongsTo")}:
+        //         <span>` +
+        //         groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
+        //         `</span>`;
+        // }
 
-        let groups = edges.util.pathValue(mex.constants.BELONGS_TO_LABEL, res, []);
-        let groupFrag = "";
-        if (groups.length > 1) {
-            groupFrag = `<div class="groups-list"><span class="label">${i18n.t("belongsTo")}:
-                <span>` +
-                groups.map((g) => edges.util.escapeHtml(g)).join(", ") +
-                `</span>`;
-        }
-
-        let dataType = edges.util.escapeHtml(
-            edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
-        );
-
-        let codingSystem = edges.util.escapeHtml(
-            edges.util.pathValue(mex.constants.CODING_SYSTEM, res, "")
-        );
+        // let dataType = edges.util.escapeHtml(
+        //     edges.util.pathValue(mex.constants.DATA_TYPE, res, "")
+        // );
+        //
+        // let codingSystem = edges.util.escapeHtml(
+        //     edges.util.pathValue(mex.constants.CODING_SYSTEM, res, "")
+        // );
 
         // let desc = edges.util.escapeHtml(
         //     this._getLangVal(mex.constants.DESCRIPTION_CONTAINER, res, "")
         // );
+
+        function dataTypeMacro(dataType) {
+            if (dataType) {
+                return `<span class="tag">${dataType}</span>`;
+            }
+            return "";
+        }
+
+        function codingMacro(codingSystem) {
+            if (!codingSystem || codingSystem.length === 0) {
+                return "";
+            }
+            let codingFrag = "";
+            if (codingSystem.length > 0) {
+                codingFrag = `
+                    ${codingSystem.map((c) => edges.util.escapeHtml(c)).join(", ")}`;
+            }
+            return `<div class="description">
+                        <span class="label">
+                            ${i18n.t('Coding system')}:
+                        </span>
+                        <span>
+                            ${codingFrag}
+                        </span>
+                    </div>`;
+
+        }
+
+        function groupMacro(groups) {
+            let groupFrag = "";
+            if (groups && groups.length > 0) {
+                groupFrag = `<div class="groups-list">
+                    <span class="label">${i18n.t("belongsTo")}</span>:
+                    <span>${groups.map((g) => g.value).join(", ")}</span>`;
+            }
+            if (groupFrag) {
+                return `<div class="description">
+                            ${groupFrag}
+                        </div>`
+            }
+            return "";
+        }
+
+        function description(desc) {
+            if (desc) {
+                return `<p class="description">
+                    ${desc.slice(0, 300)}
+                    ${desc.length > 300 ? "..." : ""}
+                </p>`
+            }
+            return "";
+        }
+
         let frag = `
             <div class="card results-card">
                 <div class="card-header">
@@ -5668,34 +5633,18 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
                                 src="/static/icons/variable-record.svg"
                                 role="presentation"/>
                             &nbsp;${i18n.t('Variable')}
-                        </span>`
-        if (dataType) {
-            frag += `<span class="tag">${dataType}</span>`;
-        }
-
-        frag += `</div></div>
+                        </span>
+                        ${dataTypeMacro(dataType)}
+                    </div>
+                </div>
                 <h3 class="title">
                     <a href="/search/variables?var=${mex_id}" target="_blank">${label ? label : mex_id}</a>
-                </h3>`
+                </h3>
+                ${description(desc)}
+                ${codingMacro(codingSystem)}
+                ${groupMacro(groups)}
+            </div>`;
 
-        if (codingSystem) {
-            frag += `<div class="description">
-                        <span class="label">
-                            ${i18n.t('Coding system')}:
-                        </span>
-                        <span>
-                            ${codingSystem}
-                        </span>
-                    </div>`
-        }
-
-        if (groupFrag) {
-            frag += `<div class="description">
-                        ${groupFrag}
-                    </div>`
-        }
-
-        frag += `</div>`
         return frag;
     }
 };

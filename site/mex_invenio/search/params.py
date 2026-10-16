@@ -321,6 +321,7 @@ class HighlightParamsInterpreter(ParamInterpreter):
         if params.get("resource_type") == "variable":
             search = search.highlight(
                 LABEL,
+                DESCRIPTION,
                 USED_IN_DE,
                 USED_IN_EN,
                 BELONGS_TO_LABEL,
@@ -339,6 +340,8 @@ class HighlightParamsInterpreter(ParamInterpreter):
                 TEMPORAL,
                 POPULATION_COVERAGE,
                 KEYWORD,
+                DATA_TYPE,
+                BELONGS_TO_LABEL,
                 pre_tags=["<xh>"],
                 post_tags=["</xh>"],
             )
@@ -395,6 +398,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         "custom_fields.mex:alternativeTitle.value",
         "custom_fields.mex:label.value",
         "custom_fields.mex:valueSet",
+        "custom_fields.mex:dataType",
         "index_data.belongsToLabel",
         "index_data.contributors",
         "index_data.creators",
