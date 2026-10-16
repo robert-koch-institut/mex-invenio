@@ -787,7 +787,7 @@ UI_SETTINGS = {
                         "label": _("publicationYear.singular"),
                     },
                     {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
+                    {"field": "mex:isbnIssn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {
