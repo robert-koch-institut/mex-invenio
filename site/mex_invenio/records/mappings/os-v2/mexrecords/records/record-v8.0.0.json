@@ -2548,6 +2548,8 @@
             "index_data.belongsToLabel",
             "index_data.contributors",
             "index_data.creators",
+            "index_data.deContributingUnits",
+            "index_data.enContributingUnits",
             "index_data.deFunderOrCommissioners",
             "index_data.enFunderOrCommissioners",
             "index_data.deUsedInResource",

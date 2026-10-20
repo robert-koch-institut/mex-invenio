@@ -2,7 +2,7 @@ name: Testing
 
 on:
   push:
-    branches: ["main"]
+    branches: ["develop", "main"]
     tags: ["**"]
   pull_request:
     types:
@@ -44,7 +44,7 @@ jobs:
           submodules: recursive
 
       - name: Cache requirements
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         env:
           cache-name: cache-requirements
         with:
@@ -54,7 +54,7 @@ jobs:
             ${{ env.cache-name }}-
 
       - name: Cache environment
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         env:
           cache-name: cache-environment
         with:
@@ -72,7 +72,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: Setup node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0

@@ -51,8 +51,8 @@ class MexSearchOptions(SearchOptions, SearchOptionsMixin):
     search_cls = RecordsSearchV2
     query_parser_cls = QueryParser
     suggest_parser_cls = None
-    sort_options = {}
-    facets = {}
+    sort_options = {}  # type: ignore[var-annotated]
+    facets = {}  # type: ignore[var-annotated]
     params_interpreters_cls = [
         GenericQueryParamsInterpreter,
         TypeLimiterParamsInterpreter,
@@ -99,7 +99,7 @@ FREE_TEXT_SEARCH_FIELDS = [
 class MexDumper(SearchDumper):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._record_cache = {}
+        self._record_cache = {}  # type: ignore[var-annotated]
 
     def dump(self, record, data):
         dump_data = super().dump(record, data)
@@ -540,13 +540,9 @@ class MexDumper(SearchDumper):
         from sqlalchemy import cast
         from sqlalchemy.dialects.postgresql import JSONB
 
-        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS_BY_NAME
 
-        field_config = None
-        for field in RDM_CUSTOM_FIELDS:
-            if field.name == name:
-                field_config = field
-                break
+        field_config = RDM_CUSTOM_FIELDS_BY_NAME.get(name)
 
         # Determine if field stores arrays or single values
         is_multiple = (

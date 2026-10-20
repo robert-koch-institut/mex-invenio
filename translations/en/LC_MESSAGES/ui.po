@@ -137,8 +137,8 @@ msgstr "Search our"
 msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
-msgid "Related projects/endeavors"
-msgstr "Related projects/endeavors"
+msgid "Related projects"
+msgstr "Related projects"
 
 msgid "Related data sources & datasets"
 msgstr "Related data sources & datasets"
@@ -541,7 +541,7 @@ msgid "belongsTo"
 msgstr "Belongs to"
 
 msgid "noValueProvided"
-msgstr "No data"
+msgstr "Not provided"
 
 msgid "showMissingValues"
 msgstr "Show missing values"
@@ -574,7 +574,7 @@ msgid "missingValuesHelpTrigger"
 msgstr "What does it mean?"
 
 msgid "missingValuesHelp"
-msgstr "Shows empty fields and displays “no data” when no value exists, helping distinguish missing data from unavailable fields."
+msgstr "Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from unavailable fields."
 
 # Missing from mex-model's catalogs as of the pinned 5.0.3; supplied here so the
 # derived "<property>.singular" label resolves. Ships in mex-model 5.1.3 -- remove
@@ -582,3 +582,12 @@ msgstr "Shows empty fields and displays “no data” when no value exists, help
 # and it would otherwise keep shadowing the upstream string.
 msgid "volumeOfSeries.singular"
 msgstr "Volume of series"
+
+msgid "and_x_more"
+msgstr "and {{count}} more"
+
+msgid "partOf"
+msgstr "Part of"
+
+msgid "includes"
+msgstr "Includes"

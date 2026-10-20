@@ -49,7 +49,7 @@ from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.services.schema import MexRDMRecordSchema
 
 
-def _(x):  # needed to avoid start time failure with lazy strings  # noqa: F811
+def _(x):  # type: ignore[no-redef]  # needed to avoid start time failure with lazy strings  # noqa: F811
     return x
 
 
@@ -72,7 +72,7 @@ SECRET_KEY = "CHANGE_ME"
 # provided, the allowed hosts variable is set to localhost. In production it
 # should be set to the correct host and it is strongly recommended to only
 # route correct hosts to the application.
-APP_ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
+TRUSTED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
 
 # Flask-SQLAlchemy
 # ================
@@ -220,7 +220,7 @@ SECURITY_LOGIN_WITHOUT_CONFIRMATION = (
 # -------------------
 # See https://github.com/inveniosoftware/invenio-oauthclient/blob/master/invenio_oauthclient/config.py
 
-OAUTHCLIENT_REMOTE_APPS = {}  # configure external login providers
+OAUTHCLIENT_REMOTE_APPS = {}  # type: ignore[var-annotated]  # configure external login providers
 
 ACCOUNTS_LOGIN_VIEW_FUNCTION = (
     auto_redirect_login  # autoredirect to external login if enabled
@@ -270,6 +270,13 @@ USERS_RESOURCES_ADMINISTRATION_ENABLED = True
 # S3 config
 
 S3_DOWNLOAD_FOLDER = os.environ.get("INVENIO_S3_DOWNLOAD_FOLDER", "s3_downloads")
+
+IMPORT_STATUS_DIR = os.environ.get("INVENIO_IMPORT_STATUS_DIR")
+"""Directory to write import-status.json to, for nginx to serve directly.
+
+Unset by default (status reporting off) - set only on the import-job's
+container in production (see helm-invenio's import-job.yaml).
+"""
 
 COMMUNITIES_GROUPS_ENABLED = False
 
@@ -363,12 +370,12 @@ CATEGORY_RULES = {
     "relatedResources": CategoryRule(
         components={
             "resource": [
-                Component(name="isPartOf", title=_("Part Of")),
-                Component(name="isPartOf", title=_("Includes"), reverse=True),
-                Component(name="relatedResource", title=_("Related Resource")),
+                Component(name="isPartOf", title=_("partOf")),
+                Component(name="isPartOf", title=_("includes"), reverse=True),
+                Component(name="relatedResource", title=_("Related Resources")),
             ],
             "activity": [
-                Component(name="isPartOfActivity", title=_("Part Of")),
+                Component(name="isPartOfActivity", title=_("partOf")),
                 Component(name="succeeds", title=_("Succeeds")),
                 Component(name="relatedActivity", title=_("Related Activity")),
                 Component(

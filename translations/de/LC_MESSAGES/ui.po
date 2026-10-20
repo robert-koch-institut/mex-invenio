@@ -130,7 +130,7 @@ msgstr "Unser"
 msgid "entireMetadataCatalogue"
 msgstr "Gesamter Metadatenkatalog"
 
-msgid "Related projects/endeavors"
+msgid "Related projects"
 msgstr "Zugehörige Projekte"
 
 msgid "Related data sources & datasets"
@@ -641,7 +641,7 @@ msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
 msgid "noValueProvided"
-msgstr "Keine Daten"
+msgstr "Nicht angegeben"
 
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
@@ -679,3 +679,12 @@ msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterle
 # and it would otherwise keep shadowing the upstream string.
 msgid "volumeOfSeries.singular"
 msgstr "Serienband"
+
+msgid "and_x_more"
+msgstr "und {{count}} weitere"
+
+msgid "partOf"
+msgstr "Teil von"
+
+msgid "includes"
+msgstr "Enthält"

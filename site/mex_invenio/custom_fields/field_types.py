@@ -1,3 +1,5 @@
+from typing import Any
+
 from mex.model import MERGED_MODEL_JSON_BY_NAME
 
 from mex_invenio.entities import UNPUBLISHED_ENTITIES
@@ -102,9 +104,9 @@ def get_field_type(property):
 
 
 # Main function to process the entities from mex-model package
-def get_field_types() -> dict:
+def get_field_types() -> dict[str, dict[str, str | Any]]:
     """Get field types from Mex model package entities."""
-    field_types = {}
+    field_types: dict[str, dict[str, str | Any]] = {}
 
     # Use the pre-loaded entity data from mex-model package. Merged, not
     # extracted: see entities.py for why that distinction matters.

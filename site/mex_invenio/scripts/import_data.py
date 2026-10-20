@@ -250,7 +250,7 @@ def process_import(owner, import_file, batch_size):
 
                     except json.JSONDecodeError:
                         logger.error(f"Error decoding JSON line: {line}")
-                        report["error"] += 1
+                        report["error"] += 1  # type: ignore[operator]
 
                 # Process remaining records
                 if batch_records:
@@ -263,7 +263,7 @@ def process_import(owner, import_file, batch_size):
         # records are re-indexed, their display_data dumper can find the
         # latest versions in the search index.
         if report["updated"]:
-            parent_uuids = [r["parent"] for r in report["updated"]]
+            parent_uuids = [r["parent"] for r in report["updated"]]  # type: ignore[attr-defined]
             updated_all_versions = (
                 db.session.query(RDMRecord.model_cls.id)
                 .filter(RDMRecord.model_cls.parent_id.in_(parent_uuids))
@@ -275,7 +275,8 @@ def process_import(owner, import_file, batch_size):
 
         if report["created"]:
             current_rdm_records_service.indexer.bulk_index(
-                r["uuid"] for r in report["created"]
+                r["uuid"]
+                for r in report["created"]  # type: ignore[attr-defined]
             )
 
         # If there are any skipped records, that means that a previous import
@@ -293,8 +294,8 @@ def process_import(owner, import_file, batch_size):
         # Re-index related records so their display_data reflects
         # the newly created/updated records above.
         if report["related"]:
-            logger.info(f"Indexing {len(report['related'])} related records.")
-            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])
+            logger.info(f"Indexing {len(report['related'])} related records.")  # type: ignore[arg-type]
+            current_rdm_records_service.indexer.bulk_index(r for r in report["related"])  # type: ignore[attr-defined]
             current_rdm_records_service.indexer.process_bulk_queue()
 
     # End the timer after processing is done
@@ -306,15 +307,15 @@ def process_import(owner, import_file, batch_size):
 
     for action in report:
         if isinstance(report[action], (list, set)):
-            record_count = len(report[action])
+            record_count = len(report[action])  # type: ignore[arg-type]
         elif isinstance(report[action], int):
-            record_count = report[action]
+            record_count = report[action]  # type: ignore[assignment]
 
         if record_count > 0:
             if action == "error":
                 logger.error(f"Encountered {record_count} errors during import.")
             elif action in ("created", "updated", "skipped"):
-                ids = [r["id"] for r in report[action]]
+                ids = [r["id"] for r in report[action]]  # type: ignore[attr-defined]
                 logger.info(f"{action.capitalize()} {record_count} records. Ids: {ids}")
             else:
                 logger.info(
