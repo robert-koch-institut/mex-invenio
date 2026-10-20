@@ -100,9 +100,11 @@ def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
 
         return existing_records
 
-    except Exception as e:
-        logger.error(f"Error in bulk database search: {e}")
-        return {}
+    except Exception:
+        # Stop the import rather than carry on without the lookup, which would
+        # create every record in the batch again as a duplicate.
+        logger.exception("Error in bulk database search.")
+        raise
 
 
 def process_record_batch(

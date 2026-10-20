@@ -10,6 +10,8 @@ import click
 from flask.cli import with_appcontext
 from invenio_db import db
 
+from mex_invenio.scripts.dedupe import dedupe_records as run_dedupe
+
 
 @click.group()
 def mex():
@@ -59,3 +61,37 @@ def setup_db():
     db.session.commit()
 
     click.secho("MEX database indices created successfully!", fg="green")
+
+
+@mex.command("dedupe-records")
+@click.option(
+    "--created-after",
+    type=click.DateTime(),
+    help="Only delete duplicates created at or after this time (UTC).",
+)
+@click.option(
+    "--created-before",
+    type=click.DateTime(),
+    help="Only delete duplicates created before this time (UTC).",
+)
+@click.option("--batch-size", default=500, help="Duplicates deleted per transaction.")
+@click.option("--output", help="Write the duplicates to delete to this file.")
+@click.option(
+    "--commit", is_flag=True, help="Delete the duplicates (default: dry run)."
+)
+@with_appcontext
+def dedupe_records(created_after, created_before, batch_size, output, commit):
+    """Delete duplicate records: parents created again for an existing MEx identifier.
+
+    The earliest-created parent of each MEx identifier is kept. Dry run unless
+    --commit is given.
+    """
+    if not run_dedupe(
+        created_after=created_after,
+        created_before=created_before,
+        batch_size=batch_size,
+        commit=commit,
+        output=output,
+        echo=click.echo,
+    ):
+        raise click.exceptions.Exit(1)

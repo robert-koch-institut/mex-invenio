@@ -1,9 +1,13 @@
+import json
 import os
 import time
 
+import sqlalchemy as sa
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
+from invenio_db import db as invenio_db
 from invenio_rdm_records.proxies import current_rdm_records
+from invenio_rdm_records.records.api import RDMRecord
 
 from mex_invenio.scripts.import_data import _import_data
 from tests.conftest import created_regex, search_messages
@@ -91,3 +95,57 @@ def test_import_creates_log_file(
 
     assert os.path.isfile(expected_log), f"Log file not found: {expected_log}"
     assert os.path.getsize(expected_log) > 0, "Log file is empty"
+
+
+def test_failed_existing_record_lookup_stops_import(
+    app,
+    db,
+    location,
+    resource_type_v,
+    contributors_role_v,
+    import_file,
+    cli_runner,
+    create_file,
+    model_version,
+):
+    """If looking up existing records fails, the import stops instead of creating duplicates.
+
+    Simulates the database connection dropping during the lookup of a batch whose
+    records already exist.
+    """
+    mex_id = contact_point_data["identifier"]
+    import_file("contact-point", contact_point_data)
+
+    def drop_connection(conn, cursor, statement, parameters, context, executemany):
+        if "JOIN pidstore_pid" in statement and "mex:identifier" in statement:
+            raise sa.exc.OperationalError(
+                statement, parameters, Exception("server closed the connection")
+            )
+
+    state_file = os.path.join(app.config["S3_DOWNLOAD_FOLDER"], ".import_state")
+    sa.event.listen(invenio_db.engine, "before_cursor_execute", drop_connection)
+    try:
+        cli_runner(
+            _import_data,
+            model_version,
+            "importer@address.com",
+            create_file("contact-point-again.json", contact_point_data),
+        )
+        with open(state_file) as f:
+            assert json.load(f)["status"] == "failed"
+    finally:
+        sa.event.remove(invenio_db.engine, "before_cursor_execute", drop_connection)
+        # The state file is shared by the module's tests; a failed state blocks imports.
+        if os.path.exists(state_file):
+            os.remove(state_file)
+
+    parents = (
+        invenio_db.session.query(RDMRecord.model_cls.parent_id)
+        .filter(
+            RDMRecord.model_cls.json["custom_fields"]["mex:identifier"].as_string()
+            == mex_id
+        )
+        .distinct()
+        .count()
+    )
+    assert parents == 1
