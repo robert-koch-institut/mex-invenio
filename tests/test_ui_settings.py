@@ -103,19 +103,16 @@ def modelconf():
                 {
                     "id": "general",
                     "title": "General",
-                    "icon": "some",
                     "properties": ["title"],
                 },
                 {
                     "id": "cards",
                     "title": "Cards",
-                    "icon": "card",
                     "properties": ["one", "two"],
                 },
                 {
                     "id": "aside",
                     "title": "Aside",
-                    "icon": "aside",
                     "properties": ["three"],
                 },
             ]
@@ -170,8 +167,16 @@ def test_card_carries_title_icon_and_template(modelconf, rules, labels):
     card = build(modelconf, rules, labels)["someentity"]["main"]["cards"]
 
     assert card["title"] == "Cards"
-    assert card["icon"] == "card.svg"
+    assert card["icon"] == "cards.svg"
     assert card["template"] == "custom.html"
+
+
+def test_rule_icon_overrides_the_category_id(modelconf, rules, labels):
+    rules["cards"] = CategoryRule(icon="other")
+
+    card = build(modelconf, rules, labels)["someentity"]["main"]["cards"]
+
+    assert card["icon"] == "other.svg"
 
 
 def test_special_fields_index_every_property(modelconf, rules, labels):
@@ -311,6 +316,20 @@ def test_instance_config_matches_modelconf():
             if CATEGORY_RULES.get(category["id"], CategoryRule()).column != "header"
         }
         assert set(cards) == expected
+
+
+def test_every_card_icon_exists():
+    """Templates load card icons from static/icons/; a missing file is a broken image."""
+    icons_dir = Path(__file__).parent.parent / "static" / "icons"
+    used = {
+        card["icon"]
+        for entity in UI_SETTINGS.values()
+        for column in COLUMNS
+        for card in entity[column].values()
+    }
+
+    assert used
+    assert {icon for icon in used if not (icons_dir / icon).is_file()} == set()
 
 
 def test_no_property_appears_in_two_categories():

@@ -3,7 +3,8 @@
 ``modelconf.json`` is the single source of truth for *which* MEx fields a record type
 shows and *how they are grouped*: entity type -> categories -> ordered property names.
 Everything else the landing pages need -- which column a card sits in, which template
-renders it, which of its properties link backwards -- is a rendering decision, declared
+renders it, which icon it carries, which of its properties link backwards -- is a
+rendering decision, declared
 per category as a :class:`CategoryRule` in ``settings.py``. Categories without a rule
 render as a plain card in the main column, which is most of them.
 
@@ -55,6 +56,8 @@ class CategoryRule:
             chrome renders itself instead of as a card.
         template: Template rendering the card, when the generic ``card.html`` will not
             do.
+        icon: Name of the card's icon in ``static/icons/``, without the suffix, or
+            None to use the category id.
         components: Entity type -> the sub-blocks of a container card. A category with
             components for an entity type renders as a container for that type.
         backwards: Names of properties in this category that link backwards, i.e. that
@@ -63,6 +66,7 @@ class CategoryRule:
 
     column: str = "main"
     template: str | None = None
+    icon: str | None = None
     components: dict[str, list[Component]] = field(default_factory=dict)
     backwards: frozenset[str] = frozenset()
 
@@ -118,7 +122,7 @@ def _build_card(
     """Build one card from one category of the model config."""
     card: Card = {
         "title": category["title"],
-        "icon": f"{category['icon']}{ICON_SUFFIX}",
+        "icon": f"{rule.icon or category['id']}{ICON_SUFFIX}",
     }
     if rule.template is not None:
         card["template"] = rule.template

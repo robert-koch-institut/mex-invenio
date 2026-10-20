@@ -21,8 +21,7 @@ This document describes the configuration constants used for defining entity dis
 
 ## 🧱 UI_SETTINGS
 
-`UI_SETTINGS` defines the configuration for the core landing pages — including layout (the main section and the side bar), field mapping, icons, labels, and templates.
-Each core record's landing page (i.e. "resource", "activity", "bibliographicresource") has its own configuration object.
+`UI_SETTINGS` defines the configuration for core the landing pages — including layout (the main section and the side bar), field mapping, icons, labels, and templates.Each core record's landing page (i.e. "resource", "activity", "bibliographicresource") has its own configuration object.
 
 > ⚠️ **`UI_SETTINGS` is generated, not written.** `build_ui_settings()` in `ui_settings.py`
 > expands it from two inputs. The sections below document the *output* shape, which is what

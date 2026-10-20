@@ -2,7 +2,6 @@
     "activity": {
         "categories": [
             {
-                "icon": "activity",
                 "id": "general",
                 "properties": [
                     "alternativeTitle",
@@ -13,7 +12,6 @@
                 "title": "General"
             },
             {
-                "icon": "creators",
                 "id": "creators",
                 "properties": [
                     "involvedPerson",
@@ -23,7 +21,6 @@
                 "title": "Creators & Contributors"
             },
             {
-                "icon": "description",
                 "id": "description",
                 "properties": [
                     "start",
@@ -33,7 +30,6 @@
                 "title": "Description"
             },
             {
-                "icon": "funding",
                 "id": "partners",
                 "properties": [
                     "externalAssociate",
@@ -43,7 +39,6 @@
                 "title": "Partners & Funding"
             },
             {
-                "icon": "publication",
                 "id": "publication",
                 "properties": [
                     "publication",
@@ -53,7 +48,6 @@
                 "title": "Related Publications & Further Documentation"
             },
             {
-                "icon": "relatedResources",
                 "id": "relatedResources",
                 "properties": [
                     "isPartOfActivity",
@@ -64,7 +58,6 @@
                 "title": "Related Resources"
             },
             {
-                "icon": "contact",
                 "id": "contact",
                 "properties": [
                     "contact"
@@ -76,7 +69,6 @@
     "bibliographicResource": {
         "categories": [
             {
-                "icon": "bibliographic-resource",
                 "id": "general",
                 "properties": [
                     "alternativeTitle",
@@ -89,7 +81,6 @@
                 "title": "General"
             },
             {
-                "icon": "creators",
                 "id": "creators",
                 "properties": [
                     "creator",
@@ -98,7 +89,6 @@
                 "title": "Creators"
             },
             {
-                "icon": "theme",
                 "id": "keywords",
                 "properties": [
                     "keyword"
@@ -106,7 +96,6 @@
                 "title": "Keywords"
             },
             {
-                "icon": "titleProper",
                 "id": "titleProper",
                 "properties": [
                     "journal",
@@ -121,7 +110,6 @@
                 "title": "Title Proper"
             },
             {
-                "icon": "imprint",
                 "id": "imprint",
                 "properties": [
                     "publisher",
@@ -134,7 +122,6 @@
                 "title": "Imprint"
             },
             {
-                "icon": "editor",
                 "id": "editor",
                 "properties": [
                     "editor",
@@ -143,7 +130,6 @@
                 "title": "Editor"
             },
             {
-                "icon": "relatedResources",
                 "id": "relatedResources",
                 "properties": [
                     "publication"
@@ -151,7 +137,6 @@
                 "title": "Related Resources"
             },
             {
-                "icon": "access",
                 "id": "access",
                 "properties": [
                     "accessRestriction",
@@ -163,7 +148,6 @@
                 "title": "Access & Usage Rights"
             },
             {
-                "icon": "distribution",
                 "id": "files",
                 "properties": [
                     "distribution"
@@ -175,7 +159,6 @@
     "resource": {
         "categories": [
             {
-                "icon": "resource",
                 "id": "general",
                 "properties": [
                     "resourceTypeSpecific",
@@ -193,7 +176,6 @@
                 "title": "General"
             },
             {
-                "icon": "creators",
                 "id": "creators",
                 "properties": [
                     "creator",
@@ -205,7 +187,6 @@
                 "title": "Creators & Contributors"
             },
             {
-                "icon": "theme",
                 "id": "keywords",
                 "properties": [
                     "theme",
@@ -215,7 +196,6 @@
                 "title": "Theme & Keywords"
             },
             {
-                "icon": "coverage",
                 "id": "coverage",
                 "properties": [
                     "temporal",
@@ -232,7 +212,6 @@
                 "title": "Data Representation & Coverage"
             },
             {
-                "icon": "legal",
                 "id": "legal",
                 "properties": [
                     "hasLegalBasis",
@@ -244,7 +223,6 @@
                 "title": "Legal Basis & Data Provenance"
             },
             {
-                "icon": "processing",
                 "id": "processing",
                 "properties": [
                     "resourceCreationMethod",
@@ -255,7 +233,6 @@
                 "title": "Data Collection & Processing"
             },
             {
-                "icon": "quality",
                 "id": "quality",
                 "properties": [
                     "conformsTo",
@@ -267,7 +244,6 @@
                 "title": "Standards & Quality"
             },
             {
-                "icon": "methodology",
                 "id": "methodology",
                 "properties": [
                     "method",
@@ -276,7 +252,6 @@
                 "title": "Methodology"
             },
             {
-                "icon": "publication",
                 "id": "publication",
                 "properties": [
                     "publication",
@@ -285,7 +260,6 @@
                 "title": "Related Publications & Further Documentation"
             },
             {
-                "icon": "relatedProjects",
                 "id": "generatedBy",
                 "properties": [
                     "wasGeneratedBy"
@@ -293,7 +267,6 @@
                 "title": "Related Projects"
             },
             {
-                "icon": "relatedResources",
                 "id": "relatedResources",
                 "properties": [
                     "isPartOf",
@@ -302,7 +275,6 @@
                 "title": "Related Resources"
             },
             {
-                "icon": "contact",
                 "id": "contact",
                 "properties": [
                     "contact"
@@ -310,7 +282,6 @@
                 "title": "Contact"
             },
             {
-                "icon": "access",
                 "id": "access",
                 "properties": [
                     "accessRestriction",
@@ -321,7 +292,6 @@
                 "title": "Access & Usage Rights"
             },
             {
-                "icon": "distribution",
                 "id": "files",
                 "properties": [
                     "distribution"
@@ -329,7 +299,6 @@
                 "title": "Files"
             },
             {
-                "icon": "variables",
                 "id": "variables",
                 "properties": [
                     "usedIn"

@@ -349,17 +349,20 @@ ENTITY_LABELS = {
 
 # How each category of modelconf.json renders. Categories are addressed by their "id",
 # not by their title: titles are display msgids and change for editorial reasons. Only
-# the categories needing something other than a plain card in the main column are
-# listed -- everything else falls through to CategoryRule's defaults.
+# the categories needing something other than a plain card in the main column, or an
+# icon named other than the category id, are listed -- everything else falls through
+# to CategoryRule's defaults.
 CATEGORY_RULES = {
     # Rendered by the page chrome (title, tags, description) instead of as a card.
     "general": CategoryRule(column="header"),
-    "keywords": CategoryRule(template="theme_keywords.html"),
+    "keywords": CategoryRule(template="theme_keywords.html", icon="theme"),
     "coverage": CategoryRule(template="coverage.html"),
     "methodology": CategoryRule(template="methodology.html"),
+    "partners": CategoryRule(icon="funding"),
+    "generatedBy": CategoryRule(icon="relatedProjects"),
     "contact": CategoryRule(column="side_bar", template="contact.html"),
     "access": CategoryRule(column="side_bar"),
-    "files": CategoryRule(column="side_bar"),
+    "files": CategoryRule(column="side_bar", icon="distribution"),
     "variables": CategoryRule(
         column="side_bar",
         template="variables.html",
