@@ -23,7 +23,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:alternateIdentifier", multiple=True),
     MultiLanguageTextCF(name="mex:alternativeName", multiple=True),
     MultiLanguageTextCF(name="mex:alternativeTitle", multiple=True),
-    TextCF(name="mex:analytics", multiple=True),
+    TextCF(name="mex:analytics", multiple=True),  # introduced in 5
     TextCF(name="mex:anonymizationPseudonymization", multiple=True),
     TextCF(
         name="mex:belongsTo", multiple=True, use_as_filter=True
@@ -65,7 +65,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:geprisId", multiple=True),
     TextCF(name="mex:givenName", multiple=True),
     TextCF(name="mex:gndId", multiple=True),
-    MultiLanguageTextCF(name="mex:hasCodeValues", multiple=True),
+    MultiLanguageTextCF(name="mex:hasCodeValues", multiple=True),  # introduced in 5
     MultiLanguageTextCF(name="mex:hasLegalBasis", multiple=True),
     TextCF(name="mex:hasPersonalData", use_as_filter=True),
     MultiLanguageTextCF(name="mex:hasPurpose", multiple=True),
@@ -99,8 +99,8 @@ RDM_CUSTOM_FIELDS = [
     IntegerCF(name="mex:minTypicalAge"),
     EDTFDateStringCF(name="mex:modified"),
     MultiLanguageTextCF(name="mex:name", multiple=True),
-    IntegerCF(name="mex:numberOfRecords"),
-    IntegerCF(name="mex:numberOfUniqueIndividuals"),
+    IntegerCF(name="mex:numberOfRecords"),  # introduced in 5
+    IntegerCF(name="mex:numberOfUniqueIndividuals"),  # introduced in 5
     MultiLanguageTextCF(name="mex:officialName", multiple=True),
     TextCF(name="mex:orcidId", multiple=True),
     TextCF(name="mex:pages"),
@@ -112,8 +112,8 @@ RDM_CUSTOM_FIELDS = [
     EDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
-    TextCF(name="mex:relatedActivity", multiple=True),
-    TextCF(name="mex:relatedResource", multiple=True),
+    TextCF(name="mex:relatedActivity", multiple=True),  # introduced in 5
+    TextCF(name="mex:relatedResource", multiple=True),  # introduced in 5
     LinkCF(name="mex:repositoryURL", multiple=True),
     TextCF(name="mex:resourceCreationMethod", multiple=True, use_as_filter=True),
     TextCF(name="mex:resourceTypeGeneral", multiple=True),
@@ -125,7 +125,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:section"),
     MultiLanguageTextCF(name="mex:shortName", multiple=True),
     TextCF(name="mex:sizeOfDataBasis"),
-    TextCF(name="mex:source", multiple=True),
+    TextCF(name="mex:source", multiple=True),  # introduced in 5
     MultiLanguageTextCF(name="mex:spatial", multiple=True),
     EDTFDateStringCF(name="mex:start", multiple=True),
     TextCF(name="mex:stateOfDataProcessing", multiple=True),
