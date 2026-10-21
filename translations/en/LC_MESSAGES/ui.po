@@ -553,7 +553,7 @@ msgid "methodDescriptionNotProvided"
 msgstr "Method description not provided"
 
 msgid "noTheme"
-msgstr "No theme provided"
+msgstr "Theme not provided"
 
 msgid "noKeywords"
 msgstr "No keywords provided"
@@ -562,13 +562,13 @@ msgid "NoVariablesAssociatedWithThisDataset"
 msgstr "There are no variables associated with this dataset"
 
 msgid "noDescription"
-msgstr "No description"
+msgstr "Description not provided"
 
 msgid "noData"
 msgstr "No data"
 
 msgid "noAbstract"
-msgstr "No abstract provided"
+msgstr "Abstract not provided"
 
 msgid "missingValuesHelpTrigger"
 msgstr "What does it mean?"
