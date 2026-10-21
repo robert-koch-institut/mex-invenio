@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "36a12326109bc032eb4d8f5f3c12c656115855d20c03545a0396d8733e77e833"
+            "sha256": "d6d6cd5dcda7945053fca1a96e25e9184fa596499e0725c90e4a5f6551cb1380"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -2278,12 +2278,12 @@
         },
         "mex-model": {
             "hashes": [
-                "sha256:25514548c74fb247f4e2fa01a0c8d38f68aad326463b09f13cf1fe163bbd235c",
-                "sha256:3bb6f03d294f85d031b6c4f1edd24479ae704ce0fe2a403b95e262521e99f36b"
+                "sha256:5d3c4e1a93f870e936c46b24e781a51be42fe481b89f343df97eaa11cbdc9753",
+                "sha256:dcc19a0391fa3b96cedf7f801f1da0976c7ff5f74da8762fd6c899fe5fce46c1"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.11' and python_version < '3.15'",
-            "version": "==5.0.3"
+            "version": "==5.1.4"
         },
         "mistune": {
             "hashes": [

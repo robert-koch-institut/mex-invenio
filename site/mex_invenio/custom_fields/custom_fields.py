@@ -35,6 +35,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:containedBy", multiple=True),
     TextCF(name="mex:contributingUnit", multiple=True),
     TextCF(name="mex:contributor", multiple=True),  # FIXME: index external document
+    TextCF(name="mex:country", multiple=True),  # introduced in 5.1
     # TextCF(name="mex:created"),
     EDTFDateStringCF(name="mex:created"),
     TextCF(name="mex:creator", multiple=True),
@@ -66,14 +67,21 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:givenName", multiple=True),
     TextCF(name="mex:gndId", multiple=True),
     MultiLanguageTextCF(name="mex:hasCodeValues", multiple=True),  # introduced in 5
+    TextCF(name="mex:hasCodingSystem", multiple=True),  # introduced in 5.1
     MultiLanguageTextCF(name="mex:hasLegalBasis", multiple=True),
     TextCF(name="mex:hasPersonalData", use_as_filter=True),
     MultiLanguageTextCF(name="mex:hasPurpose", multiple=True),
+    MultiLanguageTextCF(
+        name="mex:hasPurposeDescription", multiple=True
+    ),  # introduced in 5.1
     TextCF(name="mex:healthCategory", multiple=True),
     TextCF(name="mex:icd10code", multiple=True),
     TextCF(
         name="mex:identifier", field_args={"required": True}, use_as_filter=True
     ),  # technically we just want the keyword mapping
+    TextCF(name="mex:inSeries", multiple=True),  # introduced in 5.1
+    TextCF(name="mex:inSeriesFirstResource", multiple=True),  # introduced in 5.1
+    TextCF(name="mex:inSeriesLastResource", multiple=True),  # introduced in 5.1
     MultiLanguageTextCF(name="mex:instrumentToolOrApparatus", multiple=True),
     TextCF(name="mex:involvedPerson", multiple=True),  # FIXME: index external document
     TextCF(name="mex:involvedUnit", multiple=True),
@@ -144,6 +152,7 @@ RDM_CUSTOM_FIELDS = [
         name="mex:usedIn", multiple=True, use_as_filter=True
     ),  # FIXME: index external document
     TextCF(name="mex:valueSet", multiple=True),
+    TextCF(name="mex:version"),  # introduced in 5.1
     TextCF(name="mex:viafId", multiple=True),
     TextCF(name="mex:volume"),
     TextCF(name="mex:volumeOfSeries"),
@@ -305,6 +314,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/entities/person#/identifier",
                     "description": " A person involved in the creation of the resource.",
+                },
+            },
+            {
+                "field": "mex:country",
+                "props": {
+                    "type": "/schema/entities/concept#/identifier",
+                    "description": "Country or territory that this organization is in.",
                 },
             },
             {
@@ -490,6 +506,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:hasCodingSystem",
+                "props": {
+                    "type": "/schema/entities/concept#/identifier",
+                    "description": "Coding systems in use (e.g. ICD-10, SNOMED-CT).",
+                },
+            },
+            {
                 "field": "mex:hasLegalBasis",
                 "props": {
                     "type": "/schema/fields/text",
@@ -501,6 +524,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/entities/concept#/identifier",
                     "description": "Indicates, if a resource contains data directly or indirectly associated or related to an individual.",
+                },
+            },
+            {
+                "field": "mex:hasPurposeDescription",
+                "props": {
+                    "type": "/schema/fields/text",
+                    "description": "A free text statement of the purpose of the processing of data or personal data.",
                 },
             },
             {
@@ -519,6 +549,27 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/fields/identifier",
                     "description": "An unambiguous reference to the resource within a given context. Persistent identifiers should be provided as HTTP URIs (DCT, 2020-01-20).",
+                },
+            },
+            {
+                "field": "mex:inSeries",
+                "props": {
+                    "type": "/schema/entities/resource-series#/identifier",
+                    "description": "A resource series of which the resource is part.",
+                },
+            },
+            {
+                "field": "mex:inSeriesFirstResource",
+                "props": {
+                    "type": "/schema/entities/resource-series#/identifier",
+                    "description": "The first resource in an ordered collection or series of resources.",
+                },
+            },
+            {
+                "field": "mex:inSeriesLastResource",
+                "props": {
+                    "type": "/schema/entities/resource-series#/identifier",
+                    "description": "The last resource in an ordered collection or series of resources.",
                 },
             },
             {
@@ -969,6 +1020,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "string",
                     "description": "A set of predefined values as given in the primary source.",
+                },
+            },
+            {
+                "field": "mex:version",
+                "props": {
+                    "type": "string",
+                    "description": "The version indicator (name or identifier) of a resource.",
                 },
             },
             {

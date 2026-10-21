@@ -315,6 +315,7 @@ RDM_FACETS = {
                 "organizationalunit",
                 "person",
                 "primarysource",
+                "resourceseries",
                 "variablegroup",
             ],
         ),
@@ -396,7 +397,7 @@ UI_SETTINGS = {
                     {"field": "mex:start", "label": _("start.singular")},
                     {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {"field": "fn", "label": _("Typisches Alter")},
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -424,6 +425,10 @@ UI_SETTINGS = {
                         "label": _("hasLegalBasis.singular"),
                     },
                     {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
+                    {
+                        "field": "mex:hasPurposeDescription",
+                        "label": _("hasPurposeDescription.singular"),
+                    },
                     {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
@@ -466,6 +471,10 @@ UI_SETTINGS = {
                         "field": "mex:hasCodeValues",
                         "label": _("hasCodeValues.singular"),
                     },
+                    {
+                        "field": "mex:hasCodingSystem",
+                        "label": _("hasCodingSystem.singular"),
+                    },
                     {"field": "mex:analytics", "label": _("analytics.singular")},
                     {"field": "mex:sample", "label": _("sample.singular")},
                 ],
@@ -498,7 +507,7 @@ UI_SETTINGS = {
                 ],
             },
             "generatedBy": {
-                "title": _("Related Projects"),
+                "title": _("Zugehörige Projekte"),
                 "icon": "relatedProjects.svg",
                 "properties": [
                     {"field": "mex:wasGeneratedBy"},
@@ -532,6 +541,21 @@ UI_SETTINGS = {
                     },
                 ],
             },
+            "datasetSeries": {
+                "title": _("Dataset Series"),
+                "icon": "relatedResources.svg",
+                "properties": [
+                    {"field": "mex:inSeries", "label": _("inSeries.singular")},
+                    {
+                        "field": "mex:inSeriesFirstResource",
+                        "label": _("inSeriesFirstResource.singular"),
+                    },
+                    {
+                        "field": "mex:inSeriesLastResource",
+                        "label": _("inSeriesLastResource.singular"),
+                    },
+                ],
+            },
         },
         "side_bar": {
             "contact": {
@@ -560,6 +584,7 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
+                    {"field": "mex:landingPage", "label": _("landingPage.singular")},
                     {"field": "mex:license", "label": _("license.singular")},
                     {"field": "mex:rights", "label": _("rights.singular")},
                 ],
@@ -661,7 +686,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related Activity"),
+                        "title": _("relatedActivity.singular"),
                         "properties": [
                             {"field": "mex:relatedActivity"},
                         ],
@@ -744,7 +769,10 @@ UI_SETTINGS = {
                         "field": "mex:titleOfSeries",
                         "label": _("titleOfSeries.singular"),
                     },
-                    {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
+                    {
+                        "field": "mex:volumeOfSeries",
+                        "label": _("volumeOfSeries.singular"),
+                    },
                     {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
@@ -762,7 +790,7 @@ UI_SETTINGS = {
                         "label": _("publicationYear.singular"),
                     },
                     {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
+                    {"field": "mex:isbnIssn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {
@@ -907,6 +935,7 @@ ENTITIES = [
     "person",
     "primary-source",
     "resource",
+    "resource-series",
     "variable-group",
     "variable",
 ]
