@@ -498,7 +498,7 @@ UI_SETTINGS = {
                 ],
             },
             "generatedBy": {
-                "title": _("Related Projects"),
+                "title": _("Zugehörige Projekte"),
                 "icon": "relatedProjects.svg",
                 "properties": [
                     {"field": "mex:wasGeneratedBy"},

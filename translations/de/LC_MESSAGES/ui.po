@@ -139,7 +139,10 @@ msgstr "Unser"
 msgid "entireMetadataCatalogue"
 msgstr "Gesamter Metadatenkatalog"
 
-msgid "Related projects"
+msgid "Related Projects"
+msgstr "Zugehörige Projekte"
+
+msgid "Zugehörige Projekte"
 msgstr "Zugehörige Projekte"
 
 msgid "Related data sources & datasets"

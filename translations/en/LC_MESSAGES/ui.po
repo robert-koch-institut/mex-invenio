@@ -143,6 +143,9 @@ msgstr "Entire Metadata Catalogue"
 msgid "Related projects"
 msgstr "Related projects"
 
+msgid "Zugehörige Projekte"
+msgstr "Related projects"
+
 msgid "Related data sources & datasets"
 msgstr "Related data sources & datasets"
 
