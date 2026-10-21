@@ -8,7 +8,7 @@ Invenio RDM Records is free software; you can redistribute it and/or modify
 it under the terms of the MIT License; see LICENSE file for more details.
 #}
 
-{%- if config.get("APP_RDM_RECORD_EXPORTERS") -%}
+{%- if config.get("EXPORTERS_PER_RECORD_TYPE", {}).get(resource_type) -%}
 {# if no export formats are specified, don't bother showing the box #}
 <div class="card">
     <h3>
@@ -21,7 +21,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {# dynamically create the list of export formats #}
         {% set formats = [] %}
 
-        {%- for fmt, val in config.get("APP_RDM_RECORD_EXPORTERS", {}).items() -%}
+        {%- for fmt, val in config.get("EXPORTERS_PER_RECORD_TYPE").get(resource_type).items() -%}
         {%- set name = val.get("name", fmt) -%}
         {% if is_preview %}
         {%- set export_url = url_for('invenio_app_rdm_records.record_export', pid_value=record.id, export_format=fmt,
@@ -34,7 +34,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
         {% set formats = formats.append({ 'name': name, 'export_url': export_url }) %}
         {%- endfor -%}
 
-        <div id="recordExportDownload" data-formats='{{ formats | tojson }}'>{{ _('EXPORT JSON') }}</div>
+        <div id="recordExportDownload" data-formats='{{ formats | tojson }}'>{{ _('Export') }}</div>
     </div>
 </div>
 {%- endif -%}

@@ -84,6 +84,9 @@ msgstr "Jump up"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typical age"
+
 msgid "Typical age"
 msgstr "Typical age"
 
@@ -91,8 +94,14 @@ msgstr "Typical age"
 msgid "Min. typical age"
 msgstr "Min. typical age"
 
+msgid "Minimales typisches Alter"
+msgstr "Min. typical age"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Max. typical age"
+
+msgid "Maximales typisches Alter"
 msgstr "Max. typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
@@ -137,8 +146,11 @@ msgstr "Search our"
 msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
-msgid "Related projects/endeavors"
-msgstr "Related projects/endeavors"
+msgid "Related projects"
+msgstr "Related projects"
+
+msgid "Zugehörige Projekte"
+msgstr "Related projects"
 
 msgid "Related data sources & datasets"
 msgstr "Related data sources & datasets"
@@ -430,6 +442,15 @@ msgstr "Close menu"
 msgid "Information banner"
 msgstr "Information banner"
 
+msgid "newerVersionBannerStart"
+msgstr "There is a"
+
+msgid "newerVersion"
+msgstr "newer version"
+
+msgid "newerVersionBannerEnd"
+msgstr "of the record available"
+
 msgid ""
 "There is a %(link_start)snewer version%(link_end)s of the record\n"
 "available."
@@ -530,3 +551,48 @@ msgstr "versions"
 
 msgid "belongsTo"
 msgstr "Belongs to"
+
+msgid "noValueProvided"
+msgstr "Not provided"
+
+msgid "showMissingValues"
+msgstr "Show missing values"
+
+msgid "methodNotProvided"
+msgstr "Method not provided"
+
+msgid "methodDescriptionNotProvided"
+msgstr "Method description not provided"
+
+msgid "noTheme"
+msgstr "Theme not provided"
+
+msgid "noKeywords"
+msgstr "No keywords provided"
+
+msgid "NoVariablesAssociatedWithThisDataset"
+msgstr "There are no variables associated with this dataset"
+
+msgid "noDescription"
+msgstr "Description not provided"
+
+msgid "noData"
+msgstr "No data"
+
+msgid "noAbstract"
+msgstr "Abstract not provided"
+
+msgid "missingValuesHelpTrigger"
+msgstr "What does it mean?"
+
+msgid "missingValuesHelp"
+msgstr "Shows empty fields and displays “not provided” when no value exists, helping distinguish missing data from unavailable fields."
+
+msgid "and_x_more"
+msgstr "and {{count}} more"
+
+msgid "partOf"
+msgstr "Part of"
+
+msgid "includes"
+msgstr "Includes"

@@ -21,6 +21,8 @@ import logging
 import os.path
 import sys
 import time
+import traceback
+from datetime import datetime, timezone
 
 import click
 from dictdiffer import diff
@@ -34,7 +36,9 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
-    cleanup_files,
+    _read_state,
+    _write_state,
+    get_installed_model_version,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
@@ -85,6 +89,7 @@ def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
                 # Convert database record to search result format using the joined PID
                 record_data = {
                     "id": str(pid_value),
+                    "uuid": str(record.id),
                     "custom_fields": copy.deepcopy(
                         record_json.get("custom_fields", {})
                     ),
@@ -158,20 +163,22 @@ def process_record_batch(
 
                 else:
                     # This shouldn't happen as the import files have been diffed
-                    results.append({"action": "skip", "id": record_pid})
-                    continue
+                    # It might happen if a previous import failed and is being re-run
+                    results.append(
+                        {
+                            "action": "skip",
+                            "id": record_pid,
+                            "uuid": existing_record["uuid"],
+                        }
+                    )
 
                 # Collect all related record UUIDs of created/updated records
                 for related_id in get_related_mex_ids(mex_data):
                     results.append({"action": "related", "id": related_id})
 
-        except json.JSONDecodeError:
-            logger.error(f"Error decoding JSON: {json_data}")
         except KeyError as ke:
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
-            import traceback
-
             logger.error(
                 f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
                 f"Full traceback:\n{traceback.format_exc()}"
@@ -202,65 +209,12 @@ def update_report(report: dict, batch_results: list[dict]):
                 {"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]}
             )
         elif result["action"] == "skip":
-            report["skipped"].append(result["id"])
+            report["skipped"].append({"id": result["id"], "uuid": result["uuid"]})
         elif result["action"] == "related":
             report["related"].add(result["id"])
 
 
-@click.command("import_data")
-@click.argument("email")
-@click.argument("import_file")
-@click.option(
-    "--batch-size", default=100, help="Number of records to process in each batch."
-)
-def _import_data(email: str, import_file: str, batch_size: int) -> bool:
-    return import_data(email, import_file, batch_size, cli=True)
-
-
-def import_data(
-    email: str,
-    import_file: str,
-    batch_size: int = 100,
-    cli: bool = False,
-) -> bool:
-    """Main function to import data.
-
-    Batch size is set to 100 records by default.
-    Expected data source is a JSON file with one MEx record per line.
-    """
-
-    if not os.path.isfile(import_file):
-        message = f"File {import_file} not found."
-
-        if cli:
-            click.secho(message, fg="red")
-            sys.exit(1)
-        else:
-            logger.error(message)
-            return False
-
-    with current_app.app_context():
-        log_dir = os.path.join(
-            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), "logs"
-        )
-        file_handler = setup_file_logging(log_dir)
-        logger.addHandler(file_handler)
-        user_datastore = current_app.extensions["security"].datastore
-        owner = user_datastore.find_user(email=email)
-        logger.info(f"Importing {import_file}")
-
-        if not owner:
-            message = f"User with email {email} not found."
-            logger.error(message)
-            logger.removeHandler(file_handler)
-            file_handler.close()
-
-            if cli:
-                click.secho(message, fg="red")
-                sys.exit(1)
-            else:
-                return False
-
+def process_import(owner, import_file, batch_size):
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
@@ -325,6 +279,14 @@ def import_data(
                 for r in report["created"]  # type: ignore[attr-defined]
             )
 
+        # If there are any skipped records, that means that a previous import
+        # job has failed and this is a rerun. In that event we need to make sure
+        # that all imported records have been indexed.
+        if report["skipped"]:
+            current_rdm_records_service.indexer.bulk_index(
+                r["uuid"] for r in report["skipped"]
+            )
+
         # Flush the queue so created/updated records are searchable
         # before re-indexing related records that depend on them.
         current_rdm_records_service.indexer.process_bulk_queue()
@@ -352,7 +314,7 @@ def import_data(
         if record_count > 0:
             if action == "error":
                 logger.error(f"Encountered {record_count} errors during import.")
-            elif action in ("created", "updated"):
+            elif action in ("created", "updated", "skipped"):
                 ids = [r["id"] for r in report[action]]  # type: ignore[attr-defined]
                 logger.info(f"{action.capitalize()} {record_count} records. Ids: {ids}")
             else:
@@ -369,9 +331,125 @@ def import_data(
 
     logger.info(time_taken)
 
-    logger.removeHandler(file_handler)
-    file_handler.close()
-    cleanup_files(log_dir, "import")
+
+@click.command("import_data")
+@click.argument("model_version")
+@click.argument("email")
+@click.argument("import_file")
+@click.option(
+    "--batch-size", default=100, help="Number of records to process in each batch."
+)
+def _import_data(
+    model_version: str, email: str, import_file: str, batch_size: int
+) -> bool:
+    return import_data(model_version, email, import_file, batch_size, cli=True)
+
+
+def import_data(
+    model_version: str,
+    email: str,
+    import_file: str,
+    batch_size: int = 100,
+    cli: bool = False,
+) -> bool:
+    """Main function to import data.
+
+    Batch size is set to 100 records by default.
+    Expected data source is a JSON file with one MEx record per line.
+    """
+
+    with current_app.app_context():
+        s3_download_folder = os.path.join(
+            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+        )
+        state_file = os.path.join(s3_download_folder, ".import_state")
+        state = _read_state(state_file)
+        if state:
+            status = state.get("status")
+            if status == "in_progress":
+                # This should not happen because of "concurrencyPolicy: Forbid" in the
+                # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
+                logger.warning(
+                    "Import already in progress (state file found). Skipping."
+                )
+                # Exiting silently
+                return False
+            if status == "failed":
+                logger.error(
+                    f"Previous import failed (state file: {state_file}). "
+                    "Resolve the issue and delete the state file to re-enable imports."
+                )
+                return False
+
+    installed_model_version = get_installed_model_version()
+
+    if model_version != installed_model_version:
+        # No interest in attempting to import incompatible data
+        # exit gracefully so job does not restart
+        logger.error(
+            f"Attempted to import data with model version {model_version}"
+            f" (installed: {installed_model_version}). Import did not proceed."
+            " Mex-model might need to be updated."
+        )
+        return False
+
+    if not os.path.isfile(import_file):
+        message = f"File {import_file} not found."
+
+        if cli:
+            click.secho(message, fg="red")
+            sys.exit(1)
+        else:
+            logger.error(message)
+            return False
+
+    with current_app.app_context():
+        log_dir = os.path.join(
+            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), "logs"
+        )
+        file_handler = setup_file_logging(log_dir)
+        logger.addHandler(file_handler)
+        user_datastore = current_app.extensions["security"].datastore
+        owner = user_datastore.find_user(email=email)
+        logger.info(f"Importing {import_file}")
+
+        if not owner:
+            message = f"User with email {email} not found."
+            logger.error(message)
+            logger.removeHandler(file_handler)
+            file_handler.close()
+
+            if cli:
+                click.secho(message, fg="red")
+                sys.exit(1)
+            else:
+                return False
+
+    started_at = datetime.now(timezone.utc).isoformat()
+    try:
+        _write_state(state_file, "in_progress", started_at=started_at)
+        process_import(owner, import_file, batch_size)
+
+        finished_at = datetime.now(timezone.utc).isoformat()
+        logger.info(f"Import successful. Data imported from {import_file}.")
+        _write_state(
+            state_file, "success", started_at=started_at, finished_at=finished_at
+        )
+
+    except Exception:
+        finished_at = datetime.now(timezone.utc).isoformat()
+        logger.exception(
+            f"Failed to process import from {import_file}. "
+            f"Imports will not be possible until .import_state is deleted."
+        )
+        _write_state(
+            state_file, "failed", started_at=started_at, finished_at=finished_at
+        )
+        return False
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()
+        # cleanup_files(log_dir, "import")
 
     return True
 

@@ -9,17 +9,17 @@ button {
     border-radius: 0;
     font-weight: normal;
     &.primary {
-        background-color: @primaryColor;
-        border: 1px solid @primaryColor;
+        background-color: @darkLinkColor;
+        border: 1px solid @darkLinkColor;
         color: @white;
         &:hover {
             background-color: @white;
-            color: @primaryColor;
+            color: @darkLinkColor;
         }
     }
     &.secondary {
         background-color: @highlightBackground;
-        border: 1px solid #8caaf0;
+        border: 1px solid @rki-blue-80;
         color: @black;
         &:hover {
             background-color: @primaryColor;
@@ -38,19 +38,14 @@ button {
     &.link-like {
         height: fit-content !important;
         background-color: transparent;
-        color: #32008c;
+        color: @primaryColor;
         font-weight: 400;
         padding: .5rem 0;
-        border-radius: 0;
         box-shadow: none;
-        border: none;
         text-align: start;
         &:hover {
-            background-color: transparent;
-            color: #32008c;
             font-weight: 400;
             padding: .5rem 0;
-            border-radius: 0;
             box-shadow: none;
             border: none;
             text-align: start;
@@ -62,15 +57,19 @@ button {
 .js-mex-resources-results_select {
     height: 25px;
     &[data-state="selected"] {
+        background-color: transparent;
         background-image: url('../images/add-resource-button-selected.svg');
         &:hover {
+            background-color: transparent;
             background-image: url('../images/add-resource-button-unselected.svg');
         }
     }
 
   &[data-state="unselected"] {
+      background-color: transparent;
     background-image: url('../images/add-resource-button-unselected.svg');
     &:hover {
+        background-color: transparent;
         background-image: url('../images/add-resource-button-selected.svg');
     }
   }
@@ -87,8 +86,8 @@ button {
 
 .vertical-tab {
     position: absolute;
-    top: 9.5rem;
-    right: -0;
+    top: 0;
+    right: 0;
     transform: rotate(180deg) translateX(-100%);
 
     background: @white;
