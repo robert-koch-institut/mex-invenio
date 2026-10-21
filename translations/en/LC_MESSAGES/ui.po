@@ -84,6 +84,9 @@ msgstr "Jump up"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typical age"
+
 msgid "Typical age"
 msgstr "Typical age"
 

@@ -86,15 +86,24 @@ msgstr "Nach oben"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typisches Alter"
+
 msgid "Typical age"
-msgstr "Minimales typisches Alter"
+msgstr "Typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
 msgid "Min. typical age"
 msgstr "Minimales typisches Alter"
 
+msgid "Minimales typisches Alter"
+msgstr "Minimales typisches Alter"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+msgid "Maximales typisches Alter"
 msgstr "Maximales typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18

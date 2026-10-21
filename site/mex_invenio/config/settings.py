@@ -396,7 +396,7 @@ UI_SETTINGS = {
                     {"field": "mex:start", "label": _("start.singular")},
                     {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {"field": "fn", "label": _("Typisches Alter")},
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
