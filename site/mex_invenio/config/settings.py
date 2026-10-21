@@ -686,7 +686,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related Activity"),
+                        "title": _("relatedActivity.singular"),
                         "properties": [
                             {"field": "mex:relatedActivity"},
                         ],
