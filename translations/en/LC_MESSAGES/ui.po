@@ -94,8 +94,14 @@ msgstr "Typical age"
 msgid "Min. typical age"
 msgstr "Min. typical age"
 
+msgid "Minimales typisches Alter"
+msgstr "Min. typical age"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Max. typical age"
+
+msgid "Maximales typisches Alter"
 msgstr "Max. typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
