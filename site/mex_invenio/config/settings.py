@@ -769,7 +769,10 @@ UI_SETTINGS = {
                         "field": "mex:titleOfSeries",
                         "label": _("titleOfSeries.singular"),
                     },
-                    {"field": "mex:volumeOfSeries", "label": _("volumeOfSeries.singular")},
+                    {
+                        "field": "mex:volumeOfSeries",
+                        "label": _("volumeOfSeries.singular"),
+                    },
                     {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
