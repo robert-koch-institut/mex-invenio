@@ -397,7 +397,7 @@ UI_SETTINGS = {
                     {"field": "mex:start", "label": _("start.singular")},
                     {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {"field": "fn", "label": _("Typisches Alter")},
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -507,7 +507,7 @@ UI_SETTINGS = {
                 ],
             },
             "generatedBy": {
-                "title": _("Related Projects"),
+                "title": _("Zugehörige Projekte"),
                 "icon": "relatedProjects.svg",
                 "properties": [
                     {"field": "mex:wasGeneratedBy"},
@@ -686,7 +686,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related Activity"),
+                        "title": _("relatedActivity.singular"),
                         "properties": [
                             {"field": "mex:relatedActivity"},
                         ],
@@ -769,7 +769,7 @@ UI_SETTINGS = {
                         "field": "mex:titleOfSeries",
                         "label": _("titleOfSeries.singular"),
                     },
-                    {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
+                    {"field": "mex:volumeOfSeries", "label": _("volumeOfSeries.singular")},
                     {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
