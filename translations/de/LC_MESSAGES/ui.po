@@ -86,15 +86,24 @@ msgstr "Nach oben"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typisches Alter"
+
 msgid "Typical age"
-msgstr "Minimales typisches Alter"
+msgstr "Typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
 msgid "Min. typical age"
 msgstr "Minimales typisches Alter"
 
+msgid "Minimales typisches Alter"
+msgstr "Minimales typisches Alter"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+msgid "Maximales typisches Alter"
 msgstr "Maximales typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
@@ -130,7 +139,10 @@ msgstr "Unser"
 msgid "entireMetadataCatalogue"
 msgstr "Gesamter Metadatenkatalog"
 
-msgid "Related projects"
+msgid "Related Projects"
+msgstr "Zugehörige Projekte"
+
+msgid "Zugehörige Projekte"
 msgstr "Zugehörige Projekte"
 
 msgid "Related data sources & datasets"
@@ -568,6 +580,9 @@ msgstr "Veröffentlichungen & Dokumentation"
 msgid "Related Resources"
 msgstr "Verknüpfte Ressourcen"
 
+msgid "Dataset Series"
+msgstr "Datensatzkollektion"
+
 msgid "Views"
 msgstr "Aufrufe"
 
@@ -646,6 +661,9 @@ msgstr "Nicht angegeben"
 msgid "showMissingValues"
 msgstr "Fehlende Werte anzeigen"
 
+msgid "noTheme"
+msgstr "Thema nicht angegeben"
+
 msgid "methodNotProvided"
 msgstr "Methode nicht angegeben"
 
@@ -671,7 +689,7 @@ msgid "missingValuesHelpTrigger"
 msgstr "Was bewirkt das?"
 
 msgid "missingValuesHelp"
-msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Keine Daten“ dargestellt."
+msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Nicht angegeben“ dargestellt."
 
 # Missing from mex-model's catalogs as of the pinned 5.0.3; supplied here so the
 # derived "<property>.singular" label resolves. Ships in mex-model 5.1.3 -- remove

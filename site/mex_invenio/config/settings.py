@@ -425,6 +425,10 @@ UI_SETTINGS = {
                     },
                     {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
                     {
+                        "field": "mex:hasPurposeDescription",
+                        "label": _("hasPurposeDescription.singular"),
+                    },
+                    {
                         "field": "mex:provenance",
                         "label": _("provenance.singular"),
                     },
@@ -470,6 +474,10 @@ UI_SETTINGS = {
                         "field": "mex:hasCodeValues",
                         "label": _("hasCodeValues.singular"),
                     },
+                    {
+                        "field": "mex:hasCodingSystem",
+                        "label": _("hasCodingSystem.singular"),
+                    },
                     {"field": "mex:analytics", "label": _("analytics.singular")},
                     {"field": "mex:sample", "label": _("sample.singular")},
                 ],
@@ -502,7 +510,7 @@ UI_SETTINGS = {
                 ],
             },
             "generatedBy": {
-                "title": _("Related Projects"),
+                "title": _("Zugehörige Projekte"),
                 "icon": "relatedProjects.svg",
                 "properties": [
                     {"field": "mex:wasGeneratedBy"},
@@ -536,6 +544,21 @@ UI_SETTINGS = {
                     },
                 ],
             },
+            "datasetSeries": {
+                "title": _("Dataset Series"),
+                "icon": "relatedResources.svg",
+                "properties": [
+                    {"field": "mex:inSeries", "label": _("inSeries.singular")},
+                    {
+                        "field": "mex:inSeriesFirstResource",
+                        "label": _("inSeriesFirstResource.singular"),
+                    },
+                    {
+                        "field": "mex:inSeriesLastResource",
+                        "label": _("inSeriesLastResource.singular"),
+                    },
+                ],
+            },
         },
         "side_bar": {
             "contact": {
@@ -564,6 +587,7 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
+                    {"field": "mex:landingPage", "label": _("landingPage.singular")},
                     {"field": "mex:license", "label": _("license.singular")},
                     {"field": "mex:rights", "label": _("rights.singular")},
                 ],
@@ -665,7 +689,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related Activity"),
+                        "title": _("relatedActivity.singular"),
                         "properties": [
                             {"field": "mex:relatedActivity"},
                         ],
@@ -759,7 +783,7 @@ UI_SETTINGS = {
                         "label": _("publicationYear.singular"),
                     },
                     {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
+                    {"field": "mex:isbnIssn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {

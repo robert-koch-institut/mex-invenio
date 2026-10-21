@@ -34,7 +34,7 @@ boto3 = "*"
 dotenv = "*"
 flask-caching = "<2.4.0" # can be removed when upgraded to 14
 # mex-model version has implications for rendering so breaking changes should be considered carefully
-mex-model = "==5.0.3"
+mex-model = "==5.1.4"
 polib = "*"
 
 [requires]
