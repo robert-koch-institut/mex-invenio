@@ -37,6 +37,7 @@ edges.instances.resources.init = function() {
 
             // facets
             mex.accessRestrictionFacet(),
+            mex.createdChart(),
             mex.createdFacet(),
             mex.hasPersonalDataFacet(),
             mex.keywordFacet(),
