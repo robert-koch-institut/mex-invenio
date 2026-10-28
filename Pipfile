@@ -22,8 +22,6 @@ types-pexpect = "*"
 types-polib = "*"
 types-python-dateutil = "*"
 types-setuptools = "*"
-werkzeug = ">=3.1.9"
-certifi = ">=2026.10.19"
 
 [packages]
 invenio-app-rdm = {extras = ["opensearch2"], version = "~=13.1.0"}
@@ -38,6 +36,7 @@ flask-caching = "<2.4.0" # can be removed when upgraded to 14
 # mex-model version has implications for rendering so breaking changes should be considered carefully
 mex-model = "==5.1.4"
 polib = "*"
+# minimum versions for CVE fixes; can be removed once invenio-app-rdm requires them
 pillow = ">=13.0.0"
 oauthlib = ">=4.0.0"
 werkzeug = ">=3.1.9"
