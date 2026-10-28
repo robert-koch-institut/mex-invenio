@@ -15,7 +15,7 @@ The image in this directory runs as a scheduled job next to staging:
 
 ```
 staging DB ──pg_dump (read-only user)──▶ scratch Postgres inside the job
-    ──▶ sanitise.sql ──▶ verify.sql ──▶ pg_dump ──▶ age-encrypt ──▶ S3 bucket
+    ──▶ sanitise.sql ──▶ verify.sql ──▶ pg_dump ──▶ S3 bucket
 ```
 
 - Raw staging data only exists inside the job's scratch database, which is
@@ -23,8 +23,9 @@ staging DB ──pg_dump (read-only user)──▶ scratch Postgres inside the j
   written to disk as a file.
 - `verify.sql` scans **every** text and JSON column. The job fails, and nothing is
   uploaded, if it finds anything that should not be there.
-- The upload is encrypted to the developers' [age](https://age-encryption.org) public
-  keys, so the bucket never holds readable data.
+- The upload is not encrypted, so the bucket must stay private, readable only by
+  developers. Pseudonymisation is not complete (see Known limitations), so treat a
+  snapshot as internal data.
 
 ## What is changed
 
@@ -62,12 +63,11 @@ long as the salt stays the same.
 |---|---|
 | `SOURCE_DATABASE_URL` | the staging database, `postgresql://user:pass@host:5432/db`; a read-only user is enough |
 | `SNAPSHOT_SALT` | at least 32 characters; keep it stable and never share it |
-| `AGE_RECIPIENTS_FILE` | developers' age public keys, one per line |
 | `S3_ENDPOINT_URL`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | a write-only (PutObject) key is enough |
 | `S3_REGION`, `S3_PREFIX` | optional; default `us-east-1`, `snapshots` |
 | `ALLOW_EMAILS` | optional comma-separated functional addresses that may remain (e.g. `mex@rki.de`) |
 | `APP_IMAGE` | optional; the Invenio image staging runs, recorded in the manifest |
-| `SKIP_UPLOAD=1` | stop after encrypting; files stay in `/work/out` |
+| `SKIP_UPLOAD=1` | stop after dumping; files stay in `/work/out` |
 
 Build with the staging PostgreSQL major version:
 
@@ -81,7 +81,7 @@ The job's working directory `/work` needs room for two copies of the database (a
 ## Bucket layout
 
 ```
-snapshots/<timestamp>/mex.dump.age    encrypted pg_dump (custom format)
+snapshots/<timestamp>/mex.dump        pg_dump (custom format)
 snapshots/<timestamp>/manifest.json   sha256, size, alembic revisions, app image, counts
 snapshots/latest.json                 {"latest": "snapshots/<timestamp>/"}, written last
 ```
@@ -90,7 +90,7 @@ snapshots/latest.json                 {"latest": "snapshots/<timestamp>/"}, writ
 
 `test/run.sh` builds the image, seeds a throwaway database from
 `site/mex_invenio/scripts/testdata.ndjson` (plus planted personal data in descriptions,
-history, drafts and auxiliary tables), runs the job with `SKIP_UPLOAD=1`, decrypts the
+history, drafts and auxiliary tables), runs the job with `SKIP_UPLOAD=1`, restores the
 result and fails if any planted or sampled value survives. It uses its own container,
 network and port (5441) and takes about 10 minutes, mostly seeding.
 

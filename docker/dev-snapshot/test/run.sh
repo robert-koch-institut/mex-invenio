@@ -5,7 +5,7 @@
 # 2. creates the MEx schema and seeds it from site/mex_invenio/scripts/testdata.ndjson,
 #    plus planted personal data in descriptions, history, drafts and auxiliary tables
 # 3. runs the snapshot image with SKIP_UPLOAD=1
-# 4. decrypts the result and fails if any planted value survives
+# 4. restores the result and fails if any planted value survives
 #
 # Needs Docker and the project's pipenv environment. Uses its own Docker network,
 # container names and port, and never touches the regular docker-services stack.
@@ -70,20 +70,16 @@ docker exec "$DB" psql -U mex -X -tA -c "
         '198.51.100.7', '203.0.113.5', '030 18754 0', 'secret-access-token'])" > "$WORK/forbidden.txt"
 
 echo "== running snapshot image"
-docker run --rm --entrypoint sh -v "$WORK:/k" "$IMAGE" -c \
-    'age-keygen -o /k/dev.key 2>/dev/null && age-keygen -y /k/dev.key > /k/recipients.txt'
 docker run --rm --network "$NET" -v "$WORK:/k" -v "$WORK:/work/out-host" \
     -e SOURCE_DATABASE_URL="postgresql://mex:mex@$DB:5432/mex" \
     -e SNAPSHOT_SALT="test-salt-0123456789abcdef0123456789abcdef" \
-    -e AGE_RECIPIENTS_FILE=/k/recipients.txt \
     -e ALLOW_EMAILS="mex@rki.de" -e SKIP_UPLOAD=1 \
     --entrypoint bash "$IMAGE" -c '/opt/dev-snapshot/snapshot.sh && cp /work/out/* /work/out-host/'
 
-echo "== decrypting and scanning the snapshot"
+echo "== scanning the snapshot"
 docker run --rm -v "$WORK:/k" --entrypoint bash "$IMAGE" -c '
     set -e
-    age -d -i /k/dev.key /k/mex.dump.age > /tmp/mex.dump
-    pg_restore -f /tmp/plain.sql /tmp/mex.dump
+    pg_restore -f /tmp/plain.sql /k/mex.dump
     leaks=0
     while read -r v; do
         [ -z "$v" ] && continue

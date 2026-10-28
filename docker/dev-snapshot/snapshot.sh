@@ -4,7 +4,7 @@
 # snapshot matches what developers run locally while still holding real personal data.
 #
 #   staging DB --pg_dump (read-only user)--> scratch Postgres in this container
-#     --> sanitise.sql --> verify.sql --> pg_dump --> age encrypt --> S3 upload
+#     --> sanitise.sql --> verify.sql --> pg_dump --> S3 upload
 #
 # The raw staging data only ever exists inside the scratch database, which lives
 # in $WORK_DIR (an emptyDir in Kubernetes) and is discarded with the pod. If
@@ -13,7 +13,6 @@
 # Required environment:
 #   SOURCE_DATABASE_URL   staging DB: postgresql://user:pass@host:5432/db (read-only user)
 #   SNAPSHOT_SALT         >= 32 chars; keep it stable so pseudonyms stay stable
-#   AGE_RECIPIENTS_FILE   file with one age public key per line
 #   S3_ENDPOINT_URL       e.g. https://s3.de-north-2.psmanaged.com
 #   S3_BUCKET
 #   S3_ACCESS_KEY_ID      write access (PutObject) is enough
@@ -24,10 +23,10 @@
 #   ALLOW_EMAILS          comma-separated functional addresses allowed to remain
 #   APP_IMAGE             Invenio image the staging site runs (recorded in the manifest)
 #   WORK_DIR              default: /work
-#   SKIP_UPLOAD           set to 1 to stop after encrypting (for local testing)
+#   SKIP_UPLOAD           set to 1 to stop after dumping (for local testing)
 set -euo pipefail
 
-: "${SOURCE_DATABASE_URL:?}" "${SNAPSHOT_SALT:?}" "${AGE_RECIPIENTS_FILE:?}"
+: "${SOURCE_DATABASE_URL:?}" "${SNAPSHOT_SALT:?}"
 if [[ "${SKIP_UPLOAD:-0}" != "1" ]]; then
     : "${S3_ENDPOINT_URL:?}" "${S3_BUCKET:?}" "${S3_ACCESS_KEY_ID:?}" "${S3_SECRET_ACCESS_KEY:?}"
 fi
@@ -60,21 +59,20 @@ psql -X -q -v ON_ERROR_STOP=1 -v salt="$SNAPSHOT_SALT" -f "$SQL_DIR/sanitise.sql
 log "verifying"
 psql -X -q -v ON_ERROR_STOP=1 -v allow_emails="${ALLOW_EMAILS:-}" -f "$SQL_DIR/verify.sql"
 
-# --- dump, encrypt, describe -------------------------------------------------
+# --- dump, describe ---------------------------------------------------------
 OUT="$WORK_DIR/out"
 mkdir -p "$OUT"
-log "dumping and encrypting"
-pg_dump --format=custom --no-owner --no-privileges \
-    | age --encrypt --recipients-file "$AGE_RECIPIENTS_FILE" --output "$OUT/mex.dump.age"
+log "dumping"
+pg_dump --format=custom --no-owner --no-privileges --file="$OUT/mex.dump"
 
 q() { psql -X -tA -c "$1"; }
-SHA256="$(sha256sum "$OUT/mex.dump.age" | cut -d' ' -f1)"
+SHA256="$(sha256sum "$OUT/mex.dump" | cut -d' ' -f1)"
 cat > "$OUT/manifest.json" <<EOF
 {
   "created_at": "$TIMESTAMP",
-  "file": "mex.dump.age",
+  "file": "mex.dump",
   "sha256": "$SHA256",
-  "size_bytes": $(stat -c %s "$OUT/mex.dump.age"),
+  "size_bytes": $(stat -c %s "$OUT/mex.dump"),
   "postgres_server_version": "$(q 'SHOW server_version')",
   "alembic_versions": $(q "SELECT coalesce(json_agg(version_num ORDER BY version_num), '[]') FROM alembic_version"),
   "app_image": "${APP_IMAGE:-unknown}",
@@ -85,7 +83,7 @@ cat > "$OUT/manifest.json" <<EOF
   }
 }
 EOF
-log "snapshot ready: $(du -h "$OUT/mex.dump.age" | cut -f1)"
+log "snapshot ready: $(du -h "$OUT/mex.dump" | cut -f1)"
 
 if [[ "${SKIP_UPLOAD:-0}" == "1" ]]; then
     log "SKIP_UPLOAD=1, leaving files in $OUT"
@@ -104,7 +102,7 @@ put() {  # put <local file> <key> <content type>
 }
 KEY="${S3_PREFIX}/${TIMESTAMP}"
 log "uploading to ${S3_BUCKET}/${KEY}/"
-put "$OUT/mex.dump.age" "${KEY}/mex.dump.age" application/octet-stream
+put "$OUT/mex.dump" "${KEY}/mex.dump" application/octet-stream
 put "$OUT/manifest.json" "${KEY}/manifest.json" application/json
 # Written last, so it only ever points at a complete snapshot.
 printf '{"latest": "%s/"}\n' "$KEY" > "$OUT/latest.json"

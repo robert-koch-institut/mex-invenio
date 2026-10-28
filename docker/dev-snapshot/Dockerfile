@@ -5,7 +5,7 @@ ARG PG_MAJOR=14
 FROM postgres:${PG_MAJOR}-bookworm
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends age ca-certificates curl \
+    && apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY sanitise.sql verify.sql snapshot.sh /opt/dev-snapshot/
