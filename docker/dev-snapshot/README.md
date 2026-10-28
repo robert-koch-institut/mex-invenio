@@ -45,7 +45,6 @@ long as the salt stays the same.
 | User accounts | kept for references; email `user<id>@example.invalid`, no password/username/profile |
 | Sessions, login info, OAuth links/tokens, access-request tokens, secret links, audit logs, job runs, webhooks | emptied |
 | Client IP addresses on SQLAlchemy-Continuum transactions | removed |
-| File storage location | local path instead of the staging bucket |
 
 ## Known limitations
 
@@ -85,6 +84,41 @@ snapshots/<timestamp>/mex.dump        pg_dump (custom format)
 snapshots/<timestamp>/manifest.json   sha256, size, alembic revisions, app image, counts
 snapshots/latest.json                 {"latest": "snapshots/<timestamp>/"}, written last
 ```
+
+## Restoring a snapshot locally
+
+`restore.sh` replaces your local database with the latest snapshot. It **drops** the
+local `mex-invenio` database and all search indices.
+
+1. Ask for a read-only key to the snapshot bucket and put it in `.env.snapshot` in the
+   repository root (gitignored):
+   ```bash
+   S3_ENDPOINT_URL=https://...
+   S3_BUCKET=...
+   S3_ACCESS_KEY_ID=...
+   S3_SECRET_ACCESS_KEY=...
+   ```
+2. Start the services with `docker compose up -d`.
+3. Run `docker/dev-snapshot/restore.sh`.
+
+The script:
+1. downloads the latest snapshot into `tmp/dev-snapshot/` and checks it against the
+   manifest's sha256. A snapshot that was already downloaded is reused.
+2. restores it into the `db` service.
+3. runs `invenio alembic upgrade`, since staging may be behind your checkout.
+4. flushes Redis, then recreates the search indices and custom fields.
+5. reindexes everything. Indexing runs in the script, so no Celery worker is needed.
+6. creates a local admin, because imported users have no passwords.
+
+Set `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD` to choose the admin's login.
+Otherwise it is `admin@example.org` with a generated password, printed at the end.
+Use `--file path/to/mex.dump` to restore a dump you already have; a `manifest.json`
+next to it is checked if present. Use `--yes` to skip the confirmation.
+
+Staging's `SECRET_KEY` and password salt are not needed. Everything that depends on
+them (password hashes, encrypted OAuth tokens, secret links) is removed by
+`sanitise.sql`. To log in as an imported user, set a password for them in
+`invenio shell` with `invenio_accounts.utils.hash_password`.
 
 ## Testing
 

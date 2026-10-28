@@ -261,7 +261,4 @@ CASCADE;
 -- SQLAlchemy-Continuum records the client IP of every change.
 UPDATE transaction SET remote_addr = NULL WHERE remote_addr IS NOT NULL;
 
--- Point storage at a local path instead of the staging bucket.
-UPDATE files_location SET uri = 'file:///opt/invenio/var/instance/data';
-
 COMMIT;
