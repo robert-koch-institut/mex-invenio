@@ -24,6 +24,7 @@ addopts = [
     "--cov-branch",
     "--pdbcls=IPython.terminal.debugger:TerminalPdb",
 ]
+testpaths = ["tests"]
 
 [tool.ruff]
 fix = true
