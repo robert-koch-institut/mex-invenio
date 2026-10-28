@@ -9,7 +9,9 @@
 #
 # Needs Docker and the project's pipenv environment. Uses its own Docker network,
 # container names and port, and never touches the regular docker-services stack.
-# Usage: docker/dev-snapshot/test/run.sh [--keep]
+# Usage: docker/dev-snapshot/test/run.sh [--keep] [--out <dir>]
+#   --keep  keep the test database container
+#   --out   copy mex.dump and manifest.json to <dir>, e.g. to try restore.sh --file
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -21,7 +23,15 @@ IMAGE=mex-dev-snapshot:test
 WORK="$(mktemp -d)"
 chmod 777 "$WORK"  # the image runs as the postgres user
 
-KEEP="${1:-}"
+KEEP=""
+OUT=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --keep) KEEP="--keep"; shift ;;
+        --out) OUT="$(realpath -m "$2")"; shift 2 ;;
+        *) echo "unknown argument: $1" >&2; exit 2 ;;
+    esac
+done
 cleanup() {
     if [[ "$KEEP" != "--keep" ]]; then
         docker rm -f "$DB" >/dev/null 2>&1 || true
@@ -89,4 +99,9 @@ docker run --rm -v "$WORK:/k" --entrypoint bash "$IMAGE" -c '
     echo "checked $(grep -c . /k/forbidden.txt) values, $leaks leak(s)"
     [ "$leaks" -eq 0 ]'
 cat "$WORK/manifest.json"
+if [[ -n "$OUT" ]]; then
+    mkdir -p "$OUT"
+    cp "$WORK/mex.dump" "$WORK/manifest.json" "$OUT/"
+    echo "== copied mex.dump and manifest.json to $OUT"
+fi
 echo "== PASS"

@@ -82,6 +82,7 @@ celerybeat-schedule.*
 
 # Internal files
 .env
+.env.snapshot
 .aws/
 payload
 *.patch

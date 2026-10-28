@@ -115,6 +115,13 @@ Otherwise it is `admin@example.org` with a generated password, printed at the en
 Use `--file path/to/mex.dump` to restore a dump you already have; a `manifest.json`
 next to it is checked if present. Use `--yes` to skip the confirmation.
 
+To try a snapshot without touching your own data, use `--target <name>`. The snapshot
+then goes into a separate database `<name>` with search indices prefixed `<name>-`, and
+Redis is left alone. Stop any local Celery worker first, because it would take the
+reindexing jobs off the queues. To run the app against it, set
+`INVENIO_SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://mex-invenio:mex-invenio@localhost/<name>`
+and `INVENIO_SEARCH_INDEX_PREFIX=<name>-`.
+
 Staging's `SECRET_KEY` and password salt are not needed. Everything that depends on
 them (password hashes, encrypted OAuth tokens, secret links) is removed by
 `sanitise.sql`. To log in as an imported user, set a password for them in
@@ -130,4 +137,12 @@ network and port (5441) and takes about 10 minutes, mostly seeding.
 
 ```bash
 docker/dev-snapshot/test/run.sh          # add --keep to keep the test database
+```
+
+To test `restore.sh` as well, keep the test dump and restore it into a separate
+database:
+
+```bash
+docker/dev-snapshot/test/run.sh --out tmp/dev-snapshot/test
+docker/dev-snapshot/restore.sh --file tmp/dev-snapshot/test/mex.dump --target snapshot-test
 ```
