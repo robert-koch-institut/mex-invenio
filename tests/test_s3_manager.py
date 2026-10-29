@@ -1,16 +1,30 @@
+import json
 import os
 from unittest.mock import MagicMock, patch
 
 import pytest
+from flask import Flask
 
 from mex_invenio.scripts.s3_manager import (
+    _bootstrap_initial_import,
+    _write_public_status,
     get_model_metadata_files,
     get_s3_client_and_config,
     import_pending_diffs,
     manage_s3_files,
 )
+from mex_invenio.scripts.utils import _read_state
 
 _MODULE = "mex_invenio.scripts.s3_manager"
+
+COUNTS = {
+    "lines": 3,
+    "created": 2,
+    "updated": 0,
+    "skipped": 0,
+    "failed": 1,
+    "invalid_lines": 0,
+}
 
 
 @pytest.fixture
@@ -223,7 +237,7 @@ def test_read_new_metadata_failure(mock_read, cli_runner, app_config, s3_client)
     assert cli_runner(manage_s3_files).exit_code == 0
 
 
-@patch(f"{_MODULE}.initial_import", return_value=True)
+@patch(f"{_MODULE}.initial_import", return_value=COUNTS)
 @patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.get_subdir_by_order", return_value=None)
 @patch(
@@ -596,3 +610,87 @@ def test_non_installed_version_downloads_but_never_diffs(
     cached_dir = os.path.join(download_path, "5.0", "20260601000001")
     assert os.path.exists(os.path.join(cached_dir, "metadata.json"))
     assert os.path.exists(os.path.join(cached_dir, "items.ndjson"))
+
+
+# ---------------------------------------------------------------------------
+# .import_state contents
+# ---------------------------------------------------------------------------
+
+
+def _bootstrap(tmp_path):
+    """Run _bootstrap_initial_import with the download step stubbed out."""
+    downloaded_dir = tmp_path / "downloaded" / "5.1" / "20260601000000"
+    downloaded_dir.mkdir(parents=True)
+    with patch(f"{_MODULE}._download_items_file", return_value=str(downloaded_dir)):
+        result = _bootstrap_initial_import(
+            s3_client=MagicMock(),
+            s3_bucket="bucket",
+            metadata_file={"Key": "publisher-5.1/metadata.json"},
+            download_path=str(tmp_path / "downloaded"),
+            processed_path=str(tmp_path / "processed"),
+            s3_download_folder=str(tmp_path),
+            model_version="5.1",
+            dump_folder="draft-20260601000000",
+            tmp_dump_path=str(tmp_path / "tmp"),
+            user_email="importer@example.com",
+        )
+    return result, _read_state(str(tmp_path / ".import_state")), downloaded_dir
+
+
+@patch(f"{_MODULE}.initial_import", return_value=COUNTS)
+def test_bootstrap_records_counts_in_state(mock_initial_import, tmp_path):
+    """A successful initial import records its kind, file and counts."""
+    result, state, downloaded_dir = _bootstrap(tmp_path)
+
+    assert result is True
+    assert state["status"] == "success"
+    assert state["kind"] == "initial"
+    assert state["model_version"] == "5.1"
+    assert state["import_file"] == str(downloaded_dir / "items.ndjson")
+    assert state["counts"] == COUNTS
+    assert state["duration_seconds"] >= 0
+    assert "error" not in state
+
+
+@patch(f"{_MODULE}.initial_import", side_effect=ValueError("bad dump"))
+def test_bootstrap_records_error_in_state(mock_initial_import, tmp_path):
+    """A failed initial import records why it failed, and no counts."""
+    result, state, _ = _bootstrap(tmp_path)
+
+    assert result is False
+    assert state["status"] == "failed"
+    assert state["kind"] == "initial"
+    assert state["error"] == {"type": "ValueError", "message": "bad dump"}
+    assert "counts" not in state
+
+
+def test_public_status_copies_only_safe_details(tmp_path):
+    """The public status gets kind and counts, but not paths or error messages."""
+    app = Flask(__name__)
+    app.config["S3_DOWNLOAD_FOLDER"] = str(tmp_path)
+    app.config["IMPORT_STATUS_DIR"] = str(tmp_path / "status")
+    (tmp_path / ".import_state").write_text(
+        json.dumps(
+            {
+                "status": "success",
+                "kind": "diff",
+                "started_at": "2026-10-07T10:00:00+00:00",
+                "finished_at": "2026-10-07T10:00:05+00:00",
+                "import_file": "/secret/path/diff.ndjson",
+                "counts": COUNTS,
+            }
+        )
+    )
+
+    with app.app_context():
+        _write_public_status(had_download_errors=False)
+
+    status = json.loads((tmp_path / "status" / "import-status.json").read_text())
+    assert status["import"] == {
+        "status": "success",
+        "kind": "diff",
+        "started_at": "2026-10-07T10:00:00+00:00",
+        "finished_at": "2026-10-07T10:00:05+00:00",
+        "counts": COUNTS,
+    }
+    assert "/secret/path" not in json.dumps(status)
