@@ -266,6 +266,16 @@ Unset by default (status reporting off) - set only on the import-job's
 container in production (see helm-invenio's import-job.yaml).
 """
 
+DOWNLOADABLE_FILES_DIR = os.environ.get("INVENIO_DOWNLOADABLE_FILES_DIR")
+"""Directory holding the CSVs mirrored from the bucket's 'downloadable
+files-<version>' prefix, for nginx to serve directly and for the /downloads
+page to list.
+
+Unset by default (no downloadable files) - set on both the import-job and
+web containers in production (see helm-invenio's import-job.yaml and
+web-deployment.yaml).
+"""
+
 COMMUNITIES_GROUPS_ENABLED = False
 
 # The value for the Datacite creator property in imported records

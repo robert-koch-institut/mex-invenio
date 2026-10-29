@@ -376,17 +376,66 @@ def get_subdir_by_order(root: str, most_recent: bool = True) -> str | None:
     return latest[0] if latest else None
 
 
+DOWNLOADABLE_FILES_STATE_KEY = "downloadable_files"
+"""Section of the import state file recording the last downloadable-files sync.
+
+It has its own status, so a failed download never blocks imports, which only
+look at the top-level status.
+"""
+
+
 def _write_state(
     state_file: str,
     status: str,
     started_at: str | None = None,
     finished_at: str | None = None,
+    **details,
 ):
-    """Write the import state file with the given status and timestamps."""
+    """Write the import state file with the given status, timestamps and details.
+
+    Details (e.g. the import kind, file and counts) are stored alongside the
+    status. Previous import details are replaced, but the downloadable-files
+    section is kept.
+    """
     data = {"status": status}
     if started_at:
         data["started_at"] = started_at
     if finished_at:
         data["finished_at"] = finished_at
-    with open(state_file, "w") as f:
+    data.update(details)
+
+    previous = _read_state(state_file) or {}
+    if DOWNLOADABLE_FILES_STATE_KEY in previous:
+        data[DOWNLOADABLE_FILES_STATE_KEY] = previous[DOWNLOADABLE_FILES_STATE_KEY]
+
+    _write_state_file(state_file, data)
+
+
+def _update_state(state_file: str, key: str, section: dict) -> None:
+    """Set one section of the import state file, leaving the rest unchanged."""
+    data = _read_state(state_file) or {}
+    data[key] = section
+    _write_state_file(state_file, data)
+
+
+def _write_state_file(state_file: str, data: dict) -> None:
+    """Write the state file via a temporary file that's moved into place.
+
+    A crash mid-write can't leave a truncated file, which _read_state would
+    treat as no state at all.
+    """
+    tmp_path = f"{state_file}.tmp"
+    with open(tmp_path, "w") as f:
         json.dump(data, f)
+    os.replace(tmp_path, state_file)
+
+
+def _error_details(exc: BaseException) -> dict[str, str]:
+    """Summarise an exception for the import state file."""
+    return {"type": type(exc).__name__, "message": str(exc)}
+
+
+def _duration_seconds(started_at: str, finished_at: str) -> float:
+    """Return the seconds between two ISO timestamps, to one decimal place."""
+    elapsed = datetime.fromisoformat(finished_at) - datetime.fromisoformat(started_at)
+    return round(elapsed.total_seconds(), 1)

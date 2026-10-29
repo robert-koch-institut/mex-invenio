@@ -36,6 +36,8 @@ from sqlalchemy import text
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
+    _duration_seconds,
+    _error_details,
     _read_state,
     _write_state,
     get_installed_model_version,
@@ -223,6 +225,11 @@ def update_report(report: dict, batch_results: list[dict]):
 
 
 def process_import(owner, import_file, batch_size):
+    """Import the records in import_file and return counts of the outcome.
+
+    "failed" counts records that raised while being imported; "invalid_lines"
+    counts lines that weren't valid JSON.
+    """
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
@@ -339,6 +346,18 @@ def process_import(owner, import_file, batch_size):
 
     logger.info(time_taken)
 
+    imported = {
+        "created": len(report["created"]),
+        "updated": len(report["updated"]),
+        "skipped": len(report["skipped"]),
+    }
+    return {
+        "lines": num_lines,
+        **imported,
+        "failed": num_lines - sum(imported.values()),
+        "invalid_lines": report["error"],
+    }
+
 
 @click.command("import_data")
 @click.argument("model_version")
@@ -434,24 +453,41 @@ def import_data(
                 return False
 
     started_at = datetime.now(timezone.utc).isoformat()
+    details = {
+        "kind": "diff",
+        "model_version": model_version,
+        "import_file": import_file,
+    }
     try:
-        _write_state(state_file, "in_progress", started_at=started_at)
-        process_import(owner, import_file, batch_size)
+        _write_state(state_file, "in_progress", started_at=started_at, **details)
+        counts = process_import(owner, import_file, batch_size)
 
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.info(f"Import successful. Data imported from {import_file}.")
         _write_state(
-            state_file, "success", started_at=started_at, finished_at=finished_at
+            state_file,
+            "success",
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_seconds=_duration_seconds(started_at, finished_at),
+            counts=counts,
+            **details,
         )
 
-    except Exception:
+    except Exception as e:
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.exception(
             f"Failed to process import from {import_file}. "
             f"Imports will not be possible until .import_state is deleted."
         )
         _write_state(
-            state_file, "failed", started_at=started_at, finished_at=finished_at
+            state_file,
+            "failed",
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_seconds=_duration_seconds(started_at, finished_at),
+            error=_error_details(e),
+            **details,
         )
         return False
     finally:
