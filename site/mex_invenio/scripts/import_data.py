@@ -39,6 +39,7 @@ from mex_invenio.scripts.utils import (
     _read_state,
     _write_state,
     get_installed_model_version,
+    get_linked_target_ids,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
@@ -116,6 +117,7 @@ def process_record_batch(
             mex_data = mex_to_invenio_schema(current_app.config, json_data)
 
             existing_record = existing_records.get(mex_id)
+            previous_custom_fields = None
 
             if not existing_record:
                 # Create a new record
@@ -136,6 +138,7 @@ def process_record_batch(
             else:
                 # Update an existing record
                 record_pid = existing_record["id"]
+                previous_custom_fields = existing_record["custom_fields"]
 
                 # Check if the record needs to be updated
                 current_data = normalize_record_data(existing_record["custom_fields"])
@@ -172,9 +175,14 @@ def process_record_batch(
                         }
                     )
 
-                # Collect all related record UUIDs of created/updated records
-                for related_id in get_related_mex_ids(mex_data):
-                    results.append({"action": "related", "id": related_id})
+            # Collect the records whose display data depends on this one: records
+            # linking to it (they show its title) and records it links to through
+            # backwards-linked fields (they list it), including those it linked to
+            # before an update.
+            for related_id in get_related_mex_ids(mex_data):
+                results.append({"action": "related", "id": related_id})
+            for target_id in get_linked_target_ids(mex_data, previous_custom_fields):
+                results.append({"action": "related", "id": target_id})
 
         except KeyError as ke:
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
