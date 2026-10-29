@@ -84,6 +84,9 @@ msgstr "Jump up"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typical age"
+
 msgid "Typical age"
 msgstr "Typical age"
 
@@ -91,8 +94,14 @@ msgstr "Typical age"
 msgid "Min. typical age"
 msgstr "Min. typical age"
 
+msgid "Minimales typisches Alter"
+msgstr "Min. typical age"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Max. typical age"
+
+msgid "Maximales typisches Alter"
 msgstr "Max. typical age"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
@@ -138,6 +147,9 @@ msgid "entireMetadataCatalogue"
 msgstr "Entire Metadata Catalogue"
 
 msgid "Related projects"
+msgstr "Related projects"
+
+msgid "Zugehörige Projekte"
 msgstr "Related projects"
 
 msgid "Related data sources & datasets"
@@ -553,7 +565,7 @@ msgid "methodDescriptionNotProvided"
 msgstr "Method description not provided"
 
 msgid "noTheme"
-msgstr "No theme provided"
+msgstr "Theme not provided"
 
 msgid "noKeywords"
 msgstr "No keywords provided"
@@ -562,13 +574,13 @@ msgid "NoVariablesAssociatedWithThisDataset"
 msgstr "There are no variables associated with this dataset"
 
 msgid "noDescription"
-msgstr "No description"
+msgstr "Description not provided"
 
 msgid "noData"
 msgstr "No data"
 
 msgid "noAbstract"
-msgstr "No abstract provided"
+msgstr "Abstract not provided"
 
 msgid "missingValuesHelpTrigger"
 msgstr "What does it mean?"

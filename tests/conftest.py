@@ -189,6 +189,14 @@ def resource_type_v(app, resource_type_type):
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
+        {
+            "id": "resourceseries",
+            "icon": "code",
+            "props": {"type": "resourceseries"},
+            "title": {"en": "Resource series"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
     ]
 
     Vocabulary.index.create(ignore=400)

@@ -11,6 +11,7 @@ from collections.abc import Callable
 from datetime import datetime, timezone
 
 import packaging.version
+from flask import current_app
 from invenio_db import db
 from invenio_rdm_records.records.api import RDMRecord
 from marshmallow_utils.html import sanitize_unicode
@@ -209,6 +210,7 @@ def get_related_mex_ids(record: dict) -> list:
         "bibliographicresource": "bibliographic-resource",
         "variablegroup": "variable-group",
         "primarysource": "primary-source",
+        "resourceseries": "resource-series",
     }
 
     record_type = record.get("metadata", {}).get("resource_type", {}).get("id", "")
@@ -224,6 +226,10 @@ def get_related_mex_ids(record: dict) -> list:
         for prop_name, prop in entity.get("properties", {}).items():
             if prop.get("$ref") == target_id:
                 target_fields.append(prop_name)
+            elif "anyOf" in prop:
+                # Nullable single reference, e.g. parentUnit: anyOf [$ref, null]
+                if any(sub_prop.get("$ref") == target_id for sub_prop in prop["anyOf"]):
+                    target_fields.append(prop_name)
             elif prop.get("type") == "array" and "items" in prop:
                 if prop["items"].get("$ref") == target_id:
                     target_fields.append(prop_name)
@@ -236,28 +242,32 @@ def get_related_mex_ids(record: dict) -> list:
     if not target_fields:
         return []
 
+    # The same field name can appear in several entities
+    target_fields = list(dict.fromkeys(target_fields))
+
     try:
-        # Build OR conditions for each target field
+        # Build OR conditions for each target field. Containment (@>) on
+        # json->'custom_fields' is used so the GIN index
+        # idx_rdm_records_custom_fields_gin_std can serve the lookup;
+        # sub-path expressions like json->'custom_fields'->'mex:x' ? :id
+        # can't use it and force a sequential scan per record.
         conditions = []
+        params = {}
         for field in target_fields:
-            # Check if record_id is in the field (handles both string and array values)
+            # Check if record_id is an element of an array value
             conditions.append(
                 text(
-                    f"rdm_records_metadata.json->'custom_fields'->'mex:{field}' ? :record_id_{field}"
+                    f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_{field} AS jsonb)"
                 )
             )
+            params[f"record_id_{field}"] = json.dumps({f"mex:{field}": [record_id]})
             # Also check if it's a direct string match
             conditions.append(
                 text(
-                    f"rdm_records_metadata.json->'custom_fields'->>'mex:{field}' = :record_id_str_{field}"
+                    f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_str_{field} AS jsonb)"
                 )
             )
-
-        # Build parameters dict
-        params = {}
-        for field in target_fields:
-            params[f"record_id_{field}"] = record_id
-            params[f"record_id_str_{field}"] = record_id
+            params[f"record_id_str_{field}"] = json.dumps({f"mex:{field}": record_id})
 
         # Query database for records that reference this record_id
         record_uuids = (
@@ -271,6 +281,55 @@ def get_related_mex_ids(record: dict) -> list:
 
     except Exception as e:
         logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
+        return []
+
+
+def get_linked_target_ids(
+    record: dict, previous_custom_fields: dict | None = None
+) -> list:
+    """Get UUIDs of MEX records this record links to through backwards-linked fields.
+
+    Those records list this one in their display data (e.g. an activity lists the
+    resources it generated via mex:wasGeneratedBy), so they need re-indexing when
+    this record is created or its links change. Targets of the previous version's
+    links are included so that records a link was removed from are re-indexed too.
+    """
+    fields = {
+        field
+        for fields in current_app.config.get("FIELDS_LINKED_BACKWARDS", {}).values()
+        for field in fields
+    }
+
+    target_mex_ids = set()
+    for custom_fields in (
+        record.get("custom_fields", {}),
+        previous_custom_fields or {},
+    ):
+        for field in fields:
+            value = custom_fields.get(field)
+            if value:
+                target_mex_ids.update(value if isinstance(value, list) else [value])
+
+    if not target_mex_ids:
+        return []
+
+    try:
+        record_uuids = (
+            db.session.query(RDMRecord.model_cls.id)
+            .filter(
+                text(
+                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+                )
+            )
+            .params(mex_ids=list(target_mex_ids))
+            .all()
+        )
+
+        return [str(uuid) for (uuid,) in record_uuids]
+
+    except Exception as e:
+        record_id = record.get("custom_fields", {}).get("mex:identifier")
+        logger.info(f"Error searching for linked target records of {record_id}: {e}")
         return []
 
 
