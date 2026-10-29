@@ -64,6 +64,8 @@ MEX_ID_KW = "custom_fields.mex:identifier.keyword"
 
 PERSONAL_DATA_KW = "custom_fields.mex:hasPersonalData.keyword"
 
+POPULATION_COVERAGE = "custom_fields.mex:populationCoverage.value"
+
 PUBLICATION_YEAR = "custom_fields.mex:publicationYear.date"
 PUBLICATION_YEAR_RANGE = "custom_fields.mex:publicationYear.date_range"
 
@@ -72,8 +74,12 @@ SHORT_NAME = "custom_fields.mex:shortName.value"
 START = "custom_fields.mex:start.date"
 START_RANGE = "custom_fields.mex:start.date_range"
 
+SPATIAL = "custom_fields.mex:spatial.value"
+
 SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
 SUBTITLE = "custom_fields.mex:subtitle.value"
+
+TEMPORAL = "custom_fields.mex:temporal"
 
 THEME_KW = "custom_fields.mex:theme.keyword"
 
@@ -315,6 +321,7 @@ class HighlightParamsInterpreter(ParamInterpreter):
         if params.get("resource_type") == "variable":
             search = search.highlight(
                 LABEL,
+                DESCRIPTION,
                 USED_IN_DE,
                 USED_IN_EN,
                 BELONGS_TO_LABEL,
@@ -324,18 +331,30 @@ class HighlightParamsInterpreter(ParamInterpreter):
             )
         elif isinstance(params.get("resource_type"), list):
             search = search.highlight(
+                ALT_TITLE,
                 DESCRIPTION,
                 ABSTRACT,
                 TITLE,
                 LABEL,
+                SPATIAL,
+                TEMPORAL,
+                POPULATION_COVERAGE,
+                KEYWORD,
+                DATA_TYPE,
+                BELONGS_TO_LABEL,
                 pre_tags=["<xh>"],
                 post_tags=["</xh>"],
             )
         else:
             search = search.highlight(
+                ALT_TITLE,
                 DESCRIPTION,
                 ABSTRACT,
                 TITLE,
+                SPATIAL,
+                TEMPORAL,
+                POPULATION_COVERAGE,
+                KEYWORD,
                 pre_tags=["<xh>"],
                 post_tags=["</xh>"],
             )
@@ -379,6 +398,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         "custom_fields.mex:alternativeTitle.value",
         "custom_fields.mex:label.value",
         "custom_fields.mex:valueSet",
+        "custom_fields.mex:dataType",
         "index_data.belongsToLabel",
         "index_data.contributors",
         "index_data.creators",
