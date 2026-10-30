@@ -1,0 +1,81 @@
+name: Dev snapshot image
+
+run-name: build dev snapshot image by @${{ github.actor }}
+
+# Image for the staging CronJob that publishes pseudonymised database snapshots
+# for developers (see docker/dev-snapshot/README.md). It only needs rebuilding when
+# its scripts change, staging moves to a new PostgreSQL major version, or for base
+# image updates.
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - docker/dev-snapshot/**
+      - .github/workflows/dev-snapshot-image.yml
+  workflow_dispatch:
+    inputs:
+      pg_major:
+        description: PostgreSQL major version of the staging database
+        type: choice
+        options:
+          - "14"
+          - "15"
+          - "16"
+          - "17"
+        default: "14"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  containerize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+      id-token: write  # Required for cosign signing
+    env:
+      # Pushes build the version staging currently runs.
+      PG_MAJOR: ${{ inputs.pg_major || '14' }}
+      IMAGE: ghcr.io/${{ github.repository }}-dev-snapshot
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Login to container registry
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build, tag and push docker image
+        id: push_step
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v.7.1.0
+        with:
+          context: docker/dev-snapshot
+          build-args: PG_MAJOR=${{ env.PG_MAJOR }}
+          pull: true
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:pg${{ env.PG_MAJOR }}
+            ${{ env.IMAGE }}:pg${{ env.PG_MAJOR }}-${{ github.sha }}
+          outputs: type=image,oci-mediatypes=true
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: 'v2.4.1'
+
+      - name: Sign Docker image keyless
+        env:
+          DIGEST: ${{ steps.push_step.outputs.digest }}
+        run: |
+          cosign sign --yes "$IMAGE@$DIGEST"
