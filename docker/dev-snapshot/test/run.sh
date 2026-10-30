@@ -48,7 +48,7 @@ echo "== starting synthetic 'staging' database"
 docker network create "$NET" >/dev/null 2>&1 || true
 docker rm -f "$DB" >/dev/null 2>&1 || true
 docker run -d --name "$DB" --network "$NET" -p "127.0.0.1:$PORT:5432" \
-    -e POSTGRES_USER=mex -e POSTGRES_PASSWORD=mex -e POSTGRES_DB=mex postgres:14 >/dev/null
+    -e POSTGRES_USER=mex -e POSTGRES_PASSWORD=mex -e POSTGRES_DB=mex postgres:17 >/dev/null
 until docker exec "$DB" pg_isready -U mex -q; do sleep 1; done
 
 echo "== creating schema and seeding (takes a few minutes)"

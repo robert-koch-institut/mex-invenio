@@ -23,7 +23,7 @@ on:
           - "15"
           - "16"
           - "17"
-        default: "14"
+        default: "17"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,7 +39,7 @@ jobs:
       id-token: write  # Required for cosign signing
     env:
       # Pushes build the version staging currently runs.
-      PG_MAJOR: ${{ inputs.pg_major || '14' }}
+      PG_MAJOR: ${{ inputs.pg_major || '17' }}
       IMAGE: ghcr.io/${{ github.repository }}-dev-snapshot
 
     steps:

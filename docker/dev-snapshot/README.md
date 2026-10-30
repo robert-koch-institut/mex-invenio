@@ -71,7 +71,7 @@ long as the salt stays the same.
 Build with the staging PostgreSQL major version:
 
 ```bash
-docker build --build-arg PG_MAJOR=14 -t mex-dev-snapshot docker/dev-snapshot
+docker build --build-arg PG_MAJOR=17 -t mex-dev-snapshot docker/dev-snapshot
 ```
 
 The job's working directory `/work` needs room for two copies of the database (an

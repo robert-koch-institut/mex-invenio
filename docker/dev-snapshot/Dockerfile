@@ -1,7 +1,7 @@
 # Image for the developer snapshot CronJob (see README.md in this directory).
 # PG_MAJOR must match the staging PostgreSQL major version: pg_dump needs to be at
 # least the server's version, and the scratch database restores the dump.
-ARG PG_MAJOR=14
+ARG PG_MAJOR=17
 FROM postgres:${PG_MAJOR}-bookworm
 
 RUN apt-get update \
