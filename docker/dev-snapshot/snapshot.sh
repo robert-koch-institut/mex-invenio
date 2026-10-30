@@ -3,7 +3,7 @@
 # Staging runs the same code and imports the same MEx data as production, so the
 # snapshot matches what developers run locally while still holding real personal data.
 #
-#   staging DB --pg_dump (read-only user)--> scratch Postgres in this container
+#   staging DB --pg_dump (read-only session)--> scratch Postgres in this container
 #     --> sanitise.sql --> verify.sql --> pg_dump --> S3 upload
 #
 # The raw staging data only ever exists inside the scratch database, which lives
@@ -11,7 +11,9 @@
 # verify.sql finds anything, the script exits non-zero before dumping.
 #
 # Required environment:
-#   SOURCE_DATABASE_URL   staging DB: postgresql://user:pass@host:5432/db (read-only user)
+#   INVENIO_DB_HOST, INVENIO_DB_PORT, INVENIO_DB_USER, INVENIO_DB_PASSWORD, INVENIO_DB_NAME
+#                         staging DB, as the app gets them; the session is read-only
+#   or SOURCE_DATABASE_URL  postgresql://user:pass@host:5432/db, used instead if set
 #   SNAPSHOT_SALT         >= 32 chars; keep it stable so pseudonyms stay stable
 #   S3_ENDPOINT_URL       e.g. https://s3.de-north-2.psmanaged.com
 #   S3_BUCKET
@@ -20,13 +22,15 @@
 # Optional:
 #   S3_REGION             default: us-east-1
 #   S3_PREFIX             default: snapshots
-#   ALLOW_EMAILS          comma-separated functional addresses allowed to remain
 #   APP_IMAGE             Invenio image the staging site runs (recorded in the manifest)
 #   WORK_DIR              default: /work
 #   SKIP_UPLOAD           set to 1 to stop after dumping (for local testing)
 set -euo pipefail
 
-: "${SOURCE_DATABASE_URL:?}" "${SNAPSHOT_SALT:?}"
+: "${SNAPSHOT_SALT:?}"
+if [[ -z "${SOURCE_DATABASE_URL:-}" ]]; then
+    : "${INVENIO_DB_HOST:?}" "${INVENIO_DB_USER:?}" "${INVENIO_DB_PASSWORD:?}" "${INVENIO_DB_NAME:?}"
+fi
 if [[ "${SKIP_UPLOAD:-0}" != "1" ]]; then
     : "${S3_ENDPOINT_URL:?}" "${S3_BUCKET:?}" "${S3_ACCESS_KEY_ID:?}" "${S3_SECRET_ACCESS_KEY:?}"
 fi
@@ -50,14 +54,25 @@ createdb "$PGDATABASE"
 
 # --- copy staging into scratch (streamed, never written to disk as a dump) ---
 log "copying staging database"
-pg_dump --dbname="$SOURCE_DATABASE_URL" --format=custom --no-owner --no-privileges \
+# The connection settings apply to this pg_dump only; PG* above stays on scratch.
+# pg_dump reads in a read-only transaction anyway; the session setting makes sure.
+source_dump() {
+    if [[ -n "${SOURCE_DATABASE_URL:-}" ]]; then
+        PGOPTIONS="-c default_transaction_read_only=on" pg_dump --dbname="$SOURCE_DATABASE_URL" "$@"
+    else
+        PGHOST="$INVENIO_DB_HOST" PGPORT="${INVENIO_DB_PORT:-5432}" PGUSER="$INVENIO_DB_USER" \
+            PGPASSWORD="$INVENIO_DB_PASSWORD" PGDATABASE="$INVENIO_DB_NAME" \
+            PGOPTIONS="-c default_transaction_read_only=on" pg_dump "$@"
+    fi
+}
+source_dump --format=custom --no-owner --no-privileges \
     | pg_restore --dbname="$PGDATABASE" --no-owner --no-privileges --exit-on-error
 
 # --- pseudonymise and verify -------------------------------------------------
 log "sanitising"
 psql -X -q -v ON_ERROR_STOP=1 -v salt="$SNAPSHOT_SALT" -f "$SQL_DIR/sanitise.sql"
 log "verifying"
-psql -X -q -v ON_ERROR_STOP=1 -v allow_emails="${ALLOW_EMAILS:-}" -f "$SQL_DIR/verify.sql"
+psql -X -q -v ON_ERROR_STOP=1 -f "$SQL_DIR/verify.sql"
 
 # --- dump, describe ---------------------------------------------------------
 OUT="$WORK_DIR/out"

@@ -81,9 +81,10 @@ docker exec "$DB" psql -U mex -X -tA -c "
 
 echo "== running snapshot image"
 docker run --rm --network "$NET" -v "$WORK:/k" -v "$WORK:/work/out-host" \
-    -e SOURCE_DATABASE_URL="postgresql://mex:mex@$DB:5432/mex" \
+    -e INVENIO_DB_HOST="$DB" -e INVENIO_DB_PORT=5432 -e INVENIO_DB_USER=mex \
+    -e INVENIO_DB_PASSWORD=mex -e INVENIO_DB_NAME=mex \
     -e SNAPSHOT_SALT="test-salt-0123456789abcdef0123456789abcdef" \
-    -e ALLOW_EMAILS="mex@rki.de" -e SKIP_UPLOAD=1 \
+    -e SKIP_UPLOAD=1 \
     --entrypoint bash "$IMAGE" -c '/opt/dev-snapshot/snapshot.sh && cp /work/out/* /work/out-host/'
 
 echo "== scanning the snapshot"

@@ -14,7 +14,7 @@ before it leaves the cluster.
 The image in this directory runs as a scheduled job next to staging:
 
 ```
-staging DB ──pg_dump (read-only user)──▶ scratch Postgres inside the job
+staging DB ──pg_dump (read-only session)──▶ scratch Postgres inside the job
     ──▶ sanitise.sql ──▶ verify.sql ──▶ pg_dump ──▶ S3 bucket
 ```
 
@@ -60,11 +60,11 @@ long as the salt stays the same.
 
 | Variable | |
 |---|---|
-| `SOURCE_DATABASE_URL` | the staging database, `postgresql://user:pass@host:5432/db`; a read-only user is enough |
+| `INVENIO_DB_HOST`, `_PORT`, `_USER`, `_PASSWORD`, `_NAME` | the staging database, as the app gets them (the Helm chart passes the same settings); the session is read-only |
+| `SOURCE_DATABASE_URL` | optional; `postgresql://user:pass@host:5432/db`, used instead of the above if set |
 | `SNAPSHOT_SALT` | at least 32 characters; keep it stable and never share it |
 | `S3_ENDPOINT_URL`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | a write-only (PutObject) key is enough |
 | `S3_REGION`, `S3_PREFIX` | optional; default `us-east-1`, `snapshots` |
-| `ALLOW_EMAILS` | optional comma-separated functional addresses that may remain (e.g. `mex@rki.de`) |
 | `APP_IMAGE` | optional; the Invenio image staging runs, recorded in the manifest |
 | `SKIP_UPLOAD=1` | stop after dumping; files stay in `/work/out` |
 

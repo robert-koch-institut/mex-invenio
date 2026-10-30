@@ -1,24 +1,16 @@
 -- Verify a sanitised MEx snapshot database. Run after sanitise.sql:
---   psql -v ON_ERROR_STOP=1 -v allow_emails="mex@rki.de,..." -f verify.sql
+--   psql -v ON_ERROR_STOP=1 -f verify.sql
 --
 -- Scans EVERY text/json column in the public schema, not only the ones sanitise.sql
 -- knows about, and fails (non-zero exit, nothing gets dumped) on:
---   * an email address that is neither pseudonymised nor allow-listed
+--   * an email address that is not pseudonymised
 --   * any canary value (real emails/names sampled before sanitising)
 --   * leftover account, session or token data
 -- On success it drops snapshot_tmp (salt, helpers, canary) so it is not in the dump.
 
 \set ON_ERROR_STOP on
 SET client_min_messages = notice;
-\if :{?allow_emails}
-\else
-\set allow_emails ''
-\endif
-
 BEGIN;
-
-CREATE TEMP TABLE allow_emails AS
-SELECT lower(trim(e)) AS e FROM unnest(string_to_array(:'allow_emails', ',')) AS e WHERE trim(e) <> '';
 
 CREATE TEMP TABLE findings (check_name text, location text, detail text);
 
@@ -46,7 +38,7 @@ BEGIN
                  SELECT lower(x[1]) AS m
                  FROM %I, LATERAL regexp_matches(%I::text, %L, ''g'') AS x
              ) s
-             WHERE m NOT LIKE ''%%@example.invalid'' AND m NOT IN (SELECT e FROM allow_emails)',
+             WHERE m NOT LIKE ''%%@example.invalid''',
             c.table_name, c.column_name, email_re)
         INTO n, sample;
         IF n > 0 THEN
