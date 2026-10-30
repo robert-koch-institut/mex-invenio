@@ -3,6 +3,6 @@
 }
 .ui.label.access-status {
   &.metadata-only {
-    color: @core-color-black-default;
+    color: @black;
   }
 }
