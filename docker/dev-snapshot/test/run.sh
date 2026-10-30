@@ -2,7 +2,7 @@
 # End-to-end test of the developer snapshot image against synthetic data.
 #
 # 1. starts a throwaway Postgres standing in for staging
-# 2. creates the MEx schema and seeds it from site/mex_invenio/scripts/testdata.ndjson,
+# 2. creates the MEx schema and seeds it from test/testdata.ndjson,
 #    plus planted personal data in descriptions, history, drafts and auxiliary tables
 # 3. runs the snapshot image with SKIP_UPLOAD=1
 # 4. restores the result and fails if any planted value survives
@@ -64,7 +64,7 @@ export INVENIO_ACCOUNTS_SESSION_REDIS_URL=redis://127.0.0.1:1/0
 export INVENIO_CACHE_REDIS_URL=redis://127.0.0.1:1/0
 export INVENIO_COMMUNITIES_IDENTITIES_CACHE_REDIS_URL=redis://127.0.0.1:1/0
 pipenv run invenio db create >/dev/null 2>&1
-pipenv run python -I "$HERE/seed.py" site/mex_invenio/scripts/testdata.ndjson \
+pipenv run python -I "$HERE/seed.py" "$HERE/testdata.ndjson" \
     app_data/vocabularies/resource_types.yaml 2>&1 | grep -v -i "warning\|declare_namespace\|Loading .env"
 docker exec -i "$DB" psql -U mex -q -v ON_ERROR_STOP=1 < "$HERE/seed_aux.sql"
 

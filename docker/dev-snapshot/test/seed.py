@@ -62,7 +62,7 @@ with app.app_context():
         vocab.create(system_identity, {**entry, "type": "resourcetypes"})
     db.session.commit()
 
-    # Records: ~150 of each entity type.
+    # Records: up to 150 of each entity type (testdata.ndjson has 50).
     from invenio_access.permissions import authenticated_user
     from invenio_access.utils import get_identity
 

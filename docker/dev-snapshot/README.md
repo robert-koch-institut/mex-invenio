@@ -130,11 +130,11 @@ them (password hashes, encrypted OAuth tokens, secret links) is removed by
 
 ## Testing
 
-`test/run.sh` builds the image, seeds a throwaway database from
-`site/mex_invenio/scripts/testdata.ndjson` (plus planted personal data in descriptions,
+`test/run.sh` builds the image, seeds a throwaway database from `test/testdata.ndjson`
+(synthetic records, 50 per entity type, plus planted personal data in descriptions,
 history, drafts and auxiliary tables), runs the job with `SKIP_UPLOAD=1`, restores the
 result and fails if any planted or sampled value survives. It uses its own container,
-network and port (5441) and takes about 10 minutes, mostly seeding.
+network and port (5441) and takes a few minutes, mostly seeding.
 
 ```bash
 docker/dev-snapshot/test/run.sh          # add --keep to keep the test database
