@@ -99,7 +99,13 @@ local `mex-invenio` database and all search indices.
    S3_ACCESS_KEY_ID=...
    S3_SECRET_ACCESS_KEY=...
    ```
-2. Start the services with `docker compose up -d`.
+2. Start the services with `docker compose up -d`. The `db` service must run PostgreSQL 17
+   like staging, because older `pg_restore` versions can't read the snapshot. If yours was
+   created with an older version, recreate it once (this deletes your local database):
+   ```bash
+   docker compose rm --stop --force --volumes db
+   docker compose up -d db
+   ```
 3. Run `docker/dev-snapshot/restore.sh`.
 
 The script:
