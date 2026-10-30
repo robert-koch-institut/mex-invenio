@@ -65,7 +65,7 @@ class MexRecord(MethodView):
         record_type = (
             record.get("metadata", {}).get("resource_type", {}).get("id", None)
         )
-        core_records = ["activity", "resource", "bibliographicresource"]
+        core_records = current_app.config["CORE_ENTITY_TYPES"]
 
         if as_json:
             if normalised:

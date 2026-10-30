@@ -22,6 +22,7 @@ from invenio_pidstore.errors import (
 )
 from invenio_rdm_records.proxies import current_rdm_records_service
 
+from mex_invenio.entities import SEARCHABLE_ENTITY_TYPES
 from mex_invenio.record.record import MexRecord
 from mex_invenio.scripts.downloadable_files import list_downloadable_files
 from mex_invenio.services.search import MexSearchOptions
@@ -155,7 +156,7 @@ URL_RESOURCE_TYPE_MAP = {
     "activities": "activity",
     "resources": "resource",
     "variables": "variable",
-    "global": ["bibliographicresource", "activity", "resource", "variable"],
+    "global": list(SEARCHABLE_ENTITY_TYPES),
 }
 
 
