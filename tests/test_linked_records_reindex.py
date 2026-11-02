@@ -122,3 +122,57 @@ def test_nullable_reference_title_shown_when_target_created_later(
         _linked_records(ORG_UNIT_ID), "mex:parentUnit", PARENT_UNIT_ID
     )
     assert shown == ["Parent unit"]
+
+
+def test_new_version_does_not_duplicate_backlink(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A linking record is listed once however many versions of it have the link."""
+    import_file(
+        "parent-resource",
+        {**resource_data, "identifier": PARENT_RESOURCE_ID, "isPartOf": []},
+    )
+    import_file("resource", resource_data)
+    import_file(
+        "resource-v2",
+        {**resource_data, "title": [{"value": "Neuer Titel", "language": "de"}]},
+    )
+
+    backlinks = _linked_records(PARENT_RESOURCE_ID)["backwards_linked"]["mex:isPartOf"]
+    assert [entry["link_id"] for entry in backlinks] == [RESOURCE_ID]
+    assert [v["value"] for v in backlinks[0]["display_value"]] == ["Neuer Titel"]
+
+
+def test_backlink_removed_when_new_version_drops_link(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A link only present in an older version of a record is no longer listed."""
+    import_file(
+        "parent-resource",
+        {**resource_data, "identifier": PARENT_RESOURCE_ID, "isPartOf": []},
+    )
+    import_file("resource", resource_data)
+    assert _backlinks(_linked_records(PARENT_RESOURCE_ID), "mex:isPartOf") == {
+        RESOURCE_ID
+    }
+
+    import_file("resource-v2", {**resource_data, "isPartOf": []})
+
+    assert _backlinks(_linked_records(PARENT_RESOURCE_ID), "mex:isPartOf") == set()
+
+
+def test_linked_record_lookup_returns_latest_version_only(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """Titles of forward links can't come from an older version of the linked record."""
+    new_name = [{"value": "Neuer Name", "language": "de"}]
+
+    import_file("org-unit", org_unit_data)
+    import_file("org-unit-v2", {**org_unit_data, "name": new_name})
+    MexRDMRecord.dumper._record_cache.clear()
+
+    results = MexRDMRecord.dumper._records_by_mex_identifiers(
+        MexRDMRecord, [ORG_UNIT_ID], []
+    )
+
+    assert [r.json["custom_fields"]["mex:name"] for r in results] == [new_name]
