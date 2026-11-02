@@ -111,3 +111,8 @@ s3_downloads folder. This is to prevent possible concurrent imports being run. I
     "finished_at": "2026-05-05T14:41:57.979456+00:00"
 }
 ```
+
+If the database can't be queried for the records that already exist, the lookup is retried for about
+four minutes, which allows for a database restart. If it still fails the import stops with the status
+`failed` rather than creating the batch's records again as duplicates. The diff stays pending, and
+imports resume once `.import_state` is deleted.

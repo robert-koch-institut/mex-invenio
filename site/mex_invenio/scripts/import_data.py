@@ -33,6 +33,7 @@ from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
@@ -52,59 +53,75 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+# Seconds to wait before each repeat of a failed lookup of existing records, long
+# enough for the database to come back from a restart.
+LOOKUP_RETRY_DELAYS = (5, 15, 30, 60, 120)
+
+
+def _query_existing_records(mex_ids: list[str]) -> dict[str, dict]:
+    """Query the latest version of the records with the given MEx IDs."""
+    # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
+    # Use DISTINCT ON to return only the latest version (highest index)
+    # per mex:identifier, avoiding unnecessary updates from old versions.
+    mex_id_expr = text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier'")
+    records_with_pids = (
+        db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
+        .join(
+            PersistentIdentifier,
+            (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
+            & (PersistentIdentifier.pid_type == "recid"),
+        )
+        .filter(
+            text(
+                "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+            )
+        )
+        .distinct(mex_id_expr)
+        .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
+        .params(mex_ids=mex_ids)
+        .all()
+    )
+
+    # Convert to the same format as search results
+    existing_records = {}
+    for record, pid_value in records_with_pids:
+        # Extract data immediately to avoid session binding issues
+        record_json = copy.deepcopy(record.json)
+        mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
+        if mex_id:
+            # Convert database record to search result format using the joined PID
+            record_data = {
+                "id": str(pid_value),
+                "uuid": str(record.id),
+                "custom_fields": copy.deepcopy(record_json.get("custom_fields", {})),
+                "metadata": copy.deepcopy(record_json.get("metadata", {})),
+            }
+            existing_records[mex_id] = record_data
+
+    return existing_records
+
+
 def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
-    """Search for multiple MEx IDs."""
+    """Search for multiple MEx IDs.
+
+    Raises if the database can't be queried after retrying. Without knowing which
+    records exist, every record in the batch would be created again as a duplicate.
+    """
     if not mex_ids:
         return {}
 
-    try:
-        # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
-        # Use DISTINCT ON to return only the latest version (highest index)
-        # per mex:identifier, avoiding unnecessary updates from old versions.
-        mex_id_expr = text(
-            "rdm_records_metadata.json->'custom_fields'->>'mex:identifier'"
-        )
-        records_with_pids = (
-            db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
-            .join(
-                PersistentIdentifier,
-                (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
-                & (PersistentIdentifier.pid_type == "recid"),
+    for delay in LOOKUP_RETRY_DELAYS:
+        try:
+            return _query_existing_records(mex_ids)
+        except SQLAlchemyError as e:
+            logger.warning(
+                f"Error in bulk database search, retrying in {delay} seconds: {e}"
             )
-            .filter(
-                text(
-                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
-                )
-            )
-            .distinct(mex_id_expr)
-            .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
-            .params(mex_ids=mex_ids)
-            .all()
-        )
+            # The session can't be used again until the failure is rolled back
+            db.session.rollback()
+            time.sleep(delay)
 
-        # Convert to the same format as search results
-        existing_records = {}
-        for record, pid_value in records_with_pids:
-            # Extract data immediately to avoid session binding issues
-            record_json = copy.deepcopy(record.json)
-            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
-            if mex_id:
-                # Convert database record to search result format using the joined PID
-                record_data = {
-                    "id": str(pid_value),
-                    "uuid": str(record.id),
-                    "custom_fields": copy.deepcopy(
-                        record_json.get("custom_fields", {})
-                    ),
-                    "metadata": copy.deepcopy(record_json.get("metadata", {})),
-                }
-                existing_records[mex_id] = record_data
-
-        return existing_records
-
-    except Exception as e:
-        logger.error(f"Error in bulk database search: {e}")
-        return {}
+    return _query_existing_records(mex_ids)
 
 
 def process_record_batch(
