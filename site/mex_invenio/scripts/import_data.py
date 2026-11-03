@@ -92,7 +92,7 @@ def _query_existing_records(mex_ids: list[str]) -> dict[str, dict]:
             # Convert database record to search result format using the joined PID
             record_data = {
                 "id": str(pid_value),
-                "uuid": str(record.id),
+                "parent": record.parent_id,
                 "custom_fields": copy.deepcopy(record_json.get("custom_fields", {})),
                 "metadata": copy.deepcopy(record_json.get("metadata", {})),
             }
@@ -190,7 +190,7 @@ def process_record_batch(
                         {
                             "action": "skip",
                             "id": record_pid,
-                            "uuid": existing_record["uuid"],
+                            "parent": existing_record["parent"],
                         }
                     )
 
@@ -239,7 +239,7 @@ def update_report(report: dict, batch_results: list[dict]):
                 {"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]}
             )
         elif result["action"] == "skip":
-            report["skipped"].append({"id": result["id"], "uuid": result["uuid"]})
+            report["skipped"].append({"id": result["id"], "parent": result["parent"]})
         elif result["action"] == "related":
             report["related"].add(result["id"])
 
@@ -297,29 +297,25 @@ def process_import(owner, import_file, batch_size):
         # Index created and updated records first so that when related
         # records are re-indexed, their display_data dumper can find the
         # latest versions in the search index.
-        if report["updated"]:
-            parent_uuids = [r["parent"] for r in report["updated"]]  # type: ignore[attr-defined]
-            updated_all_versions = (
+        #
+        # If there are any skipped records, that means that a previous import
+        # job has failed and this is a rerun. That job may have created new
+        # versions of them without indexing any, so their older versions can
+        # still be indexed as the latest. They're indexed like updated records.
+        reindexed = report["updated"] + report["skipped"]  # type: ignore[operator]
+        if reindexed:
+            parent_uuids = [r["parent"] for r in reindexed]  # type: ignore[index]
+            all_versions = (
                 db.session.query(RDMRecord.model_cls.id)
                 .filter(RDMRecord.model_cls.parent_id.in_(parent_uuids))
                 .all()
             )
-            current_rdm_records_service.indexer.bulk_index(
-                u[0] for u in updated_all_versions
-            )
+            current_rdm_records_service.indexer.bulk_index(u[0] for u in all_versions)
 
         if report["created"]:
             current_rdm_records_service.indexer.bulk_index(
                 r["uuid"]
                 for r in report["created"]  # type: ignore[attr-defined]
-            )
-
-        # If there are any skipped records, that means that a previous import
-        # job has failed and this is a rerun. In that event we need to make sure
-        # that all imported records have been indexed.
-        if report["skipped"]:
-            current_rdm_records_service.indexer.bulk_index(
-                r["uuid"] for r in report["skipped"]
             )
 
         # Flush the queue so created/updated records are searchable
