@@ -86,12 +86,21 @@ FROM snapshot_tmp.docs d,
 WHERE d.json -> 'metadata' -> 'resource_type' ->> 'id' = 'person' AND v <> ''
 ORDER BY v, k;
 
--- Full names (with a space, >= 5 chars) are also replaced inside free text.
--- One regex alternation, longest first so "Anna Maria Schmidt" wins over "Anna Maria".
-CREATE TABLE snapshot_tmp.name_re AS
-SELECT string_agg(snapshot_tmp.re_escape(orig), '|' ORDER BY length(orig) DESC) AS re
+-- Full names (with a space, >= 5 chars) are also replaced inside free text. A single
+-- regex of every name gets too big to compile on real data, so scrub_text looks up the
+-- names whose words all occur in a text and only runs a regex for those.
+CREATE FUNCTION snapshot_tmp.words(t text) RETURNS text[]
+LANGUAGE sql IMMUTABLE AS $$
+    SELECT array_remove(regexp_split_to_array(lower(t), '\W+'), '')
+$$;
+
+CREATE TABLE snapshot_tmp.name_words AS
+SELECT orig, snapshot_tmp.words(orig) AS words
 FROM snapshot_tmp.name_map
 WHERE kind = 'mex:fullName' AND length(orig) >= 5 AND orig LIKE '% %';
+
+CREATE INDEX ON snapshot_tmp.name_words ((words[1]));
+ANALYZE snapshot_tmp.name_words;
 
 -- Canary samples for verify.sql: real values that must not survive anywhere.
 CREATE TABLE snapshot_tmp.canary AS
@@ -117,7 +126,7 @@ CREATE FUNCTION snapshot_tmp.scrub_text(t text) RETURNS text
 LANGUAGE plpgsql STABLE AS $$
 DECLARE
     m text;
-    name_re text := (SELECT re FROM snapshot_tmp.name_re);
+    text_words text[];
 BEGIN
     IF t IS NULL THEN
         RETURN NULL;
@@ -134,16 +143,16 @@ BEGIN
     t := regexp_replace(t, '\m(tel|telefon|phone|fon|fax|mobil|mobile|handy)(\.?:?\s*)(\+|00)?\(?[0-9][0-9 ()/.\-]{5,}[0-9]',
                         '\1\2[phone removed]', 'gi');
     t := regexp_replace(t, (SELECT phone_intl_re FROM snapshot_tmp.settings), '[phone removed]', 'g');
-    IF name_re IS NOT NULL THEN
-        -- Case-insensitive, whole words, longest first.
-        FOR m IN SELECT v FROM (SELECT DISTINCT x[1] AS v
-                                FROM regexp_matches(t, '\m(' || name_re || ')\M', 'gi') AS x) s
-                 ORDER BY length(v) DESC
-        LOOP
-            t := regexp_replace(t, '\m' || snapshot_tmp.re_escape(m) || '\M',
-                                snapshot_tmp.fake_full_name(m), 'g');
-        END LOOP;
-    END IF;
+    text_words := snapshot_tmp.words(t);
+    -- Case-insensitive, whole words, longest first so "Anna Maria Schmidt" wins over
+    -- "Anna Maria".
+    FOR m IN SELECT orig FROM snapshot_tmp.name_words n
+             WHERE n.words[1] = ANY(text_words) AND n.words <@ text_words
+             ORDER BY length(orig) DESC
+    LOOP
+        t := regexp_replace(t, '\m' || snapshot_tmp.re_escape(m) || '\M',
+                            snapshot_tmp.fake_full_name(m), 'gi');
+    END LOOP;
     RETURN t;
 END $$;
 
