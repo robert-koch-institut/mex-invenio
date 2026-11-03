@@ -23,3 +23,20 @@ VALUES (gen_random_uuid(), now(), now(), true, 'Notify', 'Mail alice.mueller@rki
 INSERT INTO jobs_run (id, created, updated, job_id, started_by_id, status, message, title, args, queue)
 SELECT gen_random_uuid(), now(), now(), id, 2, 'S', 'sent to bob.schmidt@example.org', 'run', '{"email": "alice.mueller@rki.de"}', 'celery' FROM jobs_job;
 COMMIT;
+
+-- More Person records than a single regex of every name can handle, as in real data.
+-- History rows are enough, as sanitise.sql collects names from them too.
+INSERT INTO rdm_records_metadata_version
+SELECT (jsonb_populate_record(NULL::rdm_records_metadata_version, to_jsonb(r) || jsonb_build_object(
+        'id', gen_random_uuid(),
+        'json', jsonb_set(r.json, '{custom_fields,mex:fullName}',
+                          jsonb_build_array('Bulkvorname' || i || ' Bulknachname' || i))))).*
+FROM (SELECT * FROM rdm_records_metadata_version
+      WHERE json -> 'metadata' -> 'resource_type' ->> 'id' = 'person' LIMIT 1) r,
+     generate_series(1, 6000) AS i;
+
+-- One of those names in another record's free text, in a different case.
+UPDATE rdm_records_metadata
+SET json = jsonb_set(json, '{metadata,description}', '"Kontakt: BULKVORNAME4321 bulknachname4321."')
+WHERE id = (SELECT id FROM rdm_records_metadata
+            WHERE json -> 'metadata' -> 'resource_type' ->> 'id' <> 'person' ORDER BY id LIMIT 1);
