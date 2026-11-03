@@ -19,7 +19,11 @@ from mex_invenio.scripts.import_data import (
     _query_existing_records,
     bulk_search_existing_records,
 )
-from mex_invenio.scripts.utils import get_linked_target_ids, get_related_mex_ids
+from mex_invenio.scripts.utils import (
+    get_linked_target_ids,
+    get_related_mex_ids,
+    mex_to_invenio_schema,
+)
 from tests.conftest import created_regex, search_messages
 from tests.data import contact_point_data
 
@@ -249,10 +253,11 @@ def test_lookup_retry_updates_instead_of_duplicating_record(
     assert len({r.parent_id for r in records}) == 1
 
 
-def test_failed_related_lookup_is_logged_and_next_record_imported(
+def test_lost_connection_stops_import_and_rerun_completes_it(
     db, location, resource_type_v, contributors_role_v, import_file
 ):
-    """A failed lookup after a record is reported, and doesn't fail the next record."""
+    """The import stops if the connection is lost, and a re-run duplicates nothing."""
+    first_id = contact_point_data["identifier"]
     second_id = "zJBx8K7g9mQ8X03VZHnxX"
     lines = "\n".join(
         json.dumps(data)
@@ -262,10 +267,58 @@ def test_failed_related_lookup_is_logged_and_next_record_imported(
         )
     )
 
+    try:
+        # The first record is saved before the connection is lost
+        with patch(
+            "mex_invenio.scripts.import_data.get_related_mex_ids",
+            side_effect=_dropped_connection(),
+        ) as related_lookup:
+            import_file("contact-points", lines)
+
+        related_lookup.assert_called_once()
+        with open(_state_file()) as f:
+            assert json.load(f)["status"] == "failed"
+    finally:
+        os.remove(_state_file())
+
+    assert len(_records_with_identifier(first_id)) == 1
+    assert _records_with_identifier(second_id) == []
+
+    import_file("contact-points", lines)
+
+    assert len(_records_with_identifier(first_id)) == 1
+    assert len(_records_with_identifier(second_id)) == 1
+    with open(_state_file()) as f:
+        state = json.load(f)
+    assert state["status"] == "success"
+    assert state["counts"]["skipped"] == 1
+    assert state["counts"]["created"] == 1
+
+
+def test_invalid_record_is_logged_and_next_record_imported(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A record that fails on its data is counted and doesn't stop the import."""
+    first_id = contact_point_data["identifier"]
+    second_id = "zJBx8K7g9mQ8X03VZHnxX"
+    lines = "\n".join(
+        json.dumps(data)
+        for data in (
+            contact_point_data,
+            {**contact_point_data, "identifier": second_id},
+        )
+    )
+
+    def convert(config, data):
+        if data["identifier"] == first_id:
+            message = "invalid record"
+            raise ValueError(message)
+        return mex_to_invenio_schema(config, data)
+
     with (
         patch(
-            "mex_invenio.scripts.import_data.get_related_mex_ids",
-            side_effect=[_dropped_connection(), []],
+            "mex_invenio.scripts.import_data.mex_to_invenio_schema",
+            side_effect=convert,
         ),
         patch(
             "mex_invenio.scripts.import_data.db.session.rollback",
@@ -275,8 +328,12 @@ def test_failed_related_lookup_is_logged_and_next_record_imported(
         messages = import_file("contact-points", lines)
 
     rollback.assert_called_once()
-    errors = [m for m in messages if "server closed the connection" in m]
+    errors = [m for m in messages if "invalid record" in m]
     assert len(errors) == 1
-    assert contact_point_data["identifier"] in errors[0]
-    assert len(_records_with_identifier(contact_point_data["identifier"])) == 1
+    assert first_id in errors[0]
+    assert _records_with_identifier(first_id) == []
     assert len(_records_with_identifier(second_id)) == 1
+    with open(_state_file()) as f:
+        state = json.load(f)
+    assert state["status"] == "success"
+    assert state["counts"]["failed"] == 1

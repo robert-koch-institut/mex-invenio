@@ -33,7 +33,12 @@ from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import (
+    InterfaceError,
+    OperationalError,
+    PendingRollbackError,
+    SQLAlchemyError,
+)
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
@@ -56,6 +61,9 @@ logger.setLevel(logging.INFO)
 # Seconds to wait before each repeat of a failed lookup of existing records, long
 # enough for the database to come back from a restart.
 LOOKUP_RETRY_DELAYS = (5, 15, 30, 60, 120)
+
+# Errors from losing the database connection, as opposed to from a record's data
+CONNECTION_ERRORS = (InterfaceError, OperationalError, PendingRollbackError)
 
 
 def _query_existing_records(mex_ids: list[str]) -> dict[str, dict]:
@@ -203,6 +211,10 @@ def process_record_batch(
             for target_id in get_linked_target_ids(mex_data, previous_custom_fields):
                 results.append({"action": "related", "id": target_id})
 
+        except CONNECTION_ERRORS:
+            # Stop rather than fail the remaining records one by one. The diff stays
+            # pending, and a re-run skips the records that were already imported.
+            raise
         except KeyError as ke:
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
