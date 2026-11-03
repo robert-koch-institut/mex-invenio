@@ -60,7 +60,7 @@ logger.setLevel(logging.INFO)
 
 # Seconds to wait before each repeat of a failed lookup of existing records, long
 # enough for the database to come back from a restart.
-LOOKUP_RETRY_DELAYS = (5, 15, 30, 60, 120)
+LOOKUP_RETRY_DELAYS = tuple(2**i for i in range(8))
 
 # Errors from losing the database connection, as opposed to from a record's data
 CONNECTION_ERRORS = (InterfaceError, OperationalError, PendingRollbackError)
