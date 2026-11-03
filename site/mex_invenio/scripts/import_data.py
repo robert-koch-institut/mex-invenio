@@ -210,6 +210,9 @@ def process_record_batch(
                 f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
                 f"Full traceback:\n{traceback.format_exc()}"
             )
+            # A failure outside a unit of work leaves the session unusable, which
+            # would fail the next record too
+            db.session.rollback()
 
     return results
 

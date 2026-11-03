@@ -19,6 +19,7 @@ from mex_invenio.scripts.import_data import (
     _query_existing_records,
     bulk_search_existing_records,
 )
+from mex_invenio.scripts.utils import get_linked_target_ids, get_related_mex_ids
 from tests.conftest import created_regex, search_messages
 from tests.data import contact_point_data
 
@@ -119,29 +120,66 @@ def _state_file():
     return os.path.join(current_app.config["S3_DOWNLOAD_FOLDER"], ".import_state")
 
 
-def test_lookup_recovers_from_terminated_connection(db):
-    """A connection killed by the server is rolled back and the lookup repeated."""
+@pytest.fixture
+def session_with_terminated_connection(db):
+    """Session whose database connection has been killed by the server."""
     # The session of the db fixture is held in a savepoint, which can't reconnect
     engine = create_engine(db.engine.url)
     session = scoped_session(sessionmaker(bind=engine))
 
-    try:
-        pid = session.execute(text("SELECT pg_backend_pid()")).scalar()
-        with db.engine.connect() as other_connection:
-            other_connection.execute(
-                text("SELECT pg_terminate_backend(:pid)"), {"pid": pid}
-            )
+    pid = session.execute(text("SELECT pg_backend_pid()")).scalar()
+    with db.engine.connect() as other_connection:
+        other_connection.execute(
+            text("SELECT pg_terminate_backend(:pid)"), {"pid": pid}
+        )
 
-        with (
-            patch("mex_invenio.scripts.import_data.db.session", session),
-            patch("mex_invenio.scripts.import_data.time.sleep") as sleep,
-        ):
-            assert bulk_search_existing_records(["some-id"]) == {}
+    yield session
 
-        sleep.assert_called_once_with(LOOKUP_RETRY_DELAYS[0])
-    finally:
-        session.remove()
-        engine.dispose()
+    session.remove()
+    engine.dispose()
+
+
+def test_lookup_recovers_from_terminated_connection(
+    session_with_terminated_connection,
+):
+    """A connection killed by the server is rolled back and the lookup repeated."""
+    with (
+        patch(
+            "mex_invenio.scripts.import_data.db.session",
+            session_with_terminated_connection,
+        ),
+        patch("mex_invenio.scripts.import_data.time.sleep") as sleep,
+    ):
+        assert bulk_search_existing_records(["some-id"]) == {}
+
+    sleep.assert_called_once_with(LOOKUP_RETRY_DELAYS[0])
+
+
+@pytest.mark.parametrize(
+    ("lookup", "record"),
+    [
+        (
+            get_related_mex_ids,
+            {
+                "custom_fields": {"mex:identifier": "some-id"},
+                "metadata": {"resource_type": {"id": "contactpoint"}},
+            },
+        ),
+        (get_linked_target_ids, {"custom_fields": {"mex:isPartOf": ["some-id"]}}),
+    ],
+)
+def test_related_lookups_raise_on_terminated_connection(
+    app, session_with_terminated_connection, lookup, record
+):
+    """A lost connection isn't reported as a record having nothing related to it."""
+    with (
+        patch(
+            "mex_invenio.scripts.utils.db.session",
+            session_with_terminated_connection,
+        ),
+        pytest.raises(OperationalError),
+    ):
+        lookup(record)
 
 
 def test_lookup_raises_when_database_stays_unavailable(app):
@@ -209,3 +247,36 @@ def test_lookup_retry_updates_instead_of_duplicating_record(
     records = _records_with_identifier(mex_id)
     assert len(records) == 2
     assert len({r.parent_id for r in records}) == 1
+
+
+def test_failed_related_lookup_is_logged_and_next_record_imported(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A failed lookup after a record is reported, and doesn't fail the next record."""
+    second_id = "zJBx8K7g9mQ8X03VZHnxX"
+    lines = "\n".join(
+        json.dumps(data)
+        for data in (
+            contact_point_data,
+            {**contact_point_data, "identifier": second_id},
+        )
+    )
+
+    with (
+        patch(
+            "mex_invenio.scripts.import_data.get_related_mex_ids",
+            side_effect=[_dropped_connection(), []],
+        ),
+        patch(
+            "mex_invenio.scripts.import_data.db.session.rollback",
+            wraps=db.session.rollback,
+        ) as rollback,
+    ):
+        messages = import_file("contact-points", lines)
+
+    rollback.assert_called_once()
+    errors = [m for m in messages if "server closed the connection" in m]
+    assert len(errors) == 1
+    assert contact_point_data["identifier"] in errors[0]
+    assert len(_records_with_identifier(contact_point_data["identifier"])) == 1
+    assert len(_records_with_identifier(second_id)) == 1

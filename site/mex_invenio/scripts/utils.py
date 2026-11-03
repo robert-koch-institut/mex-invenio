@@ -245,43 +245,38 @@ def get_related_mex_ids(record: dict) -> list:
     # The same field name can appear in several entities
     target_fields = list(dict.fromkeys(target_fields))
 
-    try:
-        # Build OR conditions for each target field. Containment (@>) on
-        # json->'custom_fields' is used so the GIN index
-        # idx_rdm_records_custom_fields_gin_std can serve the lookup;
-        # sub-path expressions like json->'custom_fields'->'mex:x' ? :id
-        # can't use it and force a sequential scan per record.
-        conditions = []
-        params = {}
-        for field in target_fields:
-            # Check if record_id is an element of an array value
-            conditions.append(
-                text(
-                    f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_{field} AS jsonb)"
-                )
+    # Build OR conditions for each target field. Containment (@>) on
+    # json->'custom_fields' is used so the GIN index
+    # idx_rdm_records_custom_fields_gin_std can serve the lookup;
+    # sub-path expressions like json->'custom_fields'->'mex:x' ? :id
+    # can't use it and force a sequential scan per record.
+    conditions = []
+    params = {}
+    for field in target_fields:
+        # Check if record_id is an element of an array value
+        conditions.append(
+            text(
+                f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_{field} AS jsonb)"
             )
-            params[f"record_id_{field}"] = json.dumps({f"mex:{field}": [record_id]})
-            # Also check if it's a direct string match
-            conditions.append(
-                text(
-                    f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_str_{field} AS jsonb)"
-                )
-            )
-            params[f"record_id_str_{field}"] = json.dumps({f"mex:{field}": record_id})
-
-        # Query database for records that reference this record_id
-        record_uuids = (
-            db.session.query(RDMRecord.model_cls.id)
-            .filter(or_(*conditions))
-            .params(**params)
-            .all()
         )
+        params[f"record_id_{field}"] = json.dumps({f"mex:{field}": [record_id]})
+        # Also check if it's a direct string match
+        conditions.append(
+            text(
+                f"rdm_records_metadata.json->'custom_fields' @> CAST(:record_id_str_{field} AS jsonb)"
+            )
+        )
+        params[f"record_id_str_{field}"] = json.dumps({f"mex:{field}": record_id})
 
-        return [str(uuid) for (uuid,) in record_uuids]
+    # Query database for records that reference this record_id
+    record_uuids = (
+        db.session.query(RDMRecord.model_cls.id)
+        .filter(or_(*conditions))
+        .params(**params)
+        .all()
+    )
 
-    except Exception as e:
-        logger.info(f"Error searching for related MEX IDs for {record_id}: {e}")
-        return []
+    return [str(uuid) for (uuid,) in record_uuids]
 
 
 def get_linked_target_ids(
@@ -313,24 +308,18 @@ def get_linked_target_ids(
     if not target_mex_ids:
         return []
 
-    try:
-        record_uuids = (
-            db.session.query(RDMRecord.model_cls.id)
-            .filter(
-                text(
-                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
-                )
+    record_uuids = (
+        db.session.query(RDMRecord.model_cls.id)
+        .filter(
+            text(
+                "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
             )
-            .params(mex_ids=list(target_mex_ids))
-            .all()
         )
+        .params(mex_ids=list(target_mex_ids))
+        .all()
+    )
 
-        return [str(uuid) for (uuid,) in record_uuids]
-
-    except Exception as e:
-        record_id = record.get("custom_fields", {}).get("mex:identifier")
-        logger.info(f"Error searching for linked target records of {record_id}: {e}")
-        return []
+    return [str(uuid) for (uuid,) in record_uuids]
 
 
 def setup_file_logging(log_dir, name="import"):

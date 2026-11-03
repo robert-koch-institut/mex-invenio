@@ -116,3 +116,6 @@ If the database can't be queried for the records that already exist, the lookup 
 four minutes, which allows for a database restart. If it still fails the import stops with the status
 `failed` rather than creating the batch's records again as duplicates. The diff stays pending, and
 imports resume once `.import_state` is deleted.
+
+A database error while looking up a record's related records is logged as `Error processing record`,
+even though the record itself has been imported. Its related records aren't re-indexed in that case.
