@@ -42,6 +42,7 @@ long as the salt stays the same.
 | `mex:orcidId`, `mex:isniId` on Person records | fake identifiers in the same format |
 | Person and ContactPoint titles (copies of name/email) | recomputed from the pseudonyms |
 | All of the above in current records, **record history** and drafts | as above |
+| Static page content (current and history) | email addresses, phone numbers and known full names replaced as above |
 | User accounts | kept for references; email `user<id>@example.invalid`, no password/username/profile |
 | Sessions, login info, OAuth links/tokens, access-request tokens, secret links, audit logs, job runs, webhooks | emptied |
 | Client IP addresses on SQLAlchemy-Continuum transactions | removed |

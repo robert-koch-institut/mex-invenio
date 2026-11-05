@@ -22,6 +22,11 @@ INSERT INTO jobs_job (id, created, updated, active, title, description, task, de
 VALUES (gen_random_uuid(), now(), now(), true, 'Notify', 'Mail alice.mueller@rki.de on failures', 'noop', 'celery', NULL);
 INSERT INTO jobs_run (id, created, updated, job_id, started_by_id, status, message, title, args, queue)
 SELECT gen_random_uuid(), now(), now(), id, 2, 'S', 'sent to bob.schmidt@example.org', 'run', '{"email": "alice.mueller@rki.de"}', 'celery' FROM jobs_job;
+INSERT INTO pages_page (created, updated, url, title, lang, content, description, template_name)
+VALUES (now(), now(), '/kontakt', 'Kontakt', 'de', '<p>Bulkvorname1 Bulknachname1, <a href="mailto:page.contact@rki.de">page.contact@rki.de</a>, Tel.: 030 18754 9999</p>', '', 'invenio_pages/default.html');
+INSERT INTO pages_page_version (created, updated, id, url, title, lang, content, description, template_name, transaction_id, operation_type)
+SELECT created, updated, id, url, title, lang, content, description, template_name, (SELECT min(id) FROM transaction), 0
+FROM pages_page WHERE url = '/kontakt';
 COMMIT;
 
 -- More Person records than a single regex of every name can handle, as in real data.

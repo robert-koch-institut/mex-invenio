@@ -78,7 +78,8 @@ docker exec "$DB" psql -U mex -X -tA -c "
     UNION ALL SELECT unnest(ARRAY['alice.mueller@rki.de', 'bob.schmidt@example.org',
         'erika.musterfrau@rki.de', 'requester@uni-berlin.de', 'draft.only@rki.de',
         '198.51.100.7', '203.0.113.5', '030 18754 0', 'secret-access-token',
-        'Bulkvorname4321 Bulknachname4321', 'Bulkvorname1 Bulknachname1'])" > "$WORK/forbidden.txt"
+        'Bulkvorname4321 Bulknachname4321', 'Bulkvorname1 Bulknachname1',
+        'page.contact@rki.de', '030 18754 9999'])" > "$WORK/forbidden.txt"
 
 echo "== running snapshot image"
 docker run --rm --network "$NET" -v "$WORK:/k" -v "$WORK:/work/out-host" \

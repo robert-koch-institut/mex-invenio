@@ -238,6 +238,8 @@ UPDATE communities_metadata SET json = snapshot_tmp.scrub_text(json::text)::json
 UPDATE communities_members SET json = snapshot_tmp.scrub_text(json::text)::jsonb WHERE json IS NOT NULL;
 UPDATE communities_archivedinvitations SET json = snapshot_tmp.scrub_text(json::text)::jsonb WHERE json IS NOT NULL;
 UPDATE jobs_job SET description = snapshot_tmp.scrub_text(description), title = snapshot_tmp.scrub_text(title);
+UPDATE pages_page SET content = snapshot_tmp.scrub_text(content);
+UPDATE pages_page_version SET content = snapshot_tmp.scrub_text(content) WHERE content IS NOT NULL;
 
 -- ---------------------------------------------------------------------------
 -- 4. Accounts and activity traces
