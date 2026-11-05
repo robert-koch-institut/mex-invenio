@@ -54,7 +54,7 @@ edges.instances.resources.init = function() {
             mex.pager({showRecordCount: false}),
 
             // The results
-            mex.resourceDisplay(),
+            mex.resourceDisplay({debug: false}),
 
             // right side resource selector
             mex.resourceSelector(),
@@ -67,4 +67,6 @@ edges.instances.resources.init = function() {
 
 $(document).ready(function($) {
     edges.instances.resources.init();
+    const searchbarSectionHeight = $(".mex-main-search-template_full").parent().outerHeight();
+    $("#vertical-tab").css("top", `calc(${searchbarSectionHeight}px + 1rem)`);
 });

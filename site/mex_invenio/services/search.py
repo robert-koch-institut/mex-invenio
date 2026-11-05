@@ -6,6 +6,7 @@ from invenio_records.dumpers import SearchDumper
 from invenio_records_resources.services.base.config import SearchOptionsMixin
 from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_search import RecordsSearchV2
+from sqlalchemy import and_
 
 from mex_invenio.search.params import (
     BoostingParamsInterpreter,
@@ -91,6 +92,8 @@ FREE_TEXT_SEARCH_FIELDS = [
     "index_data.externalAssociates",
     "index_data.externalPartners",
     "index_data.involvedPersons",
+    "index_data.enContributingUnits",
+    "index_data.deContributingUnits",
 ]
 
 
@@ -137,6 +140,7 @@ class MexDumper(SearchDumper):
         self._involved_persons(record, dump_data, log)
         self._used_in(record, dump_data, log)
         self._resource_variables_groups(record, dump_data, log)
+        self._contributing_unit(record, dump_data, log)
 
         # log.append("**************************************")
         # log.append("Display data:")
@@ -174,7 +178,8 @@ class MexDumper(SearchDumper):
             record.json, "mex:alternativeName"
         )
         short_names = self._get_custom_field_list(record.json, "mex:shortName")
-        return official_names + alternative_names + short_names
+        general_name = self._get_custom_field_list(record.json, "mex:name")
+        return official_names + alternative_names + short_names + general_name
 
     def _get_all_possible_names(self, record):
         person = self._get_person_names(record)
@@ -464,6 +469,53 @@ class MexDumper(SearchDumper):
         if len(used_in_de) > 0:
             dump_data["index_data"]["deUsedInResource"] = used_in_de
 
+    def _contributing_unit(self, record, dump_data, log):
+        unit_ids = self._get_custom_field_list(record, "mex:contributingUnit")
+
+        if len(unit_ids) == 0:
+            return
+
+        log.append("Contributing Unit IDs:" + str(unit_ids))
+
+        results = self._records_by_mex_identifiers(record, unit_ids, log)
+        log.append("Contributing Unit results:" + str(len(results)))
+
+        units = []
+        for unit in results:
+            official_names = self._get_custom_field_list(unit.json, "mex:name")
+            lang_names = self._split_by_language(official_names)
+            units.append(lang_names)
+
+        units_en = [fc["en"] for fc in units]
+        units_de = [fc["de"] for fc in units]
+
+        log.append("Contributing Units EN:" + str(units_en))
+        log.append("Contributing Units DE:" + str(units_de))
+
+        if len(units_en) == 0:
+            units_en = units_de
+        if len(units_de) == 0:
+            units_de = units_en
+
+        if len(units_de) > 0:
+            dump_data["index_data"]["deContributingUnits"] = units_de
+
+        if len(units_en) > 0:
+            dump_data["index_data"]["enContributingUnits"] = units_en
+
+    def _latest_versions_query(self, source):
+        """Query the latest version of each record.
+
+        The records table has a row per version, so without this a record is found
+        once per version, and through links that only its older versions have.
+        """
+        model = source.model_cls
+        state = source.versions_model_cls
+        return model.query.join(
+            state,
+            and_(state.parent_id == model.parent_id, state.latest_id == model.id),
+        )
+
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
 
@@ -479,7 +531,7 @@ class MexDumper(SearchDumper):
             return results
 
         # log.append("Querying for MEx IDs: " + str(query_for))
-        db_query = source.model_cls.query.filter(
+        db_query = self._latest_versions_query(source).filter(
             source.model_cls.json["custom_fields"]
             .op("->>")("mex:identifier")
             .in_(query_for),
@@ -502,13 +554,9 @@ class MexDumper(SearchDumper):
         from sqlalchemy import cast
         from sqlalchemy.dialects.postgresql import JSONB
 
-        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS_BY_NAME
 
-        field_config = None
-        for field in RDM_CUSTOM_FIELDS:
-            if field.name == name:
-                field_config = field
-                break
+        field_config = RDM_CUSTOM_FIELDS_BY_NAME.get(name)
 
         # Determine if field stores arrays or single values
         is_multiple = (
@@ -520,14 +568,14 @@ class MexDumper(SearchDumper):
         # Use .op('@>') to explicitly use the JSONB containment operator
         if is_multiple:
             # Array field: wrap value in array
-            db_query = source.model_cls.query.filter(
+            db_query = self._latest_versions_query(source).filter(
                 source.model_cls.json["custom_fields"].op("@>")(
                     cast({name: [value]}, JSONB)
                 )
             )
         else:
             # Single-value field: use plain value
-            db_query = source.model_cls.query.filter(
+            db_query = self._latest_versions_query(source).filter(
                 source.model_cls.json["custom_fields"].op("@>")(
                     cast({name: value}, JSONB)
                 )
@@ -553,6 +601,9 @@ class MexDumper(SearchDumper):
             if isinstance(label, dict) and "value" in label
         ]
         dump_data["index_data"]["label_sort"] = values
+
+        data_type = record.get("custom_fields", {}).get("mex:dataType")
+        dump_data["index_data"]["data_type_sort"] = data_type
 
     def _linked_records_data(self, record, dump_data, log):
         """Generate linked records data and add to display_data."""

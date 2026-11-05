@@ -3,7 +3,7 @@
 <div class="edit-btn"><a id="edit-record" class="button edit"
                          href="https://mex-editor.rki.local/item/{{ record.custom_fields['mex:identifier'] }}"
                          target="_blank">{{ _('Edit this record') }}</a></div>
-<div class="ui container">
+<div class="ui container" id="hide_if_empty">
     <div class="ui relaxed reversed mobile grid mt-5">
         <div class="two column row top-padded">
             <article class="eleven wide computer sixteen wide tablet sixteen wide mobile column main-record-content">
@@ -34,7 +34,7 @@
                 {%- endblock -%}
 
                 <div class="ui divider"></div>
-
+                {%- include "invenio_app_rdm/records/details/components/includes/showMissingValues.html" -%}
                 {%- block extids -%}
                 {%- endblock -%}
 

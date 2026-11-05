@@ -7,14 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import sqlalchemy as sa
-
-try:
-    from flask_sqlalchemy.session import Session as FlaskSQLAlchemySession
-except ImportError:
-    # Fallback for older Flask-SQLAlchemy versions
-    from flask_sqlalchemy import SQLAlchemy
-
-    FlaskSQLAlchemySession = SQLAlchemy().session
 from dotenv import find_dotenv, load_dotenv
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
@@ -50,6 +42,7 @@ from mex_invenio.custom_fields.custom_fields import (
 from mex_invenio.records.api import MexRDMRecord
 from mex_invenio.scripts.import_data import _import_data
 from mex_invenio.scripts.initial_import import _initial_import
+from mex_invenio.scripts.utils import get_installed_model_version
 
 created_regex = (
     r"(?P<verb>\w+) (?P<count>\d) records. Ids: \[\'(?P<record_id>\w{5}-\w{5})\'\]"
@@ -63,65 +56,6 @@ def search_messages(messages, pattern):
             return re.search(pattern, message)
 
     return None
-
-
-try:
-
-    class PytestInvenioSession(FlaskSQLAlchemySession):
-        """Custom session class with improved rollback behavior for SQLAlchemy Continuum compatibility."""
-
-        def rollback(self) -> None:
-            if self._transaction is not None:
-                self._transaction.rollback(_to_root=False)
-except (TypeError, AttributeError):
-    # Fallback for older Flask-SQLAlchemy versions - use standard session
-    PytestInvenioSession = None  # type: ignore[misc, assignment]
-
-
-@pytest.fixture
-def db_session_options():
-    """Session options to prevent SQLAlchemy Continuum session binding issues."""
-    options = {"expire_on_commit": False}
-    if PytestInvenioSession is not None:
-        options["class_"] = PytestInvenioSession
-    return options
-
-
-@pytest.fixture
-def db(database, db_session_options):
-    """Creates a new database session for a test - compatible with Flask-SQLAlchemy 2.5.1.
-
-    Scope: function
-
-    You must use this fixture if your test connects to the database. The
-    fixture will set a save point and rollback all changes performed during
-    the test (this is much faster than recreating the entire database).
-    """
-    from invenio_db import db as invenio_db  # noqa: PLC0415
-
-    connection = database.engine.connect()
-    transaction = connection.begin()
-
-    # Create session with our custom options
-    options = dict(
-        bind=connection,
-        binds={},
-        **db_session_options,
-    )
-
-    session = database.create_scoped_session(options=options)
-
-    # Monkey patch the session
-    old_session = invenio_db.session
-    invenio_db.session = session
-
-    try:
-        yield invenio_db
-    finally:
-        session.remove()
-        transaction.rollback()
-        connection.close()
-        invenio_db.session = old_session
 
 
 @pytest.fixture
@@ -144,10 +78,27 @@ def db_session_transaction_restart(db):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
 
 
+@pytest.fixture(autouse=True)
+def clear_dumper_cache():
+    """Start each test with an empty MexDumper record cache.
+
+    The dumper caches linked records for the life of the process, so a record from
+    an earlier test (whose database rows were rolled back) would otherwise still be
+    shown as linked, or fail the indexing of a record linking to it because its row
+    is no longer bound to a session.
+    """
+    MexRDMRecord.dumper._record_cache.clear()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     env_file = find_dotenv(".env.tests")
     load_dotenv(env_file)
+
+
+@pytest.fixture(scope="session")
+def model_version():
+    return get_installed_model_version()
 
 
 @pytest.fixture(scope="module")
@@ -247,6 +198,14 @@ def resource_type_v(app, resource_type_type):
             "icon": "code",
             "props": {"type": "accessplatform"},
             "title": {"en": "Access platform"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
+        {
+            "id": "resourceseries",
+            "icon": "code",
+            "props": {"type": "resourceseries"},
+            "title": {"en": "Resource series"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
@@ -401,13 +360,13 @@ def import_file(
     initialise_custom_fields,
     custom_field_exists,
     db,
-    db_session_options,
     db_session_transaction_restart,
     caplog,
     cli_runner,
     create_user,
     create_file,
     tmp_path,
+    model_version,
 ):
     email = "importer@address.com"
     create_user("importer", email)
@@ -419,7 +378,7 @@ def import_file(
             if initial:
                 result = cli_runner(_initial_import, email, file)
             else:
-                result = cli_runner(_import_data, email, file)
+                result = cli_runner(_import_data, model_version, email, file)
 
         assert result.exit_code == 0, (
             f"CLI command failed with exit code {result.exit_code}: {result.exception}"

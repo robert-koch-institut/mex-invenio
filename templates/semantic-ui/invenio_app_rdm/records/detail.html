@@ -50,7 +50,7 @@ it under the terms of the MIT License; see LICENSE file for more details.
 
 {%- block page_body %}
 {% set resource_types = ['resource', 'activity' , 'bibliographicresource'] %}
-<div class="record landing_page{% if resource_type in resource_types %} resource {% endif %}">
+<div class="record landing_page" id="landing_page">
     <section id="banners" class="banners" aria-label="{{ _('Information banner') }}">
         {% if record.is_published and record.links.latest_html and not record.versions.is_latest %}
         <div class="ui warning flashed bottom attached manage message">
@@ -59,11 +59,9 @@ it under the terms of the MIT License; see LICENSE file for more details.
                     <div class="column">
                         <div class="row">
                             <p>
-                                {% trans link_start=('<a href="' + record.links.latest_html + '"><b>')|safe,
-                                link_end='</b></a>'|safe %}
-                                There is a {{ link_start }}newer version{{ link_end }} of the record
-                                available.
-                                {% endtrans %}
+                                {% set link_start=('<a href="' + record.links.latest_html + '"><b>')|safe %}
+                                {% set link_end='</b></a>'|safe %}
+                                {{ _("newerVersionBannerStart") }} {{ link_start }} {{ _("newerVersion") }} {{ link_end }} {{ _("newerVersionBannerEnd") }}
                             </p>
                         </div>
                     </div>

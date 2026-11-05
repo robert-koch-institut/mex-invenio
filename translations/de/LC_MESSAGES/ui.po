@@ -86,15 +86,24 @@ msgstr "Nach oben"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:33
 #, fuzzy
+msgid "Typisches Alter"
+msgstr "Typisches Alter"
+
 msgid "Typical age"
-msgstr "Minimales typisches Alter"
+msgstr "Typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:40
 msgid "Min. typical age"
 msgstr "Minimales typisches Alter"
 
+msgid "Minimales typisches Alter"
+msgstr "Minimales typisches Alter"
+
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/components/cards/coverage.html:47
 msgid "Max. typical age"
+msgstr "Maximales typisches Alter"
+
+msgid "Maximales typisches Alter"
 msgstr "Maximales typisches Alter"
 
 #: /home/amdomanska/Work/mex-invenio/templates/semantic-ui/invenio_app_rdm/records/details/side_bar/export.html:18
@@ -130,7 +139,10 @@ msgstr "Unser"
 msgid "entireMetadataCatalogue"
 msgstr "Gesamter Metadatenkatalog"
 
-msgid "Related projects/endeavors"
+msgid "Related Projects"
+msgstr "Zugehörige Projekte"
+
+msgid "Zugehörige Projekte"
 msgstr "Zugehörige Projekte"
 
 msgid "Related data sources & datasets"
@@ -437,11 +449,14 @@ msgstr "Menü schließen"
 msgid "Information banner"
 msgstr "Informationsbanner"
 
-msgid ""
-"There is a %(link_start)snewer version%(link_end)s of the record\n"
-"available."
-msgstr ""
-"Es ist eine neuere Version des Eintrags vorhanden."
+msgid "newerVersionBannerStart"
+msgstr "Es ist eine"
+
+msgid "newerVersion"
+msgstr "neuere Version"
+
+msgid "newerVersionBannerEnd"
+msgstr "des Eintrags vorhanden"
 
 msgid "Reason"
 msgstr "Autor*in"
@@ -565,6 +580,9 @@ msgstr "Veröffentlichungen & Dokumentation"
 msgid "Related Resources"
 msgstr "Verknüpfte Ressourcen"
 
+msgid "Dataset Series"
+msgstr "Datensatzkollektion"
+
 msgid "Views"
 msgstr "Aufrufe"
 
@@ -637,5 +655,71 @@ msgstr "Aufrufe"
 msgid "exploreVariables"
 msgstr "Erkunden Sie die Variablen dieses Datenbestands."
 
-msgid "belongsTo"
-msgstr "Gehört zu"
+msgid "noValueProvided"
+msgstr "Nicht angegeben"
+
+msgid "showMissingValues"
+msgstr "Fehlende Werte anzeigen"
+
+msgid "noTheme"
+msgstr "Thema nicht angegeben"
+
+msgid "methodNotProvided"
+msgstr "Methode nicht angegeben"
+
+msgid "methodDescriptionNotProvided"
+msgstr "Methodenbeschreibung nicht angegeben"
+
+msgid "noKeywords"
+msgstr "Stichwort nicht angegeben"
+
+msgid "NoVariablesAssociatedWithThisDataset"
+msgstr "Es sind keine Variablen mit diesem Datensatz/Datenbestand verknüpft"
+
+msgid "noDescription"
+msgstr "Beschreibung nicht angegeben"
+
+msgid "noData"
+msgstr "Keine Daten"
+
+msgid "noAbstract"
+msgstr "Kurzbeschreibung nicht angegeben"
+
+msgid "missingValuesHelpTrigger"
+msgstr "Was bewirkt das?"
+
+msgid "missingValuesHelp"
+msgstr "Zeigt alle verfügbaren Metadatenfelder an, auch wenn kein Wert hinterlegt ist. Leere Felder werden als „Nicht angegeben“ dargestellt."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:5
+msgid "downloadableFilesTitle"
+msgstr "Downloads"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:7
+msgid "downloadableFilesDescription"
+msgstr "CSV-Exporte aus dem MEx-Metadatenkatalog, die jede Nacht automatisch aktualisiert werden."
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:14
+msgid "downloadableFilesFileColumn"
+msgstr "Datei"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:15
+msgid "downloadableFilesGeneratedColumn"
+msgstr "Erstellt"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:16
+msgid "downloadableFilesSizeColumn"
+msgstr "Größe"
+
+#: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:30
+msgid "downloadableFilesEmpty"
+msgstr "Derzeit sind keine Dateien zum Download verfügbar."
+
+msgid "and_x_more"
+msgstr "und {{count}} weitere"
+
+msgid "partOf"
+msgstr "Teil von"
+
+msgid "includes"
+msgstr "Enthält"

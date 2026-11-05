@@ -24,7 +24,7 @@
         background-color: transparent;
         border: none;
         .close.icon {
-            color: white;
+            color: @white;
             width: 24px;
             height: 24px;
         }

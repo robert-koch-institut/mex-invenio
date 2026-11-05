@@ -7,8 +7,7 @@
         {% set ns.prop_exist = true %}
     {% endif %}
 {% endfor %}
-{% if ns.prop_exist %}
-    <div class="card">
+    <div class="card {% if not ns.prop_exist %} hidden_when_missing {% endif %}">
         <h3>
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
@@ -22,6 +21,12 @@
                     {{ display_values(data[properties.method_prop]) }}
                 </div>
             </div>
+        {% else %}
+            <div class="card-props-p forced-vertical hidden_when_missing">
+                <div class="card-prop-value">
+                    <i class="muted">{{ _("methodNotProvided") }}</i>
+                </div>
+            </div>
         {% endif %}
         {% if properties.description_prop in data %}
             <div class="card-props-p forced-vertical">
@@ -29,7 +34,12 @@
                     {{ display_values(data[properties.description_prop]) }}
                 </div>
             </div>
+        {% else %}
+            <div class="card-props-p forced-vertical hidden_when_missing">
+                <div class="card-prop-value">
+                    <i class="muted">{{ _("methodDescriptionNotProvided") }}</i>
+                </div>
+            </div>
         {% endif %}
         </div>
     </div>
-{% endif %}

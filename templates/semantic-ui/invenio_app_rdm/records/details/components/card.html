@@ -13,9 +13,7 @@
         {% set ns.prop_exist = true %}
     {% endif %}
 {% endfor %}
-
-{% if ns.prop_exist %}
-    <div class="card">
+    <div class="card {% if not ns.prop_exist %} hidden_when_missing {% endif %}">
         <h3>
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card.icon) }}"
@@ -29,8 +27,7 @@
                 {% else %}
                     {% set record_data = data %}
                 {% endif %}
-                {% if prop.field in record_data %}
-                    <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+                    <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%} {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
                         {%- if 'label' in prop %}
                             {% if "context" in prop %}
                                 {% set context = prop.context %}
@@ -41,11 +38,14 @@
                             <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
                         {%- endif -%}
                             <div class="card-prop-value">
+                        {% if prop.field in record_data %}
                             {{ display_values(record_data[prop.field]) }}
+                        {% else %}
+                            <i class="muted">{{ _("noValueProvided") }}</i>
+                        {% endif %}
                         </div>
+
                     </div>
-                {% endif %}
             {% endfor %}
         </div>
     </div>
-{% endif %}
