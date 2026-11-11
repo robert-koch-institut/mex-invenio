@@ -78,6 +78,18 @@ def db_session_transaction_restart(db):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
 
 
+@pytest.fixture(autouse=True)
+def clear_dumper_cache():
+    """Start each test with an empty MexDumper record cache.
+
+    The dumper caches linked records for the life of the process, so a record from
+    an earlier test (whose database rows were rolled back) would otherwise still be
+    shown as linked, or fail the indexing of a record linking to it because its row
+    is no longer bound to a session.
+    """
+    MexRDMRecord.dumper._record_cache.clear()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     env_file = find_dotenv(".env.tests")
