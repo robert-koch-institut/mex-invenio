@@ -22,7 +22,7 @@ edges.instances.bibliographicResources.init = function () {
             mex.fullSearchController({
                 fieldOptions: [
                     {field: mex.constants.TITLE, "display": i18n.t("Title")},
-                    {field: mex.constants.ALT_TITLE, "display": i18n.t("Alternative Title")},
+                    {field: mex.constants.ALTERNATIVE_TITLE, "display": i18n.t("Alternative Title")},
                     {field: mex.constants.SUBTITLE, "display": i18n.t("Involved Person")},
                     {field: mex.constants.ABSTRACT, "display": i18n.t("Abstract")},
                     {field: mex.constants.CREATOR, "display": i18n.t("Short Name")},

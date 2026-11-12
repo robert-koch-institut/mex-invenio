@@ -445,66 +445,6 @@
                                     }
                                 }
                             },
-                            "mex:hadPrimarySource": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:hasDataSubject": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:inScheme": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
                             "mex:inSeries": {
                                 "properties": {
                                     "core": {
@@ -806,26 +746,6 @@
                                 }
                             },
                             "mex:source": {
-                                "properties": {
-                                    "core": {
-                                        "type": "text"
-                                    },
-                                    "display_value": {
-                                        "properties": {
-                                            "language": {
-                                                "type": "keyword"
-                                            },
-                                            "value": {
-                                                "type": "text"
-                                            }
-                                        }
-                                    },
-                                    "link_id": {
-                                        "type": "keyword"
-                                    }
-                                }
-                            },
-                            "mex:stableTargetId": {
                                 "properties": {
                                     "core": {
                                         "type": "text"

@@ -90,7 +90,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:isbnIssn", multiple=True),
     TextCF(name="mex:isniId", multiple=True),
     TextCF(name="mex:issue"),
-    TextCF(name="mex:issued"),
+    EDTFDateStringCF(name="mex:issued"),
     MultiLanguageTextCF(name="mex:journal", multiple=True, value_as_filter=True),
     MultiLanguageTextCF(name="mex:keyword", multiple=True, value_as_filter=True),
     MultiLanguageTextCF(name="mex:label", multiple=True, value_as_filter=True),
@@ -105,7 +105,7 @@ RDM_CUSTOM_FIELDS = [
     MultiLanguageTextCF(name="mex:method", multiple=True),
     MultiLanguageTextCF(name="mex:methodDescription", multiple=True),
     IntegerCF(name="mex:minTypicalAge"),
-    TextCF(name="mex:modified"),
+    EDTFDateStringCF(name="mex:modified"),
     MultiLanguageTextCF(name="mex:name", multiple=True),
     IntegerCF(name="mex:numberOfRecords"),  # introduced in 5
     IntegerCF(name="mex:numberOfUniqueIndividuals"),  # introduced in 5
@@ -114,12 +114,12 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:pages"),
     TextCF(name="mex:parentUnit"),
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
+    MultiLanguageTextCF(name="mex:provenance", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
     EDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
-    MultiLanguageTextCF(name="mex:provenance", multiple=True),
     TextCF(name="mex:relatedActivity", multiple=True),  # introduced in 5
     TextCF(name="mex:relatedResource", multiple=True),  # introduced in 5
     LinkCF(name="mex:repositoryURL", multiple=True),
@@ -129,7 +129,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:responsibleUnit", multiple=True),
     MultiLanguageTextCF(name="mex:rights", multiple=True),
     TextCF(name="mex:rorId", multiple=True),
-    TextCF(name="mex:sample", multiple=True),  # introduced in 5
+    TextCF(name="mex:sample", multiple=True),
     TextCF(name="mex:section"),
     MultiLanguageTextCF(name="mex:shortName", multiple=True),
     TextCF(name="mex:sizeOfDataBasis"),
@@ -527,6 +527,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
+                "field": "mex:hasPurpose",
+                "props": {
+                    "type": "/schema/fields/text",
+                    "description": "A free text statement of the purpose of the processing of data or personal data.",
+                },
+            },
+            {
                 "field": "mex:hasPurposeDescription",
                 "props": {
                     "type": "/schema/fields/text",
@@ -782,6 +789,13 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/fields/text",
                     "description": "The type of population common to all subjects of the data collection.",
+                },
+            },
+            {
+                "field": "mex:provenance",
+                "props": {
+                    "type": "/schema/fields/text",
+                    "description": "A statement about the lineage of a Dataset. Information about how the data was collected, including methodologies, tools, and protocols used.",
                 },
             },
             {
