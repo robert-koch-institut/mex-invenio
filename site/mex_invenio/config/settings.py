@@ -278,6 +278,16 @@ Unset by default (status reporting off) - set only on the import-job's
 container in production (see helm-invenio's import-job.yaml).
 """
 
+DOWNLOADABLE_FILES_DIR = os.environ.get("INVENIO_DOWNLOADABLE_FILES_DIR")
+"""Directory holding the CSVs mirrored from the bucket's 'downloadable
+files-<version>' prefix, for nginx to serve directly and for the /downloads
+page to list.
+
+Unset by default (no downloadable files) - set on both the import-job and
+web containers in production (see helm-invenio's import-job.yaml and
+web-deployment.yaml).
+"""
+
 COMMUNITIES_GROUPS_ENABLED = False
 
 # The value for the Datacite creator property in imported records
@@ -360,6 +370,7 @@ CATEGORY_RULES = {
     "methodology": CategoryRule(template="methodology.html"),
     "partners": CategoryRule(icon="funding"),
     "generatedBy": CategoryRule(icon="relatedProjects"),
+    "datasetSeries": CategoryRule(icon="relatedResources"),
     "contact": CategoryRule(column="side_bar", template="contact.html"),
     "access": CategoryRule(column="side_bar"),
     "files": CategoryRule(column="side_bar", icon="distribution"),
@@ -380,7 +391,7 @@ CATEGORY_RULES = {
             "activity": [
                 Component(name="isPartOfActivity", title=_("partOf")),
                 Component(name="succeeds", title=_("Succeeds")),
-                Component(name="relatedActivity", title=_("Related Activity")),
+                Component(name="relatedActivity", title=_("relatedActivity.singular")),
                 Component(
                     name="wasGeneratedBy",
                     title=_("Related data sources & datasets"),

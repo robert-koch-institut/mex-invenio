@@ -236,3 +236,22 @@ bibliographic_resource_record_minimal = {
         }
     },
 }
+
+resource_series_data = {
+    "entityType": "MergedResourceSeries",
+    "identifier": "dRoniYplrL4B3RIXotgwAV",
+    "accessPlatform": [],
+    "accrualPeriodicity": None,
+    "alternativeTitle": [],
+    "contact": ["eXSYcOBBofhesoDmt3OAsz"],
+    "description": [{"language": "de", "value": "Test Beschreibung"}],
+    "documentation": [],
+    "end": [],
+    "hasLegalBasis": [],
+    "keyword": [],
+    "publisher": [],
+    "spatial": [],
+    "start": ["2024-01-01T12:00:00Z"],
+    "supersededBy": None,
+    "title": [{"language": None, "value": "Test series"}],
+}

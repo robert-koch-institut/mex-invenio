@@ -216,6 +216,7 @@
                 "properties": [
                     "hasLegalBasis",
                     "hasPurpose",
+                    "hasPurposeDescription",
                     "provenance",
                     "hasPersonalData",
                     "source"
@@ -238,6 +239,7 @@
                     "conformsTo",
                     "qualityInformation",
                     "hasCodeValues",
+                    "hasCodingSystem",
                     "analytics",
                     "sample"
                 ],
@@ -264,7 +266,7 @@
                 "properties": [
                     "wasGeneratedBy"
                 ],
-                "title": "Related Projects"
+                "title": "Zugehörige Projekte"
             },
             {
                 "id": "relatedResources",
@@ -273,6 +275,15 @@
                     "relatedResource"
                 ],
                 "title": "Related Resources"
+            },
+            {
+                "id": "datasetSeries",
+                "properties": [
+                    "inSeries",
+                    "inSeriesFirstResource",
+                    "inSeriesLastResource"
+                ],
+                "title": "Dataset Series"
             },
             {
                 "id": "contact",
@@ -286,6 +297,7 @@
                 "properties": [
                     "accessRestriction",
                     "doi",
+                    "landingPage",
                     "license",
                     "rights"
                 ],

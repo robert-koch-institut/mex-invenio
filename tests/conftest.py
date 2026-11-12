@@ -123,6 +123,18 @@ def instance_path():
     os.environ.pop("INVENIO_INSTANCE_PATH", None)
 
 
+@pytest.fixture(autouse=True)
+def clear_dumper_cache():
+    """Start each test with an empty MexDumper record cache.
+
+    The dumper caches linked records for the life of the process, so a record from
+    an earlier test (whose database rows were rolled back) would otherwise still be
+    shown as linked, or fail the indexing of a record linking to it because its row
+    is no longer bound to a session.
+    """
+    MexRDMRecord.dumper._record_cache.clear()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     env_file = find_dotenv(".env.tests")
@@ -233,6 +245,14 @@ def resource_type_v(app, resource_type_type):
             "icon": "code",
             "props": {"type": "accessplatform"},
             "title": {"en": "Access platform"},
+            "tags": ["depositable", "linkable"],
+            "type": "resourcetypes",
+        },
+        {
+            "id": "resourceseries",
+            "icon": "code",
+            "props": {"type": "resourceseries"},
+            "title": {"en": "Resource series"},
             "tags": ["depositable", "linkable"],
             "type": "resourcetypes",
         },
