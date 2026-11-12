@@ -147,7 +147,7 @@ mex.fullDateFormatter = function (datestr) {
 };
 
 mex.edtfDateFormatter = function (value) {
-    // EDTF custom fields are indexed as {date, date_range} by FixedEDTFDateStringCF
+    // EDTF custom fields are indexed as {date, date_range} by EDTFDateStringCF
     // (a list of those when the field is multi-valued), so the raw _source value is
     // never a plain date string. Falls back to the value itself for the plain-string
     // case, and to the unformatted date when it will not parse.
