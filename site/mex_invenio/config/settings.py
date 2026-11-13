@@ -60,7 +60,7 @@ SECRET_KEY = "CHANGE_ME"
 # provided, the allowed hosts variable is set to localhost. In production it
 # should be set to the correct host and it is strongly recommended to only
 # route correct hosts to the application.
-APP_ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
+TRUSTED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
 
 # Flask-SQLAlchemy
 # ================
@@ -266,6 +266,16 @@ Unset by default (status reporting off) - set only on the import-job's
 container in production (see helm-invenio's import-job.yaml).
 """
 
+DOWNLOADABLE_FILES_DIR = os.environ.get("INVENIO_DOWNLOADABLE_FILES_DIR")
+"""Directory holding the CSVs mirrored from the bucket's 'downloadable
+files-<version>' prefix, for nginx to serve directly and for the /downloads
+page to list.
+
+Unset by default (no downloadable files) - set on both the import-job and
+web containers in production (see helm-invenio's import-job.yaml and
+web-deployment.yaml).
+"""
+
 COMMUNITIES_GROUPS_ENABLED = False
 
 # The value for the Datacite creator property in imported records
@@ -315,6 +325,7 @@ RDM_FACETS = {
                 "organizationalunit",
                 "person",
                 "primarysource",
+                "resourceseries",
                 "variablegroup",
             ],
         ),
@@ -396,7 +407,7 @@ UI_SETTINGS = {
                     {"field": "mex:start", "label": _("start.singular")},
                     {"field": "mex:end", "label": _("end.singular")},
                     {"field": "mex:spatial", "label": _("spatial.singular")},
-                    {"field": "fn", "label": _("Typical age")},
+                    {"field": "fn", "label": _("Typisches Alter")},
                     {
                         "field": "mex:populationCoverage",
                         "label": _("populationCoverage.singular"),
@@ -424,6 +435,10 @@ UI_SETTINGS = {
                         "label": _("hasLegalBasis.singular"),
                     },
                     {"field": "mex:hasPurpose", "label": _("hasPurpose.singular")},
+                    {
+                        "field": "mex:hasPurposeDescription",
+                        "label": _("hasPurposeDescription.singular"),
+                    },
                     {
                         "field": "mex:hasPersonalData",
                         "label": _("hasPersonalData.singular"),
@@ -466,6 +481,10 @@ UI_SETTINGS = {
                         "field": "mex:hasCodeValues",
                         "label": _("hasCodeValues.singular"),
                     },
+                    {
+                        "field": "mex:hasCodingSystem",
+                        "label": _("hasCodingSystem.singular"),
+                    },
                     {"field": "mex:analytics", "label": _("analytics.singular")},
                     {"field": "mex:sample", "label": _("sample.singular")},
                 ],
@@ -498,7 +517,7 @@ UI_SETTINGS = {
                 ],
             },
             "generatedBy": {
-                "title": _("Related Projects"),
+                "title": _("Zugehörige Projekte"),
                 "icon": "relatedProjects.svg",
                 "properties": [
                     {"field": "mex:wasGeneratedBy"},
@@ -532,6 +551,21 @@ UI_SETTINGS = {
                     },
                 ],
             },
+            "datasetSeries": {
+                "title": _("Dataset Series"),
+                "icon": "relatedResources.svg",
+                "properties": [
+                    {"field": "mex:inSeries", "label": _("inSeries.singular")},
+                    {
+                        "field": "mex:inSeriesFirstResource",
+                        "label": _("inSeriesFirstResource.singular"),
+                    },
+                    {
+                        "field": "mex:inSeriesLastResource",
+                        "label": _("inSeriesLastResource.singular"),
+                    },
+                ],
+            },
         },
         "side_bar": {
             "contact": {
@@ -560,6 +594,7 @@ UI_SETTINGS = {
                             "http://dx.doi.org/",
                         ],
                     },
+                    {"field": "mex:landingPage", "label": _("landingPage.singular")},
                     {"field": "mex:license", "label": _("license.singular")},
                     {"field": "mex:rights", "label": _("rights.singular")},
                 ],
@@ -661,7 +696,7 @@ UI_SETTINGS = {
                         ],
                     },
                     {
-                        "title": _("Related Activity"),
+                        "title": _("relatedActivity.singular"),
                         "properties": [
                             {"field": "mex:relatedActivity"},
                         ],
@@ -744,7 +779,10 @@ UI_SETTINGS = {
                         "field": "mex:titleOfSeries",
                         "label": _("titleOfSeries.singular"),
                     },
-                    {"field": "mex:volumeOfSeries", "label": _("Volume of series")},
+                    {
+                        "field": "mex:volumeOfSeries",
+                        "label": _("volumeOfSeries.singular"),
+                    },
                     {"field": "mex:section", "label": _("section.singular")},
                 ],
             },
@@ -762,7 +800,7 @@ UI_SETTINGS = {
                         "label": _("publicationYear.singular"),
                     },
                     {"field": "mex:pages", "label": _("pages.singular")},
-                    {"field": "mex:isbnissn", "label": _("isbnIssn.singular")},
+                    {"field": "mex:isbnIssn", "label": _("isbnIssn.singular")},
                 ],
             },
             "editor": {
@@ -907,6 +945,7 @@ ENTITIES = [
     "person",
     "primary-source",
     "resource",
+    "resource-series",
     "variable-group",
     "variable",
 ]

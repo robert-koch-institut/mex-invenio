@@ -34,7 +34,7 @@ services:
     ports:
       - "6379:6379"
   db:
-    image: postgres:14.13
+    image: postgres:17.11  # match staging: snapshots from its pg_dump only restore into 17+
     restart: "unless-stopped"
     environment:
       - "POSTGRES_USER=mex-invenio"
@@ -43,7 +43,7 @@ services:
     ports:
       - "5432:5432"
   pgadmin:
-    image: dpage/pgadmin4:6
+    image: dpage/pgadmin4:9
     restart: "unless-stopped"
     ports:
       - "5050:80"
