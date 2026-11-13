@@ -36,7 +36,11 @@ from mex_invenio.scripts.diff_manager import generate_diff
 from mex_invenio.scripts.import_data import import_data
 from mex_invenio.scripts.initial_import import initial_import
 from mex_invenio.scripts.utils import (
+    DOWNLOADABLE_FILES_STATE_KEY,
+    _duration_seconds,
+    _error_details,
     _read_state,
+    _update_state,
     _write_state,
     get_installed_model_version,
     get_subdir_by_order,
@@ -139,6 +143,93 @@ def get_model_metadata_files(contents):
     return matches
 
 
+def sync_downloadable_files(s3_client, s3_bucket, contents, model_version) -> bool:
+    """Mirror the bucket's 'downloadable files-<model_version>/' prefix onto disk.
+
+    Downloads every file under that prefix (CSVs and their per-file
+    metadata_*.json) into a tmp directory, then atomically swaps it into
+    place so nginx and the /downloads page never see a half-written set.
+    The outcome is recorded in the "downloadable_files" section of
+    .import_state, which has its own status so a failed download never
+    blocks imports.
+    Does nothing if DOWNLOADABLE_FILES_DIR isn't configured (e.g. local dev).
+    """
+    downloadable_files_dir = current_app.config.get("DOWNLOADABLE_FILES_DIR")
+    if not downloadable_files_dir:
+        return True
+
+    prefix = f"downloadable files-{model_version}/"
+    s3_download_folder = current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
+    os.makedirs(s3_download_folder, exist_ok=True)
+    state_file = os.path.join(s3_download_folder, ".import_state")
+    started_at = datetime.now(timezone.utc).isoformat()
+
+    def record_state(status: str, **details) -> None:
+        finished_at = datetime.now(timezone.utc).isoformat()
+        section = {
+            "status": status,
+            "started_at": started_at,
+            "finished_at": finished_at,
+            "duration_seconds": _duration_seconds(started_at, finished_at),
+            "model_version": model_version,
+            "prefix": prefix,
+            "directory": downloadable_files_dir,
+            **details,
+        }
+        _update_state(state_file, DOWNLOADABLE_FILES_STATE_KEY, section)
+
+    entries = [e for e in contents if e["Key"].startswith(prefix)]
+
+    if not entries:
+        logger.info(f"No downloadable files found for model version {model_version}.")
+        record_state("no_files")
+        return True
+
+    tmp_dir = f"{downloadable_files_dir}.tmp-{get_timestamp()}"
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    filenames = []
+    try:
+        for entry in entries:
+            filename = entry["Key"].removeprefix(prefix)
+            if not filename or filename.endswith("/"):
+                continue
+            s3_client.download_file(
+                s3_bucket, entry["Key"], os.path.join(tmp_dir, filename)
+            )
+            filenames.append(filename)
+    except Exception as e:
+        logger.error(f"Failed to sync downloadable files: {e}")
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        record_state("failed", error=_error_details(e))
+        return False
+
+    old_dir = f"{downloadable_files_dir}.old-{get_timestamp()}"
+    if os.path.isdir(downloadable_files_dir):
+        os.rename(downloadable_files_dir, old_dir)
+    os.rename(tmp_dir, downloadable_files_dir)
+    if os.path.isdir(old_dir):
+        shutil.rmtree(old_dir, ignore_errors=True)
+
+    files = [
+        {
+            "name": filename,
+            "size": os.path.getsize(os.path.join(downloadable_files_dir, filename)),
+        }
+        for filename in sorted(filenames)
+    ]
+    record_state(
+        "success",
+        counts={"files": len(files), "bytes": sum(f["size"] for f in files)},
+        files=files,
+    )
+
+    logger.info(
+        f"Synced {len(files)} downloadable file(s) to {downloadable_files_dir}."
+    )
+    return True
+
+
 def _download_items_file(
     s3_client,
     s3_bucket,
@@ -216,18 +307,32 @@ def _bootstrap_initial_import(
     items_file = os.path.join(downloaded_dir, "items.ndjson")
     state_file = os.path.join(s3_download_folder, ".import_state")
     started_at = datetime.now(timezone.utc).isoformat()
-    _write_state(state_file, "in_progress", started_at=started_at)
+    details = {
+        "kind": "initial",
+        "model_version": model_version,
+        "import_file": items_file,
+    }
+    _write_state(state_file, "in_progress", started_at=started_at, **details)
 
+    counts = None
+    error = None
     try:
-        success = initial_import(user_email, items_file)
-    except Exception:
+        counts = initial_import(user_email, items_file)
+    except Exception as e:
         logger.exception(f"Initial import failed for {items_file}.")
-        success = False
+        error = _error_details(e)
 
     finished_at = datetime.now(timezone.utc).isoformat()
-    if not success:
+    details["duration_seconds"] = _duration_seconds(started_at, finished_at)
+    if not counts:
+        if error:
+            details["error"] = error
         _write_state(
-            state_file, "failed", started_at=started_at, finished_at=finished_at
+            state_file,
+            "failed",
+            started_at=started_at,
+            finished_at=finished_at,
+            **details,
         )
         logger.error(
             f"Initial import failed for {items_file}; leaving it in downloaded/ "
@@ -235,7 +340,14 @@ def _bootstrap_initial_import(
         )
         return False
 
-    _write_state(state_file, "success", started_at=started_at, finished_at=finished_at)
+    _write_state(
+        state_file,
+        "success",
+        started_at=started_at,
+        finished_at=finished_at,
+        counts=counts,
+        **details,
+    )
 
     rel = os.path.relpath(downloaded_dir, download_path)
     destination = os.path.join(processed_path, rel)
@@ -255,6 +367,8 @@ def _write_public_status(had_download_errors: bool) -> None:
     older than this run if there was nothing new to import today). Written
     atomically since nginx serves this file directly from the shared volume
     it's mounted on (see helm-invenio's import-job.yaml / web-deployment.yaml).
+    The file is public, so only non-sensitive import details (status, kind,
+    timestamps, counts) are copied across - not file paths or error messages.
     Does nothing if INVENIO_IMPORT_STATUS_DIR isn't configured (e.g. local dev).
     """
     status_dir = current_app.config.get("IMPORT_STATUS_DIR")
@@ -276,8 +390,10 @@ def _write_public_status(had_download_errors: bool) -> None:
         "download": {"status": "failed" if had_download_errors else "success"},
         "import": {
             "status": import_status,
+            "kind": import_state.get("kind"),
             "started_at": import_state.get("started_at"),
             "finished_at": import_state.get("finished_at"),
+            "counts": import_state.get("counts"),
         },
     }
 
@@ -335,16 +451,21 @@ def manage_s3_files():
     download_path = os.path.join(s3_download_folder, "downloaded")
     processed_path = os.path.join(s3_download_folder, "processed")
 
+    installed_model_version = get_installed_model_version()
+    had_download_errors = False
+
+    if not sync_downloadable_files(
+        s3_client, s3_bucket, response["Contents"], installed_model_version
+    ):
+        had_download_errors = True
+
     # Get every model-version dump available in the bucket
     metadata_files = get_model_metadata_files(response["Contents"])
 
     if not metadata_files:
         logger.info("No metadata files found in the bucket.")
-        _write_public_status(had_download_errors=False)
+        _write_public_status(had_download_errors=had_download_errors)
         return
-
-    installed_model_version = get_installed_model_version()
-    had_download_errors = False
 
     for metadata_file in metadata_files:
         # Create tmp draft downloaded location for dump

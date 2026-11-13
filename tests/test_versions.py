@@ -1,5 +1,11 @@
+import os
+from unittest.mock import patch
+
+from flask import current_app
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
+from invenio_search import current_search_client
+from invenio_search.utils import build_alias_name
 
 from tests.conftest import created_regex, search_messages
 from tests.data import person_data
@@ -110,3 +116,41 @@ def test_import_person_2nd_version(
     assert f"/records/mex/{mex_id}?version_id=1" in older_version_resp.data.decode(
         "utf-8"
     )
+
+
+def test_rerun_of_failed_import_corrects_indexed_latest_version(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A rerun leaves one version indexed as latest if a failed import made a new one."""
+    service = current_rdm_records.records_service
+    mex_id = person_data["identifier"]
+    changed_data = {**person_data, "email": ["changed@example.org"]}
+    state_file = os.path.join(current_app.config["S3_DOWNLOAD_FOLDER"], ".import_state")
+
+    def indexed_latest_flags():
+        alias = build_alias_name("mexrecords-records")
+        current_search_client.indices.refresh(index=alias)
+        hits = current_search_client.search(
+            index=alias, body={"size": 100, "query": {"match_all": {}}}
+        )["hits"]["hits"]
+        return sorted(
+            h["_source"]["versions"]["is_latest"]
+            for h in hits
+            if h["_source"]["custom_fields"]["mex:identifier"] == mex_id
+        )
+
+    import_file("person", person_data)
+    assert indexed_latest_flags() == [True]
+
+    # The import stops after creating the new version, before indexing anything
+    with patch.object(
+        type(service.indexer), "bulk_index", side_effect=RuntimeError("stopped")
+    ):
+        import_file("person-changed", changed_data)
+    os.remove(state_file)
+    assert indexed_latest_flags() == [True]
+
+    messages = import_file("person-changed", changed_data)
+
+    assert search_messages(messages, created_regex).group("verb") == "Skipped"
+    assert indexed_latest_flags() == [False, True]

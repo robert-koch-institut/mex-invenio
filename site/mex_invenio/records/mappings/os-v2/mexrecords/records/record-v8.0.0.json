@@ -505,6 +505,66 @@
                                     }
                                 }
                             },
+                            "mex:inSeries": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:inSeriesFirstResource": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:inSeriesLastResource": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
                             "mex:involvedPerson": {
                                 "properties": {
                                     "core": {
@@ -786,6 +846,26 @@
                                 }
                             },
                             "mex:succeeds": {
+                                "properties": {
+                                    "core": {
+                                        "type": "text"
+                                    },
+                                    "display_value": {
+                                        "properties": {
+                                            "language": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text"
+                                            }
+                                        }
+                                    },
+                                    "link_id": {
+                                        "type": "keyword"
+                                    }
+                                }
+                            },
+                            "mex:supersededBy": {
                                 "properties": {
                                     "core": {
                                         "type": "text"

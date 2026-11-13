@@ -6,6 +6,7 @@ from invenio_records.dumpers import SearchDumper
 from invenio_records_resources.services.base.config import SearchOptionsMixin
 from invenio_records_resources.services.records.queryparser import QueryParser
 from invenio_search import RecordsSearchV2
+from sqlalchemy import and_
 
 from mex_invenio.search.params import (
     BoostingParamsInterpreter,
@@ -502,6 +503,19 @@ class MexDumper(SearchDumper):
         if len(units_en) > 0:
             dump_data["index_data"]["enContributingUnits"] = units_en
 
+    def _latest_versions_query(self, source):
+        """Query the latest version of each record.
+
+        The records table has a row per version, so without this a record is found
+        once per version, and through links that only its older versions have.
+        """
+        model = source.model_cls
+        state = source.versions_model_cls
+        return model.query.join(
+            state,
+            and_(state.parent_id == model.parent_id, state.latest_id == model.id),
+        )
+
     def _records_by_mex_identifiers(self, source, mex_ids, log):
         results = []
 
@@ -517,7 +531,7 @@ class MexDumper(SearchDumper):
             return results
 
         # log.append("Querying for MEx IDs: " + str(query_for))
-        db_query = source.model_cls.query.filter(
+        db_query = self._latest_versions_query(source).filter(
             source.model_cls.json["custom_fields"]
             .op("->>")("mex:identifier")
             .in_(query_for),
@@ -540,13 +554,9 @@ class MexDumper(SearchDumper):
         from sqlalchemy import cast
         from sqlalchemy.dialects.postgresql import JSONB
 
-        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS
+        from mex_invenio.custom_fields.custom_fields import RDM_CUSTOM_FIELDS_BY_NAME
 
-        field_config = None
-        for field in RDM_CUSTOM_FIELDS:
-            if field.name == name:
-                field_config = field
-                break
+        field_config = RDM_CUSTOM_FIELDS_BY_NAME.get(name)
 
         # Determine if field stores arrays or single values
         is_multiple = (
@@ -558,14 +568,14 @@ class MexDumper(SearchDumper):
         # Use .op('@>') to explicitly use the JSONB containment operator
         if is_multiple:
             # Array field: wrap value in array
-            db_query = source.model_cls.query.filter(
+            db_query = self._latest_versions_query(source).filter(
                 source.model_cls.json["custom_fields"].op("@>")(
                     cast({name: [value]}, JSONB)
                 )
             )
         else:
             # Single-value field: use plain value
-            db_query = source.model_cls.query.filter(
+            db_query = self._latest_versions_query(source).filter(
                 source.model_cls.json["custom_fields"].op("@>")(
                     cast({name: value}, JSONB)
                 )

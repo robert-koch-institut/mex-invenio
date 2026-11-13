@@ -33,12 +33,21 @@ from invenio_rdm_records.fixtures.tasks import get_authenticated_identity
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_rdm_records.records.api import RDMRecord
 from sqlalchemy import text
+from sqlalchemy.exc import (
+    InterfaceError,
+    OperationalError,
+    PendingRollbackError,
+    SQLAlchemyError,
+)
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
+    _duration_seconds,
+    _error_details,
     _read_state,
     _write_state,
     get_installed_model_version,
+    get_linked_target_ids,
     get_related_mex_ids,
     mex_to_invenio_schema,
     normalize_record_data,
@@ -49,59 +58,78 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+# Seconds to wait before each repeat of a failed lookup of existing records, long
+# enough for the database to come back from a restart.
+LOOKUP_RETRY_DELAYS = tuple(2**i for i in range(8))
+
+# Errors from losing the database connection, as opposed to from a record's data
+CONNECTION_ERRORS = (InterfaceError, OperationalError, PendingRollbackError)
+
+
+def _query_existing_records(mex_ids: list[str]) -> dict[str, dict]:
+    """Query the latest version of the records with the given MEx IDs."""
+    # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
+    # Use DISTINCT ON to return only the latest version (highest index)
+    # per mex:identifier, avoiding unnecessary updates from old versions.
+    mex_id_expr = text("rdm_records_metadata.json->'custom_fields'->>'mex:identifier'")
+    records_with_pids = (
+        db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
+        .join(
+            PersistentIdentifier,
+            (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
+            & (PersistentIdentifier.pid_type == "recid"),
+        )
+        .filter(
+            text(
+                "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
+            )
+        )
+        .distinct(mex_id_expr)
+        .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
+        .params(mex_ids=mex_ids)
+        .all()
+    )
+
+    # Convert to the same format as search results
+    existing_records = {}
+    for record, pid_value in records_with_pids:
+        # Extract data immediately to avoid session binding issues
+        record_json = copy.deepcopy(record.json)
+        mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
+        if mex_id:
+            # Convert database record to search result format using the joined PID
+            record_data = {
+                "id": str(pid_value),
+                "parent": record.parent_id,
+                "custom_fields": copy.deepcopy(record_json.get("custom_fields", {})),
+                "metadata": copy.deepcopy(record_json.get("metadata", {})),
+            }
+            existing_records[mex_id] = record_data
+
+    return existing_records
+
+
 def bulk_search_existing_records(mex_ids: list[str]) -> dict[str, dict]:
-    """Search for multiple MEx IDs."""
+    """Search for multiple MEx IDs.
+
+    Raises if the database can't be queried after retrying. Without knowing which
+    records exist, every record in the batch would be created again as a duplicate.
+    """
     if not mex_ids:
         return {}
 
-    try:
-        # Query database with JOIN to get PID in one query using SQLAlchemy ORM.
-        # Use DISTINCT ON to return only the latest version (highest index)
-        # per mex:identifier, avoiding unnecessary updates from old versions.
-        mex_id_expr = text(
-            "rdm_records_metadata.json->'custom_fields'->>'mex:identifier'"
-        )
-        records_with_pids = (
-            db.session.query(RDMRecord.model_cls, PersistentIdentifier.pid_value)
-            .join(
-                PersistentIdentifier,
-                (PersistentIdentifier.object_uuid == RDMRecord.model_cls.id)
-                & (PersistentIdentifier.pid_type == "recid"),
+    for delay in LOOKUP_RETRY_DELAYS:
+        try:
+            return _query_existing_records(mex_ids)
+        except SQLAlchemyError as e:
+            logger.warning(
+                f"Error in bulk database search, retrying in {delay} seconds: {e}"
             )
-            .filter(
-                text(
-                    "rdm_records_metadata.json->'custom_fields'->>'mex:identifier' = ANY(:mex_ids)"
-                )
-            )
-            .distinct(mex_id_expr)
-            .order_by(mex_id_expr, RDMRecord.model_cls.index.desc())
-            .params(mex_ids=mex_ids)
-            .all()
-        )
+            # The session can't be used again until the failure is rolled back
+            db.session.rollback()
+            time.sleep(delay)
 
-        # Convert to the same format as search results
-        existing_records = {}
-        for record, pid_value in records_with_pids:
-            # Extract data immediately to avoid session binding issues
-            record_json = copy.deepcopy(record.json)
-            mex_id = record_json.get("custom_fields", {}).get("mex:identifier")
-            if mex_id:
-                # Convert database record to search result format using the joined PID
-                record_data = {
-                    "id": str(pid_value),
-                    "uuid": str(record.id),
-                    "custom_fields": copy.deepcopy(
-                        record_json.get("custom_fields", {})
-                    ),
-                    "metadata": copy.deepcopy(record_json.get("metadata", {})),
-                }
-                existing_records[mex_id] = record_data
-
-        return existing_records
-
-    except Exception as e:
-        logger.error(f"Error in bulk database search: {e}")
-        return {}
+    return _query_existing_records(mex_ids)
 
 
 def process_record_batch(
@@ -116,6 +144,7 @@ def process_record_batch(
             mex_data = mex_to_invenio_schema(current_app.config, json_data)
 
             existing_record = existing_records.get(mex_id)
+            previous_custom_fields = None
 
             if not existing_record:
                 # Create a new record
@@ -136,6 +165,7 @@ def process_record_batch(
             else:
                 # Update an existing record
                 record_pid = existing_record["id"]
+                previous_custom_fields = existing_record["custom_fields"]
 
                 # Check if the record needs to be updated
                 current_data = normalize_record_data(existing_record["custom_fields"])
@@ -168,14 +198,23 @@ def process_record_batch(
                         {
                             "action": "skip",
                             "id": record_pid,
-                            "uuid": existing_record["uuid"],
+                            "parent": existing_record["parent"],
                         }
                     )
 
-                # Collect all related record UUIDs of created/updated records
-                for related_id in get_related_mex_ids(mex_data):
-                    results.append({"action": "related", "id": related_id})
+            # Collect the records whose display data depends on this one: records
+            # linking to it (they show its title) and records it links to through
+            # backwards-linked fields (they list it), including those it linked to
+            # before an update.
+            for related_id in get_related_mex_ids(mex_data):
+                results.append({"action": "related", "id": related_id})
+            for target_id in get_linked_target_ids(mex_data, previous_custom_fields):
+                results.append({"action": "related", "id": target_id})
 
+        except CONNECTION_ERRORS:
+            # Stop rather than fail the remaining records one by one. The diff stays
+            # pending, and a re-run skips the records that were already imported.
+            raise
         except KeyError as ke:
             logger.error(f"KeyError: {ke}\nError processing record: {json_data}")
         except Exception as e:
@@ -183,6 +222,9 @@ def process_record_batch(
                 f"Error processing record {json_data.get('identifier', 'unknown')}: {e}\n"
                 f"Full traceback:\n{traceback.format_exc()}"
             )
+            # A failure outside a unit of work leaves the session unusable, which
+            # would fail the next record too
+            db.session.rollback()
 
     return results
 
@@ -209,12 +251,17 @@ def update_report(report: dict, batch_results: list[dict]):
                 {"id": result["id"], "uuid": result["uuid"], "parent": result["parent"]}
             )
         elif result["action"] == "skip":
-            report["skipped"].append({"id": result["id"], "uuid": result["uuid"]})
+            report["skipped"].append({"id": result["id"], "parent": result["parent"]})
         elif result["action"] == "related":
             report["related"].add(result["id"])
 
 
 def process_import(owner, import_file, batch_size):
+    """Import the records in import_file and return counts of the outcome.
+
+    "failed" counts records that raised while being imported; "invalid_lines"
+    counts lines that weren't valid JSON.
+    """
     # Start the timer to measure processing time
     start_time = time.time()
     num_lines = 0
@@ -262,29 +309,25 @@ def process_import(owner, import_file, batch_size):
         # Index created and updated records first so that when related
         # records are re-indexed, their display_data dumper can find the
         # latest versions in the search index.
-        if report["updated"]:
-            parent_uuids = [r["parent"] for r in report["updated"]]  # type: ignore[attr-defined]
-            updated_all_versions = (
+        #
+        # If there are any skipped records, that means that a previous import
+        # job has failed and this is a rerun. That job may have created new
+        # versions of them without indexing any, so their older versions can
+        # still be indexed as the latest. They're indexed like updated records.
+        reindexed = report["updated"] + report["skipped"]  # type: ignore[operator]
+        if reindexed:
+            parent_uuids = [r["parent"] for r in reindexed]  # type: ignore[index]
+            all_versions = (
                 db.session.query(RDMRecord.model_cls.id)
                 .filter(RDMRecord.model_cls.parent_id.in_(parent_uuids))
                 .all()
             )
-            current_rdm_records_service.indexer.bulk_index(
-                u[0] for u in updated_all_versions
-            )
+            current_rdm_records_service.indexer.bulk_index(u[0] for u in all_versions)
 
         if report["created"]:
             current_rdm_records_service.indexer.bulk_index(
                 r["uuid"]
                 for r in report["created"]  # type: ignore[attr-defined]
-            )
-
-        # If there are any skipped records, that means that a previous import
-        # job has failed and this is a rerun. In that event we need to make sure
-        # that all imported records have been indexed.
-        if report["skipped"]:
-            current_rdm_records_service.indexer.bulk_index(
-                r["uuid"] for r in report["skipped"]
             )
 
         # Flush the queue so created/updated records are searchable
@@ -330,6 +373,18 @@ def process_import(owner, import_file, batch_size):
         time_taken = f"Total time taken: {seconds:.2f} seconds."
 
     logger.info(time_taken)
+
+    imported = {
+        "created": len(report["created"]),
+        "updated": len(report["updated"]),
+        "skipped": len(report["skipped"]),
+    }
+    return {
+        "lines": num_lines,
+        **imported,
+        "failed": num_lines - sum(imported.values()),
+        "invalid_lines": report["error"],
+    }
 
 
 @click.command("import_data")
@@ -426,24 +481,41 @@ def import_data(
                 return False
 
     started_at = datetime.now(timezone.utc).isoformat()
+    details = {
+        "kind": "diff",
+        "model_version": model_version,
+        "import_file": import_file,
+    }
     try:
-        _write_state(state_file, "in_progress", started_at=started_at)
-        process_import(owner, import_file, batch_size)
+        _write_state(state_file, "in_progress", started_at=started_at, **details)
+        counts = process_import(owner, import_file, batch_size)
 
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.info(f"Import successful. Data imported from {import_file}.")
         _write_state(
-            state_file, "success", started_at=started_at, finished_at=finished_at
+            state_file,
+            "success",
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_seconds=_duration_seconds(started_at, finished_at),
+            counts=counts,
+            **details,
         )
 
-    except Exception:
+    except Exception as e:
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.exception(
             f"Failed to process import from {import_file}. "
             f"Imports will not be possible until .import_state is deleted."
         )
         _write_state(
-            state_file, "failed", started_at=started_at, finished_at=finished_at
+            state_file,
+            "failed",
+            started_at=started_at,
+            finished_at=finished_at,
+            duration_seconds=_duration_seconds(started_at, finished_at),
+            error=_error_details(e),
+            **details,
         )
         return False
     finally:
