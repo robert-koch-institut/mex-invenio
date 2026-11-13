@@ -10,6 +10,8 @@ edges_components = edges_src + "components/"
 # Define BASE search entries
 search_base = [
     "jquery",
+    # f"{mex_js}plotly-4.1.1.min.js",
+    #"plotly.js-dist",
     f"{edges_src}datasources/es7x.js",
     f"{edges_src}edges.js",
     f"{edges_components}RefiningANDTermSelector.js",

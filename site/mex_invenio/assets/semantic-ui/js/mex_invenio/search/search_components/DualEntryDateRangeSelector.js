@@ -1,22 +1,15 @@
 //import {Renderer} from "../../core";
 //import {getParam, htmlID, idSelector, objClosure, styleClasses, on} from "../../utils";
 
-// FIXME: we'd like to retire moment, as the project has announced it has run its course, but that
-// requires some work to unpick
-//import {moment} from "../../../dependencies/moment";
-
-// FIXME: on a related note, we need to retire the jquery daterangepicker too as it depends on
-// moment.  This looks like a viable alternative: https://litepicker.com/
-
 mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
     constructor(params) {
         super(params);
 
         ///////////////////////////////////////////////////
         // parameters that can be passed in
-        this.displayName = edges.util.getParam(params, "displayName", "DualEntryDateRangeSelector");
+        this.displayName = edges.util.getParam(params, "displayName", false);
 
-        this.dateFormat = edges.util.getParam(params, "dateFormat", "MMMM D, YYYY");
+        // this.dateFormat = edges.util.getParam(params, "dateFormat", "MMMM D, YYYY");
 
         this.ranges = edges.util.getParam(params, "ranges", false);
 
@@ -27,6 +20,7 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         this.maxDate = false;
         this.startDate = false;
         this.endDate = false;
+        this.years = [];
 
         ///////////////////
 
@@ -53,10 +47,6 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         const startId = edges.util.htmlID(this.namespace, "start", this);
         const endId = edges.util.htmlID(this.namespace, "end", this);
 
-        // this.selectId = edges.util.htmlID(this.namespace, dre.id + "_date-type", this);
-        // this.rangeId = edges.util.htmlID(this.namespace, dre.id + "_range", this);
-        // const pluginId = edges.util.htmlID(this.namespace, dre.id + "_plugin", this);
-
         function fieldSelector(dre) {
             function fieldOptions() {
                 let options = "";
@@ -80,23 +70,39 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
             return "";
         }
 
+        let yearOptions = "";
+        for (let year of this.years) {
+            yearOptions += `<option value="${year}">${year}</option>`;
+        }
+
+        let that = this;
+        function headerFrag() {
+            let header = "";
+            if (that.displayName) {
+                header = `<div class="${headerClass}">
+                        <div class="ui grid">
+                            <div class="sixteen wide column search-facets-container">
+                                <h4 class="facet-title">${this.displayName}</h4>
+                            </div>
+                        </div>
+                    </div>`
+            }
+            return header;
+        }
+
         let frag = `
             <div class="ui ${containerClass}" style="margin-bottom: 1rem;">
                 ${fieldSelector(dre)}
-                <div class="${headerClass}">
-                    <div class="ui grid">
-                        <div class="sixteen wide column search-facets-container">
-                            <h4 class="facet-title">${this.displayName}</h4>
-                        </div>
-                    </div>
-                </div>
+                ${headerFrag()}
                 <div class="ui grid ${inputClass}">
                     <div class="sixteen wide column">
                         <div class="range-selector-input-row">
-                            <label for="${startId}">From</label><input type="date" name="${startId}" id="${startId}">
+                            <label for="${startId}">From</label>
+                            <select name="${startId}" id="${startId}">${yearOptions}</select>
                         </div>
                         <div class="range-selector-input-row">
-                        <label for="${endId}">To</label><input type="date" name="${endId}" id="${endId}">
+                            <label for="${endId}">To</label>
+                            <select name="${endId}" id="${endId}">${yearOptions}</select>
                         </div>
                     </div>
                 </div>
@@ -105,38 +111,7 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
 
         dre.context.html(frag);
 
-        // var selectIdSelector = edges.util.idSelector(this.namespace, dre.id + "_date-type", this);
-        // var rangeIdSelector = edges.util.idSelector(this.namespace, dre.id + "_range", this);
-
-        // this.selectJq = dre.jq(selectIdSelector);
-        // this.rangeJq = dre.jq(rangeIdSelector);
-        //
-        // var cb = edges.util.objClosure(this, "updateDateRange", ["start", "end"]);
-        // var props = {
-        //     locale: {
-        //         format: "DD/MM/YYYY"
-        //     },
-        //     opens: "left"
-        // };
-        // if (this.ranges) {
-        //     props["ranges"] = this.ranges;
-        // }
-        //
-        // // clear out any old version of the plugin, as these are appended to the document
-        // // and not kept within the div controlled by this renderer
-        // var pluginSelector = edges.util.idSelector(this.namespace, dre.id + "_plugin", this);
-        // $(pluginSelector).remove();
-        //
-        // this.rangeJq.daterangepicker(props, cb);
-        // this.drp = this.rangeJq.data("daterangepicker");
-        // this.drp.container.attr("id", pluginId).addClass("show-calendar");
-
         this.prepDates();
-
-        // if (this.useSelect2) {
-        //     this.selectJq.select2();
-        // }
-        // edges.on(selectIdSelector, "change", this, "typeChanged");
 
         const startSelector = edges.util.idSelector(this.namespace, "start", this);
         const endSelector = edges.util.idSelector(this.namespace, "end", this);
@@ -147,17 +122,45 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
     dateRangeDisplay() {
         let startSelector = edges.util.idSelector(this.namespace, "start", this);
         let endSelector = edges.util.idSelector(this.namespace, "end", this);
-        this.component.jq(startSelector).val(this._bigEndDate(this.startDate));
-        this.component.jq(endSelector).val(this._bigEndDate(this.endDate));
+        let $ss = this.component.jq(startSelector);
+        let $es = this.component.jq(endSelector);
+
+        let yearOptions = "";
+        for (let year of this.years) {
+            yearOptions += `<option value="${year}">${year}</option>`;
+        }
+
+        $ss.html(yearOptions);
+        $es.html(yearOptions);
+
+        $ss.val(this.startDate.getUTCFullYear());
+        $es.val(this.endDate.getUTCFullYear());
     }
 
-    _toDate(s) {
-        // for now we assume that the input field gives us a date in a predictable format
+    _toStartDate(year) {
+        let s = `${year}-01-01T00:00:00.000Z`;
+        return new Date(s);
+    }
+
+    _toEndDate(year) {
+        let s = `${year}-12-31T23:59:59.999Z`;
         return new Date(s);
     }
 
     _bigEndDate(date) {
         return `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, "0")}-${date.getUTCDate().toString().padStart(2, "0")}`;
+    }
+
+    _yearsInRange(startDate, endDate) {
+        const startYear = startDate.getUTCFullYear();
+        const endYear = endDate.getUTCFullYear();
+        const years = [];
+
+        for (let year = startYear; year <= endYear; year++) {
+            years.push(year);
+        }
+
+        return years;
     }
 
     rangeChanged(element) {
@@ -167,12 +170,12 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         let newEnd = this.component.jq(endSelector).val();
 
         if (newStart) {
-            newStart = this._toDate(newStart);
+            newStart = this._toStartDate(newStart);
         } else {
             newStart = this.component.defaultEarliest;
         }
         if (newEnd) {
-            newEnd = this._toDate(newEnd);
+            newEnd = this._toEndDate(newEnd);
         } else {
             newEnd = this.component.defaultLatest;
         }
@@ -290,6 +293,8 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
             }
             this.endDate = to;
         }
+
+        this.years = this._yearsInRange(this.minDate, this.maxDate);
 
         this.dateRangeDisplay();
     }
