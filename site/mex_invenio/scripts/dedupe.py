@@ -7,13 +7,19 @@ lookup failed during an import.
 
 For each such identifier the earliest-created parent is kept and the others are
 deleted, with their versions, drafts, PIDs, empty file buckets and search
-documents. A duplicate is only deleted if it has a single version (no import has
-updated it since) and the kept parent has a published latest version; anything
-else is reported and left alone.
+documents. A duplicate is only deleted if the kept parent has a published latest
+version.
+
+A duplicate with a single version is a bare copy and is deleted as it is. A
+duplicate with more versions has been updated by later imports, which found it
+instead of the original, so it holds newer content than the kept parent. Such
+duplicates are reported and left alone, unless --merge-updated is given: then
+the duplicate's latest content is published as a new version of the kept parent
+before the duplicate is deleted.
 
 Run with the CLI command (dry run unless --commit is given):
 
-        $ invenio mex dedupe-records [--created-after ...] [--commit]
+        $ invenio mex dedupe-records [--created-after ...] [--merge-updated] [--commit]
 """
 
 import json
@@ -24,11 +30,14 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from flask import current_app
+from invenio_access.permissions import system_identity
 from invenio_db import db
 from invenio_rdm_records.proxies import current_rdm_records_service
 from invenio_search import current_search_client
 from invenio_search.utils import build_alias_name
 from sqlalchemy import text
+
+from mex_invenio.scripts.utils import normalize_record_data
 
 logger = logging.getLogger(__name__)
 
@@ -64,16 +73,18 @@ class Duplicate:
     kept_parent_id: str
     record_type: str
     created: datetime
+    versions: int = 1
 
 
 @dataclass
 class Plan:
-    """Duplicates to delete, and those found but left alone."""
+    """Duplicates to delete, to merge into the kept parent, and those left alone."""
 
     identifiers: int
     duplicates: list[Duplicate]
     refused: list[tuple[Duplicate, str]]
     outside_window: int
+    updated: list[Duplicate]
 
 
 def find_duplicates(
@@ -114,7 +125,7 @@ def find_duplicates(
     for row in rows:
         parents_by_mex_id.setdefault(row.mex_id, []).append(row)
 
-    duplicates, refused, outside_window = [], [], 0
+    duplicates, updated, refused, outside_window = [], [], [], 0
     for mex_id, parents in parents_by_mex_id.items():
         kept, *others = sorted(parents, key=lambda p: (p.first_created, p.parent_id))
         for parent in others:
@@ -124,26 +135,22 @@ def find_duplicates(
                 kept_parent_id=kept.parent_id,
                 record_type=parent.record_type,
                 created=parent.first_created,
+                versions=parent.versions,
             )
             if (created_after and parent.first_created < created_after) or (
                 created_before and parent.first_created >= created_before
             ):
                 outside_window += 1
-            elif parent.versions > 1:
-                refused.append(
-                    (
-                        duplicate,
-                        f"updated since it was created ({parent.versions} versions)",
-                    )
-                )
             elif not kept.has_published_latest:
                 refused.append(
                     (duplicate, "kept parent has no published latest version")
                 )
+            elif parent.versions > 1:
+                updated.append(duplicate)
             else:
                 duplicates.append(duplicate)
 
-    return Plan(len(parents_by_mex_id), duplicates, refused, outside_window)
+    return Plan(len(parents_by_mex_id), duplicates, refused, outside_window, updated)
 
 
 def _ids(sql: str, **params) -> list[str]:
@@ -288,6 +295,64 @@ def _delete_batch(owned: dict[str, list[str]], version_tables: list[str]) -> Non
     db.session.commit()
 
 
+def _latest_json(parent_id: str) -> dict:
+    return db.session.execute(
+        text(f"""
+            SELECT r.json FROM {RECORDS} r
+            JOIN {VERSIONS_STATE} vs ON vs.latest_id = r.id
+            WHERE vs.parent_id = CAST(:parent AS uuid)
+        """),  # noqa: S608
+        {"parent": parent_id},
+    ).scalar_one()
+
+
+def _same_content(record: dict, other: dict) -> bool:
+    """Whether two records hold the same MEx data, compared as the import does."""
+    return normalize_record_data(record["custom_fields"]) == normalize_record_data(
+        other["custom_fields"]
+    )
+
+
+def _merge(duplicate: Duplicate, version_tables: list[str]) -> bool:
+    """Publish the duplicate's latest content as a new version of the kept parent,
+    then delete the duplicate.
+
+    Returns whether a new version was published (False if the content was the same).
+    The duplicate is only deleted once the kept parent holds its content, so a
+    failure leaves both parents in place and a re-run completes the merge.
+    """
+    kept = _latest_json(duplicate.kept_parent_id)
+    latest = _latest_json(duplicate.parent_id)
+
+    published = False
+    if not _same_content(kept, latest):
+        service = current_rdm_records_service
+        data = {
+            "access": {
+                "record": latest.get("access", {}).get("record", "public"),
+                "files": latest.get("access", {}).get("files", "public"),
+            },
+            "files": {"enabled": latest.get("files", {}).get("enabled", False)},
+            "pids": {},
+            "metadata": latest["metadata"],
+            "custom_fields": latest["custom_fields"],
+        }
+        draft = service.new_version(system_identity, kept["id"])
+        service.update_draft(system_identity, draft.id, data)
+        service.publish(system_identity, draft.id)
+        published = True
+
+        if not _same_content(_latest_json(duplicate.kept_parent_id), latest):
+            msg = (
+                f"{duplicate.mex_id}: kept parent {duplicate.kept_parent_id} does not "
+                "hold the duplicate's content after publishing; duplicate not deleted"
+            )
+            raise RuntimeError(msg)
+
+    _delete_batch(_rows_owned([duplicate.parent_id]), version_tables)
+    return published
+
+
 def _import_in_progress() -> bool:
     state_file = os.path.join(
         current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), ".import_state"
@@ -306,8 +371,12 @@ def dedupe_records(
     commit: bool = False,
     output: str | None = None,
     echo=print,
+    merge_updated: bool = False,
 ) -> bool:
     """Find duplicate parents and, with commit, delete them in batches.
+
+    With merge_updated, duplicates updated since they were created are merged into
+    the kept parent (see _merge) instead of being left alone.
 
     Returns False if the purge was stopped before deleting anything.
     """
@@ -317,32 +386,50 @@ def dedupe_records(
 
     plan = find_duplicates(created_after, created_before)
     duplicates = plan.duplicates
+    to_merge = plan.updated if merge_updated else []
 
     echo(f"MEx identifiers with more than one parent: {plan.identifiers}")
     echo(f"Duplicates outside the creation window, left alone: {plan.outside_window}")
     echo(f"Duplicates refused, left alone: {len(plan.refused)}")
     for duplicate, reason in plan.refused[:20]:
         echo(f"  {duplicate.mex_id} parent {duplicate.parent_id}: {reason}")
+    echo(f"Duplicates updated since they were created: {len(plan.updated)}")
+    for duplicate in plan.updated[:20]:
+        echo(
+            f"  {duplicate.mex_id} parent {duplicate.parent_id}: "
+            f"updated since it was created ({duplicate.versions} versions)"
+        )
+    if plan.updated and not merge_updated:
+        echo("  left alone; --merge-updated merges them into the kept parent")
     echo(f"Duplicates to delete: {len(duplicates)}")
-    if not duplicates:
+    echo(f"Duplicates to merge into the kept parent, then delete: {len(to_merge)}")
+    everything = duplicates + to_merge
+    if not everything:
         return True
 
-    echo(f"  by type: {dict(Counter(d.record_type for d in duplicates).most_common())}")
+    echo(f"  by type: {dict(Counter(d.record_type for d in everything).most_common())}")
     echo(
-        f"  created: {min(d.created for d in duplicates)} "
-        f"to {max(d.created for d in duplicates)}"
+        f"  created: {min(d.created for d in everything)} "
+        f"to {max(d.created for d in everything)}"
     )
     if output:
         with open(output, "w") as f:
             f.writelines(
-                f"{d.parent_id} {d.kept_parent_id} {d.mex_id}\n" for d in duplicates
+                f"{d.parent_id} {d.kept_parent_id} {d.mex_id} delete\n"
+                for d in duplicates
             )
-        echo(f"  list written to {output} (duplicate parent, kept parent, identifier)")
+            f.writelines(
+                f"{d.parent_id} {d.kept_parent_id} {d.mex_id} merge\n" for d in to_merge
+            )
+        echo(
+            f"  list written to {output} "
+            "(duplicate parent, kept parent, identifier, action)"
+        )
 
     version_tables = _version_tables()
     batches = [
-        [d.parent_id for d in duplicates[i : i + batch_size]]
-        for i in range(0, len(duplicates), batch_size)
+        [d.parent_id for d in everything[i : i + batch_size]]
+        for i in range(0, len(everything), batch_size)
     ]
 
     # Check every batch before deleting any, so a purge either runs or doesn't.
@@ -364,12 +451,26 @@ def dedupe_records(
         echo("Dry run: nothing deleted. Re-run with --commit to delete.")
         return True
 
-    for number, parent_ids in enumerate(batches, start=1):
+    delete_batches = [
+        [d.parent_id for d in duplicates[i : i + batch_size]]
+        for i in range(0, len(duplicates), batch_size)
+    ]
+    for number, parent_ids in enumerate(delete_batches, start=1):
         _delete_batch(_rows_owned(parent_ids), version_tables)
-        logger.info(f"Deleted batch {number} of {len(batches)}.")
+        logger.info(f"Deleted batch {number} of {len(delete_batches)}.")
         echo(
-            f"Deleted batch {number} of {len(batches)} ({len(parent_ids)} duplicates)."
+            f"Deleted batch {number} of {len(delete_batches)} "
+            f"({len(parent_ids)} duplicates)."
         )
-
     echo(f"Deleted {len(duplicates)} duplicates.")
+
+    if to_merge:
+        published = 0
+        for duplicate in to_merge:
+            published += _merge(duplicate, version_tables)
+            logger.info(f"Merged {duplicate.mex_id} parent {duplicate.parent_id}.")
+        echo(
+            f"Merged {len(to_merge)} duplicates into their kept parent "
+            f"({published} new versions published)."
+        )
     return True

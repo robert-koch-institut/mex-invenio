@@ -164,6 +164,58 @@ def test_updated_duplicate_refused(duplicated, cli_runner):
     assert _records(MEX_ID) == records
 
 
+@pytest.fixture
+def updated_duplicate(duplicated):
+    """The duplicate of duplicated, updated by a later import that found it.
+
+    Returns the records of the identifier: the original, and the duplicate's two versions.
+    """
+    _import(
+        [{**contact_point_data, "email": ["updated@example.com"]}],
+        {MEX_ID: _as_existing(duplicated[1][0])},
+    )
+    records = _records(MEX_ID)
+    assert len(records) == 3
+    return records
+
+
+def test_updated_duplicate_merge_dry_run(updated_duplicate, cli_runner):
+    """With --merge-updated but without --commit nothing is changed."""
+    result = cli_runner(dedupe_records, "--merge-updated")
+
+    assert result.exit_code == 0, result.output
+    assert "Duplicates to merge into the kept parent, then delete: 1" in result.output
+    assert "Dry run: nothing deleted" in result.output
+    assert _records(MEX_ID) == updated_duplicate
+
+
+def test_updated_duplicate_merged(updated_duplicate, cli_runner):
+    """The duplicate's latest content is merged into the original's parent.
+
+    It becomes a new version of the original, and the duplicate is deleted.
+    """
+    (original_id, original_parent), (_, duplicate_parent), _ = updated_duplicate
+
+    result = cli_runner(dedupe_records, "--merge-updated", "--commit")
+
+    assert result.exit_code == 0, result.output
+    assert "Merged 1 duplicates into their kept parent (1 new versions published)" in (
+        result.output
+    )
+    records = _records(MEX_ID)
+    assert [parent for _, parent in records] == [original_parent, original_parent]
+    assert records[0][0] == original_id
+    assert duplicate_parent not in _parents(MEX_ID)
+
+    latest = RDMRecord.get_record(records[1][0])
+    assert latest["custom_fields"]["mex:email"] == ["updated@example.com"]
+    assert _indexed(MEX_ID) == {record_id for record_id, _ in records}
+
+    # Nothing left to do on a re-run.
+    result = cli_runner(dedupe_records, "--merge-updated")
+    assert "MEx identifiers with more than one parent: 0" in result.output
+
+
 def test_import_in_progress_stops(app, duplicated, cli_runner):
     """Nothing is done while an import is in progress."""
     state_file = os.path.join(app.config["S3_DOWNLOAD_FOLDER"], ".import_state")
