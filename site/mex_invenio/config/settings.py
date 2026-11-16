@@ -874,6 +874,12 @@ UI_SETTINGS = {
     "contact": {
         "fields": [{"field": "mex:orcidId", "prefixes": ["https://orcid.org/"]}]
     },
+    # Not a core landing page (yet). Resources point to their series through
+    # mex:inSeries; backwards-linking it lists a series' resources in its
+    # display_data and re-indexes the series when one of them changes (#236).
+    "resourceseries": {
+        "fields": [{"field": "mex:inSeries", "is_backwards_linked": True}]
+    },
     "organization": {
         "fields": [
             {
