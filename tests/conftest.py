@@ -20,6 +20,7 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.config import (
+    ACCESS_COLOR_MAP,
     DISCLAIMER,
     ENTITIES,
     FIELD_TYPES,
@@ -135,6 +136,7 @@ def app_config(app_config, module_tmp_path):
 
     # add linked records configurations
     app_config["FIELD_TYPES"] = FIELD_TYPES
+    app_config["ACCESS_COLOR_MAP"] = ACCESS_COLOR_MAP
     app_config["UI_SETTINGS"] = UI_SETTINGS
     app_config["TITLE_FIELDS"] = TITLE_FIELDS
     app_config["ENTITIES"] = ENTITIES

@@ -7,6 +7,7 @@ This document describes the configuration constants used for defining entity dis
 | Constant                           |	Type	        | Purpose
 |------------------------------------|------------------|-------------------------------------------------------------------------------------------------------------------------
 |`UI_SETTINGS`                       |	dict            |	Defines the configuration for the core landing pages (i.e. `resource`, `activity`, `bibliographicresource`) are displayed in the user interface — including labels, fields, icons, cards, and templates.
+|`ACCESS_COLOR_MAP`                  |	dict[str, str]  |	`mex:accessRestriction` vocabulary value → background colour of the access tag on the landing page.
 |`APP_RDM_DETAIL_SIDE_BAR_TEMPLATES` |	list[str]       |	Lists custom templates for invenio standard side bar cards. Only the standard Invenio side bar cards are included. Templates are placed in `/templates/semantic-ui/invenio_app_rdm/records/details/side_bar`
 |`APP_RDM_RECORD_EXPORTERS`          |	dict[str, dict] |	Configures available data export formats (e.g. JSON, CSV), including serializer, filename pattern, and MIME type.
 |`ENTITIES`                          |	list[str]       |	Lists all entity types recognized by the MEX data model. Used for validation and filtering.
@@ -65,7 +66,8 @@ prefixes             |  -         |  list[str]  |  List of recognised URI prefix
 
 #### ✨ ACCESS RESTRICTION COLOUR MAP
 
-The special `ACCESS_RESTRICTION` field includes an additional property, `color_map`, which maps the values of the mex:accessRestriction field to colors used as the background for the access tag.
+The background colour of the access tag comes from the top-level `ACCESS_COLOR_MAP`, keyed by
+the `mex:accessRestriction` vocabulary value the record carries — not from `special_fields`.
 
 ### 🧩 Cards
 

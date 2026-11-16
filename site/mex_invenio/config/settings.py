@@ -337,7 +337,12 @@ RDM_SEARCH = {**RDM_SEARCH, "facets": ["restricted_resource_type"]}
 
 # ---------- UI --------------
 
-ACCESS_COLOR_MAP = {"restricted": "#ecb9bd", "open": "#cde0c1"}
+# Background colour of the access-restriction tag on the landing page, keyed by the
+# mex-model vocabulary value the record carries.
+ACCESS_COLOR_MAP = {
+    "https://mex.rki.de/item/access-restriction-1": "#cde0c1",  # open
+    "https://mex.rki.de/item/access-restriction-2": "#ecb9bd",  # restricted
+}
 
 UI_SETTINGS = {
     "resource": {
@@ -346,17 +351,7 @@ UI_SETTINGS = {
             "RESOURCE_TYPE_SPECIFIC": {"field": "mex:resourceTypeSpecific"},
             "RESOURCE_TYPE_GENERAL": {"field": "mex:resourceTypeGeneral"},
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "DESCRIPTION": {"field": "mex:description"},
             "LANGUAGE": {"field": "mex:language"},
@@ -728,17 +723,7 @@ UI_SETTINGS = {
         "label": _("Publication"),
         "special_fields": {
             "CREATED": {"field": "mex:created"},
-            "ACCESS_RESTRICTION": {
-                "field": "mex:accessRestriction",
-                "color_map": {
-                    "https://mex.rki.de/item/access-restriction-1": ACCESS_COLOR_MAP[
-                        "open"
-                    ],
-                    "https://mex.rki.de/item/access-restriction-2": ACCESS_COLOR_MAP[
-                        "restricted"
-                    ],
-                },
-            },
+            "ACCESS_RESTRICTION": {"field": "mex:accessRestriction"},
             "ALT_TITLE": {"field": "mex:alternativeTitle"},
             "LANGUAGE": {"field": "mex:language"},
             "ABSTRACT": {"field": "mex:abstract"},
