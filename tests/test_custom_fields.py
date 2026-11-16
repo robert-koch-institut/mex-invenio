@@ -8,10 +8,11 @@ def test_custom_fields_configured(app_config):
     """Test that the custom fields are configured in the RDM records service."""
     assert len(app_config["RDM_NAMESPACES"].keys()) == 1
     assert len(app_config["RDM_CUSTOM_FIELDS"]) > 0
-    # mex:supersededBy is the only custom field not shown in the UI
+    # mex:provenance and mex:hasPurpose are not shown in the UI
+    # mex:supersededBy added but not to the UI yet
     assert (
         len(app_config["RDM_CUSTOM_FIELDS_UI"][0]["fields"])
-        == len(app_config["RDM_CUSTOM_FIELDS"]) - 1
+        == len(app_config["RDM_CUSTOM_FIELDS"]) - 3
     )
 
     # Check that the mex namespace is configured

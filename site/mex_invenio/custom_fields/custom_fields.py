@@ -527,13 +527,6 @@ RDM_CUSTOM_FIELDS_UI = [
                 },
             },
             {
-                "field": "mex:hasPurpose",
-                "props": {
-                    "type": "/schema/fields/text",
-                    "description": "A free text statement of the purpose of the processing of data or personal data.",
-                },
-            },
-            {
                 "field": "mex:hasPurposeDescription",
                 "props": {
                     "type": "/schema/fields/text",
@@ -789,13 +782,6 @@ RDM_CUSTOM_FIELDS_UI = [
                 "props": {
                     "type": "/schema/fields/text",
                     "description": "The type of population common to all subjects of the data collection.",
-                },
-            },
-            {
-                "field": "mex:provenance",
-                "props": {
-                    "type": "/schema/fields/text",
-                    "description": "A statement about the lineage of a Dataset. Information about how the data was collected, including methodologies, tools, and protocols used.",
                 },
             },
             {
