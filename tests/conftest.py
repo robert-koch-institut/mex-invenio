@@ -2,7 +2,10 @@ import json
 import logging
 import os
 import re
+import sys
+import warnings
 from contextlib import suppress
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -76,6 +79,33 @@ def db_session_transaction_restart(db):
         sa.exc.InvalidRequestError  # Event listener may have already been removed or session changed
     ):
         sa.event.remove(session_obj, "after_transaction_end", restart_savepoint)
+
+
+@pytest.fixture(scope="module")
+def instance_path():
+    """Use the instance `make install` builds in the virtualenv.
+
+    pytest-invenio hands out a throwaway temp dir instead, which leaves this
+    instance's templates, compiled translations and webpack bundle off the search
+    path -- so anything rendering a landing page would silently get stock Invenio
+    templates. Exporting INVENIO_INSTANCE_PATH does not help: pytest-invenio
+    overwrites it with `INSTANCE_PATH` or its temp dir.
+    """
+    path = Path(sys.prefix) / "var/instance"
+    required = [path / "templates", path / "static/dist/manifest.json"]
+    missing = [str(p) for p in required if not p.exists()]
+    if missing:
+        warnings.warn(
+            f"Missing {', '.join(missing)}; run `make install`. Tests that render "
+            "a page will fail inside Jinja rather than reporting this.",
+            stacklevel=2,
+        )
+    os.environ.update(
+        INVENIO_INSTANCE_PATH=str(path),
+        INVENIO_STATIC_FOLDER=str(path / "static"),
+    )
+    yield str(path)
+    os.environ.pop("INVENIO_INSTANCE_PATH", None)
 
 
 @pytest.fixture(autouse=True)

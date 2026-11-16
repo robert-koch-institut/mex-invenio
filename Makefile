@@ -23,6 +23,7 @@ install: setup hooks
 	@ echo installing package; \
 	pipenv install --dev; \
 	mkdir -p .venv/var/instance/translations .venv/var/instance/static .venv/var/instance/assets; \
+	ln -sfn ../../../templates .venv/var/instance/templates; \
 	cp -r ./translations/. .venv/var/instance/translations/; \
 	pipenv run python ./site/mex_invenio/scripts/merge_translations.py .venv/var/instance; \
 	(cd site/mex_invenio && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm install && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm run convert-po); \

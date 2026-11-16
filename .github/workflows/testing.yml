@@ -30,7 +30,6 @@ jobs:
       contents: read
     timeout-minutes: 15
     env:
-      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
       MEX_IMPORT_BUCKET: placeholder
       MEX_IMPORT_AWS_KEY_ID: placeholder
       MEX_IMPORT_AWS_SECRET: placeholder
