@@ -20,7 +20,8 @@ hooks:
 
 install: setup hooks
 	# install packages from lock file in local virtual environment
-	@ echo installing package; \
+	@ set -e; \
+	echo installing package; \
 	pipenv install --dev; \
 	mkdir -p .venv/var/instance/translations .venv/var/instance/static .venv/var/instance/assets; \
 	ln -sfn ../../../templates .venv/var/instance/templates; \
