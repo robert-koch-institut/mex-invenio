@@ -23,6 +23,7 @@ from invenio_vocabularies.proxies import current_service as vocabulary_service
 from invenio_vocabularies.records.api import Vocabulary
 
 from mex_invenio.config import (
+    APP_RDM_DETAIL_SIDE_BAR_TEMPLATES,
     DISCLAIMER,
     ENTITIES,
     FIELD_TYPES,
@@ -170,6 +171,9 @@ def app_config(app_config, module_tmp_path):
     app_config["ENTITIES"] = ENTITIES
     app_config["DISCLAIMER"] = DISCLAIMER
     app_config["FIELDS_LINKED_BACKWARDS"] = get_fields_linked_backwards(UI_SETTINGS)
+
+    # add landing page sidebar
+    app_config["APP_RDM_DETAIL_SIDE_BAR_TEMPLATES"] = APP_RDM_DETAIL_SIDE_BAR_TEMPLATES
 
     # add S3
     app_config["S3_DOWNLOAD_FOLDER"] = module_tmp_path
