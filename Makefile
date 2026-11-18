@@ -20,9 +20,11 @@ hooks:
 
 install: setup hooks
 	# install packages from lock file in local virtual environment
-	@ echo installing package; \
+	@ set -e; \
+	echo installing package; \
 	pipenv install --dev; \
 	mkdir -p .venv/var/instance/translations .venv/var/instance/static .venv/var/instance/assets; \
+	ln -sfn ../../../templates .venv/var/instance/templates; \
 	cp -r ./translations/. .venv/var/instance/translations/; \
 	pipenv run python ./site/mex_invenio/scripts/merge_translations.py .venv/var/instance; \
 	(cd site/mex_invenio && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm install && INVENIO_INSTANCE_PATH=../../.venv/var/instance npm run convert-po); \
@@ -45,3 +47,11 @@ test:
 	EXIT_CODE=$$?; \
 	pipenv run docker-services-cli down; \
 	exit $$EXIT_CODE; \
+
+# test one test file or one test: `make test_one TEST=<test_file_path>` or `make test_one TEST=<test_file_path>::<test_name>`
+test_one:
+	@echo "running single test: $(TEST)"; \
+	PYTEST_ADDOPTS="-p no:coverage" \
+	eval "$$(pipenv run docker-services-cli up --db postgresql --search opensearch2 --cache redis --mq rabbitmq --env)"; \
+	trap 'pipenv run docker-services-cli down' EXIT; \
+	pipenv run python -m pytest -W ignore -s $(TEST)

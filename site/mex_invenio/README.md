@@ -108,7 +108,7 @@ npm install
 
 ### Step 3: Convert .po to JSON
 ```bash
-npm run convert-po
+INVENIO_INSTANCE_PATH=${INVENIO_INSTANCE_PATH} npm run convert-po
 ```
 - Converts `translations/de/LC_MESSAGES/messages.po` → `assets/semantic-ui/js/mex_invenio/locales/de/translations.json`
 - Converts `translations/en/LC_MESSAGES/messages.po` → `assets/semantic-ui/js/mex_invenio/locales/en/translations.json`
@@ -118,6 +118,16 @@ npm run convert-po
 invenio-cli translations compile
 ```
 Compiles the `messages.po` files into binary `messages.mo` files for backend use.
+
+> **Note:** `invenio-cli translations compile` currently fails on this repo. It expects `./translations` at the
+> repo root to be a symlink to `${INVENIO_INSTANCE_PATH}/translations` and looks for `messages.po` there directly,
+> but here `./translations` is a real directory containing only `ui.po` (the merged `messages.po` is generated
+> by Step 1 into the instance path, not the repo root), so it errors with both
+> `no message catalogs found for domain 'messages'` and a symlink `FileExistsError`. Use the equivalent command
+> from the `Dockerfile` and `Makefile` instead, which compiles directly against the instance path:
+> ```bash
+> pybabel compile --directory=${INVENIO_INSTANCE_PATH}/translations
+> ```
 
 
 ## Development Instructions

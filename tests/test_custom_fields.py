@@ -1,7 +1,7 @@
 from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
 
-from tests.data import org_unit_data, resource_data
+from tests.data import org_unit_data, resource_data, resource_series_data
 
 
 def test_custom_fields_configured(app_config):
@@ -197,13 +197,13 @@ class TestMultiLanguageTextCF:
         assert "Testorganisation" in values
 
 
-class TestFixedEDTFDateStringCF:
-    """Tests for the FixedEDTFDateStringCF custom field type."""
+class TestEDTFDateStringCF:
+    """Tests for the EDTF date custom fields (EDTFDateStringCF)."""
 
     def test_edtf_date_full(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts full date format YYYY-MM-DD."""
+        """Test EDTFDateStringCF accepts full date format YYYY-MM-DD."""
         data = {
             **resource_data,
             "identifier": "test-edtf-full-1",
@@ -220,7 +220,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_year_month(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts year-month format YYYY-MM."""
+        """Test EDTFDateStringCF accepts year-month format YYYY-MM."""
         data = {
             **resource_data,
             "identifier": "test-edtf-ym-1",
@@ -237,7 +237,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_year_only(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF accepts year-only format YYYY."""
+        """Test EDTFDateStringCF accepts year-only format YYYY."""
         data = {
             **resource_data,
             "identifier": "test-edtf-year-1",
@@ -254,7 +254,7 @@ class TestFixedEDTFDateStringCF:
     def test_edtf_date_multiple(
         self, db, location, resource_type_v, contributors_role_v, import_file
     ):
-        """Test FixedEDTFDateStringCF with multiple=True accepts list of dates."""
+        """Test EDTFDateStringCF with multiple=True accepts list of dates."""
         data = {
             **resource_data,
             "identifier": "test-edtf-multi-1",
@@ -269,3 +269,51 @@ class TestFixedEDTFDateStringCF:
         assert len(record["custom_fields"]["mex:start"]) == 2
         assert "2020-01-01" in record["custom_fields"]["mex:start"]
         assert "2021-06-15" in record["custom_fields"]["mex:start"]
+
+
+class TestModel51Fields:
+    """Tests for the fields and entity type introduced in mex-model 5.1."""
+
+    def test_import_resource_with_model_5_1_fields(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
+        """Test that a resource carrying the new 5.1 properties is imported."""
+        data = {
+            **resource_data,
+            "identifier": "test-model-51-resource",
+            "hasCodingSystem": ["https://mex.rki.de/item/coding-system-1"],
+            "hasPurposeDescription": [{"language": "en", "value": "Surveillance"}],
+            "inSeries": [resource_series_data["identifier"]],
+            "inSeriesFirstResource": [resource_series_data["identifier"]],
+            "inSeriesLastResource": [],
+            "landingPage": [{"url": "https://example.com/landing"}],
+            "version": "v1",
+        }
+        import_file("model-51-resource", data)
+
+        service = current_rdm_records.records_service
+        record = list(service.search(system_identity).hits)[0]
+        rec_cf = record["custom_fields"]
+
+        assert rec_cf["mex:hasCodingSystem"] == data["hasCodingSystem"]
+        assert rec_cf["mex:hasPurposeDescription"][0]["value"] == "Surveillance"
+        assert rec_cf["mex:inSeries"] == data["inSeries"]
+        assert rec_cf["mex:inSeriesFirstResource"] == data["inSeriesFirstResource"]
+        assert rec_cf["mex:landingPage"][0]["url"] == "https://example.com/landing"
+        assert rec_cf["mex:version"] == "v1"
+
+    def test_import_resource_series(
+        self, db, location, resource_type_v, contributors_role_v, import_file
+    ):
+        """Test that the ResourceSeries entity type introduced in 5.1 is imported."""
+        import_file("resource-series", resource_series_data)
+
+        service = current_rdm_records.records_service
+        record = list(service.search(system_identity).hits)[0]
+
+        assert record["metadata"]["resource_type"]["id"] == "resourceseries"
+        assert record["metadata"]["title"] == "Test series"
+        assert (
+            record["custom_fields"]["mex:identifier"]
+            == resource_series_data["identifier"]
+        )

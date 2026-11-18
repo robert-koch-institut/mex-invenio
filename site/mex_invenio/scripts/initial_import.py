@@ -81,8 +81,8 @@ def process_record_batch(records_data: list[dict], identity) -> list[dict]:
 @click.option(
     "--batch-size", default=100, help="Number of records to process in each batch."
 )
-def _initial_import(email: str, import_file: str, batch_size: int) -> bool:
-    return initial_import(email, import_file, batch_size, cli=True)
+def _initial_import(email: str, import_file: str, batch_size: int) -> None:
+    initial_import(email, import_file, batch_size, cli=True)
 
 
 def initial_import(
@@ -90,11 +90,15 @@ def initial_import(
     import_file: str,
     batch_size: int = 100,
     cli: bool = False,
-) -> bool:
+) -> dict[str, int] | None:
     """Main function to import data.
 
     Batch size is set to 100 records by default.
     Expected data source is a JSON file with one MEx record per line.
+
+    Returns counts of the outcome, or None if the import couldn't start.
+    "failed" counts records that raised while being created; "invalid_lines"
+    counts lines that weren't valid JSON.
     """
     if not os.path.isfile(import_file):
         message = f"File {import_file} not found."
@@ -104,7 +108,7 @@ def initial_import(
             sys.exit(1)
         else:
             logger.error(message)
-            return False
+            return None
 
     # Disabling indexing to speed up import indexing has to be
     # done manually after import has run
@@ -122,7 +126,7 @@ def initial_import(
                 sys.exit(1)
             else:
                 logger.error(message)
-                return False
+                return None
 
     # Start the timer to measure processing time
     start_time = time.time()
@@ -196,7 +200,14 @@ def initial_import(
 
     logger.info(time_taken)
 
-    return True
+    return {
+        "lines": num_lines,
+        "created": record_count,
+        "updated": 0,
+        "skipped": 0,
+        "failed": num_lines - record_count,
+        "invalid_lines": errors_count,
+    }
 
 
 if __name__ == "__main__":  # pragma: no cover

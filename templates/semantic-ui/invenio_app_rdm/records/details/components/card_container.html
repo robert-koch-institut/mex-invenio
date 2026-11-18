@@ -17,8 +17,7 @@
     {% set _ = ns.cards_exist.update({card.title: ns.prop_exist}) %}
     {% if ns.prop_exist %} {% set ns.show_container = true %} {% endif %}
 {% endfor %}
-{% if ns.show_container %}
-    <div class="card long">
+    <div class="card long {% if not ns.show_container %} hidden_when_missing {% endif %}">
         <h3>
             <img class="ui image icon"
                  src="{{ url_for('static', filename='icons/' ~ card_container.icon) }}"
@@ -29,7 +28,8 @@
             {% set current_exists = ns.cards_exist[card.title] %}
             {% set previous_exists = ns.cards_exist[card_container.components[loop.index0 - 1].title] if not loop.first else false %}
             {% if not loop.first and current_exists and previous_exists %}<div class="ui divider"></div>{% endif %}
-            {% if current_exists %}
+
+            <div class="{% if not current_exists %} hidden_when_missing {% endif %}">
                 {%- if "title" in card %}
                 <h4>
                     {{ smart_translate(resource_type, card.title) }}
@@ -42,8 +42,8 @@
                         {% else %}
                             {% set record_data = data %}
                         {% endif %}
-                        {% if prop.field in record_data %}
-                            <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%}">
+
+                            <div class="card-props-p {%- if not 'label' in prop %} forced-vertical {%- endif -%} {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
                                 {%- if 'label' in prop %}
                                     {% if "context" in prop %}
                                         {% set context = prop.context %}
@@ -53,14 +53,16 @@
                                     {% set label = smart_translate(context, prop.label) %}
                                     <p class="card-prop-label" title="{{ label }}">{{ label }}</p>
                                 {%- endif -%}
-                                    <div class="card-prop-value">
-                                    {{ display_values(record_data[prop.field]) }}
+                                    <div class="card-prop-value {% if not prop.field in record_data %} hidden_when_missing {% endif %}">
+                                        {% if prop.field in record_data %}
+                                            {{ display_values(record_data[prop.field]) }}
+                                        {% else %}
+                                            <i class="muted">{{ _("noValueProvided") }}</i>
+                                        {% endif %}
                                 </div>
                             </div>
-                        {% endif %}
                     {% endfor %}
                 </div>
-            {% endif %}
+            </div>
         {% endfor %}
     </div>
-{% endif %}

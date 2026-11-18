@@ -1,4 +1,4 @@
-# These are 11 MEx entity types
+# These are 12 MEx entity types
 # https://github.com/robert-koch-institut/mex-model/tree/main/mex/model/entities
 # they replace the Datacite 4.3 resource types
 # https://github.com/inveniosoftware/invenio-rdm-records/blob/master/invenio_rdm_records/fixtures/data/vocabularies/resource_types.yaml
@@ -110,6 +110,16 @@
     en: Organization
   props:
     type: organization
+    subtype: ""
+  tags:
+    - depositable
+    - linkable
+- id: resourceseries
+  icon: code
+  title:
+    en: Resource series
+  props:
+    type: resourceseries
     subtype: ""
   tags:
     - depositable
