@@ -114,12 +114,12 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:pages"),
     TextCF(name="mex:parentUnit"),
     MultiLanguageTextCF(name="mex:populationCoverage", multiple=True),
+    MultiLanguageTextCF(name="mex:provenance", multiple=True),
     TextCF(name="mex:publication", multiple=True),
     TextCF(name="mex:publicationPlace"),
     EDTFDateStringCF(name="mex:publicationYear"),
     TextCF(name="mex:publisher", multiple=True),
     MultiLanguageTextCF(name="mex:qualityInformation", multiple=True),
-    MultiLanguageTextCF(name="mex:provenance", multiple=True),
     TextCF(name="mex:relatedActivity", multiple=True),  # introduced in 5
     TextCF(name="mex:relatedResource", multiple=True),  # introduced in 5
     LinkCF(name="mex:repositoryURL", multiple=True),
@@ -129,7 +129,7 @@ RDM_CUSTOM_FIELDS = [
     TextCF(name="mex:responsibleUnit", multiple=True),
     MultiLanguageTextCF(name="mex:rights", multiple=True),
     TextCF(name="mex:rorId", multiple=True),
-    TextCF(name="mex:sample", multiple=True),  # introduced in 5
+    TextCF(name="mex:sample", multiple=True),
     TextCF(name="mex:section"),
     MultiLanguageTextCF(name="mex:shortName", multiple=True),
     TextCF(name="mex:sizeOfDataBasis"),

@@ -71,7 +71,7 @@ mex.constants.ABSTRACT_CONTAINER = "custom_fields.mex:abstract"
 mex.constants.SUBTITLE_CONTAINER = "custom_fields.mex:subtitle"
 mex.constants.LABEL_CONTAINER = "custom_fields.mex:label"
 mex.constants.TITLE_CONTAINER = "custom_fields.mex:title"
-mex.constants.ALT_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
+mex.constants.ALTERNATIVE_TITLE_CONTAINER = "custom_fields.mex:alternativeTitle"
 mex.constants.KEYWORD_CONTAINER = "custom_fields.mex:keyword"
 mex.constants.ACCESS_RESTRICTION = "custom_fields.mex:accessRestriction"
 mex.constants.POPULATION_COVERAGE_CONTAINER = "custom_fields.mex:populationCoverage"
@@ -96,7 +96,7 @@ mex.constants.BELONGS_TO_DISPLAY = "display_data.linked_records.mex:belongsTo"
 mex.constants.DATA_TYPE = "custom_fields.mex:dataType"
 mex.constants.CODING_SYSTEM = "custom_fields.mex:codingSystem"
 mex.constants.TITLE = "custom_fields.mex:title.value"
-mex.constants.ALT_TITLE = "custom_fields.mex:alternativeTitle.value"
+mex.constants.ALTERNATIVE_TITLE = "custom_fields.mex:alternativeTitle.value"
 mex.constants.CONTRIBUTORS = "index_data.contributors"
 mex.constants.EXTERNAL_PARTNERS = "index_data.externalPartners"
 mex.constants.ICD10 = "custom_fields.mex:icd10code.value"
@@ -4264,7 +4264,7 @@ mex.renderers.ResourcesResults = class extends edges.Renderer {
             );
         }
 
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
@@ -4724,7 +4724,7 @@ mex.renderers.activitiesResultView = function (res, highlights, include_resource
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+    let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
     if (alt) {
         alt = edges.util.escapeHtml(alt);
     } else {
@@ -4830,7 +4830,7 @@ mex.renderers.bibliographicResourcesView = function (res, highlights, include_re
         mex.getLangVal(mex.constants.TITLE_CONTAINER, res, "No title")
     );
 
-    let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+    let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
     if (alt) {
         alt = edges.util.escapeHtml(alt);
     } else {
@@ -5557,7 +5557,7 @@ mex.renderers.GlobalResults = class extends edges.Renderer {
             );
         }
 
-        let alt = mex.getLangVal(mex.constants.ALT_TITLE_CONTAINER, res);
+        let alt = mex.getLangVal(mex.constants.ALTERNATIVE_TITLE_CONTAINER, res);
         if (alt) {
             alt = edges.util.escapeHtml(alt);
         } else {
