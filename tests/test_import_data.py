@@ -4,14 +4,12 @@ import time
 from unittest.mock import patch
 
 import pytest
+import sqlalchemy as sa
 from flask import current_app
 from invenio_access.permissions import system_identity
 from invenio_accounts.models import User
 from invenio_rdm_records.proxies import current_rdm_records
 from invenio_rdm_records.records.api import RDMRecord
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.orm import scoped_session, sessionmaker
 
 from mex_invenio.scripts.import_data import (
     LOOKUP_RETRY_DELAYS,
@@ -112,7 +110,9 @@ def test_import_creates_log_file(
 
 
 def _dropped_connection():
-    return OperationalError("SELECT 1", {}, Exception("server closed the connection"))
+    return sa.exc.OperationalError(
+        "SELECT 1", {}, Exception("server closed the connection")
+    )
 
 
 def _records_with_identifier(mex_id):
@@ -128,13 +128,13 @@ def _state_file():
 def session_with_terminated_connection(db):
     """Session whose database connection has been killed by the server."""
     # The session of the db fixture is held in a savepoint, which can't reconnect
-    engine = create_engine(db.engine.url)
-    session = scoped_session(sessionmaker(bind=engine))
+    engine = sa.create_engine(db.engine.url)
+    session = sa.orm.scoped_session(sa.orm.sessionmaker(bind=engine))
 
-    pid = session.execute(text("SELECT pg_backend_pid()")).scalar()
+    pid = session.execute(sa.text("SELECT pg_backend_pid()")).scalar()
     with db.engine.connect() as other_connection:
         other_connection.execute(
-            text("SELECT pg_terminate_backend(:pid)"), {"pid": pid}
+            sa.text("SELECT pg_terminate_backend(:pid)"), {"pid": pid}
         )
 
     yield session
@@ -181,7 +181,7 @@ def test_related_lookups_raise_on_terminated_connection(
             "mex_invenio.scripts.utils.db.session",
             session_with_terminated_connection,
         ),
-        pytest.raises(OperationalError),
+        pytest.raises(sa.exc.OperationalError),
     ):
         lookup(record)
 
@@ -194,7 +194,7 @@ def test_lookup_raises_when_database_stays_unavailable(app):
             side_effect=_dropped_connection(),
         ) as query,
         patch("mex_invenio.scripts.import_data.time.sleep") as sleep,
-        pytest.raises(OperationalError),
+        pytest.raises(sa.exc.OperationalError),
     ):
         bulk_search_existing_records(["some-id"])
 
