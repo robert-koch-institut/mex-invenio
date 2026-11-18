@@ -4,7 +4,7 @@ from invenio_access.permissions import system_identity
 from invenio_rdm_records.proxies import current_rdm_records
 
 from tests.conftest import created_regex, search_messages
-from tests.data import person_data
+from tests.data import person_data, resource_data
 
 # def test_index_view(client):
 #    """Simple check that index view does not give an error when rendered."""
@@ -67,4 +67,26 @@ def test_mex_record_view_as_json(
     )
     assert json_result["metadata"]["title"] == "these role early", (
         "JSON result should contain the expected title"
+    )
+
+
+def test_mex_record_view_as_html(
+    db, location, resource_type_v, contributors_role_v, import_file, client
+):
+    """Test that a resource landing page renders with this instance's templates."""
+    service = current_rdm_records.records_service
+
+    import_file("resource", resource_data)
+
+    search_obj = service.search(system_identity)
+    record = list(search_obj.hits)[0]
+    mex_id = record["custom_fields"]["mex:identifier"]
+
+    response = client.get(f"/records/mex/{mex_id}")
+
+    assert response.status_code == 200, (
+        f"Landing page should return 200, got {response.status_code}"
+    )
+    assert response.content_type.startswith("text/html"), (
+        f"Expected HTML content type, got {response.content_type}"
     )
