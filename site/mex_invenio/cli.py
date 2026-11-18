@@ -10,6 +10,9 @@ import click
 from flask.cli import with_appcontext
 from invenio_db import db
 
+from mex_invenio.scripts.dedupe import dedupe_records as run_dedupe
+from mex_invenio.scripts.reindex_stale import reindex_stale as run_reindex_stale
+
 
 @click.group()
 def mex():
@@ -59,3 +62,65 @@ def setup_db():
     db.session.commit()
 
     click.secho("MEX database indices created successfully!", fg="green")
+
+
+@mex.command("dedupe-records")
+@click.option(
+    "--created-after",
+    type=click.DateTime(),
+    help="Only delete duplicates created at or after this time (UTC).",
+)
+@click.option(
+    "--created-before",
+    type=click.DateTime(),
+    help="Only delete duplicates created before this time (UTC).",
+)
+@click.option("--batch-size", default=500, help="Duplicates deleted per transaction.")
+@click.option("--output", help="Write the duplicates to delete to this file.")
+@click.option(
+    "--merge-updated",
+    is_flag=True,
+    help="Merge duplicates that imports have updated since into the kept parent "
+    "(default: leave them alone).",
+)
+@click.option(
+    "--commit", is_flag=True, help="Delete the duplicates (default: dry run)."
+)
+@with_appcontext
+def dedupe_records(  # noqa: PLR0913 - one parameter per click option
+    created_after, created_before, batch_size, output, merge_updated, commit
+):
+    """Delete duplicate records: parents created again for an existing MEx identifier.
+
+    The earliest-created parent of each MEx identifier is kept. Duplicates that
+    imports have updated since hold newer content than the kept parent: with
+    --merge-updated that content is published as a new version of the kept parent
+    before the duplicate is deleted. Dry run unless --commit is given.
+    """
+    if not run_dedupe(
+        created_after=created_after,
+        created_before=created_before,
+        batch_size=batch_size,
+        commit=commit,
+        output=output,
+        echo=click.echo,
+        merge_updated=merge_updated,
+    ):
+        raise click.exceptions.Exit(1)
+
+
+@mex.command("reindex-stale")
+@click.option(
+    "--commit", is_flag=True, help="Re-index the records found (default: dry run)."
+)
+@with_appcontext
+def reindex_stale(commit):
+    """Re-index records whose search documents disagree with the database.
+
+    Finds older versions still indexed as the latest version, and latest versions
+    not indexed as such, which make records show the "newer version" banner or
+    disappear from search. Dry run unless --commit is given. Exits with 1 if any
+    remain afterwards.
+    """
+    if not run_reindex_stale(commit=commit, echo=click.echo):
+        raise click.exceptions.Exit(1)
