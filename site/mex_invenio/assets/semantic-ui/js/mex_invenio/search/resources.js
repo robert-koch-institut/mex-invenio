@@ -1,4 +1,4 @@
-/* global $ */
+    /* global $ */
 
 import i18n from "./../i18n"
 import { edges, es, mex } from "../search/edges.common";
@@ -37,8 +37,17 @@ edges.instances.resources.init = function() {
 
             // facets
             mex.accessRestrictionFacet(),
-            mex.createdChart(),
-            mex.createdFacet(),
+
+            mex.compoundComponent({
+                id: "created_compound",
+                title: i18n.t("Created"),
+                components: [
+                    mex.createdHistogram(),
+                    mex.createdChart(),
+                    mex.createdFacet()
+                ]
+            }),
+
             mex.hasPersonalDataFacet(),
             mex.keywordFacet(),
             mex.resourceCreationMethodFacet(),
@@ -61,7 +70,7 @@ edges.instances.resources.init = function() {
             mex.resourceSelector(),
 
             // Stuff below the results
-            mex.bottomPager(),
+            mex.bottomPager()
         ]
     })
 }

@@ -20,6 +20,7 @@ search_base = [
     f"{edges_components}DateHistogram.js",
     f"{edges_components}Pager.js",
     f"{edges_components}SelectedFilters.js",
+    f"{edges_components}Compound.js",
     f"{search}edges.common.js",
     f"{edges_components}MultiDateRangeEntry.js",
     f"{search}search_components/DualEntryDateRangeSelector.js",
