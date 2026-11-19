@@ -385,6 +385,9 @@ class BoostingParamsInterpreter(ParamInterpreter):
     # to optimise the free-text search.  For now these are also reflected in the record
     # mapping, and the free-text bucket is not implemented.
     FREE_TEXT_SEARCH_FIELDS = [
+        POPULATION_COVERAGE,
+        SPATIAL,
+        TEMPORAL,
         "custom_fields.mex:title.value",
         "custom_fields.mex:method.value",
         "custom_fields.mex:keyword.value",
@@ -412,7 +415,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         "index_data.externalPartners",
         "index_data.involvedPersons",
         "index_data.enContributingUnits",
-        "index_data.deContributingUnits",
+        "index_data.deContributingUnits"
     ]
 
     STOP_WORDS = {
