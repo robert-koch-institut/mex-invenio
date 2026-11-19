@@ -8,6 +8,7 @@ from flask import Flask
 from mex_invenio.scripts.s3_manager import (
     _bootstrap_initial_import,
     _write_public_status,
+    find_pending_diffs,
     get_model_metadata_files,
     get_s3_client_and_config,
     import_pending_diffs,
@@ -309,6 +310,61 @@ def test_identical_checksums_skips_download(
     assert s3_client.download_file.call_count == 1
 
 
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
+@patch(f"{_MODULE}.import_pending_diffs", return_value=True)
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_unchanged_dump_still_imports_pending_diffs(
+    mock_get_subdir,
+    mock_read_json,
+    mock_import_pending,
+    mock_installed_version,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """Diffs left over from a blocked or failed run are imported on a day with no new dump."""
+    dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
+    mock_get_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
+    mock_read_json.return_value = ("4.10", "abc123checksum", "2024-01-01T00:00:00Z")
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
+    }
+
+    result = cli_runner(manage_s3_files)
+
+    assert result.exit_code == 0
+    mock_import_pending.assert_called_once()
+
+
+@patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
+@patch(f"{_MODULE}.import_pending_diffs", return_value=False)
+@patch(f"{_MODULE}.read_json_file")
+@patch(f"{_MODULE}.get_subdir_by_order")
+def test_failed_import_fails_the_job(
+    mock_get_subdir,
+    mock_read_json,
+    mock_import_pending,
+    mock_installed_version,
+    cli_runner,
+    app_config,
+    s3_client,
+):
+    """A failed or blocked import exits non-zero, so the Kubernetes Job fails."""
+    dl = os.path.join(str(app_config["S3_DOWNLOAD_FOLDER"]), "downloaded")
+    mock_get_subdir.return_value = os.path.join(dl, "4.10", "20240101000000")
+    mock_read_json.return_value = ("4.10", "abc123checksum", "2024-01-01T00:00:00Z")
+    s3_client.list_objects_v2.return_value = {
+        "Contents": [
+            {"Key": "publisher-4.10/metadata.json", "LastModified": "2024-01-01"}
+        ]
+    }
+
+    assert cli_runner(manage_s3_files).exit_code == 1
+
+
 @patch(f"{_MODULE}.get_timestamp", new=lambda: "20240105000001")
 @patch(f"{_MODULE}.get_installed_model_version", return_value="4.10")
 @patch(f"{_MODULE}.read_json_file")
@@ -407,7 +463,7 @@ def test_diff_failure_skips_import(
     app_config,
     s3_client,
 ):
-    """Script does not call import_pending_diffs when generate_diff returns None."""
+    """A failed diff still imports the diffs left pending by earlier runs."""
     download_folder = str(app_config["S3_DOWNLOAD_FOLDER"])
     download_path = os.path.join(download_folder, "downloaded")
     mock_get_subdir.return_value = os.path.join(download_path, "4.10", "20240101000000")
@@ -432,7 +488,7 @@ def test_diff_failure_skips_import(
     result = cli_runner(manage_s3_files)
 
     assert result.exit_code == 0
-    mock_import_pending.assert_not_called()
+    mock_import_pending.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -603,9 +659,10 @@ def test_non_installed_version_downloads_but_never_diffs(
     assert result.exit_code == 0
     # Both metadata.json and items.ndjson were fetched...
     assert s3_client.download_file.call_count == 2
-    # ...but the dump was never diffed or imported, since 5.0 != installed 4.10.
+    # ...but the dump was never diffed, since 5.0 != installed 4.10. Diffs left
+    # pending by earlier runs are still imported.
     mock_generate_diff.assert_not_called()
-    mock_import_pending.assert_not_called()
+    mock_import_pending.assert_called_once()
     # And it's cached on disk under its own version, ready for a future upgrade.
     cached_dir = os.path.join(download_path, "5.0", "20260601000001")
     assert os.path.exists(os.path.join(cached_dir, "metadata.json"))
@@ -686,11 +743,63 @@ def test_public_status_copies_only_safe_details(tmp_path):
         _write_public_status(had_download_errors=False)
 
     status = json.loads((tmp_path / "status" / "import-status.json").read_text())
+    assert status["pending_diffs"] == 0
     assert status["import"] == {
         "status": "success",
         "kind": "diff",
         "started_at": "2026-10-07T10:00:00+00:00",
+        "heartbeat_at": None,
         "finished_at": "2026-10-07T10:00:05+00:00",
         "counts": COUNTS,
     }
     assert "/secret/path" not in json.dumps(status)
+
+
+def _make_diff(tmp_path, timestamp, model_version="5.1"):
+    diff_dir = tmp_path / "diffs" / timestamp
+    diff_dir.mkdir(parents=True)
+    (diff_dir / "diff.ndjson").write_text("{}\n")
+    (diff_dir / "metadata.json").write_text(
+        json.dumps({"model_version": model_version})
+    )
+    return diff_dir
+
+
+def test_find_pending_diffs_oldest_first(tmp_path):
+    """Pending diffs are listed oldest first, with their model version."""
+    newer = _make_diff(tmp_path, "20261119050101")
+    older = _make_diff(tmp_path, "20261028050036")
+
+    assert find_pending_diffs(str(tmp_path)) == [
+        ("20261028050036", "5.1", str(older / "diff.ndjson")),
+        ("20261119050101", "5.1", str(newer / "diff.ndjson")),
+    ]
+
+
+def test_public_status_counts_pending_diffs(tmp_path):
+    """The public status says how many diffs are waiting, and an in-progress import's heartbeat."""
+    app = Flask(__name__)
+    app.config["S3_DOWNLOAD_FOLDER"] = str(tmp_path)
+    app.config["IMPORT_STATUS_DIR"] = str(tmp_path / "status")
+    _make_diff(tmp_path, "20261028050036")
+    _make_diff(tmp_path, "20261103050044")
+    (tmp_path / ".import_state").write_text(
+        json.dumps(
+            {
+                "status": "in_progress",
+                "started_at": "2026-10-28T05:15:41+00:00",
+                "heartbeat_at": "2026-10-28T05:16:41+00:00",
+                "host": "import-job-abc",
+                "pid": 7,
+            }
+        )
+    )
+
+    with app.app_context():
+        _write_public_status(had_download_errors=False)
+
+    status = json.loads((tmp_path / "status" / "import-status.json").read_text())
+    assert status["status"] == "failed"
+    assert status["pending_diffs"] == 2
+    assert status["import"]["heartbeat_at"] == "2026-10-28T05:16:41+00:00"
+    assert "import-job-abc" not in json.dumps(status)

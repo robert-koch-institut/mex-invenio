@@ -19,9 +19,11 @@ import copy
 import json
 import logging
 import os.path
+import signal
 import sys
 import time
 import traceback
+from contextlib import contextmanager
 from datetime import datetime, timezone
 
 import click
@@ -42,8 +44,12 @@ from sqlalchemy.exc import (
 
 from mex_invenio.scripts.no_op_indexer import disable_indexing, re_enable_indexing
 from mex_invenio.scripts.utils import (
+    STALE_LOCK_SECONDS,
+    ImportHeartbeat,
     _duration_seconds,
     _error_details,
+    _lock_age_seconds,
+    _lock_owner,
     _read_state,
     _write_state,
     get_installed_model_version,
@@ -400,6 +406,99 @@ def _import_data(
     return import_data(model_version, email, import_file, batch_size, cli=True)
 
 
+class ImportTerminated(BaseException):
+    """Raised in the import when the process is asked to stop.
+
+    A BaseException, so the per-record error handling doesn't swallow it.
+    """
+
+
+@contextmanager
+def _raise_on_sigterm():
+    """Turn SIGTERM into ImportTerminated while the block runs.
+
+    Kubernetes sends SIGTERM before killing a pod (eviction, node drain, job
+    deletion). Without this the import would die without recording that it
+    failed, and its in-progress state would block later imports.
+    """
+
+    def handler(signum, frame):
+        message = f"Received {signal.Signals(signum).name}"
+        raise ImportTerminated(message)
+
+    try:
+        previous = signal.signal(signal.SIGTERM, handler)
+    except ValueError:
+        # Signal handlers can only be set from the main thread
+        yield
+        return
+
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+
+
+def _imports_allowed(state_file: str) -> bool:
+    """Check the state file left by the previous import.
+
+    An import that stopped sending heartbeats is taken to have died, and is
+    marked failed so the reason shows in the state file and the public status.
+    """
+    state = _read_state(state_file)
+    if not state:
+        return True
+
+    status = state.get("status")
+
+    if status == "in_progress":
+        age = _lock_age_seconds(state)
+        owner = f"{state.get('host', 'unknown host')} (pid {state.get('pid', '?')})"
+
+        if age is not None and age < STALE_LOCK_SECONDS:
+            # This should not happen because of "concurrencyPolicy: Forbid" in the
+            # Helm chart, but a manual run could overlap the scheduled one.
+            logger.error(
+                f"Import already in progress on {owner}, last heartbeat "
+                f"{age:.0f} seconds ago. Not starting another."
+            )
+            return False
+
+        last_seen = state.get("heartbeat_at") or state.get("started_at")
+        message = (
+            f"Import on {owner} stopped without finishing: no heartbeat since "
+            f"{last_seen}."
+        )
+        logger.error(
+            f"{message} Marked it failed. Check it isn't still running, then "
+            f"delete {state_file} to re-enable imports. A re-run skips the "
+            "records that were already imported."
+        )
+        details = {
+            k: v
+            for k, v in state.items()
+            if k not in ("status", "started_at", "finished_at", "error")
+        }
+        _write_state(
+            state_file,
+            "failed",
+            started_at=state.get("started_at"),
+            finished_at=datetime.now(timezone.utc).isoformat(),
+            error={"type": "StaleLock", "message": message},
+            **details,
+        )
+        return False
+
+    if status == "failed":
+        logger.error(
+            f"Previous import failed (state file: {state_file}). "
+            "Resolve the issue and delete the state file to re-enable imports."
+        )
+        return False
+
+    return True
+
+
 def import_data(
     model_version: str,
     email: str,
@@ -418,23 +517,31 @@ def import_data(
             current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads")
         )
         state_file = os.path.join(s3_download_folder, ".import_state")
-        state = _read_state(state_file)
-        if state:
-            status = state.get("status")
-            if status == "in_progress":
-                # This should not happen because of "concurrencyPolicy: Forbid" in the
-                # Helm chart, but acts as a safety valve in case a pod crashed mid-import.
-                logger.warning(
-                    "Import already in progress (state file found). Skipping."
-                )
-                # Exiting silently
-                return False
-            if status == "failed":
-                logger.error(
-                    f"Previous import failed (state file: {state_file}). "
-                    "Resolve the issue and delete the state file to re-enable imports."
-                )
-                return False
+        # Log to the file before checking the state, so a blocked import is
+        # recorded in the import log too
+        file_handler = setup_file_logging(os.path.join(s3_download_folder, "logs"))
+        logger.addHandler(file_handler)
+
+    try:
+        return _import_data_logged(
+            model_version, email, import_file, batch_size, cli, state_file
+        )
+    finally:
+        logger.removeHandler(file_handler)
+        file_handler.close()
+
+
+def _import_data_logged(
+    model_version: str,
+    email: str,
+    import_file: str,
+    batch_size: int,
+    cli: bool,
+    state_file: str,
+) -> bool:
+    with current_app.app_context():
+        if not _imports_allowed(state_file):
+            return False
 
     installed_model_version = get_installed_model_version()
 
@@ -459,11 +566,6 @@ def import_data(
             return False
 
     with current_app.app_context():
-        log_dir = os.path.join(
-            current_app.config.get("S3_DOWNLOAD_FOLDER", "s3_downloads"), "logs"
-        )
-        file_handler = setup_file_logging(log_dir)
-        logger.addHandler(file_handler)
         user_datastore = current_app.extensions["security"].datastore
         owner = user_datastore.find_user(email=email)
         logger.info(f"Importing {import_file}")
@@ -471,8 +573,6 @@ def import_data(
         if not owner:
             message = f"User with email {email} not found."
             logger.error(message)
-            logger.removeHandler(file_handler)
-            file_handler.close()
 
             if cli:
                 click.secho(message, fg="red")
@@ -487,8 +587,16 @@ def import_data(
         "import_file": import_file,
     }
     try:
-        _write_state(state_file, "in_progress", started_at=started_at, **details)
-        counts = process_import(owner, import_file, batch_size)
+        _write_state(
+            state_file,
+            "in_progress",
+            started_at=started_at,
+            heartbeat_at=started_at,
+            **_lock_owner(),
+            **details,
+        )
+        with _raise_on_sigterm(), ImportHeartbeat(state_file):
+            counts = process_import(owner, import_file, batch_size)
 
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.info(f"Import successful. Data imported from {import_file}.")
@@ -502,7 +610,7 @@ def import_data(
             **details,
         )
 
-    except Exception as e:
+    except (Exception, ImportTerminated) as e:
         finished_at = datetime.now(timezone.utc).isoformat()
         logger.exception(
             f"Failed to process import from {import_file}. "
@@ -518,10 +626,6 @@ def import_data(
             **details,
         )
         return False
-    finally:
-        logger.removeHandler(file_handler)
-        file_handler.close()
-        # cleanup_files(log_dir, "import")
 
     return True
 
