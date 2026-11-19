@@ -88,8 +88,8 @@ def get_s3_client_and_config():
     return s3_client, email, bucket
 
 
-def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
-    """Import all pending diff files in chronological order, oldest first."""
+def find_pending_diffs(s3_download_folder: str) -> list[tuple[str, str, str]]:
+    """Return (timestamp, model version, diff file) for each pending diff, oldest first."""
     diffs_root = os.path.join(s3_download_folder, "diffs")
 
     pending = []
@@ -114,6 +114,13 @@ def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
         pending.append((dir_name, model_version, os.path.join(dirpath, "diff.ndjson")))
 
     pending.sort(key=lambda x: x[0])  # oldest timestamp first
+    return pending
+
+
+def import_pending_diffs(s3_download_folder: str, user_email: str) -> bool:
+    """Import all pending diff files in chronological order, oldest first."""
+    diffs_root = os.path.join(s3_download_folder, "diffs")
+    pending = find_pending_diffs(s3_download_folder)
     logger.info(f"Found {len(pending)} pending diff(s) to import.")
 
     for _, model_version, diff_file in pending:
@@ -387,11 +394,15 @@ def _write_public_status(had_download_errors: bool) -> None:
     payload = {
         "last_run_at": datetime.now(timezone.utc).isoformat(),
         "status": overall_status,
+        # Diffs downloaded but not imported yet. More than zero after a run
+        # means imports are falling behind the source.
+        "pending_diffs": len(find_pending_diffs(s3_download_folder)),
         "download": {"status": "failed" if had_download_errors else "success"},
         "import": {
             "status": import_status,
             "kind": import_state.get("kind"),
             "started_at": import_state.get("started_at"),
+            "heartbeat_at": import_state.get("heartbeat_at"),
             "finished_at": import_state.get("finished_at"),
             "counts": import_state.get("counts"),
         },
@@ -557,7 +568,7 @@ def manage_s3_files():
         # Only download/diff/import if there is a new dump
         if new_checksum == last_checksum and new_timestamp == last_timestamp:
             logger.info(
-                "Dump is unchanged (checksum and timestamp match); nothing to import."
+                "Dump is unchanged (checksum and timestamp match); no new diff."
             )
             shutil.rmtree(tmp_dump_path)
             continue
@@ -588,16 +599,19 @@ def manage_s3_files():
             )
             continue
 
-        successful_import = import_pending_diffs(s3_download_folder, user_email)
+    # Import every pending diff, not only one made in this run, so diffs left
+    # over from a failed or blocked run are imported even if the dump is unchanged
+    successful_import = import_pending_diffs(s3_download_folder, user_email)
 
-        if not successful_import:
-            logger.error("Failed to import pending diffs.")
+    if not successful_import:
+        logger.error("Failed to import pending diffs.")
 
     logger.info("S3 sync complete.")
 
     _write_public_status(had_download_errors)
 
-    if had_download_errors:
+    # Fail the job so a failed or blocked import shows up in Kubernetes
+    if had_download_errors or not successful_import:
         sys.exit(1)
 
 

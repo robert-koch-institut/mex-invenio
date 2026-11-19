@@ -6,9 +6,12 @@ import json
 import logging
 import os
 import re
+import socket
+import threading
 import time
 from collections.abc import Callable
 from datetime import datetime, timezone
+from typing import TypedDict
 
 import packaging.version
 from flask import current_app
@@ -407,6 +410,10 @@ def _update_state(state_file: str, key: str, section: dict) -> None:
     _write_state_file(state_file, data)
 
 
+_STATE_FILE_LOCK = threading.Lock()
+"""Serialises writes from the import and its heartbeat thread, which share a tmp file."""
+
+
 def _write_state_file(state_file: str, data: dict) -> None:
     """Write the state file via a temporary file that's moved into place.
 
@@ -414,9 +421,91 @@ def _write_state_file(state_file: str, data: dict) -> None:
     treat as no state at all.
     """
     tmp_path = f"{state_file}.tmp"
-    with open(tmp_path, "w") as f:
-        json.dump(data, f)
-    os.replace(tmp_path, state_file)
+    with _STATE_FILE_LOCK:
+        with open(tmp_path, "w") as f:
+            json.dump(data, f)
+        os.replace(tmp_path, state_file)
+
+
+HEARTBEAT_INTERVAL_SECONDS = 60
+"""How often a running import records that it's still alive."""
+
+STALE_LOCK_SECONDS = 15 * 60
+"""An in-progress import with no heartbeat for this long is taken to have died."""
+
+
+class LockOwner(TypedDict):
+    """The process holding the import lock, as recorded in the state file."""
+
+    host: str
+    pid: int
+
+
+def _lock_owner() -> LockOwner:
+    """Identify this process in the state file, so a lock can be traced to its pod."""
+    return {"host": socket.gethostname(), "pid": os.getpid()}
+
+
+def _lock_age_seconds(state: dict) -> float | None:
+    """Seconds since an in-progress import last recorded a heartbeat.
+
+    Falls back to the start time for state files written before heartbeats
+    were added. None if neither timestamp can be read.
+    """
+    timestamp = state.get("heartbeat_at") or state.get("started_at")
+    if not isinstance(timestamp, str):
+        return None
+    try:
+        last_seen = datetime.fromisoformat(timestamp)
+    except ValueError:
+        return None
+    return (datetime.now(timezone.utc) - last_seen).total_seconds()
+
+
+class ImportHeartbeat:
+    """Refresh heartbeat_at in the state file from a background thread.
+
+    Use as a context manager around the import. The thread only touches a state
+    file that is still in progress and owned by this process, and it has stopped
+    by the time the block exits, so it can't overwrite the final status.
+    """
+
+    def __init__(self, state_file: str, interval: float = HEARTBEAT_INTERVAL_SECONDS):
+        self.state_file = state_file
+        self.interval = interval
+        self._stop = threading.Event()
+        self._thread = threading.Thread(
+            target=self._run, name="import-heartbeat", daemon=True
+        )
+
+    def __enter__(self):
+        self._thread.start()
+        return self
+
+    def __exit__(self, *exc_info):
+        self._stop.set()
+        self._thread.join()
+
+    def _run(self):
+        while not self._stop.wait(self.interval):
+            try:
+                self.beat()
+            except OSError as e:
+                # A missed beat only matters if many are missed in a row
+                logger.warning(f"Could not record import heartbeat: {e}")
+
+    def beat(self):
+        state = _read_state(self.state_file)
+        owner = _lock_owner()
+        if (
+            not state
+            or state.get("status") != "in_progress"
+            or state.get("host") != owner["host"]
+            or state.get("pid") != owner["pid"]
+        ):
+            return
+        state["heartbeat_at"] = datetime.now(timezone.utc).isoformat()
+        _write_state_file(self.state_file, state)
 
 
 def _error_details(exc: BaseException) -> dict[str, str]:
