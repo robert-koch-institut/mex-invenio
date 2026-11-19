@@ -1,6 +1,9 @@
 import json
 import os
+import signal
+import socket
 import time
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 import pytest
@@ -337,3 +340,122 @@ def test_invalid_record_is_logged_and_next_record_imported(
         state = json.load(f)
     assert state["status"] == "success"
     assert state["counts"]["failed"] == 1
+
+
+def _write_state_file(state):
+    os.makedirs(os.path.dirname(_state_file()), exist_ok=True)
+    with open(_state_file(), "w") as f:
+        json.dump(state, f)
+
+
+def test_stale_lock_is_marked_failed(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """An import that stopped sending heartbeats is marked failed and blocks imports."""
+    stale = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+    _write_state_file(
+        {
+            "status": "in_progress",
+            "started_at": "2026-10-28T05:15:41+00:00",
+            "heartbeat_at": stale,
+            "host": "import-job-abc",
+            "pid": 7,
+            "kind": "diff",
+            "import_file": "/data/diffs/20261028050036/diff.ndjson",
+        }
+    )
+
+    try:
+        messages = import_file("contact-point", json.dumps(contact_point_data))
+
+        with open(_state_file()) as f:
+            state = json.load(f)
+    finally:
+        os.remove(_state_file())
+
+    assert state["status"] == "failed"
+    assert state["error"]["type"] == "StaleLock"
+    assert "import-job-abc" in state["error"]["message"]
+    assert state["started_at"] == "2026-10-28T05:15:41+00:00"
+    assert state["import_file"] == "/data/diffs/20261028050036/diff.ndjson"
+    assert any("stopped without finishing" in m for m in messages)
+    assert _records_with_identifier(contact_point_data["identifier"]) == []
+
+
+def test_live_lock_blocks_import(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """An import with a recent heartbeat isn't interrupted or marked failed."""
+    state = {
+        "status": "in_progress",
+        "started_at": datetime.now(timezone.utc).isoformat(),
+        "heartbeat_at": datetime.now(timezone.utc).isoformat(),
+        "host": "import-job-abc",
+        "pid": 7,
+    }
+    _write_state_file(state)
+
+    try:
+        messages = import_file("contact-point", json.dumps(contact_point_data))
+
+        with open(_state_file()) as f:
+            assert json.load(f) == state
+    finally:
+        os.remove(_state_file())
+
+    assert any("already in progress on import-job-abc" in m for m in messages)
+    assert _records_with_identifier(contact_point_data["identifier"]) == []
+
+
+def test_running_import_records_owner_and_heartbeat(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """While importing, the state file says which process holds the lock."""
+    seen = {}
+
+    def record_state(*args: object, **kwargs: object) -> dict:
+        with open(_state_file()) as f:
+            seen.update(json.load(f))
+        return {"lines": 0, "created": 0, "updated": 0, "skipped": 0}
+
+    with patch(
+        "mex_invenio.scripts.import_data.process_import", side_effect=record_state
+    ):
+        import_file("contact-point", json.dumps(contact_point_data))
+
+    assert seen["status"] == "in_progress"
+    assert seen["host"] == socket.gethostname()
+    assert seen["pid"] == os.getpid()
+    assert seen["heartbeat_at"] == seen["started_at"]
+    with open(_state_file()) as f:
+        assert json.load(f)["status"] == "success"
+
+
+def test_sigterm_marks_import_failed(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """An import asked to stop records that it failed, instead of staying in progress."""
+    previous_handler = signal.getsignal(signal.SIGTERM)
+
+    def terminated(*args: object, **kwargs: object) -> None:
+        os.kill(os.getpid(), signal.SIGTERM)
+        # The handler raises before this point
+        time.sleep(5)
+
+    try:
+        with patch(
+            "mex_invenio.scripts.import_data.process_import", side_effect=terminated
+        ):
+            import_file("contact-point", json.dumps(contact_point_data))
+
+        with open(_state_file()) as f:
+            state = json.load(f)
+    finally:
+        os.remove(_state_file())
+
+    assert state["status"] == "failed"
+    assert state["error"] == {
+        "type": "ImportTerminated",
+        "message": "Received SIGTERM",
+    }
+    assert signal.getsignal(signal.SIGTERM) is previous_handler

@@ -1,9 +1,14 @@
 import json
+import time
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from mex_invenio.scripts.utils import (
+    ImportHeartbeat,
     _duration_seconds,
     _error_details,
+    _lock_age_seconds,
+    _lock_owner,
     _read_state,
     _update_state,
     _write_state,
@@ -213,3 +218,71 @@ def test_update_state_keeps_import_status(tmp_path):
         "kind": "diff",
         "downloadable_files": {"status": "success"},
     }
+
+
+def _in_progress_state(**overrides: object) -> dict:
+    now = datetime.now(timezone.utc).isoformat()
+    return {
+        "status": "in_progress",
+        "started_at": now,
+        "heartbeat_at": now,
+        **_lock_owner(),
+        **overrides,
+    }
+
+
+def test_heartbeat_updates_own_lock(tmp_path):
+    """A beat refreshes heartbeat_at on this process's in-progress import."""
+    state_file = tmp_path / ".import_state"
+    state = _in_progress_state(heartbeat_at="2026-10-28T05:15:41+00:00", kind="diff")
+    state_file.write_text(json.dumps(state))
+
+    ImportHeartbeat(str(state_file)).beat()
+
+    updated = json.loads(state_file.read_text())
+    assert updated["heartbeat_at"] > "2026-10-28T05:15:41+00:00"
+    assert {k: v for k, v in updated.items() if k != "heartbeat_at"} == {
+        k: v for k, v in state.items() if k != "heartbeat_at"
+    }
+
+
+def test_heartbeat_leaves_other_states_alone(tmp_path):
+    """A beat doesn't touch a finished import, or another process's lock."""
+    state_file = tmp_path / ".import_state"
+    heartbeat = ImportHeartbeat(str(state_file))
+
+    for state in (
+        {"status": "success", "started_at": "2026-10-28T05:15:41+00:00"},
+        _in_progress_state(pid=-1),
+        _in_progress_state(host="another-pod"),
+    ):
+        state_file.write_text(json.dumps(state))
+        heartbeat.beat()
+        assert json.loads(state_file.read_text()) == state
+
+
+def test_heartbeat_thread_beats_until_stopped(tmp_path):
+    """The heartbeat thread keeps beating while the block runs, and stops after it."""
+    state_file = tmp_path / ".import_state"
+    state_file.write_text(json.dumps(_in_progress_state()))
+
+    with patch.object(ImportHeartbeat, "beat") as beat:
+        with ImportHeartbeat(str(state_file), interval=0.01):
+            time.sleep(0.2)
+        beats = beat.call_count
+        time.sleep(0.05)
+
+    assert beats >= 2
+    assert beat.call_count == beats
+
+
+def test_lock_age_falls_back_to_start_time():
+    """State files from before heartbeats are aged by their start time."""
+    started = datetime.now(timezone.utc) - timedelta(hours=2)
+
+    age = _lock_age_seconds(
+        {"status": "in_progress", "started_at": started.isoformat()}
+    )
+
+    assert 7190 < age < 7300
+    assert _lock_age_seconds({"status": "in_progress"}) is None
