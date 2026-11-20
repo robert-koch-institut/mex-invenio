@@ -14,8 +14,6 @@ from flask import (
     url_for,
 )
 from invenio_access.permissions import system_identity
-from invenio_i18n import force_locale
-from invenio_i18n.proxies import current_i18n
 from invenio_pidstore.errors import (
     PIDDoesNotExistError,
     PIDUnregistered,
@@ -101,31 +99,28 @@ def create_blueprint(app):
 
     blueprint.add_url_rule("/query/api/<resource_type>", view_func=os_query_api)
 
-    blueprint.add_url_rule("/downloads", view_func=downloads_redirect)
-    blueprint.add_url_rule("/downloads/en", view_func=downloads_en)
-    blueprint.add_url_rule("/downloads/de", view_func=downloads_de)
+    blueprint.add_url_rule("/downloads/", view_func=downloads)
+
+    # Pages used to have a URL per language; keep old links and bookmarks working
+    blueprint.add_url_rule(
+        "/<any(about, contact, 'data-privacy', accessibility, imprint, downloads):page>"
+        "/<any(en, de):lang>",
+        view_func=legacy_language_url_redirect,
+        strict_slashes=False,
+    )
 
     return blueprint
 
 
-def downloads_redirect():
-    endpoint = ".downloads_de" if current_i18n.language == "de" else ".downloads_en"
-    return redirect(url_for(endpoint))
+def legacy_language_url_redirect(page, lang):
+    path = "/downloads/" if page == "downloads" else f"/{page}"
+    return redirect(f"{path}?ln={lang}", code=301)
 
 
-def _render_downloads(locale):
-    with force_locale(locale):
-        return render_template(
-            "mex_invenio/downloads.html", downloadable_files=list_downloadable_files()
-        )
-
-
-def downloads_en():
-    return _render_downloads("en")
-
-
-def downloads_de():
-    return _render_downloads("de")
+def downloads():
+    return render_template(
+        "mex_invenio/downloads.html", downloadable_files=list_downloadable_files()
+    )
 
 
 def search_activities():
