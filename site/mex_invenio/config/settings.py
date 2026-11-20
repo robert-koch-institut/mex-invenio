@@ -1016,20 +1016,10 @@ VALUES_DISPLAYED_DEFAULT = 3
 
 APP_RDM_PAGES = {
     "about": "/about",
-    "about-en": "/about/en",
-    "about-de": "/about/de",
     "imprint": "/imprint",
-    "imprint-en": "/imprint/en",
-    "imprint-de": "/imprint/de",
     "accessibility": "/accessibility",
-    "accessibility-en": "/accessibility/en",
-    "accessibility-de": "/accessibility/de",
     "contact": "/contact",
-    "contact-en": "/contact/en",
-    "contact-de": "/contact/de",
     "dataprivacy": "/data-privacy",
-    "dataprivacy-en": "/data-privacy/en",
-    "dataprivacy-de": "/data-privacy/de",
 }
 
 
