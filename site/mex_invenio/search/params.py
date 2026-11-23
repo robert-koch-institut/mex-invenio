@@ -415,7 +415,7 @@ class BoostingParamsInterpreter(ParamInterpreter):
         "index_data.externalPartners",
         "index_data.involvedPersons",
         "index_data.enContributingUnits",
-        "index_data.deContributingUnits"
+        "index_data.deContributingUnits",
     ]
 
     STOP_WORDS = {
