@@ -6,6 +6,7 @@ link to it. Each test imports records in an order where the earlier record is on
 correct if the later import re-indexes it.
 """
 
+import pytest
 from flask import current_app
 from invenio_search import current_search_client
 from invenio_search.utils import build_alias_name
@@ -17,6 +18,17 @@ ORG_UNIT_ID = org_unit_data["identifier"]
 PARENT_UNIT_ID = org_unit_data["parentUnit"]
 RESOURCE_ID = resource_data["identifier"]
 PARENT_RESOURCE_ID = "dO8iP5KEwJGZPXwCXKnFOZ"  # resource_data["isPartOf"]
+
+
+@pytest.fixture(autouse=True)
+def clear_dumper_cache():
+    """Start each test with an empty MexDumper record cache.
+
+    The dumper caches linked records for the life of the process, so records from
+    an earlier test (whose database rows were rolled back) would otherwise still be
+    shown as linked.
+    """
+    MexRDMRecord.dumper._record_cache.clear()
 
 
 def _linked_records(mex_id):

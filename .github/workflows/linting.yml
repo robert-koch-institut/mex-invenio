@@ -26,8 +26,6 @@ concurrency:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    env:
-      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
     timeout-minutes: 10
     permissions:
       contents: read

@@ -28,9 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 15
+    timeout-minutes: 32
     env:
-      INVENIO_INSTANCE_PATH: ${{ github.workspace }}
       MEX_IMPORT_BUCKET: placeholder
       MEX_IMPORT_AWS_KEY_ID: placeholder
       MEX_IMPORT_AWS_SECRET: placeholder
@@ -77,7 +76,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 16
+          node-version: 22.21.1
 
       - name: Install requirements
         run: make install
