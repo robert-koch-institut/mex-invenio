@@ -716,7 +716,7 @@ mex.compoundComponent = function(params) {
         category: params.category || "left",
         components: params.components || [],
         renderer: new mex.renderers.CompoundDateSection({
-            title: params.title || "Date Histogram"
+            title: params.title || i18n.t("Date Histogram")
         })
     });
 }
@@ -1875,8 +1875,8 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
 
         let frag = `<div>
             ${title(this.title)}
-            <button class="${edges.util.jsClasses(this.namespace, "chart-button", this)}">Chart</button>
-            <button class="${edges.util.jsClasses(this.namespace, "table-button", this)}">Table</button>
+            <button class="${edges.util.jsClasses(this.namespace, "chart-button", this)}">${i18n.t("Chart")}</button>
+            <button class="${edges.util.jsClasses(this.namespace, "table-button", this)}">${i18n.t("Table")}</button>
             ${componentList(this.component.components)}
         </div>`;
 

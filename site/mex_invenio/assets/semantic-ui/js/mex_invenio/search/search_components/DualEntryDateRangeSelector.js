@@ -1,5 +1,6 @@
 //import {Renderer} from "../../core";
 //import {getParam, htmlID, idSelector, objClosure, styleClasses, on} from "../../utils";
+import i18n from "./../../i18n"
 
 mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
     constructor(params) {
@@ -97,11 +98,11 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
                 <div class="ui grid ${inputClass}">
                     <div class="sixteen wide column">
                         <div class="range-selector-input-row">
-                            <label for="${startId}">From</label>
+                            <label for="${startId}">${i18n.t("From")}</label>
                             <select name="${startId}" id="${startId}">${yearOptions}</select>
                         </div>
                         <div class="range-selector-input-row">
-                            <label for="${endId}">To</label>
+                            <label for="${endId}">${i18n.t("To")}</label>
                             <select name="${endId}" id="${endId}">${yearOptions}</select>
                         </div>
                     </div>
