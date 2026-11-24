@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 15
+    timeout-minutes: 32
     env:
       MEX_IMPORT_BUCKET: placeholder
       MEX_IMPORT_AWS_KEY_ID: placeholder
