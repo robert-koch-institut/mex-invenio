@@ -1,4 +1,5 @@
 /* global $ */
+/* global Plotly */
 import i18n from "./../i18n"
 
 // Ensure global edges exists (library must already have created window.edges or this creates it)
@@ -541,7 +542,7 @@ mex.dateHistogram = function (params) {
             return values;
         },
         renderer: new mex.renderers.DateHistogramSelector({
-            title: params.title || i18n.t("Date Histogram"),
+            title: params.title || i18n.t(""),
             open: true,
             togglable: false,
             useCheckboxes: params.useCheckboxes ?? false,
@@ -559,6 +560,44 @@ mex.dateHistogram = function (params) {
     //         displayName: params.title || i18n.t("Date Range"),
     //     })
     // })
+};
+
+mex.dateRangeSelector = function(params) {
+    return new edges.components.MultiDateRangeEntry({
+        id: params.id,
+        category: params.category || "left",
+        fields: [{field: params.field, display: "Date Field"}],
+        autoLookupRange: true,
+        renderer: new mex.renderers.DualEntryDateRangeSelector({
+            displayName: params.title
+        })
+    })
+}
+
+mex.dateChart = function (params) {
+    let interval = params.interval || "year";
+    let displayFormatter = params.displayFormatter || mex.yearFormatter;
+    if (interval === "month") {
+        displayFormatter = mex.monthFormatter;
+    }
+
+    return new edges.components.DateHistogram({
+        id: params.id,
+        category: params.category || "left",
+        field: params.field,
+        interval: interval,
+        displayFormatter: displayFormatter,
+        sortFunction: function (values) {
+            values.reverse();
+            return values;
+        },
+        renderer: new mex.renderers.GraphicalDateHistogramSelector({
+            title: params.title || i18n.t(""),
+            open: true,
+            togglable: false,
+            countFormat: mex.countFormat
+        }),
+    });
 };
 
 mex.fullSearchController = function (params) {
@@ -668,6 +707,17 @@ mex.typeSpecificJumpOff = function (params) {
         category: params.category || "full",
         preamble: params.preamble || i18n.t("Search on specific resource type: "),
         targets: params.targets || {},
+    });
+}
+
+mex.compoundComponent = function(params) {
+    return new edges.components.Compound({
+        id: params.id || "compound-component",
+        category: params.category || "left",
+        components: params.components || [],
+        renderer: new mex.renderers.CompoundDateSection({
+            title: params.title || i18n.t("Date Histogram")
+        })
     });
 }
 
@@ -836,53 +886,183 @@ mex.accessRestrictionFacet = function () {
     });
 };
 
+////////////////////////////////////////////////
+// Created
+
+mex.createdCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "created_compound",
+        title: i18n.t("Created"),
+        components: [
+            mex.createdHistogram(),
+            mex.createdChart(),
+            mex.createdFacet()
+        ]
+    })
+}
+
 mex.createdFacet = function () {
-    return mex.dateHistogram({
+    return mex.dateRangeSelector({
         id: "created",
         field: mex.constants.CREATED_RANGE,
-        title: i18n.t("Created"),
-        category: "left",
-        interval: "month",
-        useCheckboxes: true,
-        showSelected: false,
+        category: "selector",
+        interval: "year"
     });
 };
 
-mex.endFacet = function () {
+mex.createdChart = function () {
+    return mex.dateChart({
+        id: "created_chart",
+        field: mex.constants.CREATED_RANGE,
+        category: "chart",
+        interval: "year"
+    });
+}
+
+mex.createdHistogram = function() {
     return mex.dateHistogram({
-        id: "end",
-        field: mex.constants.END_RANGE,
-        title: i18n.t("End"),
-        category: "left",
+        id: "created_table",
+        field: mex.constants.CREATED_RANGE,
+        category: "table",
         interval: "year",
         useCheckboxes: true,
         showSelected: false,
     });
-};
+}
+
+////////////////////////////////////////////////
+// start
+
+mex.startCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "start_compound",
+        title: i18n.t("Start"),
+        components: [
+            mex.startHistogram(),
+            mex.startChart(),
+            mex.startFacet()
+        ]
+    })
+}
 
 mex.startFacet = function () {
-    return mex.dateHistogram({
+    return mex.dateRangeSelector({
         id: "start",
         field: mex.constants.START_RANGE,
-        title: i18n.t("Start"),
-        category: "left",
-        interval: "year",
-        useCheckboxes: true,
-        showSelected: false,
+        category: "selector",
+        interval: "year"
     });
 };
 
-mex.publicationYearFacet = function () {
+mex.startChart = function () {
+    return mex.dateChart({
+        id: "start_chart",
+        field: mex.constants.START_RANGE,
+        category: "chart",
+        interval: "year"
+    });
+}
+
+mex.startHistogram = function() {
     return mex.dateHistogram({
-        id: "publication_year",
-        field: mex.constants.PUBLICATION_YEAR_RANGE,
-        title: i18n.t("Publication Year"),
-        category: "left",
+        id: "start_table",
+        field: mex.constants.START_RANGE,
+        category: "table",
         interval: "year",
         useCheckboxes: true,
         showSelected: false,
     });
+}
+
+////////////////////////////////////////////////
+// end
+
+mex.endCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "end_compound",
+        title: i18n.t("End"),
+        components: [
+            mex.endHistogram(),
+            mex.endChart(),
+            mex.endFacet()
+        ]
+    })
+}
+
+mex.endFacet = function () {
+    return mex.dateRangeSelector({
+        id: "end",
+        field: mex.constants.END_RANGE,
+        category: "selector",
+        interval: "year"
+    });
 };
+
+mex.endChart = function () {
+    return mex.dateChart({
+        id: "end_chart",
+        field: mex.constants.END_RANGE,
+        category: "chart",
+        interval: "year"
+    });
+}
+
+mex.endHistogram = function() {
+    return mex.dateHistogram({
+        id: "end_table",
+        field: mex.constants.END_RANGE,
+        category: "table",
+        interval: "year",
+        useCheckboxes: true,
+        showSelected: false,
+    });
+}
+
+////////////////////////////////////////////////
+// publication year
+
+mex.publicationYearCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "py_compound",
+        title: i18n.t("Publication Year"),
+        components: [
+            mex.publicationYearHistogram(),
+            mex.publicationYearChart(),
+            mex.publicationYearFacet()
+        ]
+    })
+}
+
+mex.publicationYearFacet = function () {
+    return mex.dateRangeSelector({
+        id: "publication_year",
+        field: mex.constants.PUBLICATION_YEAR_RANGE,
+        category: "selector",
+        interval: "year"
+    });
+};
+
+mex.publicationYearChart = function () {
+    return mex.dateChart({
+        id: "publication_year_chart",
+        field: mex.constants.PUBLICATION_YEAR_RANGE,
+        category: "chart",
+        interval: "year"
+    });
+}
+
+mex.publicationYearHistogram = function() {
+    return mex.dateHistogram({
+        id: "publication_year_table",
+        field: mex.constants.PUBLICATION_YEAR_RANGE,
+        category: "table",
+        interval: "year",
+        useCheckboxes: true,
+        showSelected: false,
+    });
+}
+
+//////////////////////////////////////
 
 mex.contributingUnitFacet = function () {
     let field = mex.constants.CONTRIBUTING_UNIT_DE_KW;
@@ -1661,6 +1841,75 @@ mex.components.Selector = class extends edges.Component {
 
 if (!mex.hasOwnProperty("renderers")) {
     mex.renderers = {};
+}
+
+mex.renderers.CompoundDateSection = class extends edges.Renderer {
+    constructor(params) {
+        super();
+
+        this.title = edges.util.getParam(params, "title", "");
+        this.namespace = "edges-mex-compound";
+
+        // state management
+        this.showing = "chart";
+    }
+
+    draw() {
+
+        let that = this;
+
+        function componentList(components) {
+            let f = "";
+            for (let i = 0; i < components.length; i++) {
+                f += `<div id="${components[i].id}" class="${edges.util.jsClasses(that.namespace, components[i].category, that)}" style="display:none"></div>`;
+            }
+            return f;
+        }
+
+        function title(str) {
+            if (!str) {
+                return "";
+            }
+            return `<h4 class="facet-title">${str}</h4>`;
+        }
+
+        let frag = `<div>
+            ${title(this.title)}
+            <button class="${edges.util.jsClasses(this.namespace, "chart-button", this)}">${i18n.t("Chart")}</button>
+            <button class="${edges.util.jsClasses(this.namespace, "table-button", this)}">${i18n.t("Table")}</button>
+            ${componentList(this.component.components)}
+        </div>`;
+
+        this.component.context.html(frag);
+
+        let showingSelector = edges.util.jsClassSelector(this.namespace, this.showing, this)
+        this.component.jq(showingSelector).show();
+
+        let selectorSelector = edges.util.jsClassSelector(this.namespace, "selector", this)
+        this.component.jq(selectorSelector).show();
+
+        let chartButtonSelector = edges.util.jsClassSelector(this.namespace, "chart-button", this)
+        edges.on(chartButtonSelector, "click", this, "showChart");
+
+        let tableButtonSelector = edges.util.jsClassSelector(this.namespace, "table-button", this)
+        edges.on(tableButtonSelector, "click", this, "showTable");
+    }
+
+    showChart() {
+        let tableSelector = edges.util.jsClassSelector(this.namespace, "table", this);
+        let chartSelector = edges.util.jsClassSelector(this.namespace, "chart", this);
+        this.component.jq(tableSelector).hide();
+        this.component.jq(chartSelector).show();
+        this.showing = "chart";
+    }
+
+    showTable() {
+        let tableSelector = edges.util.jsClassSelector(this.namespace, "table", this);
+        let chartSelector = edges.util.jsClassSelector(this.namespace, "chart", this);
+        this.component.jq(chartSelector).hide();
+        this.component.jq(tableSelector).show();
+        this.showing = "table";
+    }
 }
 
 mex.renderers.SelectedFilters = class extends edges.Renderer {
@@ -3796,6 +4045,186 @@ mex.renderers.DateHistogramSelector = class extends edges.Renderer {
         return tt;
     }
 };
+
+mex.renderers.GraphicalDateHistogramSelector = class extends edges.Renderer {
+    constructor(params) {
+        super(params);
+
+        // whether to hide or just disable the facet if not active
+        this.hideInactive = edges.util.getParam(params, "hideInactive", false);
+
+        // whether the facet should be open or closed
+        // can be initialised and is then used to track internal state
+        this.open = edges.util.getParam(params, "open", false);
+
+        this.togglable = edges.util.getParam(params, "togglable", true);
+
+        // whether to display selected filters
+        this.showSelected = edges.util.getParam(params, "showSelected", true);
+
+        // formatter for count display
+        this.countFormat = edges.util.getParam(params, "countFormat", false);
+
+        this.title = edges.util.getParam(
+            params,
+            "title",
+            i18n.t("Select Date Range")
+        );
+
+        // Hides facet when there is no data
+        this.hideIfEmpty = edges.util.getParam(params, "hideIfEmpty", false);
+
+        // namespace to use in the page
+        this.namespace = "mex-graphicaldatehistogram-selector";
+
+        /////////////////////////////////////////
+        // state management
+
+        this.chart = false;
+    }
+
+    draw() {
+        let ts = this.component;
+        let namespace = this.namespace;
+
+        if (!ts.active && this.hideInactive) {
+            ts.context.html("");
+            return;
+        }
+
+        let message = i18n.t("Loading...");
+        if (ts.values !== false) {
+            message = i18n.t("No data available");
+        }
+
+        let graphData = null;
+        if (ts.values && ts.values.length > 0) {
+            graphData = [
+                {
+                    type: "bar",
+                    x: ts.values.map((v) => v.display),
+                    y: ts.values.map((v) => v.count),
+                }
+            ]
+        }
+
+        let facetClass = edges.util.allClasses(namespace, "facet", this);
+        let headerClass = edges.util.allClasses(namespace, "header", this);
+        let toggleId = edges.util.htmlID(namespace, "toggle", this);
+        let chartId = edges.util.htmlID(namespace, "chart", this);
+
+        let tog = `<h4 class="facet-title"> ${this.title} </h4>`;
+        if (this.togglable) {
+            tog = `<a href="#" id="${toggleId}"><i class="icon plus"></i>&nbsp;${tog}</a>`;
+        }
+
+        let frag = `
+            <div class="${facetClass}" style="margin-bottom:15px">
+                <div class="${headerClass}"><div class="row">
+                    <div class="col-md-12">${tog}</div>
+                </div></div>
+                <div class="row">
+                    <div class="col-md-12" id="${chartId}"></div>
+                </div>
+            </div>`;
+
+        ts.context.html(frag);
+
+        if (graphData) {
+            let chartContainer = document.getElementById(chartId);
+            this.chart = Plotly.newPlot(
+                chartContainer,
+                graphData,
+                {
+                    dragmode: false,
+                    margin: {
+                        l: 0,
+                        r: 0,
+                        t: 0,
+                        b: 0,
+                        pad: 0
+                    },
+                    xaxis: {
+                        automargin: true
+                    },
+                    yaxis: {
+                        type: "log",
+                        tickformat: ",d",
+                        automargin: true
+                    },
+                    height: 200
+                },
+                {
+                    displayModeBar: false,
+                    scrollZoom: false
+                }
+            )
+
+            let that = this;
+            chartContainer.on("plotly_click", (data) => {
+                let point = data.points[0];
+                let year = point.x
+                that.yearSelected(year);
+            });
+
+        } else {
+            let chartSelector = edges.util.idSelector(namespace, "chart", this);
+            this.component.jq(chartSelector).html(message);
+        }
+
+        this.setUIOpen();
+    }
+
+    setUIOpen() {
+        // the selectors that we're going to use
+        let resultsSelector = edges.util.idSelector(
+            this.namespace,
+            "results",
+            this.component.id
+        );
+        let tooltipSelector = edges.util.idSelector(
+            this.namespace,
+            "tooltip",
+            this
+        );
+        let toggleSelector = edges.util.idSelector(this.namespace, "toggle", this);
+
+        let results = this.component.jq(resultsSelector);
+        let tooltip = this.component.jq(tooltipSelector);
+        let toggle = this.component.jq(toggleSelector);
+
+        if (this.open) {
+            toggle.find("i").removeClass("icon plus").addClass("icon minus");
+            results.show();
+            tooltip.show();
+        } else {
+            toggle.find("i").removeClass("icon minus").addClass("icon plus");
+            results.hide();
+            tooltip.hide();
+        }
+    }
+
+    /////////////////////////////////////////////////////
+    // event handlers
+
+    yearSelected(year) {
+        let gte = `${year}-01-01T00:00:00Z`;
+        let lt = `${year}-12-31T23:59:59Z`;
+        this.component.selectRange({gte: gte, lt: lt});
+    }
+
+    removeFilter(element) {
+        let gte = this.component.jq(element).attr("data-gte");
+        let lt = this.component.jq(element).attr("data-lt");
+        this.component.removeFilter({gte: gte, lt: lt});
+    }
+
+    toggleOpen(element) {
+        this.open = !this.open;
+        this.setUIOpen();
+    }
+};
+
 
 mex.renderers.Pager = class extends edges.Renderer {
     constructor(params) {

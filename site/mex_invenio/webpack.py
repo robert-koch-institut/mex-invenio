@@ -10,6 +10,8 @@ edges_components = edges_src + "components/"
 # Define BASE search entries
 search_base = [
     "jquery",
+    # f"{mex_js}plotly-4.1.1.min.js",
+    #"plotly.js-dist",
     f"{edges_src}datasources/es7x.js",
     f"{edges_src}edges.js",
     f"{edges_components}RefiningANDTermSelector.js",
@@ -18,6 +20,7 @@ search_base = [
     f"{edges_components}DateHistogram.js",
     f"{edges_components}Pager.js",
     f"{edges_components}SelectedFilters.js",
+    f"{edges_components}Compound.js",
     f"{search}edges.common.js",
     f"{edges_components}MultiDateRangeEntry.js",
     f"{search}search_components/DualEntryDateRangeSelector.js",

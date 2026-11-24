@@ -36,7 +36,7 @@ edges.instances.bibliographicResources.init = function () {
             mex.accessRestrictionFacet(),
             mex.journalFacet(),
             mex.keywordFacet(),
-            mex.publicationYearFacet(),
+            mex.publicationYearCompoundControl(),
             mex.contributingUnitFacet(),
 
             // Stuff above the results
