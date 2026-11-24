@@ -886,11 +886,25 @@ mex.accessRestrictionFacet = function () {
     });
 };
 
+////////////////////////////////////////////////
+// Created
+
+mex.createdCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "created_compound",
+        title: i18n.t("Created"),
+        components: [
+            mex.createdHistogram(),
+            mex.createdChart(),
+            mex.createdFacet()
+        ]
+    })
+}
+
 mex.createdFacet = function () {
     return mex.dateRangeSelector({
         id: "created",
         field: mex.constants.CREATED_RANGE,
-        //title: i18n.t("Created"),
         category: "selector",
         interval: "year"
     });
@@ -900,7 +914,6 @@ mex.createdChart = function () {
     return mex.dateChart({
         id: "created_chart",
         field: mex.constants.CREATED_RANGE,
-        // title: i18n.t("Created"),
         category: "chart",
         interval: "year"
     });
@@ -910,7 +923,6 @@ mex.createdHistogram = function() {
     return mex.dateHistogram({
         id: "created_table",
         field: mex.constants.CREATED_RANGE,
-        // title: i18n.t("Created"),
         category: "table",
         interval: "year",
         useCheckboxes: true,
@@ -918,33 +930,26 @@ mex.createdHistogram = function() {
     });
 }
 
-// mex.endFacet = function () {
-//     return mex.dateHistogram({
-//         id: "end",
-//         field: mex.constants.END_RANGE,
-//         title: i18n.t("End"),
-//         category: "left",
-//         interval: "year",
-//         useCheckboxes: true,
-//         showSelected: false,
-//     });
-// };
+////////////////////////////////////////////////
+// start
 
-// mex.startFacet = function () {
-//     return mex.dateHistogram({
-//         id: "start",
-//         field: mex.constants.START_RANGE,
-//         title: i18n.t("Start"),
-//         category: "left",
-//         interval: "year"
-//     });
-// };
+mex.startCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "start_compound",
+        title: i18n.t("Start"),
+        components: [
+            mex.startHistogram(),
+            mex.startChart(),
+            mex.startFacet()
+        ]
+    })
+}
 
 mex.startFacet = function () {
     return mex.dateRangeSelector({
         id: "start",
         field: mex.constants.START_RANGE,
-        category: "left",
+        category: "selector",
         interval: "year"
     });
 };
@@ -953,17 +958,42 @@ mex.startChart = function () {
     return mex.dateChart({
         id: "start_chart",
         field: mex.constants.START_RANGE,
-        title: i18n.t("Start"),
-        category: "left",
+        category: "chart",
         interval: "year"
     });
+}
+
+mex.startHistogram = function() {
+    return mex.dateHistogram({
+        id: "start_table",
+        field: mex.constants.START_RANGE,
+        category: "table",
+        interval: "year",
+        useCheckboxes: true,
+        showSelected: false,
+    });
+}
+
+////////////////////////////////////////////////
+// end
+
+mex.endCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "end_compound",
+        title: i18n.t("End"),
+        components: [
+            mex.endHistogram(),
+            mex.endChart(),
+            mex.endFacet()
+        ]
+    })
 }
 
 mex.endFacet = function () {
     return mex.dateRangeSelector({
         id: "end",
         field: mex.constants.END_RANGE,
-        category: "left",
+        category: "selector",
         interval: "year"
     });
 };
@@ -972,17 +1002,42 @@ mex.endChart = function () {
     return mex.dateChart({
         id: "end_chart",
         field: mex.constants.END_RANGE,
-        title: i18n.t("End"),
-        category: "left",
+        category: "chart",
         interval: "year"
     });
+}
+
+mex.endHistogram = function() {
+    return mex.dateHistogram({
+        id: "end_table",
+        field: mex.constants.END_RANGE,
+        category: "table",
+        interval: "year",
+        useCheckboxes: true,
+        showSelected: false,
+    });
+}
+
+////////////////////////////////////////////////
+// publication year
+
+mex.publicationYearCompoundControl = function () {
+    return mex.compoundComponent({
+        id: "py_compound",
+        title: i18n.t("Publication Year"),
+        components: [
+            mex.publicationYearHistogram(),
+            mex.publicationYearChart(),
+            mex.publicationYearFacet()
+        ]
+    })
 }
 
 mex.publicationYearFacet = function () {
     return mex.dateRangeSelector({
         id: "publication_year",
         field: mex.constants.PUBLICATION_YEAR_RANGE,
-        category: "left",
+        category: "selector",
         interval: "year"
     });
 };
@@ -991,31 +1046,23 @@ mex.publicationYearChart = function () {
     return mex.dateChart({
         id: "publication_year_chart",
         field: mex.constants.PUBLICATION_YEAR_RANGE,
-        title: i18n.t("Publication Year"),
-        category: "left",
+        category: "chart",
         interval: "year"
     });
 }
 
-// mex.publicationYearChart = function () {
-//     return mex.dateChart({
-//         id: "publication_year_chart",
-//         field: mex.constants.PUBLICATION_YEAR_RANGE,
-//         title: i18n.t("Publication Year"),
-//         category: "left",
-//         interval: "year"
-//     });
-// }
-//
-// mex.publicationYearFacet = function () {
-//     return mex.dateHistogram({
-//         id: "publication_year",
-//         field: mex.constants.PUBLICATION_YEAR_RANGE,
-//         // title: i18n.t("Publication Year"),
-//         category: "left",
-//         interval: "year"
-//     });
-// };
+mex.publicationYearHistogram = function() {
+    return mex.dateHistogram({
+        id: "publication_year_table",
+        field: mex.constants.PUBLICATION_YEAR_RANGE,
+        category: "table",
+        interval: "year",
+        useCheckboxes: true,
+        showSelected: false,
+    });
+}
+
+//////////////////////////////////////
 
 mex.contributingUnitFacet = function () {
     let field = mex.constants.CONTRIBUTING_UNIT_DE_KW;
@@ -1801,7 +1848,7 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
         super();
 
         this.title = edges.util.getParam(params, "title", "");
-        this.namespae = "edges-mex-compound";
+        this.namespace = "edges-mex-compound";
 
         // state management
         this.showing = "chart";
@@ -1809,10 +1856,12 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
 
     draw() {
 
+        let that = this;
+
         function componentList(components) {
             let f = "";
             for (let i = 0; i < components.length; i++) {
-                f += `<div id="${components[i].id}" data-role="${components[i].category}" style="display:none"></div>`;
+                f += `<div id="${components[i].id}" class="${edges.util.jsClasses(that.namespace, components[i].category, that)}" style="display:none"></div>`;
             }
             return f;
         }
@@ -1821,7 +1870,7 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
             if (!str) {
                 return "";
             }
-            return `<h2>${str}</h2>`;
+            return `<h4 class="facet-title">${str}</h4>`;
         }
 
         let frag = `<div>
@@ -1833,8 +1882,11 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
 
         this.component.context.html(frag);
 
-        this.component.jq(`[data-role='${this.showing}']`).show();
-        this.component.jq(`[data-role='selector']`).show();
+        let showingSelector = edges.util.jsClassSelector(this.namespace, this.showing, this)
+        this.component.jq(showingSelector).show();
+
+        let selectorSelector = edges.util.jsClassSelector(this.namespace, "selector", this)
+        this.component.jq(selectorSelector).show();
 
         let chartButtonSelector = edges.util.jsClassSelector(this.namespace, "chart-button", this)
         edges.on(chartButtonSelector, "click", this, "showChart");
@@ -1844,14 +1896,18 @@ mex.renderers.CompoundDateSection = class extends edges.Renderer {
     }
 
     showChart() {
-        this.component.jq(`[data-role='table']`).hide();
-        this.component.jq(`[data-role='chart']`).show();
+        let tableSelector = edges.util.jsClassSelector(this.namespace, "table", this);
+        let chartSelector = edges.util.jsClassSelector(this.namespace, "chart", this);
+        this.component.jq(tableSelector).hide();
+        this.component.jq(chartSelector).show();
         this.showing = "chart";
     }
 
     showTable() {
-        this.component.jq(`[data-role='chart']`).hide();
-        this.component.jq(`[data-role='table']`).show();
+        let tableSelector = edges.util.jsClassSelector(this.namespace, "table", this);
+        let chartSelector = edges.util.jsClassSelector(this.namespace, "chart", this);
+        this.component.jq(chartSelector).hide();
+        this.component.jq(tableSelector).show();
         this.showing = "table";
     }
 }

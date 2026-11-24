@@ -33,10 +33,8 @@ edges.instances.activities.init = function () {
 
             // facets
             mex.activityTypeFacet(),
-            mex.startChart(),
-            mex.startFacet(),
-            mex.endChart(),
-            mex.endFacet(),
+            mex.startCompoundControl(),
+            mex.endCompoundControl(),
             mex.funderOrCommissionerFacet(),
             mex.themeFacet(),
 

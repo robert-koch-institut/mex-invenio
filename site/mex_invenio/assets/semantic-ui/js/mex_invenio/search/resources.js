@@ -37,17 +37,7 @@ edges.instances.resources.init = function() {
 
             // facets
             mex.accessRestrictionFacet(),
-
-            mex.compoundComponent({
-                id: "created_compound",
-                title: i18n.t("Created"),
-                components: [
-                    mex.createdHistogram(),
-                    mex.createdChart(),
-                    mex.createdFacet()
-                ]
-            }),
-
+            mex.createdCompoundControl(),
             mex.hasPersonalDataFacet(),
             mex.keywordFacet(),
             mex.resourceCreationMethodFacet(),

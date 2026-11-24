@@ -134,7 +134,10 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         $es.html(yearOptions);
 
         $ss.val(this.startDate.getUTCFullYear());
-        $es.val(this.endDate.getUTCFullYear());
+
+        // just in case this is a start of the year date
+        const oneSecondEarlier = new Date(this.endDate.getTime() - 1000);
+        $es.val(oneSecondEarlier.getUTCFullYear());
     }
 
     _toStartDate(year) {
@@ -270,6 +273,12 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
         }
 
         if (fr) {
+            // annoying hack because the component isn't consistent
+            if (typeof fr === "string") {
+                if (!(fr.includes("-"))) {
+                    fr = new Date(parseInt(fr))
+                }
+            }
             fr = new Date(fr)
             // if from lies before the min date, extend the min range
             if (fr < this.minDate) {
@@ -282,6 +291,12 @@ mex.renderers.DualEntryDateRangeSelector = class extends edges.Renderer {
             this.startDate = fr;
         }
         if (to) {
+            // annoying hack because the component isn't consistent
+            if (typeof to === "string") {
+                if (!(to.includes("-"))) {
+                    to = new Date(parseInt(to))
+                }
+            }
             to = new Date(to)
             // if to lies before the min date, extend the min range
             if (to < this.minDate) {
