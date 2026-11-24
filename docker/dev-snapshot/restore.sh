@@ -5,7 +5,7 @@
 #     --> alembic upgrade --> reindex --> local admin user
 #
 # Run from anywhere in the repository, with the docker-compose services up
-# (docker compose up -d). This DROPS the local mex-invenio database and search
+# (invenio-cli services start). This DROPS the local mex-invenio database and search
 # indices. Snapshots are pseudonymised (see README.md) but still internal data.
 #
 # S3 settings are read from the environment, or from .env.snapshot in the
@@ -67,7 +67,7 @@ dc() { docker compose "$@"; }
 
 for service in db cache mq search; do
     [[ -n "$(dc ps -q --status running "$service")" ]] \
-        || die "docker compose service '$service' is not running (docker compose up -d)"
+        || die "docker compose service '$service' is not running (invenio-cli services start)"
 done
 
 # --- fetch the snapshot ---------------------------------------------------------
