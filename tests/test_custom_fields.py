@@ -9,7 +9,7 @@ def test_custom_fields_configured(app_config):
     assert len(app_config["RDM_NAMESPACES"].keys()) == 1
     assert len(app_config["RDM_CUSTOM_FIELDS"]) > 0
     # mex:provenance and mex:hasPurpose are not shown in the UI
-    # mex:supersededby added but not to the UI yet
+    # mex:supersededBy added but not to the UI yet
     assert (
         len(app_config["RDM_CUSTOM_FIELDS_UI"][0]["fields"])
         == len(app_config["RDM_CUSTOM_FIELDS"]) - 3
