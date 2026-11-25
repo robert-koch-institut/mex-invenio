@@ -100,12 +100,13 @@ local `mex-invenio` database and all search indices.
    S3_ACCESS_KEY_ID=...
    S3_SECRET_ACCESS_KEY=...
    ```
-2. Start the services with `docker compose up -d`. The `db` service must run PostgreSQL 17
-   like staging, because older `pg_restore` versions can't read the snapshot. If yours was
-   created with an older version, recreate it once (this deletes your local database):
+2. Start the services with `invenio-cli services start`. The `db` service must run
+   PostgreSQL 17 like staging, because older `pg_restore` versions can't read the snapshot.
+   If yours was created with an older version, recreate the services once. This deletes
+   your local database and the data of all other services:
    ```bash
-   docker compose rm --stop --force --volumes db
-   docker compose up -d db
+   invenio-cli services destroy
+   invenio-cli services start
    ```
 3. Run `docker/dev-snapshot/restore.sh`.
 
@@ -122,6 +123,13 @@ Set `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD` to choose the admin's login.
 Otherwise it is `admin@example.org` with a generated password, printed at the end.
 Use `--file path/to/mex.dump` to restore a dump you already have; a `manifest.json`
 next to it is checked if present. Use `--yes` to skip the confirmation.
+
+The `db` service keeps its data in an anonymous volume, which only lasts as long as the
+container. Use `invenio-cli services stop` and `invenio-cli services start` to keep the
+restored database. `invenio-cli services destroy` or `docker compose down` removes the
+container, so the next start begins with an empty database, and `docker volume prune`
+deletes the old volume. Run `restore.sh` again afterwards; it reuses the downloaded
+snapshot.
 
 To try a snapshot without touching your own data, use `--target <name>`. The snapshot
 then goes into a separate database `<name>` with search indices prefixed `<name>-`, and
