@@ -12,8 +12,9 @@ from invenio_search import current_search_client
 from invenio_search.utils import build_alias_name
 
 from mex_invenio.records.api import MexRDMRecord
-from tests.data import org_unit_data, resource_data
+from tests.data import org_unit_data, resource_data, resource_series_data
 
+SERIES_ID = resource_series_data["identifier"]
 ORG_UNIT_ID = org_unit_data["identifier"]
 PARENT_UNIT_ID = org_unit_data["parentUnit"]
 RESOURCE_ID = resource_data["identifier"]
@@ -77,6 +78,18 @@ def test_backlink_added_to_existing_target(
     assert _backlinks(_linked_records(PARENT_RESOURCE_ID), "mex:isPartOf") == {
         RESOURCE_ID
     }
+
+
+def test_resource_listed_in_its_series(
+    db, location, resource_type_v, contributors_role_v, import_file
+):
+    """A resource is listed in the backlinks of the series it names in inSeries."""
+    import_file("resource-series", resource_series_data)
+    assert _backlinks(_linked_records(SERIES_ID), "mex:inSeries") == set()
+
+    import_file("resource", {**resource_data, "inSeries": [SERIES_ID]})
+
+    assert _backlinks(_linked_records(SERIES_ID), "mex:inSeries") == {RESOURCE_ID}
 
 
 def test_title_shown_when_target_created_later(
