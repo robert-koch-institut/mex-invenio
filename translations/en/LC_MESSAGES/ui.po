@@ -620,3 +620,23 @@ msgstr "Size"
 #: site/mex_invenio/templates/semantic-ui/mex_invenio/downloads.html:30
 msgid "downloadableFilesEmpty"
 msgstr "No downloadable files are currently available."
+
+#: app_data/pages.yaml
+msgid "aboutPageTitle"
+msgstr "About MEx"
+
+#: app_data/pages.yaml
+msgid "contactPageTitle"
+msgstr "Contact"
+
+#: app_data/pages.yaml
+msgid "dataPrivacyPageTitle"
+msgstr "Privacy Policy for the Use of the MEx Metadata Catalogue"
+
+#: app_data/pages.yaml
+msgid "accessibilityPageTitle"
+msgstr "Accessibility"
+
+#: app_data/pages.yaml
+msgid "imprintPageTitle"
+msgstr "Imprint"

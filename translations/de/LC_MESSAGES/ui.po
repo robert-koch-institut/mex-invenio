@@ -723,3 +723,23 @@ msgstr "Teil von"
 
 msgid "includes"
 msgstr "Enthält"
+
+#: app_data/pages.yaml
+msgid "aboutPageTitle"
+msgstr "Über MEx"
+
+#: app_data/pages.yaml
+msgid "contactPageTitle"
+msgstr "Kontakt"
+
+#: app_data/pages.yaml
+msgid "dataPrivacyPageTitle"
+msgstr "Datenschutzerklärung für die Nutzung des MEx-Metadatenkatalogs"
+
+#: app_data/pages.yaml
+msgid "accessibilityPageTitle"
+msgstr "Barrierefreiheit"
+
+#: app_data/pages.yaml
+msgid "imprintPageTitle"
+msgstr "Impressum"
