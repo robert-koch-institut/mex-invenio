@@ -80,6 +80,14 @@ under the terms of the MIT License; see LICENSE file for more details.
                                     </a>
                                 </div>
                                 {% endfor %}
+                                <div class="item" style="margin-left: auto;">
+                                    <a href="/downloads/{{current_i18n.language}}">
+                                        <img class="ui image icon--text"
+                                             src="{{ url_for('static', filename='icons/download.svg') }}"
+                                             style="height: 1rem; margin-bottom: .125rem"
+                                             role="presentation"/> {{ _("downloadableFilesTitle") }}
+                                    </a>
+                                </div>
                             {%- endblock navbar_nav %}
                         </nav>
                     </nav>

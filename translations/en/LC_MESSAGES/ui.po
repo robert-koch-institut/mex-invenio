@@ -550,7 +550,7 @@ msgid "viewAllVersionsEnd"
 msgstr "versions"
 
 msgid "belongsTo"
-msgstr "Belongs to"
+msgstr "Associated variable group"
 
 msgid "noValueProvided"
 msgstr "Not provided"
