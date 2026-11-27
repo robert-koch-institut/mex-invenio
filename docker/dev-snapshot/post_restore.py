@@ -23,6 +23,15 @@ with app.app_context():
         # read the same queues but do not resolve these services' record classes.
         for attr in ("indexer", "draft_indexer"):
             indexer = getattr(service, attr, None)
-            if indexer is not None:
-                indexed, failed = indexer.process_bulk_queue()
-                print(f"{name} ({attr}): {indexed} indexed, {failed} failed")
+            if indexer is None:
+                continue
+            # Each call consumes at most `_bulk_index_max_items` (10000) messages,
+            # so keep going until the queue is empty.
+            indexed = failed = 0
+            while True:
+                batch_indexed, batch_failed = indexer.process_bulk_queue()
+                if not batch_indexed and not batch_failed:
+                    break
+                indexed += batch_indexed
+                failed += batch_failed
+            print(f"{name} ({attr}): {indexed} indexed, {failed} failed")
