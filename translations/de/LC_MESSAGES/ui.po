@@ -723,3 +723,6 @@ msgstr "Teil von"
 
 msgid "includes"
 msgstr "Enthält"
+
+msgid "belongsTo"
+msgstr "Zugehörige Variablengruppen"
